@@ -133,23 +133,22 @@ export class PaneMoveService {
     targetDock: string,
     applyToTarget: (tree: PaneNode) => PaneNode,
   ): void {
+    const emptied = this.removeSourceTab(
+      this.paneTree.tree(source.dock),
+      source,
+      tab,
+    );
     if (source.dock === targetDock) {
-      this.commitSource(
+      this.paneTree.commit(
         source.dock,
-        applyToTarget(
-          this.removeSourceTab(this.paneTree.tree(source.dock), source, tab),
-        ),
+        this.settledSource(source.dock, applyToTarget(emptied)),
       );
       return;
     }
-    this.commitSource(
-      source.dock,
-      this.removeSourceTab(this.paneTree.tree(source.dock), source, tab),
-    );
-    this.paneTree.commit(
-      targetDock,
-      applyToTarget(this.paneTree.tree(targetDock)),
-    );
+    this.paneTree.commitTogether({
+      [source.dock]: this.settledSource(source.dock, emptied),
+      [targetDock]: applyToTarget(this.paneTree.tree(targetDock)),
+    });
   }
 
   private resolveTab(source: PaneRef, rawPath: string): PaneTab | undefined {
@@ -210,13 +209,10 @@ export class PaneMoveService {
     );
   }
 
-  private commitSource(dock: string, node: PaneNode): void {
-    this.paneTree.commit(
-      dock,
-      isContainerDock(dock)
-        ? withoutEmptyPrimary(node, this.paneTree.primaryId(dock))
-        : node,
-    );
+  private settledSource(dock: string, node: PaneNode): PaneNode {
+    return isContainerDock(dock)
+      ? withoutEmptyPrimary(node, this.paneTree.primaryId(dock))
+      : node;
   }
 
   private urlFollowup(source: PaneRef, tab: PaneTab): string | null {

@@ -1,4 +1,4 @@
-import { EmbeddedViewRef, TemplateRef, Type } from '@angular/core';
+import { EmbeddedViewRef, Injector, TemplateRef, Type } from '@angular/core';
 import { SurfaceRetentionMode } from './retention-policy';
 import { SurfaceHoldState } from './surface-hold';
 
@@ -8,6 +8,7 @@ export interface RetainedViewHandle {
   readonly view: EmbeddedViewRef<unknown>;
   readonly instance?: unknown;
   readonly hold?: SurfaceHoldState | null;
+  readonly injector?: Injector;
 }
 
 export interface RetainedSlot {

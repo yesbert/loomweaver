@@ -1,4 +1,10 @@
+import {
+  Addressable,
+  normalizePath,
+  tabRootOf,
+} from '../../content/content-path';
 import { containerDockFor } from '../container/container-children';
+import { isViewPanePath } from '../tree/pane-address';
 
 const PRIMARY_PREFIX = 'primary:';
 const PANE_SEPARATOR = ':';
@@ -55,6 +61,18 @@ export function isKeyForSurface(
 ): boolean {
   const exact = surfaceRetentionKey(scope, path);
   return key === exact || key.startsWith(`${exact}${PART_SEPARATOR}`);
+}
+
+export function retainedAddressesOf(
+  routes: readonly Addressable[],
+  path: string,
+): string[] {
+  if (isViewPanePath(path)) {
+    return [path];
+  }
+  const normalized = normalizePath(path);
+  const root = tabRootOf(routes, normalized);
+  return root === normalized ? [normalized] : [normalized, root];
 }
 
 export function containerChildInstances(

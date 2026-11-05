@@ -4,16 +4,14 @@ import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { tabRootOf } from '../../content/content-path';
-import { PaneNode } from '../tree/pane-node';
-import { leavesOf } from '../tree/pane-queries';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { RetainedViewStash } from './retained-view-stash';
+import { openPathsByScope } from './tree-retention';
 import { resolvableSurfacePath } from './retention-policy';
 import { instanceDirty } from '../unsaved-work/dirty-surface';
 import { SaveOnHide } from '../unsaved-work/save-on-hide';
 import {
   isPrimaryRetentionKey,
-  paneRetentionScope,
   pathOfRetentionKey,
   scopeOfRetentionKey,
 } from './retention-keys';
@@ -141,21 +139,4 @@ function tabOpen(
     paths.has(path) ||
     [...paths].some((open) => tabRootOf(routes, open) === path)
   );
-}
-
-function openPathsByScope(
-  trees: Record<string, PaneNode>,
-): Map<string, Set<string>> {
-  const open = new Map<string, Set<string>>();
-  for (const [dock, tree] of Object.entries(trees)) {
-    for (const leaf of leavesOf(tree)) {
-      const scope = paneRetentionScope(dock, leaf.id);
-      const paths = open.get(scope) ?? new Set<string>();
-      for (const tab of leaf.tabs) {
-        paths.add(tab.path);
-      }
-      open.set(scope, paths);
-    }
-  }
-  return open;
 }

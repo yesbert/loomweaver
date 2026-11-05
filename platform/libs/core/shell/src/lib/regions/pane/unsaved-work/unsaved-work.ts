@@ -1,13 +1,12 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
-import { normalizePath, tabRootOf } from '../../content/content-path';
-import { isViewPanePath } from '../tree/pane-address';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import { instanceDirty } from './dirty-surface';
 import {
   containerChildInstances,
   pathOfRetentionKey,
+  retainedAddressesOf,
 } from '../retention/retention-keys';
 
 @Service()
@@ -73,11 +72,6 @@ export class UnsavedWork {
   }
 
   private addressesOf(path: string): string[] {
-    if (isViewPanePath(path)) {
-      return [path];
-    }
-    const normalized = normalizePath(path);
-    const root = tabRootOf(this.registry.contentRoutes(), normalized);
-    return root === normalized ? [normalized] : [normalized, root];
+    return retainedAddressesOf(this.registry.contentRoutes(), path);
   }
 }

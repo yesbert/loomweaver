@@ -123,6 +123,20 @@ export function pinTab(
   });
 }
 
+export function bringTabToFront(
+  node: PaneNode,
+  paneId: string,
+  tabPath: string,
+): PaneNode {
+  return transformLeaf(node, paneId, (leaf) => {
+    const index = leaf.tabs.findIndex((tab) => tab.path === tabPath);
+    if (index === -1 || leaf.tabs[index].pinned === true) {
+      return leaf;
+    }
+    return { ...leaf, tabs: reseatPinned(leaf.tabs, index, leaf.tabs[index]) };
+  });
+}
+
 export function unpinTab(
   node: PaneNode,
   paneId: string,

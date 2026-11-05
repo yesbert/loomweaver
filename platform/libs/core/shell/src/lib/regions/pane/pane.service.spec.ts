@@ -12,6 +12,7 @@ import { PaneService } from './pane.service';
 import { CONTENT_DOCK, PRIMARY_PANE } from './tree/pane-address';
 import { PaneTreeService } from './tree/pane-tree.service';
 import { RetainedViewStash } from './retention/retained-view-stash';
+import { PaneTab } from './tree/pane-node';
 import { findLeaf } from './tree/pane-queries';
 
 @Component({ selector: 'lw-pane-service-stub', template: '' })
@@ -306,6 +307,54 @@ describe('PaneService actions', () => {
     expect(tabPaths(paneTree)).toEqual(['search', 'dashboard/overview']);
   });
 
+  it('closing a sibling asks about the view it shows, whatever routes are registered', () => {
+    const { panes, paneTree, guard } = setUp();
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: '',
+      component: Stub,
+    });
+    const stash = TestBed.inject(RetainedViewStash);
+    vi.spyOn(stash, 'instancesFor').mockImplementation((_scope, path) => [
+      `instance of ${path}`,
+    ]);
+    paneTree.commit(CONTENT_DOCK, splitWithSibling([{ path: 'view:notes' }]));
+
+    panes.closePane('other' as PaneHandle);
+
+    expect(guard.captured.at(-1)).toEqual(['instance of view:notes']);
+  });
+
+  it('closing a sibling asks about the children of a container it shows below its address', () => {
+    const { panes, paneTree, guard } = setUp();
+    const child = { name: 'container child' };
+    const stash = TestBed.inject(RetainedViewStash);
+    vi.spyOn(stash, 'keyedInstances').mockReturnValue([
+      { key: 'container@doc/7:main|view:outline|', instance: child },
+    ]);
+    paneTree.commit(CONTENT_DOCK, splitWithSibling([{ path: 'doc/7/notes' }]));
+
+    panes.closePane('other' as PaneHandle);
+
+    expect(guard.captured.at(-1)).toEqual([child]);
+  });
+
+  it('undoing a split asks about the views the other panes show', () => {
+    const { panes, paneTree, guard } = setUp();
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: '',
+      component: Stub,
+    });
+    const stash = TestBed.inject(RetainedViewStash);
+    vi.spyOn(stash, 'instancesFor').mockImplementation((_scope, path) => [
+      `instance of ${path}`,
+    ]);
+    paneTree.commit(CONTENT_DOCK, splitWithSibling([{ path: 'view:notes' }]));
+
+    panes.unsplit();
+
+    expect(guard.captured.at(-1)).toEqual(['instance of view:notes']);
+  });
+
   it('closing the pane that fills the area ends the blow-up', () => {
     const { panes } = setUp();
     panes.splitRight();
@@ -427,7 +476,12 @@ describe('PaneService and the rules of the surface', () => {
   });
 });
 
-function splitWithSibling() {
+function splitWithSibling(
+  tabs: readonly PaneTab[] = [
+    { path: 'dashboard/overview', closable: false },
+    { path: 'doc/ordinary' },
+  ],
+) {
   return {
     kind: 'split' as const,
     id: 'root',
@@ -442,11 +496,8 @@ function splitWithSibling() {
     second: {
       kind: 'leaf' as const,
       id: 'other',
-      tabs: [
-        { path: 'dashboard/overview', closable: false },
-        { path: 'doc/ordinary' },
-      ],
-      active: 'doc/ordinary',
+      tabs,
+      active: tabs.at(-1)?.path,
     },
   };
 }

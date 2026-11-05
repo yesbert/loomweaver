@@ -1,17 +1,12 @@
 import { inject, Service } from '@angular/core';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
-import { tabRootOf } from '../content/content-path';
-import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PaneChromeService } from './chrome/pane-chrome.service';
 import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';
+import { UnsavedWork } from './unsaved-work/unsaved-work';
 import { PaneAdmission } from '../content/pane-admission';
 import { PaneMoveService } from './drag/pane-move.service';
-import {
-  containerChildInstances,
-  paneRetentionScope,
-} from './retention/retention-keys';
-import { RetainedViewStash } from './retention/retained-view-stash';
+import { paneRetentionScope } from './retention/retention-keys';
 import { isContentSideDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
 import { CONTENT_DOCK, isSamePane } from './tree/pane-address';
@@ -28,10 +23,9 @@ export class PaneActions {
   private readonly moves = inject(PaneMoveService);
   private readonly tabs = inject(ContentTabsService);
   private readonly closeGuard = inject(SurfaceCloseGuard);
-  private readonly stash = inject(RetainedViewStash);
+  private readonly unsavedWork = inject(UnsavedWork);
   private readonly admission = inject(PaneAdmission);
   private readonly features = inject(FeatureSwitches).content;
-  private readonly registry = inject(ContributionRegistry);
   private readonly leftOut = inject(LeftOutChildren);
 
   split(dock: string, paneId: string, orientation: 'row' | 'column'): void {
@@ -163,15 +157,7 @@ export class PaneActions {
   ): unknown[] {
     const scope = paneRetentionScope(dock, leaf.id);
     return leaf.tabs.flatMap((tab) =>
-      keeps(tab)
-        ? []
-        : [
-            ...this.stash.instancesFor(
-              scope,
-              tabRootOf(this.registry.contentRoutes(), tab.path),
-            ),
-            ...containerChildInstances(this.stash.keyedInstances(), tab.path),
-          ],
+      keeps(tab) ? [] : this.unsavedWork.instancesAt(scope, tab.path),
     );
   }
 }

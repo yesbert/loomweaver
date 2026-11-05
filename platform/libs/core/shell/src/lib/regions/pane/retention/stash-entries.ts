@@ -1,4 +1,4 @@
-import { EmbeddedViewRef } from '@angular/core';
+import { EmbeddedViewRef, Injector } from '@angular/core';
 import { SurfaceRetentionMode } from './retention-policy';
 import { ParkedEntry, RetainedViewSource } from './retained-view-model';
 import { SurfaceHoldState } from './surface-hold';
@@ -12,6 +12,7 @@ export interface StashEntry {
   readonly source: RetainedViewSource;
   readonly view: EmbeddedViewRef<unknown>;
   readonly instance?: unknown;
+  readonly injector: Injector | null;
   readonly tracked: boolean;
   readonly hold: SurfaceHoldState | null;
   workspace: string;
@@ -88,6 +89,30 @@ export function adoptHeld(
   holder.key = key;
   entries.set(key, holder);
   return holder;
+}
+
+export function rekeyEntries(
+  entries: Map<string, StashEntry>,
+  workspaceId: string,
+  rename: (key: string) => string,
+): StashEntry[] {
+  const moved: StashEntry[] = [];
+  const snapshot = [...entries.values()];
+  for (const entry of snapshot) {
+    const key = rename(entry.key);
+    if (
+      entry.workspace !== workspaceId ||
+      key === entry.key ||
+      entries.has(key)
+    ) {
+      continue;
+    }
+    entries.delete(entry.key);
+    entry.key = key;
+    entries.set(key, entry);
+    moved.push(entry);
+  }
+  return moved;
 }
 
 export function parkedEntriesOf(entries: Iterable<StashEntry>): ParkedEntry[] {

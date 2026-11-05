@@ -9,6 +9,7 @@ import {
   normalizeDockEntry,
   withoutBorrowedLabels,
 } from './stored-pane-tree';
+import { PRIMARY_PANE } from './pane-address';
 import { PaneNode } from './pane-node';
 import { tabPathsWhere } from './pane-queries';
 import { isAtOrBelow } from '../../content/content-path';
@@ -22,7 +23,13 @@ export const PANE_TREES_KEY = 'lw.shell.pane-trees';
 const HYDRATION_RETRY_MS = 500;
 
 export function isDefault(entry: DockEntry): boolean {
-  return entry.node.kind === 'leaf' && entry.node.tabs.length === 0;
+  const node = entry.node;
+  return (
+    node.kind === 'leaf' &&
+    node.id === PRIMARY_PANE &&
+    node.tabs.length === 0 &&
+    !node.declared
+  );
 }
 
 export function parseDocks(raw: string | undefined): Record<string, DockEntry> {

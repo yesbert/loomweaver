@@ -40,15 +40,15 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 2. Unsaved work and panes
 
-- [ ] 2.1 Closing a pane or undoing a split asks about unsaved work in view tabs and container children too: one lookup, the one closing a tab uses (`regions/pane/pane-actions.service.ts`, `pane.service.spec.ts` with a home route)
-- [ ] 2.2 A tab that changes panes keeps its unsaved work: drag, split, `moveTab`, hand-over on pane close (`regions/pane/retention/parked-view-sweep.ts`, `drag/pane-move.service.ts`, `tree/pane-handover.ts`)
-- [ ] 2.3 Every pane's strip offers the listing control for tabs that do not fit (`regions/pane/pane-view.html`)
-- [ ] 2.4 Only the untouched primary pane counts as the default arrangement; an area declared empty stays (`regions/pane/tree/pane-tree-storage.ts`)
-- [ ] 2.5 Minimised and maximised state does not carry over to another workspace (`regions/pane/chrome/pane-chrome.service.ts`)
-- [ ] 2.6 Tabs handed over on unsplit are not duplicated within the handed list (`regions/pane/tree/pane-handover.ts`)
-- [ ] 2.7 A close refusal that answers neither yes, no nor a promise counts as consent (`regions/pane/unsaved-work/surface-close-guard.ts`)
-- [ ] 2.8 Closing the address pane promotes the pane that takes its space (`regions/pane/tree/pane-handover.ts`)
-- [ ] 2.9 Lead: minimising or maximising a pane does not reload a retained isolated surface (`regions/pane/chrome/`)
+- [x] 2.1 Closing a pane or undoing a split asks about unsaved work in view tabs and container children too: one lookup, the one closing a tab uses (`regions/pane/pane-actions.service.ts`, `pane.service.spec.ts` with a home route)
+- [x] 2.2 A tab that changes panes keeps its unsaved work: drag, split, `moveTab`, hand-over on pane close (`regions/pane/retention/parked-view-sweep.ts`, `drag/pane-move.service.ts`, `tree/pane-handover.ts`)
+- [x] 2.3 Every pane's strip offers the listing control for tabs that do not fit (`regions/pane/pane-view.html`)
+- [x] 2.4 Only the untouched primary pane counts as the default arrangement; an area declared empty stays (`regions/pane/tree/pane-tree-storage.ts`)
+- [x] 2.5 Minimised and maximised state does not carry over to another workspace (`regions/pane/chrome/pane-chrome.service.ts`)
+- [x] 2.6 Tabs handed over on unsplit are not duplicated within the handed list (`regions/pane/tree/pane-handover.ts`)
+- [x] 2.7 A close refusal that answers neither yes, no nor a promise counts as consent (`regions/pane/unsaved-work/surface-close-guard.ts`)
+- [x] 2.8 Closing the address pane promotes the pane that takes its space (`regions/pane/tree/pane-handover.ts`)
+- [x] 2.9 Lead: minimising or maximising a pane does not reload a retained isolated surface (`regions/pane/chrome/`)
 
 ## 3. Addresses and tabs
 

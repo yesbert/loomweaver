@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterOutlet, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
@@ -15,6 +15,7 @@ import { SURFACE_OWNER_MARK } from '../../../contributions/toolbar-registry';
 import { hostablePaneTargets, navigablePaneTargets } from '../pane-targets';
 import { liveSurfaceRoute } from './live-surface-route';
 import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
+import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
 
 const paneAt = (route: ContentRoute, path: string) =>
   liveSurfaceRoute(route as RegisteredContentRoute, {
@@ -513,5 +514,60 @@ describe('SurfaceBody releasing what it no longer shows', () => {
     await visit(['doc/a', 'doc/b', 'doc/c', 'doc/a'], 'always');
 
     expect(probedRoutes).toHaveLength(3);
+  });
+});
+
+describe('SurfaceBody showing a surface that was built elsewhere', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      ...DOC_ROUTE,
+      component: SubView,
+      retain: 'always',
+    });
+  });
+
+  async function shown(scope: string, path: string) {
+    const fixture = TestBed.createComponent(SurfaceBody);
+    fixture.componentRef.setInput('retentionScope', scope);
+    await showing(fixture, path);
+    return fixture;
+  }
+
+  async function showing(fixture: ComponentFixture<SurfaceBody>, path: string) {
+    fixture.componentRef.setInput('path', path);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  function subOf(fixture: ComponentFixture<SurfaceBody>): Element | null {
+    return fixture.nativeElement.querySelector('[data-testid="sub"]');
+  }
+
+  it('a surface carried here from another pane goes on hearing its address', async () => {
+    const fixture = await shown('content:a', 'doc/main/code');
+    const built = subOf(fixture);
+
+    TestBed.inject(RetainedViewStash).rekey((key) =>
+      key.replace('content:a|', 'content:b|'),
+    );
+    fixture.componentRef.setInput('retentionScope', 'content:b');
+    await showing(fixture, 'doc/main/preview');
+
+    expect(subOf(fixture)).toBe(built);
+    expect(subOf(fixture)?.textContent).toBe('preview');
+  });
+
+  it('a kept surface taken over from the pane view that built it goes on hearing its address', async () => {
+    const first = await shown('content:a', 'doc/main/code');
+    const built = subOf(first);
+    first.destroy();
+
+    const second = await shown('content:a', 'doc/main/code');
+    await showing(second, 'doc/main/preview');
+
+    expect(subOf(second)).toBe(built);
+    expect(subOf(second)?.textContent).toBe('preview');
   });
 });

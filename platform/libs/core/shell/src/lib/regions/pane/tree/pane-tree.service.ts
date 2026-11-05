@@ -1,5 +1,6 @@
 import { inject, Service, signal } from '@angular/core';
 import { RetainedViewStash } from '../retention/retained-view-stash';
+import { TreeRetention } from '../retention/tree-retention';
 import {
   CONTENT_DOCK,
   isViewPanePath,
@@ -15,30 +16,20 @@ import {
   isDisposableLeaf,
   leafPath,
 } from './pane-node';
-import {
-  collectLeafIds,
-  findLeaf,
-  landingLeaf,
-  leavesOf,
-  tabHolderOf,
-} from './pane-queries';
+import { findLeaf, landingLeaf, leavesOf, tabHolderOf } from './pane-queries';
 import {
   TabKeep,
+  adjacentLeafOf,
   closedWithHandover,
-  collapsedWithHandover,
   keepsNothing,
   unsplitWithHandover,
 } from './pane-handover';
 import { clampRatio, withRatio } from './pane-ratio';
 import { DockEntry, healedPrimary } from './stored-pane-tree';
 import { PaneTreeStorage, isDefault } from './pane-tree-storage';
+import { dethroneLeaf, pruneEmptyLeaves, splitLeaf } from './pane-structure';
 import {
-  dethroneLeaf,
-  pruneEmptyLeaves,
-  removeLeaf,
-  splitLeaf,
-} from './pane-structure';
-import {
+  bringTabToFront,
   clearTabInstance,
   insertTab,
   keepTab,
@@ -51,16 +42,19 @@ import {
   unpinTab,
 } from './pane-tabs';
 import { isContainerDock } from '../container/container-children';
-import { isKeyOfDock, isKeyOfPane } from '../retention/retention-keys';
+import { isKeyOfDock } from '../retention/retention-keys';
 
 @Service()
 export class PaneTreeService {
   private readonly storage = inject(PaneTreeStorage);
   private readonly stash = inject(RetainedViewStash);
+  private readonly retention = inject(TreeRetention);
 
   private readonly docks = signal<Record<string, DockEntry>>(
     this.storage.peek(),
   );
+  private readonly replacements = signal(0);
+  readonly arrangement = this.replacements.asReadonly();
   readonly hydrated = this.storage.hydrated;
   readonly arrangementSettled = this.storage.arrangementSettled;
 
@@ -175,8 +169,17 @@ export class PaneTreeService {
   }
 
   commit(dock: string, next: PaneNode, primary?: string): void {
+    const before = this.dockTrees();
     this.update(dock, next, primary);
-    this.persist();
+    this.settle(before);
+  }
+
+  commitTogether(edits: Readonly<Record<string, PaneNode>>): void {
+    const before = this.dockTrees();
+    for (const [dock, next] of Object.entries(edits)) {
+      this.update(dock, next);
+    }
+    this.settle(before);
   }
 
   setActiveTab(dock: string, paneId: string, tabPath: string): void {
@@ -233,9 +236,7 @@ export class PaneTreeService {
       tabs: leaf.tabs.filter((tab) => tab.path !== tabPath),
     };
     if (emptied && isDisposableLeaf(emptied, [])) {
-      if (tree.kind === 'split') {
-        this.commit(dock, removeLeaf(tree, primary) ?? PRIMARY_LEAF);
-      }
+      this.collapsePrimary(dock);
       return;
     }
     this.commit(
@@ -256,16 +257,18 @@ export class PaneTreeService {
     this.commit(dock, pinTab(this.tree(dock), paneId, tabPath));
   }
 
+  bringTabToFront(dock: string, paneId: string, tabPath: string): void {
+    this.commit(dock, bringTabToFront(this.tree(dock), paneId, tabPath));
+  }
+
   collapsePrimary(dock: string, keeps: TabKeep = keepsNothing): string | null {
-    const collapsed = collapsedWithHandover(
-      this.tree(dock),
-      this.primaryId(dock),
-      keeps,
-    );
+    const tree = this.tree(dock);
+    const closing = this.primaryId(dock);
+    const collapsed = closedWithHandover(tree, closing, keeps);
     if (collapsed === null) {
       return null;
     }
-    this.commit(dock, collapsed);
+    this.commit(dock, collapsed, adjacentLeafOf(tree, closing) ?? undefined);
     const promoted = findLeaf(collapsed, this.primaryId(dock));
     return promoted ? (activeTab(promoted)?.path ?? '') : '';
   }
@@ -321,9 +324,14 @@ export class PaneTreeService {
     const next = this.storage.parsed(raw);
     for (const dock of Object.keys(this.docks())) {
       this.stash.evacuate((key) => isKeyOfDock(key, dock));
-      this.evacuateRemovedPanes(dock, next[dock]?.node ?? PRIMARY_LEAF);
+      this.retention.evacuateRemovedPanes(
+        dock,
+        this.docks()[dock]?.node,
+        next[dock]?.node ?? PRIMARY_LEAF,
+      );
     }
     this.docks.set(next);
+    this.replacements.update((count) => count + 1);
     this.persist();
   }
 
@@ -349,7 +357,7 @@ export class PaneTreeService {
   }
 
   private update(dock: string, next: PaneNode, primary?: string): void {
-    this.evacuateRemovedPanes(dock, next);
+    this.retention.evacuateRemovedPanes(dock, this.docks()[dock]?.node, next);
     this.docks.update((docks) => {
       const updated = { ...docks };
       const entry: DockEntry = {
@@ -365,17 +373,9 @@ export class PaneTreeService {
     });
   }
 
-  private evacuateRemovedPanes(dock: string, next: PaneNode): void {
-    const current = this.docks()[dock]?.node;
-    if (!current) {
-      return;
-    }
-    const surviving = new Set(collectLeafIds(next));
-    for (const id of collectLeafIds(current)) {
-      if (!surviving.has(id)) {
-        this.stash.evacuate((key) => isKeyOfPane(key, dock, id));
-      }
-    }
+  private settle(before: Readonly<Record<string, PaneNode>>): void {
+    this.retention.carryMovedTabs(before, this.dockTrees());
+    this.persist();
   }
 
   private persist(): void {

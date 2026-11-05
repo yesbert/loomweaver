@@ -99,6 +99,7 @@ export class RetainedComponent implements OnChanges, OnDestroy {
           view: componentRef.hostView as EmbeddedViewRef<unknown>,
           instance: componentRef.instance,
           hold,
+          injector,
         };
       },
       { parent: this.anchor.parentNode, hold },

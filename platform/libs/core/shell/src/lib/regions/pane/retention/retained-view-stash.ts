@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   inject,
+  Injector,
   OnDestroy,
   Service,
   signal,
@@ -33,6 +34,7 @@ import {
   parkedEntriesOf,
   parkedInPlaceAt,
   parkedInstancesIn,
+  rekeyEntries,
   StashEntry,
 } from './stash-entries';
 import { SurfaceHoldState } from './surface-hold';
@@ -98,6 +100,10 @@ export class RetainedViewStash implements OnDestroy {
     return instancesAt(this.entries.values(), scope, path);
   }
 
+  injectorAt(key: string): Injector | null {
+    return this.entries.get(key)?.injector ?? null;
+  }
+
   evacuate(matches: (key: string) => boolean): void {
     if (!this.atomicMove) {
       return;
@@ -117,6 +123,18 @@ export class RetainedViewStash implements OnDestroy {
       moved = true;
     }
     if (moved) {
+      this.bump();
+    }
+  }
+
+  rekey(rename: (key: string) => string): void {
+    const moved = rekeyEntries(this.entries, this.workspace.id(), rename);
+    for (const entry of moved) {
+      if (this.atomicMove && entry.mode === 'in-place' && !isHeld(entry)) {
+        this.holdingArea.moveInto(liveRootNodes(entry));
+      }
+    }
+    if (moved.length > 0) {
       this.bump();
     }
   }
@@ -154,7 +172,6 @@ export class RetainedViewStash implements OnDestroy {
     token: object,
     attached: boolean,
   ): RetainedSlot {
-    const key = entry.key;
     const owns = () => entry.owner === token;
     return {
       attached,
@@ -162,7 +179,7 @@ export class RetainedViewStash implements OnDestroy {
         return liveRootNodes(entry);
       },
       stale: () =>
-        entry.tracked && (!owns() || this.entries.get(key) !== entry),
+        entry.tracked && (!owns() || this.entries.get(entry.key) !== entry),
       held: () => isHeld(entry),
       describe: (mode: SurfaceRetentionMode, retains: boolean) => {
         if (!owns()) {
@@ -220,13 +237,14 @@ export class RetainedViewStash implements OnDestroy {
     create: () => RetainedViewHandle,
   ): StashEntry {
     const occupied = this.entries.get(key)?.inUse === true;
-    const { view, instance, hold = null } = create();
+    const { view, instance, hold = null, injector = null } = create();
     this.appRef.attachView(view);
     const entry: StashEntry = {
       key,
       source,
       view,
       instance,
+      injector,
       tracked: !occupied,
       hold,
       workspace: this.workspace.id(),

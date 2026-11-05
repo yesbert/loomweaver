@@ -1,4 +1,4 @@
-import { EnvironmentInjector, Injector } from '@angular/core';
+import { EnvironmentInjector, InjectionToken, Injector } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts } from '@angular/router';
 import {
   RegisteredContentRoute,
@@ -12,15 +12,19 @@ import {
 } from './live-surface-route';
 
 export interface SurfaceMount {
+  readonly route: RegisteredContentRoute;
   readonly injector: Injector;
   readonly live: LiveSurfaceRoute;
 }
+
+const SURFACE_MOUNT = new InjectionToken<SurfaceMount>('SURFACE_MOUNT');
 
 export interface SurfaceMounts {
   mountFor(
     route: RegisteredContentRoute,
     key: string,
     address: SurfaceAddress,
+    built?: Injector | null,
   ): SurfaceMount;
   releaseUnless(kept: (key: string) => boolean): void;
 }
@@ -31,7 +35,11 @@ export function surfaceMounts(
 ): SurfaceMounts {
   const cache = new Map<RegisteredContentRoute, Map<string, SurfaceMount>>();
   return {
-    mountFor: (route, key, address) => {
+    mountFor: (route, key, address, built) => {
+      const carried = built?.get(SURFACE_MOUNT, null);
+      if (carried?.route === route) {
+        return carried;
+      }
       let byKey = cache.get(route);
       if (!byKey) {
         byKey = new Map();
@@ -65,10 +73,15 @@ function newMount(
   environmentInjector: EnvironmentInjector,
 ): SurfaceMount {
   const live = liveSurfaceRoute(route, address, key);
-  return {
+  const mount: SurfaceMount = {
+    route,
     live,
-    injector: routeInjector(parent, environmentInjector, live.route),
+    injector: Injector.create({
+      parent: routeInjector(parent, environmentInjector, live.route),
+      providers: [{ provide: SURFACE_MOUNT, useFactory: () => mount }],
+    }),
   };
+  return mount;
 }
 
 function routeInjector(

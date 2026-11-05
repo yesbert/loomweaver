@@ -15,6 +15,7 @@
     [contextMenuSlot]="tabContextMenu()"
     [viewContextMenuSlot]="viewContextMenu()"
     [contextGroup]="dock()"
+    [overflow]="true"
     [paneActions]="paneActions"
     [panelId]="panelId()"
     [surfaceActions]="options().surfaceActions"
@@ -24,6 +25,7 @@
     (unpinTab)="onUnpinTab($event)"
     (addTab)="openPicker($event)"
     (reorderTabs)="onReorderTabs($event)"
+    (revealRequest)="onRevealTab($event)"
   />
 }
 <ng-template #paneActions>
