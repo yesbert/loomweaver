@@ -19,6 +19,7 @@ import { CONTAINER_PANE_HOST } from '../../regions/pane/container/container-cont
 import { ContainerPaneHost } from '../../regions/pane/container/container-pane-host';
 import { collectLeafIds, collectTabs } from '../../regions/pane/tree/pane-queries';
 import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
+import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
 import { WORKING_STATE_STORE } from '../working-state-store';
 import { WORKSPACE_SETTLEMENT } from '../../regions/content/routing/workspace-settlement';
 import { WorkspaceService } from '../../workspace/workspace.service';
@@ -235,6 +236,31 @@ describe('a session that arrives after the workbench has already read', () => {
       'dashboard',
     ]);
     expect(storedArrangement()).toContain('dashboard');
+  });
+
+  it('keeps a setting the adopted namespace holds nothing for', async () => {
+    await open();
+    const enablement = TestBed.inject(PluginEnablementService);
+    enablement.setEnabled('acme.notes', false);
+
+    await signIn('ada');
+
+    expect(enablement.isEnabled('acme.notes')).toBe(false);
+  });
+
+  it('takes the setting stored for the person who signs in', async () => {
+    localStorage.setItem(
+      'lw.id.ada:lw.shell.disabled-plugins',
+      JSON.stringify(['acme.board']),
+    );
+    await open();
+    const enablement = TestBed.inject(PluginEnablementService);
+    enablement.setEnabled('acme.notes', false);
+
+    await signIn('ada');
+
+    expect(enablement.isEnabled('acme.notes')).toBe(true);
+    expect(enablement.isEnabled('acme.board')).toBe(false);
   });
 
   it('keeps a container arrangement the adopted namespace holds nothing for', async () => {

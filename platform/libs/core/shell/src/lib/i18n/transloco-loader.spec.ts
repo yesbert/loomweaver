@@ -94,6 +94,53 @@ describe('TranslocoHttpLoader', () => {
     warn.mockRestore();
   });
 
+  it('leaves the workbench its own group when a namespace is named like it, and says so once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { loader, http } = setup(['dialog', 'weaver']);
+    const load = (lang: string) => {
+      const result = loader.getTranslation(lang);
+      const promise = new Promise((r) =>
+        (result as { subscribe: (f: unknown) => void }).subscribe(r),
+      );
+      http.expectOne(`/i18n/${lang}.json`).flush({ dialog: { ok: 'OK' } });
+      http.expectOne(`/i18n/dialog/${lang}.json`).flush({ mine: 'Mine' });
+      http
+        .expectOne(`/i18n/weaver/${lang}.json`)
+        .flush({ nav: { title: 'Navigator' } });
+      return promise;
+    };
+
+    await expect(load('en')).resolves.toEqual({
+      dialog: { ok: 'OK' },
+      weaver: { nav: { title: 'Navigator' } },
+    });
+    await load('de');
+
+    expect(warn).toHaveBeenCalledExactlyOnceWith(
+      expect.stringContaining('"dialog"'),
+    );
+    http.verify();
+    warn.mockRestore();
+  });
+
+  it('leaves the workbench its own group when a namespace named like it fails to load', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { loader, http } = setup(['dialog']);
+    const result = loader.getTranslation('en');
+    const promise = new Promise((r) =>
+      (result as { subscribe: (f: unknown) => void }).subscribe(r),
+    );
+
+    http.expectOne('/i18n/en.json').flush({ dialog: { ok: 'OK' } });
+    http
+      .expectOne('/i18n/dialog/en.json')
+      .flush('not found', { status: 404, statusText: 'Not Found' });
+
+    await expect(promise).resolves.toEqual({ dialog: { ok: 'OK' } });
+    http.verify();
+    warn.mockRestore();
+  });
+
   it('exposes the registered namespaces via the token', () => {
     setup(['weaver', 'product']);
     expect(TestBed.inject(TRANSLATION_NAMESPACES)).toEqual(['weaver', 'product']);

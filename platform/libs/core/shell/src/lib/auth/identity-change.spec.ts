@@ -99,6 +99,29 @@ describe('IdentityChangeReload', () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
+  it('does not reload on the first sign-in from an empty subject', () => {
+    const { snapshot, reload } = setup(principal(''));
+    snapshot.set(principal('ada'));
+    TestBed.tick();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('does not reload on a sign-out to an empty subject', () => {
+    const { snapshot, reload } = setup(principal('ada'));
+    snapshot.set(principal(''));
+    TestBed.tick();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('reloads when a different subject signs in after a sign-out to an empty subject', () => {
+    const { snapshot, reload } = setup(principal('ada'));
+    snapshot.set(principal(''));
+    TestBed.tick();
+    snapshot.set(principal('grace'));
+    TestBed.tick();
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
   it('opens the application at its start rather than at the current address', () => {
     const { snapshot, reload } = setup(principal('ada'));
     changePerson(snapshot);

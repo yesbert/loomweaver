@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { placeSurface } from './picture-assembly';
+import { placeCover, placeSurface } from './picture-assembly';
 
 const LABELS = { absent: 'Isolated surface — content not included' };
 
@@ -76,5 +76,23 @@ describe('placeSurface', () => {
     expect(drawn).toHaveLength(0);
     expect(filled).toEqual([[10, 20, 300, 200]]);
     expect(texts).toEqual([LABELS.absent]);
+  });
+});
+
+describe('placeCover', () => {
+  it('draws what covers a surface where it sits, and only within the surfaces it covers', () => {
+    const { context, drawn } = recordingContext();
+
+    placeCover(
+      context,
+      { left: 300, top: 200, width: 180, height: 120, image: DRAWING },
+      [{ left: 100, top: 100, width: 400, height: 300 }],
+      2,
+    );
+
+    expect(context.rect).toHaveBeenCalledExactlyOnceWith(200, 200, 800, 600);
+    expect(context.clip).toHaveBeenCalledTimes(1);
+    expect(drawn).toEqual([[DRAWING, 600, 400, 360, 240]]);
+    expect(context.restore).toHaveBeenCalledTimes(1);
   });
 });

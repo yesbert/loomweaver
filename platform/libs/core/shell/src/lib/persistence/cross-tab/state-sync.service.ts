@@ -101,11 +101,16 @@ export class StateSyncService {
    * Reads every registered key again through its port and runs the handlers registered with
    * {@link onNamespaceAdopted}. Called by the shell when the identity behind the stores becomes
    * known after the first read; a distribution that scopes the ports itself calls it when its own
-   * namespace changes under a running application.
+   * namespace changes under a running application. A key the adopted namespace holds nothing for
+   * is not applied, so what the workbench holds for it stands; an `'external'` registration is
+   * always applied, because it reads its own storage.
    */
   async namespaceAdopted(): Promise<void> {
     for (const [key, registration] of this.exact) {
       const raw = await this.readBack(registration.source, key);
+      if (raw === undefined && registration.source !== 'external') {
+        continue;
+      }
       this.channel.whileApplying(() => registration.apply(raw, key));
     }
     for (const handler of this.adopters) {

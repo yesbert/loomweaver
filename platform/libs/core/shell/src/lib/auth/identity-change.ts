@@ -27,7 +27,7 @@ export class IdentityChangeReload {
     this.started = true;
     effect(
       () => {
-        const subject = source().subject ?? null;
+        const subject = source().subject || null;
         if (subject === null) {
           return;
         }

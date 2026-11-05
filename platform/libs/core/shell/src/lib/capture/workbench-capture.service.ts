@@ -4,7 +4,8 @@ import {
   CapturableSurface,
   SurfaceCaptureRegistry,
 } from './surface-capture-registry';
-import { placeSurface } from './picture-assembly';
+import { PictureBox, placeCover, placeSurface } from './picture-assembly';
+import { PaintPlan, paintPlan } from './covering-layers';
 import { scaleForSize, WorkbenchPictureSize } from './picture-size';
 import {
   carriedForm,
@@ -42,7 +43,16 @@ export interface WorkbenchPicture {
 
 interface Placement {
   readonly surface: CapturableSurface;
+  readonly element: Element;
   readonly rect: DOMRect;
+}
+
+interface PictureParts {
+  readonly origin: DOMRect;
+  readonly placements: readonly Placement[];
+  readonly images: readonly (CanvasImageSource | undefined)[];
+  readonly plan: PaintPlan;
+  readonly covers: readonly (CanvasImageSource | undefined)[];
 }
 
 interface Renderer {
@@ -59,7 +69,8 @@ interface Renderer {
  * the picture is rendered from the document instead. That stops at an isolated surface, whose
  * content nothing outside it may read, so each one is asked to draw itself and its answer is placed
  * where it sits. A surface that cannot answer is drawn as a statement that its content is absent,
- * never as a blank — a blank in a picture attached to a fault report reads as evidence.
+ * never as a blank — a blank in a picture attached to a fault report reads as evidence. What lies
+ * over a surface on screen — a notification, an open menu, a dialog — lies over it in the picture.
  *
  * What the user cannot see is not in the picture: content scrolled out of sight within a region
  * stays out, and a surface opened in its own window is not part of it.
@@ -90,12 +101,25 @@ export class WorkbenchCaptureService {
     const drawRequest = { scale, ...pictureEncoding(request?.form) };
 
     const placements = this.placements();
-    const [images, canvas] = await Promise.all([
+    const plan = paintPlan(root, placements, view);
+    const origin = root.getBoundingClientRect();
+    const [images, canvas, covers] = await Promise.all([
       this.drawSurfaces(placements, drawRequest, view),
       renderer.toCanvas(root, { scale }),
+      Promise.all(
+        plan.passes.map((pass) =>
+          pass.covers.length > 0
+            ? renderer.toCanvas(pass.layer.element, { scale })
+            : undefined,
+        ),
+      ),
     ]);
 
-    return this.assemble(canvas, root, placements, images, drawRequest);
+    return this.assemble(
+      canvas,
+      { origin, placements, images, plan, covers },
+      drawRequest,
+    );
   }
 
   private window(): Window {
@@ -107,9 +131,11 @@ export class WorkbenchCaptureService {
   }
 
   private placements(): readonly Placement[] {
-    return this.surfaces
-      .visible()
-      .map((surface) => ({ surface, rect: surface.element.getBoundingClientRect() }));
+    return this.surfaces.visible().map((surface) => ({
+      surface,
+      element: surface.element,
+      rect: surface.element.getBoundingClientRect(),
+    }));
   }
 
   private async drawSurfaces(
@@ -127,31 +153,45 @@ export class WorkbenchCaptureService {
 
   private assemble(
     canvas: HTMLCanvasElement,
-    root: Element,
-    placements: readonly Placement[],
-    images: readonly (CanvasImageSource | undefined)[],
+    parts: PictureParts,
     drawRequest: DrawRequest,
   ): WorkbenchPicture {
     const context = canvas.getContext('2d');
     if (!context) {
       throw new Error('the workbench drawing has no surface to place onto');
     }
-    const origin = root.getBoundingClientRect();
+    const { origin, placements, images, plan, covers } = parts;
+    const { scale } = drawRequest;
     const labels = { absent: this.transloco.translate('capture.surfaceAbsent') };
+    const boxOf = (rect: DOMRect): PictureBox => ({
+      left: rect.left - origin.left,
+      top: rect.top - origin.top,
+      width: rect.width,
+      height: rect.height,
+    });
+    const stamp = (indexes: readonly number[]): void => {
+      for (const index of indexes) {
+        placeSurface(
+          context,
+          { ...boxOf(placements[index].rect), image: images[index] },
+          scale,
+          labels,
+        );
+      }
+    };
 
-    for (const [index, placement] of placements.entries()) {
-      placeSurface(
-        context,
-        {
-          left: placement.rect.left - origin.left,
-          top: placement.rect.top - origin.top,
-          width: placement.rect.width,
-          height: placement.rect.height,
-          image: images[index],
-        },
-        drawRequest.scale,
-        labels,
-      );
+    stamp(plan.beneath);
+    for (const [index, pass] of plan.passes.entries()) {
+      const image = covers[index];
+      if (image) {
+        placeCover(
+          context,
+          { ...boxOf(pass.layer.rect), image },
+          pass.covers.map((covered) => boxOf(placements[covered].rect)),
+          scale,
+        );
+      }
+      stamp(pass.holds);
     }
 
     const image = canvas.toDataURL(drawRequest.mediaType, drawRequest.quality);

@@ -21,8 +21,14 @@ export class IdentityScopedStore implements KeyValueStore {
     this.peek = peekThrough(inner, (key) => this.scoped(key));
   }
 
-  get(key: string): Promise<string | undefined> {
-    return this.inner.get(this.scoped(key));
+  async get(key: string): Promise<string | undefined> {
+    const asked = this.scoped(key);
+    const answer = await this.inner.get(asked);
+    const adopted = this.scoped(key);
+    if (adopted === asked) {
+      return answer;
+    }
+    return (await this.inner.get(adopted)) ?? answer;
   }
 
   set(key: string, value: string): Promise<void> {
