@@ -217,17 +217,17 @@ itself uses, so the shell renders correctly without any of this.
 
 ### States
 
-| Utility stem    | Meaning                                                                             |
-| --------------- | ----------------------------------------------------------------------------------- |
-| `positive`      | success / valid (green)                                                             |
-| `on-positive`   | text **on** `positive` surfaces (success button)                                    |
-| `negative`      | error / destructive (red) — error text & icon                                       |
-| `negative-fill` | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA     |
-| `on-negative`   | text **on** `negative` surfaces (danger button)                                     |
-| `caution`       | warning (amber)                                                                     |
-| `on-caution`    | text **on** `caution` surfaces (warning button), near-black so it reads on the gold |
-| `info`          | info (blue)                                                                         |
-| `on-info`       | text **on** `info` surfaces (info button)                                           |
+| Utility stem    | Meaning                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| `positive`      | success / valid (green)                                                                           |
+| `on-positive`   | text **on** `positive` surfaces (success button)                                                  |
+| `negative`      | error / destructive (red) — error text & icon                                                     |
+| `negative-fill` | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA                   |
+| `on-negative`   | text **on** `negative` surfaces (danger button)                                                   |
+| `caution`       | warning (amber) — a fill and an icon, ≥3:1 on every surface; not a text colour in the light theme |
+| `on-caution`    | text **on** `caution` surfaces (warning button), near-black so it reads on the gold               |
+| `info`          | info (blue)                                                                                       |
+| `on-info`       | text **on** `info` surfaces (info button)                                                         |
 
 ### Tooltip (special case, normally not used directly)
 

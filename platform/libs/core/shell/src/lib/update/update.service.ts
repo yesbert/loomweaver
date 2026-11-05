@@ -3,6 +3,9 @@ import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
 import { ServedBase } from '../foundation/served-base';
 import { NotificationService } from '../notifications/notification.service';
+import { RetentionUnloadGuard } from '../regions/pane/unsaved-work/retention-unload-guard';
+import { SurfaceCloseGuard } from '../regions/pane/unsaved-work/surface-close-guard';
+import { UnsavedWork } from '../regions/pane/unsaved-work/unsaved-work';
 import { ANNOUNCE_UPDATES } from './announce-updates';
 import { UpdateNotice, updateNotice } from './update-notices';
 import { dropShellWorker } from './worker-repair';
@@ -56,6 +59,12 @@ export class UpdateService {
   private readonly base = inject(ServedBase);
 
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly closeGuard = inject(SurfaceCloseGuard);
+
+  private readonly unsavedWork = inject(UnsavedWork);
+
+  private readonly unloadGuard = inject(RetentionUnloadGuard);
 
   private readonly available = signal(false);
 
@@ -147,6 +156,10 @@ export class UpdateService {
    * Gets the client onto a working version and reloads into it — it reloads even if that fails,
    * so the affordance is never a silent no-op.
    *
+   * Where work is unsaved anywhere in the workbench the user is asked first, with the question any
+   * other action that would destroy it asks. Declining abandons the update: nothing is activated,
+   * nothing is dropped and the page is not reloaded, so the update stays on offer.
+   *
    * When the worker is {@link updateBroken} activating is pointless: the broken registration would
    * still control the next load and report the same failure, which is a loop the user cannot leave
    * from inside the app. There the shell unregisters its own worker and drops its caches first, so
@@ -155,11 +168,18 @@ export class UpdateService {
    * and any other distribution served on the same origin, is left alone.
    */
   async activateUpdate(): Promise<void> {
+    const allowed = await this.closeGuard.confirmDiscard(
+      this.unsavedWork.instancesEverywhere(),
+    );
+    if (!allowed) {
+      return;
+    }
     if (this.broken()) {
       await dropShellWorker(this.document.defaultView, this.base.path);
     } else {
       await this.tryActivate();
     }
+    this.unloadGuard.suppress();
     this.document.defaultView?.location.reload();
   }
 
@@ -272,7 +292,11 @@ export class UpdateService {
       this.record('unreachable', true);
       return;
     }
-    this.record(found ? 'waiting' : 'current', true);
+    if (found) {
+      this.record('waiting', true);
+      return;
+    }
+    this.record(this.failed() ? 'failed' : 'current', true);
   }
 
   private record(outcome: UpdateOutcome, automatic: boolean): UpdateOutcome {

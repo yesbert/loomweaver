@@ -7,7 +7,10 @@ import {
 } from '@angular/service-worker';
 import { Subject } from 'rxjs';
 import { UpdateService } from './update.service';
+import { DialogService } from '../dialog/dialog.service';
 import { NotificationService } from '../notifications/notification.service';
+import { RetentionUnloadGuard } from '../regions/pane/unsaved-work/retention-unload-guard';
+import { UnsavedWork } from '../regions/pane/unsaved-work/unsaved-work';
 import { ANNOUNCE_UPDATES } from './announce-updates';
 
 class FakeSwUpdate {
@@ -45,9 +48,13 @@ function fakeSwContainer() {
   return { container, fireControllerChange: () => handler?.() };
 }
 
-function fakeDocument(defaultView: unknown) {
+function fakeDocument(defaultView: object) {
   return {
-    defaultView,
+    defaultView: {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      ...defaultView,
+    },
     visibilityState: 'visible',
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
@@ -94,6 +101,74 @@ function setupBrokenWith(
     ],
   });
   return TestBed.inject(UpdateService);
+}
+
+function shellCaches() {
+  return {
+    keys: vi.fn().mockResolvedValue(['ngsw:/:db:control']),
+    delete: vi.fn().mockResolvedValue(true),
+  };
+}
+
+function documentSeenThrough(defaultView: object): Document {
+  return new Proxy(document, {
+    get(target, key) {
+      if (key === 'defaultView') {
+        return defaultView;
+      }
+      const value: unknown = Reflect.get(target, key);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
+}
+
+function setupOverUnsavedWork(instances: readonly unknown[]) {
+  const sw = new FakeSwUpdate();
+  const worker = shellWorker();
+  const caches = shellCaches();
+  const reload = vi.fn();
+  const listeners = new Map<string, (event: Event) => void>();
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: SwUpdate, useValue: sw },
+      {
+        provide: DOCUMENT,
+        useValue: documentSeenThrough({
+          navigator: { serviceWorker: worker.container },
+          caches,
+          location: { reload },
+          addEventListener: (type: string, listener: (event: Event) => void) =>
+            listeners.set(type, listener),
+          removeEventListener: vi.fn(),
+        }),
+      },
+      {
+        provide: UnsavedWork,
+        useValue: { instancesEverywhere: () => [...instances] },
+      },
+    ],
+  });
+  return {
+    sw,
+    worker,
+    caches,
+    reload,
+    leave: (event: Event) => listeners.get('beforeunload')?.(event),
+    service: TestBed.inject(UpdateService),
+    dialogs: TestBed.inject(DialogService),
+  };
+}
+
+async function answerTheQuestion(
+  dialogs: DialogService,
+  choice: 'cancel' | 'discard',
+): Promise<void> {
+  await Promise.resolve();
+  const question = dialogs.dialogs().at(-1);
+  if (!question) {
+    throw new Error('expected to be asked about unsaved work');
+  }
+  question.ref.close(choice);
 }
 
 function setupWith(sw: FakeSwUpdate, container: unknown) {
@@ -170,11 +245,110 @@ describe('UpdateService reporting what it found', () => {
     }
   });
 
+  it('a background check after a failed installation records the failure, not a current version', async () => {
+    vi.useFakeTimers();
+    try {
+      const sw = new FakeSwUpdate();
+      sw.checkForUpdate.mockResolvedValue(false);
+      const { service } = setup(sw);
+      sw.versionUpdates.next(installationFailed());
+
+      await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
+
+      expect(service.lastCheck()).toMatchObject({
+        outcome: 'failed',
+        automatic: true,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('tells the caller when there is no offline machinery at all', async () => {
     const { service } = setup();
 
     expect(await service.checkForUpdate()).toBe('unavailable');
     expect(service.lastCheck()?.outcome).toBe('unavailable');
+  });
+});
+
+describe('UpdateService applying an update over unsaved work', () => {
+  const unsaved = () => ({ surfaceDirty: () => true });
+
+  it('declining leaves the worker untouched and does not reload', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+
+    const applied = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'cancel');
+    await applied;
+
+    expect(app.sw.activateUpdate).not.toHaveBeenCalled();
+    expect(app.reload).not.toHaveBeenCalled();
+  });
+
+  it('declining out of a broken state keeps the worker and its caches', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    app.sw.unrecoverable.next(unrecoverable());
+
+    const applied = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'cancel');
+    await applied;
+
+    expect(app.worker.unregister).not.toHaveBeenCalled();
+    expect(app.caches.delete).not.toHaveBeenCalled();
+    expect(app.reload).not.toHaveBeenCalled();
+  });
+
+  it('activates nothing while the question is still open', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+
+    const applied = app.service.activateUpdate();
+    await Promise.resolve();
+
+    expect(app.dialogs.dialogs()).toHaveLength(1);
+    expect(app.sw.activateUpdate).not.toHaveBeenCalled();
+    expect(app.reload).not.toHaveBeenCalled();
+
+    await answerTheQuestion(app.dialogs, 'cancel');
+    await applied;
+  });
+
+  it('consenting activates, then reloads once without a second question from the browser', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    const leaving = new Event('beforeunload', { cancelable: true });
+    TestBed.inject(RetentionUnloadGuard).start();
+
+    const applied = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await applied;
+    app.leave(leaving);
+
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(1);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+    expect(leaving.defaultPrevented).toBe(false);
+  });
+
+  it('consenting out of a broken state drops the worker and its caches, then reloads once', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    app.sw.unrecoverable.next(unrecoverable());
+
+    const applied = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await applied;
+
+    expect(app.worker.unregister).toHaveBeenCalledTimes(1);
+    expect(app.caches.delete).toHaveBeenCalledWith('ngsw:/:db:control');
+    expect(app.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks nothing where nothing is unsaved', async () => {
+    const app = setupOverUnsavedWork([{ surfaceDirty: () => false }]);
+
+    await app.service.activateUpdate();
+
+    expect(app.dialogs.dialogs()).toHaveLength(0);
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(1);
+    expect(app.reload).toHaveBeenCalledTimes(1);
   });
 });
 

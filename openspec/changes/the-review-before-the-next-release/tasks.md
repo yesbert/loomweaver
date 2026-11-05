@@ -283,13 +283,13 @@ What review 12.3 found. Paths are under `platform/libs/core/`.
 
 What reviews 12.4 and 12.5 found. Paths are under `platform/libs/core/shell/src/lib/` unless they start with `platform/`.
 
-- [ ] 15.1 Applying an update asks about unsaved work before it activates anything, and declining leaves the application as it was (`update/update.service.ts`)
-- [ ] 15.2 The pressed item of a segmented control shows the focus under the keyboard (`styles/theme/controls.css`)
-- [ ] 15.3 The tour recording finds the rail by the name it carries and fails on a step it cannot do (`platform/tools/media/record-tour.mjs`)
-- [ ] 15.4 A check for updates made in the background does not record "current" while an update has failed (`update/update.service.ts`, `silentCheck`)
-- [ ] 15.5 A link in rendered text has the contrast of text in the light theme (`styles/theme/lw-markdown.css`)
-- [ ] 15.6 A switch that is off can be told from its background (`styles/theme/controls.css`, `.lw-switch`)
-- [ ] 15.7 The tokens the guide calls verified for text meet 4.5:1 on every surface they are used on, or the guide says where they may be used (`styles/theme/tokens.css`, `docs/reference/design-tokens.md`)
+- [x] 15.1 Applying an update asks about unsaved work before it activates anything, and declining leaves the application as it was (`update/update.service.ts`)
+- [x] 15.2 The pressed item of a segmented control shows the focus under the keyboard (`styles/theme/controls.css`)
+- [x] 15.3 The tour recording finds the rail by the name it carries and fails on a step it cannot do (`platform/tools/media/record-tour.mjs`)
+- [x] 15.4 A check for updates made in the background does not record "current" while an update has failed (`update/update.service.ts`, `silentCheck`)
+- [x] 15.5 A link in rendered text has the contrast of text in the light theme (`styles/theme/lw-markdown.css`)
+- [x] 15.6 A switch that is off can be told from its background (`styles/theme/controls.css`, `.lw-switch`)
+- [x] 15.7 The tokens the guide calls verified for text meet 4.5:1 on every surface they are used on, or the guide says where they may be used (`styles/theme/tokens.css`, `docs/reference/design-tokens.md`)
 
 ## 13. Hand-over
 

@@ -206,7 +206,10 @@ function tour(page) {
 
 async function beats(page) {
   const act = tour(page);
-  const rail = page.getByRole('navigation', { name: 'Toolbar', exact: true });
+  // The testbed lays out two rails, so each carries its side in its name; both beats that use the
+  // rail are on the left one. A beat that cannot find its target fails the run rather than being
+  // skipped: a tour missing a beat is a recording nobody asked for.
+  const rail = page.getByRole('navigation', { name: 'Left activity bar', exact: true });
 
   await act.say('One workbench. Everything in it is a plugin.', 1900);
 
@@ -241,11 +244,8 @@ async function beats(page) {
   await act.hush();
 
   await act.say('A plugin may be a sandboxed frame, in any framework or none.', 900);
-  const sandbox = rail.getByRole('button', { name: 'Sandbox (iframe)', exact: true });
-  if ((await sandbox.count()) > 0) {
-    await act.click(sandbox);
-    await act.pause(1600);
-  }
+  await act.click(rail.getByRole('button', { name: 'Sandbox (iframe)', exact: true }));
+  await act.pause(1600);
   await act.hush();
 
   await act.say('And a plugin may re-skin the whole application.', 800);
