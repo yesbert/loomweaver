@@ -184,7 +184,8 @@ jobs:
 
       # Fail if a production dependency ships a licence outside the permissive allowlist, which
       # licence-allowlist.json holds for the platform, the demo and the website alike.
-      # devDependencies are not shipped and are out of scope; the workspace package itself is private.
+      # devDependencies are not shipped and are out of scope, except the ones the CLI and the MCP
+      # server inline into their bundled bin; the workspace package itself is private.
       - name: Licence check
         run: npm run licence-check
 

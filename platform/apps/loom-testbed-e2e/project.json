@@ -6,6 +6,18 @@
   "tags": ["scope:distribution", "type:e2e"],
   "implicitDependencies": ["loom-testbed"],
   "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "options": {
+        "cwd": "apps/loom-testbed-e2e",
+        "command": "tsc --noEmit -p tsconfig.json"
+      }
+    },
+    "lint": {
+      "dependsOn": ["typecheck"]
+    },
     "e2e": {
       "dependsOn": [],
       "outputs": ["{workspaceRoot}/dist/.playwright/apps/loom-testbed-e2e"]

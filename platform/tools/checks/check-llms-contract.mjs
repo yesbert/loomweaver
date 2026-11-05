@@ -8,10 +8,11 @@
 // drifts. So the blocks are compiled in one program beside the PACKED declarations of the SDK, the
 // shell, the agent connection and the frame kit, and every interface, type, function and class they
 // declare under a published name is compared with the published one by what it accepts, not by how
-// it is spelled. A union written out in full where the package names it, or a `readonly` left off,
-// is presentation and passes. A member the package has and the block lacks, one the block shows
-// and the package dropped, a parameter or a return type that differs, a name no package publishes,
-// and a name the block uses without declaring or the packages publishing all fail.
+// it is spelled. A union written out in full where the package names it, a `readonly` left off, or
+// a parameter under another name is presentation and passes. A member the package has and the block
+// lacks, one the block shows and the package dropped, a parameter the block leaves out, widens,
+// narrows or makes optional, a return type that differs, a name no package publishes, and a name the
+// block uses without declaring or the packages publishing all fail.
 //
 // Run it after `nx package plugin-sdk`, `nx package shell`, `nx package ag-ui` and
 // `nx bundle frame-kit`.
@@ -218,6 +219,81 @@ function same(a, b) {
   return checker.isTypeAssignableTo(a, b) && checker.isTypeAssignableTo(b, a);
 }
 
+// Assignability alone lets a parameter go missing or grow wider. A function that takes fewer
+// parameters is assignable to one that takes more, one that takes a wider parameter is assignable to
+// one that takes a narrower, and the parameters of a method are compared in both directions at once,
+// so `open(id: string | number)` and `open(id: string, options?: Options)` both passed as
+// `open(id: string)`. An assistant that reads the page then never passes the option, or passes what
+// the package refuses. So the parameters are compared one by one: the same number of them, each
+// optional or rest exactly where the published one is, and each of a type that accepts what the
+// published one accepts and nothing more.
+//
+// What stays presentation: a parameter's name, a parameter the page leaves untyped, and a `readonly`
+// left off an array, which is the one place the modifier changes assignability and so needs saying.
+// Where a parameter is typed by a type parameter of its own signature the checker cannot relate the
+// two, and the type is compared as text with those parameters renamed by position, the way a
+// generic declaration is.
+function typeParametersOf(signature) {
+  return (signature.getTypeParameters() ?? []).map((parameter) => parameter.symbol.name);
+}
+
+function sameButForReadonly(shown, published) {
+  if (same(shown, published)) return true;
+  return (
+    checker.isArrayType(shown) &&
+    checker.isArrayType(published) &&
+    sameButForReadonly(
+      checker.getIndexTypeOfType(shown, ts.IndexKind.Number),
+      checker.getIndexTypeOfType(published, ts.IndexKind.Number),
+    )
+  );
+}
+
+function sameParameter(shown, shownGenerics, published, publishedGenerics) {
+  const [mine, theirs] = [shown.valueDeclaration, published.valueDeclaration];
+  if (
+    mine &&
+    theirs &&
+    (checker.isOptionalParameter(mine) !== checker.isOptionalParameter(theirs) ||
+      Boolean(mine.dotDotDotToken) !== Boolean(theirs.dotDotDotToken))
+  ) {
+    return false;
+  }
+  if (sameButForReadonly(checker.getTypeOfSymbol(shown), checker.getTypeOfSymbol(published))) return true;
+  return Boolean(
+    mine?.type &&
+      theirs?.type &&
+      shownGenerics.length === publishedGenerics.length &&
+      normalised(printed(mine.type), shownGenerics) === normalised(printed(theirs.type), publishedGenerics),
+  );
+}
+
+function sameParameters(shown, published) {
+  const [mine, theirs] = [shown.getParameters(), published.getParameters()];
+  const [shownGenerics, publishedGenerics] = [typeParametersOf(shown), typeParametersOf(published)];
+  return (
+    mine.length === theirs.length &&
+    mine.every((parameter, index) => sameParameter(parameter, shownGenerics, theirs[index], publishedGenerics))
+  );
+}
+
+// A member the page shows with its parameters: every signature shown is one the package publishes,
+// and every one the package publishes is shown. A member named without a signature shows nothing
+// to compare, which is how the page lists what a reader rarely calls.
+function sameCallSignatures(shownType, publishedType) {
+  const shown = checker.getNonNullableType(shownType).getCallSignatures();
+  if (shown.length === 0) return true;
+  const published = checker.getNonNullableType(publishedType).getCallSignatures();
+  return (
+    shown.every((signature) => published.some((candidate) => sameParameters(signature, candidate))) &&
+    published.every((signature) => shown.some((candidate) => sameParameters(candidate, signature)))
+  );
+}
+
+function sameMember(shownType, publishedType) {
+  return same(shownType, publishedType) && sameCallSignatures(shownType, publishedType);
+}
+
 function publishedSymbol(sourceFile, name) {
   const local = checker.getSymbolsInScope(sourceFile, ts.SymbolFlags.Alias).find((symbol) => symbol.name === `${PUBLISHED}${name}`);
   if (local) return checker.getAliasedSymbol(local);
@@ -271,8 +347,10 @@ for (const info of declaredIn) {
       const shown = checker.getTypeOfSymbolAtLocation(ours, statement);
       const wanted = checker.getTypeOfSymbol(theirs);
       const signatures = wanted.getCallSignatures();
+      const [shownSignature] = shown.getCallSignatures();
       const match = signatures.some((signature) =>
-        same(checker.getReturnTypeOfSignature(signature), checker.getReturnTypeOfSignature(shown.getCallSignatures()[0])) &&
+        same(checker.getReturnTypeOfSignature(signature), checker.getReturnTypeOfSignature(shownSignature)) &&
+        sameParameters(shownSignature, signature) &&
         checker.isTypeAssignableTo(shown, wanted),
       );
       if (!match) {
@@ -315,7 +393,7 @@ for (const info of declaredIn) {
       const differs = !spelledAlike && (generic
         ? normalised(printed(node), typeParameters(statement)) !==
           normalised(memberText(published), typeParameters(theirs.declarations[0]))
-        : optional || !same(checker.getTypeOfSymbolAtLocation(symbol, node), checker.getTypeOfSymbol(published)));
+        : optional || !sameMember(checker.getTypeOfSymbolAtLocation(symbol, node), checker.getTypeOfSymbol(published)));
       if (!differs) continue;
       problems.push(`${where}: ${name}.${member} is published as\n      ${memberText(published)}\n    but shown as\n      ${printed(node)}`);
       const keepsReadonly = printed(node).startsWith('readonly ');

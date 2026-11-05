@@ -11,7 +11,7 @@
 //
 // Usage: node scripts/dist-tag.mjs <version>
 
-import { resolve } from 'node:path';
+import { realpathSync } from 'node:fs';
 
 const PRERELEASE_IDENTIFIER = /^[0-9A-Za-z-]+$/;
 
@@ -28,7 +28,11 @@ export function distTagFor(version) {
   return 'next';
 }
 
-if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
+// Whether this file is what was started, rather than imported. The module's own name has every
+// symlink resolved and the name it was started under has not, so the two are compared resolved:
+// started through a linked path, the script would otherwise print nothing and exit 0, and the
+// release would go on with an empty tag.
+if (process.argv[1] && import.meta.filename === realpathSync(process.argv[1])) {
   const version = process.argv[2];
   if (!version) {
     console.error('Usage: node scripts/dist-tag.mjs <version>');

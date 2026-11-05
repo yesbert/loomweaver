@@ -214,7 +214,7 @@ test('state typed into one pane never appears in the other', async ({
     .poll(() => notesInPanesLeftToRight(page))
     .toEqual([
       expect.objectContaining({
-        active: expect.stringContaining('Overview') as string,
+        active: expect.stringContaining('Overview'),
       }),
       expect.objectContaining({
         active: 'Notes',

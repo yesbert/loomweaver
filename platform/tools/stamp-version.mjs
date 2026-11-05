@@ -8,6 +8,11 @@
 // build step.
 //
 // Paths are resolved relative to this file, so the script is cwd-independent.
+//
+// With --check nothing is written: the script fails when the committed file is not what it would
+// write. The release asks that of the tagged commit through scripts/verify-version.mjs, because a
+// library is packed from the committed file and a file that drifted would ship a version nobody
+// tagged.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -29,5 +34,16 @@ const contents = `// GENERATED — do not edit by hand.
 export const APP_VERSION = '${version}';
 `;
 
-writeFileSync(outFile, contents);
-console.log(`stamp-version: APP_VERSION = ${version}`);
+if (process.argv.includes('--check')) {
+  if (readFileSync(outFile, 'utf8') !== contents) {
+    console.error(
+      `stamp-version: ${outFile} is not what this script writes for <Version>${version}</Version>. ` +
+        'Run `node platform/tools/stamp-version.mjs` and commit the result.',
+    );
+    process.exit(1);
+  }
+  console.log(`stamp-version: the committed file already says APP_VERSION = ${version}`);
+} else {
+  writeFileSync(outFile, contents);
+  console.log(`stamp-version: APP_VERSION = ${version}`);
+}

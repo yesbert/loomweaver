@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { runCommand, useFeatures } from './support/helpers';
+import { runCommand } from './support/helpers';
 
 test.describe('Content area', () => {
   test('lands on the home route', async ({ page }) => {

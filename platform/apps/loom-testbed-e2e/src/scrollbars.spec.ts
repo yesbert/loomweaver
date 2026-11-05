@@ -70,7 +70,7 @@ test.describe('Scroll indicators come from the tokens', () => {
     await page.goto('/');
 
     const band = rail(page).getByTestId('rail-scroll');
-    const reserved = await band.evaluate((element) => ({
+    const reserved = await band.evaluate((element: HTMLElement) => ({
       overflowing: element.scrollHeight > element.clientHeight,
       gutter: element.offsetWidth - element.clientWidth,
     }));
