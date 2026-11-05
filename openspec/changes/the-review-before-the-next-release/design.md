@@ -61,3 +61,10 @@ removes an element there, so a mutation observer in the plugin's own script is c
 picture. No message reaches the frame. The drawing works by copying the frame's page inside the
 frame, so closing this means drawing a surface another way, or saying in the capability what a
 plugin can notice. The test is kept as a skipped test that states the guarantee.
+
+**A bar entry that shortens itself is measured at its shortened width.** An entry that shortens
+itself, the brand, is measured at the width it was shortened to, so the bar cuts the product's name
+before it folds a button. Shell-layout's folding requirement, read literally, asks for folding
+first, so that every entry left in the bar is shown at its natural width. Measuring at the natural
+width would fold buttons where the name is cut today, and could fold the brand itself as the last
+entry.

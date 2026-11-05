@@ -87,6 +87,7 @@ export class ViewStateService {
       const current = value();
       if (current === undefined) {
         this.heldWrites.cancel(key);
+        void this.store.delete(key);
         return;
       }
       this.heldWrites.hold(key, JSON.stringify(current), (held) => {

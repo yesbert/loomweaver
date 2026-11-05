@@ -176,6 +176,71 @@ describe('ShellBarItem', () => {
     ).toBe('Add item');
   });
 
+  it('shows the title of the command as the tooltip of a button that says nothing of itself', () => {
+    TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+    TestBed.inject(ContributionRegistry).addCommand({
+      id: 'testbed.act',
+      title: 'status.add',
+      run: () => undefined,
+    });
+    const fixture = TestBed.createComponent(BarItemHost);
+    fixture.componentRef.setInput('item', {
+      id: 'a',
+      bar: 'status-bar',
+      slot: 'start',
+      icon: 'add',
+      command: 'testbed.act',
+    } satisfies BarItem);
+    fixture.componentRef.setInput('dock', 'bottom');
+    fixture.detectChanges();
+
+    expect(
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('[role="tooltip"]')
+        ?.textContent?.trim(),
+    ).toBe('Add item');
+  });
+
+  it('keeps the tooltip a button declares over the title of its command', () => {
+    TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+    TestBed.inject(ContributionRegistry).addCommand({
+      id: 'testbed.act',
+      title: 'Something else',
+      run: () => undefined,
+    });
+    const fixture = TestBed.createComponent(BarItemHost);
+    fixture.componentRef.setInput('item', {
+      id: 'a',
+      bar: 'status-bar',
+      slot: 'start',
+      icon: 'add',
+      tooltip: 'status.add',
+      command: 'testbed.act',
+    } satisfies BarItem);
+    fixture.componentRef.setInput('dock', 'bottom');
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(host.querySelector('[role="tooltip"]')?.textContent?.trim()).toBe(
+      'Add item',
+    );
+    expect(host.querySelector('button')?.getAttribute('aria-label')).toBe(
+      'Add item',
+    );
+  });
+
+  it('draws no tooltip for a button nothing can name', () => {
+    const host = render({
+      id: 'a',
+      bar: 'status-bar',
+      slot: 'start',
+      icon: 'add',
+      run: () => undefined,
+    });
+
+    expect(host.querySelector('lw-tooltip')).toBeNull();
+  });
+
   it('leaves a button nothing can name without an empty name', () => {
     const host = render({
       id: 'a',

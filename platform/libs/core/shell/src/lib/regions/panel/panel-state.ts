@@ -1,4 +1,5 @@
-import { inject, Service, signal } from '@angular/core';
+import { inject, linkedSignal, Service } from '@angular/core';
+import { ViewportService } from '../../layout/viewport.service';
 import { persistedWorkingState } from '../../persistence/stored-values/persisted-setting';
 import {
   FlagRecord,
@@ -24,7 +25,11 @@ export class PanelState {
   });
   private readonly collapsed = this.stored.value;
 
-  private readonly overlay = signal<string | null>(null);
+  private readonly viewport = inject(ViewportService);
+  private readonly overlay = linkedSignal<boolean, string | null>({
+    source: this.viewport.compact,
+    computation: () => null,
+  });
 
   isCollapsed(regionId: string): boolean {
     return this.collapsed()[regionId] === true;

@@ -98,9 +98,12 @@ export class ShellBarItem {
     });
   });
 
-  protected readonly commandTitle = computed<string | undefined>(
-    () => this.resolved()?.command?.title,
-  );
+  protected readonly purpose = computed<string | undefined>(() => {
+    const button = this.asButton();
+    return (
+      button?.tooltip ?? button?.label ?? this.resolved()?.command?.title
+    );
+  });
   protected readonly disabled = computed(
     () => this.resolved()?.disabled ?? false,
   );

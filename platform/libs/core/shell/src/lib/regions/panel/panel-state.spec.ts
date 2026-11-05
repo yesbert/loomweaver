@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { provideLayout } from '../../layout/layout';
 import { PanelGroupService } from './panel-group.service';
 import { PanelState } from './panel-state';
+import { ViewportService } from '../../layout/viewport.service';
 import { KeyValueStore } from '../../persistence/key-value-store';
 import { provideWorkingStateStore } from '../../persistence/working-state-store';
 
@@ -140,3 +141,49 @@ describe('PanelState on a store that answers later', () => {
     });
   });
 });
+
+describe('PanelState drawer', () => {
+  function onViewport() {
+    localStorage.clear();
+    const compact = signal(true);
+    TestBed.configureTestingModule({
+      providers: [{ provide: ViewportService, useValue: { compact } }],
+    });
+    return { compact, panels: TestBed.inject(PanelState) };
+  }
+
+  it('does not reopen by itself when a window that became wide narrows again', () => {
+    const { compact, panels } = onViewport();
+    panels.openOverlay('primary');
+    expect(panels.isOverlayOpen('primary')).toBe(true);
+
+    compact.set(false);
+    expect(panels.anyOverlayOpen()).toBe(false);
+    compact.set(true);
+
+    expect(panels.isOverlayOpen('primary')).toBe(false);
+    expect(panels.anyOverlayOpen()).toBe(false);
+  });
+
+  it('stays closed when the window widened and narrowed while nothing looked at it', () => {
+    const { compact, panels } = onViewport();
+    panels.openOverlay('primary');
+
+    compact.set(false);
+    compact.set(true);
+
+    expect(panels.anyOverlayOpen()).toBe(false);
+  });
+
+  it('opens again when the person asks for it after the window narrowed', () => {
+    const { compact, panels } = onViewport();
+    panels.openOverlay('primary');
+    compact.set(false);
+    compact.set(true);
+
+    panels.openOverlay('primary');
+
+    expect(panels.isOverlayOpen('primary')).toBe(true);
+  });
+});
+

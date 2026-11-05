@@ -8,6 +8,9 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { PRIMARY_PANE } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ViewMoveService } from './view-move.service';
+import { PanelState } from './panel-state';
+import { SidebarService } from './sidebar.service';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import type { MockInstance } from 'vitest';
 
 const EN = {
@@ -112,6 +115,57 @@ describe('ViewMoveService (as a moveTab special case)', () => {
       service.move('v1', 'secondary');
 
       expect(announce).toHaveBeenCalledWith('v1 moved to right sidebar');
+    });
+  });
+
+  describe('a move into a collapsed sidebar', () => {
+    function collapseSecondary(): PanelState {
+      const panels = TestBed.inject(PanelState);
+      panels.toggle('secondary');
+      return panels;
+    }
+
+    it('expands the sidebar the view was moved into', () => {
+      const panels = collapseSecondary();
+
+      service.move('v1', 'secondary');
+
+      expect(panels.isCollapsed('secondary')).toBe(false);
+    });
+
+    it('leaves the sidebar collapsed while collapsing is switched off, with the view in it', () => {
+      const panels = collapseSecondary();
+      TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+
+      service.move('v1', 'secondary');
+
+      expect(panels.isCollapsed('secondary')).toBe(true);
+      expect(paneTree.sourceOf('view:v1')?.dock).toBe('secondary');
+    });
+
+    it('leaves the sidebar collapsed for a parked tab too while collapsing is switched off', () => {
+      const panels = collapseSecondary();
+      TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+      paneTree.seedPrimaryTabs('primary', ['notes/today']);
+
+      service.moveTab(
+        { dock: 'primary', paneId: PRIMARY_PANE },
+        { path: 'notes/today', title: 'Today', literalTitle: true },
+        'secondary',
+      );
+
+      expect(panels.isCollapsed('secondary')).toBe(true);
+      expect(paneTree.sourceOf('notes/today')?.dock).toBe('secondary');
+    });
+
+    it('still expands when the distribution asks for it from its own code', () => {
+      const panels = collapseSecondary();
+      TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+      service.move('v1', 'secondary');
+
+      TestBed.inject(SidebarService).expand('secondary');
+
+      expect(panels.isCollapsed('secondary')).toBe(false);
     });
   });
 

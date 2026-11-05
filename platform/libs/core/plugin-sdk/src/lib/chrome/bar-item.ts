@@ -59,10 +59,12 @@ export interface BarButtonItem extends BarItemBase {
    */
   readonly image?: string;
   /**
-   * Transloco key/literal for the tooltip; falls back to {@link label}. It says what the button is
-   * for, and the host names the button by what it shows first: the drawn initials, then the
-   * {@link label}, then the tooltip, then a shown shortcut (`'EN, Language'`, `'AL, Account'`). A
-   * tooltip that already says everything the button shows, in that order, is taken as it is.
+   * Transloco key/literal for the tooltip; falls back to {@link label}, and where the button has
+   * neither, to the title of its {@link command}. It says what the button is for, and the host
+   * names the button by what it shows first: the drawn initials, then the {@link label}, then the
+   * tooltip, then a shown shortcut (`'EN, Language'`, `'AL, Account'`). A tooltip that already says
+   * everything the button shows, in that order, is taken as it is. A button with an icon and a
+   * {@link run} alone has nothing to be named by, so give it a tooltip.
    */
   readonly tooltip?: string;
   /**

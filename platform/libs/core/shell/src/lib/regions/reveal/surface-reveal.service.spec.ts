@@ -8,6 +8,7 @@ import { PanelGroupService } from '../panel/panel-group.service';
 import { ViewportService } from '../../layout/viewport.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { SHELL_LAYOUT } from '../../layout/layout';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 describe('SurfaceRevealService', () => {
   afterEach(() => localStorage.clear());
@@ -102,6 +103,17 @@ describe('SurfaceRevealService', () => {
       'main',
       'view:testbed.library',
     );
+    expect(expand).toHaveBeenCalledWith('primary');
+  });
+
+  it('expands the panel a plugin brings a surface forward in although collapsing is switched off', () => {
+    const { service, expand } = setup({
+      primary: leafWith('main', ['view:testbed.library']),
+    });
+    TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+
+    service.reveal('testbed.library');
+
     expect(expand).toHaveBeenCalledWith('primary');
   });
 

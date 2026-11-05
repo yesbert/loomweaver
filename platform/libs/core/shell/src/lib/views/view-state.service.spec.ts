@@ -100,6 +100,33 @@ describe('ViewStateService', () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
+  it('removes the stored value when the state is cleared, so the old state does not return on reload', () => {
+    vi.useFakeTimers();
+    const handle = TestBed.inject(ViewStateService).handle('v1');
+    handle.set({ sort: 'alpha' });
+    vi.advanceTimersByTime(400);
+    expect(localStorage.getItem(KEY)).not.toBeNull();
+
+    handle.set(undefined);
+
+    expect(localStorage.getItem(KEY)).toBeNull();
+    TestBed.resetTestingModule();
+    expect(
+      TestBed.inject(ViewStateService).handle('v1').value(),
+    ).toBeUndefined();
+  });
+
+  it('stores nothing when the state is cleared before a held write went out', () => {
+    vi.useFakeTimers();
+    const handle = TestBed.inject(ViewStateService).handle('v1');
+
+    handle.set({ sort: 'alpha' });
+    handle.set(undefined);
+    vi.advanceTimersByTime(2000);
+
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
   it('restores a persisted blob synchronously via peek', () => {
     localStorage.setItem(KEY, JSON.stringify({ sort: 'alpha' }));
     expect(TestBed.inject(ViewStateService).handle('v1').value()).toEqual({
