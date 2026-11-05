@@ -112,4 +112,42 @@ describe('ToolbarSlots variants', () => {
 
     expect(variants(actions)).toEqual(['primary', undefined]);
   });
+
+  it('reads the actions and the owner of the surface it is drawn for where two owners hold the same id', () => {
+    const action = (id: string) => ({ id, icon: 'add', title: id, run: () => undefined });
+    registry.addView(
+      {
+        id: 'shared',
+        region: 'primary',
+        title: 'One',
+        component: class {},
+        actions: [action('one.act')],
+      } as unknown as View,
+      'one',
+    );
+    registry.addContentRoute(
+      {
+        id: 'shared',
+        path: 'shared',
+        component: class {},
+        actions: [action('two.act')],
+      } as unknown as Parameters<ContributionRegistry['addContentRoute']>[0],
+      'two',
+    );
+    const actions = surfaceActionsSlot('shared');
+    contribute('primary', 'two', actions);
+    const drawnFor = (owner: string) =>
+      slots
+        .view(actions, { surface: 'shared', surfaceOwner: owner })
+        .entries.map((entry) => [entry.key, entry.variant]);
+
+    expect(drawnFor('two')).toEqual([
+      ['two.act', undefined],
+      ['two.primary', 'primary'],
+    ]);
+    expect(drawnFor('one')).toEqual([
+      ['one.act', undefined],
+      ['two.primary', undefined],
+    ]);
+  });
 });

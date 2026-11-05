@@ -7,6 +7,18 @@ import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-dep
 import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 import type { PluginManifest } from '@loomweaver/plugin-sdk';
 import { provideRequiredPlugins } from '../../foundation/required-plugins';
+import { provideFramePlugins } from '../frame/frame-plugin-runtime';
+import { CAPABILITY_GRANTS } from '../../permissions/provide-capability-grants';
+import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
+import { MenuService } from '../../menu/menu.service';
+
+vi.mock('penpal', () => ({
+  connect: vi.fn(() => ({
+    promise: new Promise(() => undefined),
+    destroy: vi.fn(),
+  })),
+  WindowMessenger: vi.fn(),
+}));
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
@@ -105,6 +117,35 @@ describe('PermissionsSettings', () => {
     expect(
       host.querySelector('[data-testid="perm-level-treaties"] input'),
     ).toBeNull();
+  });
+
+  it('describes a switched-off frame plugin at the rung it runs at, not as part of the application', () => {
+    TestBed.configureTestingModule({
+      imports: [PermissionsSettings, transloco()],
+      providers: [
+        { provide: ContentTabsService, useValue: {} },
+        { provide: MenuService, useValue: {} },
+        { provide: CAPABILITY_GRANTS, useValue: { treaties: ['ui'] } },
+        ...provideFramePlugins({
+          id: 'treaties',
+          name: 'Treaties',
+          entryUrl: '/treaties/plugin.html',
+          capabilities: ['ui'],
+        }),
+      ],
+    });
+    const fixture = TestBed.createComponent(PermissionsSettings);
+    const host = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(host.textContent).toContain('Runs isolated');
+
+    TestBed.inject(PluginEnablementService).setEnabled('treaties', false);
+    TestBed.tick();
+    fixture.detectChanges();
+
+    expect(document.querySelector('iframe')).toBeNull();
+    expect(host.textContent).toContain('Runs isolated');
+    expect(host.textContent).not.toContain('Runs inside this application');
   });
 
   it('never tells the user a trusted plugin is held back from the application', () => {

@@ -1,5 +1,16 @@
-import { ErrorHandler } from '@angular/core';
+import {
+  Component,
+  computed,
+  ErrorHandler,
+  inject,
+  InjectionToken,
+  signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ContentTabsService } from '../regions/content/tabs/content-tabs.service';
+import { MenuService } from '../menu/menu.service';
+import { NotificationBoard } from '../notifications/notification-board';
+import { HostContextFactory } from '../plugin/context/host-context-factory';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { CapabilityError } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../commands/command.service';
@@ -179,5 +190,82 @@ describe('capability refusal', () => {
     const [toast] = notifications.notifications();
     expect(toast?.message).toBe('permission.unavailable');
     expect(toast?.action).toBeUndefined();
+  });
+});
+
+describe('a capability read a plugin kept, used in a template after the capability was revoked', () => {
+  const KEPT_READ = new InjectionToken<() => boolean>('kept read');
+
+  @Component({ selector: 'lw-kept-read', template: '{{ state() }}' })
+  class KeptRead {
+    private readonly signedIn = inject(KEPT_READ);
+    readonly state = computed(() => (this.signedIn() ? 'in' : 'out'));
+  }
+
+  @Component({
+    imports: [KeptRead],
+    template: '<span>{{ redraws() }}</span><lw-kept-read />',
+  })
+  class Workbench {
+    readonly redraws = signal(0);
+  }
+
+  function render() {
+    TestBed.configureTestingModule({
+      rethrowApplicationErrors: false,
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        { provide: ErrorHandler, useClass: CapabilityRefusalErrorHandler },
+        { provide: ContentTabsService, useValue: {} },
+        { provide: MenuService, useValue: {} },
+        {
+          provide: KEPT_READ,
+          useFactory: () => {
+            const grants = inject(CapabilityGrantService);
+            grants.register('reader', ['session'], ['session']);
+            return inject(HostContextFactory).create(
+              'reader',
+              (capability) => grants.isGranted('reader', capability),
+              'trusted',
+            ).session.authenticated;
+          },
+        },
+      ],
+    });
+    localStorage.clear();
+    const board = TestBed.inject(NotificationBoard);
+    const raised = vi.spyOn(board, 'show');
+    const fixture = TestBed.createComponent(Workbench);
+    fixture.autoDetectChanges();
+    return { fixture, raised, grants: TestBed.inject(CapabilityGrantService) };
+  }
+
+  it('tells the user once, not on every change-detection pass, and the workbench goes on drawing', async () => {
+    const { fixture, raised, grants } = render();
+    await fixture.whenStable();
+    expect(raised).not.toHaveBeenCalled();
+
+    grants.setGranted('reader', 'session', false);
+    await fixture.whenStable();
+    for (let pass = 1; pass <= 5; pass++) {
+      fixture.componentInstance.redraws.set(pass);
+      TestBed.tick();
+      await fixture.whenStable();
+    }
+
+    expect(raised).toHaveBeenCalledTimes(1);
+    expect(
+      TestBed.inject(NotificationService)
+        .notifications()
+        .map((notice) => notice.message),
+    ).toEqual(['permission.blocked']);
+    expect((fixture.nativeElement as HTMLElement).textContent).toBe('5out');
+    localStorage.clear();
   });
 });

@@ -32,12 +32,20 @@ export class PluginEnablementService {
    * one the operator deploys, whatever is stored, so the runtimes, the store and the permissions
    * surface read one answer rather than several.
    */
-  readonly disabled = computed<ReadonlySet<string>>(() => {
-    const stored = this.storedDisabled.value();
-    const alwaysOn = (id: string) =>
-      this.required.has(id) || this.deployment.isDeployed(id);
-    return new Set([...stored].filter((id) => !alwaysOn(id)));
-  });
+  readonly disabled = computed<ReadonlySet<string>>(
+    () =>
+      new Set(
+        [...this.storedDisabled.value()].filter((id) => this.hasSwitch(id)),
+      ),
+  );
+
+  /**
+   * Whether the stored switch-offs are known: at once with a settings store that answers
+   * synchronously, otherwise once its read has answered or been rejected. Until then {@link disabled}
+   * is empty, so the frame runtime holds back every plugin that {@link hasSwitch}; a plugin that runs
+   * in the page starts regardless and is switched off when the answer says so.
+   */
+  readonly answered = this.storedDisabled.answered;
 
   /** Every known plugin with its enabled state, for the permissions settings surface. */
   readonly plugins = computed<readonly PluginInfo[]>(() => {
@@ -46,6 +54,11 @@ export class PluginEnablementService {
       .map(([id, name]) => ({ id, name, enabled: !disabled.has(id) }))
       .toSorted((a, b) => a.name.localeCompare(b.name));
   });
+
+  /** Whether the user may switch this plugin off: it is neither required nor deployed by the operator. */
+  hasSwitch(id: string): boolean {
+    return !this.required.has(id) && !this.deployment.isDeployed(id);
+  }
 
   /** Whether the distribution declared it cannot run without this plugin. */
   isRequired(id: string): boolean {

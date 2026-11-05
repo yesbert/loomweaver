@@ -229,12 +229,13 @@ says why. What each capability unlocks, and how to grant it, is
 - **Disable a plugin**: the whole plugin is unloaded and its contributions disappear; re-enabling
   spawns it again. Live, without a reload.
 - **Uninstall**: only for community-installed plugins. Its settings are deliberately kept, so a
-  reinstall picks up where the user left off.
+  reinstall picks up where the user left off. Its switch-off and its revoked capabilities go with it,
+  so a reinstall starts enabled and holds what its consent shows.
 
 For a plugin the operator **deployed**, none of the three is offered: it was not the user's
 decision, and central management only works if what was rolled out is actually running. A disabling
-stored before that identity was deployed is disregarded rather than honoured, so withholding the
-switch can never strand someone with something turned off and no way to turn it on. A **composed**
+or a revocation stored before that identity was deployed is disregarded rather than honoured, so
+withholding the switch can never strand someone with something turned off and no way to turn it on. A **composed**
 plugin keeps its revoke and disable switches.
 
 The built-in **Permissions** and **Plugin store** settings sections expose all three. Your own
@@ -289,13 +290,17 @@ headers is under
 
 Contributions are addressed by id, and registering an existing id **replaces** it. That is the
 mechanism behind distribution-level recomposition (override a default by re-registering it) and it
-applies to plugins too: a later contribution wins.
+applies to the plugins you run in the page too: a later contribution wins. A content route is
+replaced by its address rather than by its id. `/orders`, `orders/` and `orders` are one address, and
+so are two patterns that differ only in the name of a parameter.
 
-Plugin **ids** themselves are guarded: an installed plugin cannot claim the id of a composed one.
-Individual contribution ids are not guarded. An installed plugin can therefore replace a menu entry
-or a content route that something else registered. That is a deliberate consequence of the
-same-origin, operator-review boundary: what you copy into your catalogue is code you have reviewed.
-If that trade does not fit your product, do not enable the runtime store.
+Replacing is limited by where a plugin runs. A frame plugin replaces only what it registered itself,
+whether you composed it, the operator deployed it or the user installed it. Its route at an address
+another owner answers is refused. So is its view, menu entry or settings section under an id another
+owner holds. The console names the plugin that asked and the owner that holds the id or the address.
+
+Plugin **ids** themselves are guarded: an installed or deployed plugin cannot claim the id of a
+composed one, whether that one runs in the page or in a frame.
 
 ---
 

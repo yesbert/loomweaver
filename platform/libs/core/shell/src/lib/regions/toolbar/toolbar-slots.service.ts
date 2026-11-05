@@ -1,11 +1,17 @@
 import { inject, Service } from '@angular/core';
 import { LwButtonVariant, MenuContext } from '@loomweaver/plugin-sdk';
 import { CommandService } from '../../commands/command.service';
-import { ContributionRegistry } from '../../contributions/contribution-registry';
+import {
+  ContributionRegistry,
+  RegisteredContentRoute,
+  RegisteredView,
+} from '../../contributions/contribution-registry';
 import {
   ownerName,
+  SURFACE_OWNER,
   surfaceOfActionsSlot,
   ToolbarRegistry,
+  withoutSurfaceOwner,
 } from '../../contributions/toolbar-registry';
 import { isButtonVariant } from '../../elements/button/lw-button-classes';
 import { LwToolbarEntry } from '../../elements/toolbar/lw-toolbar.element';
@@ -43,19 +49,19 @@ export class ToolbarSlots {
   private readonly reported = new Set<string>();
 
   view(slot: string, context: MenuContext, label?: string | null): ToolbarSlotView {
-    const resolved = this.slots.resolve(this.entriesOf(slot), (entry) =>
+    const resolved = this.slots.resolve(this.entriesOf(slot, context), (entry) =>
       this.contextFor(entry, context),
     );
     return {
       resolved,
-      entries: resolved.map((entry) => this.drawn(entry, slot)),
+      entries: resolved.map((entry) => this.drawn(entry, slot, context)),
       label: this.wording.translate(label || (this.toolbars.titleOf(slot) ?? '')),
       moreLabel: this.wording.translate(MORE_KEY),
     };
   }
 
   contextFor(entry: ToolbarEntry, context: MenuContext): MenuContext {
-    return { ...context, id: entry.id };
+    return { ...withoutSurfaceOwner(context), id: entry.id };
   }
 
   run(entry: ResolvedEntry<ToolbarEntry>, context: MenuContext): void {
@@ -64,12 +70,10 @@ export class ToolbarSlots {
     }
   }
 
-  private entriesOf(slot: string): ToolbarEntry[] {
-    const surfaceId = surfaceOfActionsSlot(slot);
-    const actions =
-      surfaceId === undefined
-        ? []
-        : this.registry.actionsOf(surfaceId).map((action) => entryOfAction(action));
+  private entriesOf(slot: string, context: MenuContext): ToolbarEntry[] {
+    const actions = (this.surfaceOf(slot, context)?.actions ?? []).map((action) =>
+      entryOfAction(action),
+    );
     const items = this.registry
       .registeredMenuItems()
       .filter((entry) => entry.item.menu === slot)
@@ -77,7 +81,11 @@ export class ToolbarSlots {
     return [...actions, ...items];
   }
 
-  private drawn(entry: ResolvedEntry<ToolbarEntry>, slot: string): LwToolbarEntry {
+  private drawn(
+    entry: ResolvedEntry<ToolbarEntry>,
+    slot: string,
+    context: MenuContext,
+  ): LwToolbarEntry {
     return {
       key: entry.item.id,
       label: this.wording.translate(entry.title ?? ''),
@@ -89,11 +97,15 @@ export class ToolbarSlots {
       disabled: entry.disabled,
       opensMenu: entry.opensMenu !== undefined,
       hasContextMenu: menuOnContext(entry.item) !== undefined,
-      variant: this.variantOf(entry.item, slot),
+      variant: this.variantOf(entry.item, slot, context),
     };
   }
 
-  private variantOf(entry: ToolbarEntry, slot: string): LwButtonVariant | undefined {
+  private variantOf(
+    entry: ToolbarEntry,
+    slot: string,
+    context: MenuContext,
+  ): LwButtonVariant | undefined {
     const asked: unknown = entry.variant;
     if (asked === undefined) {
       return undefined;
@@ -109,7 +121,7 @@ export class ToolbarSlots {
     if (asked !== 'primary') {
       return asked;
     }
-    const owner = this.ownerOf(slot);
+    const owner = this.ownerOf(slot, context);
     if (owner !== undefined && entry.ownerId === owner) {
       return asked;
     }
@@ -122,11 +134,22 @@ export class ToolbarSlots {
     return undefined;
   }
 
-  private ownerOf(slot: string): string | undefined {
-    const surfaceId = surfaceOfActionsSlot(slot);
-    return surfaceId === undefined
+  private ownerOf(slot: string, context: MenuContext): string | undefined {
+    return surfaceOfActionsSlot(slot) === undefined
       ? this.toolbars.ownerOf(slot)
-      : this.registry.ownerOfSurface(surfaceId);
+      : this.surfaceOf(slot, context)?.pluginId;
+  }
+
+  private surfaceOf(
+    slot: string,
+    context: MenuContext,
+  ): RegisteredView | RegisteredContentRoute | undefined {
+    const surfaceId = surfaceOfActionsSlot(slot);
+    const held = surfaceId === undefined ? [] : this.registry.surfacesOf(surfaceId);
+    const owner = context[SURFACE_OWNER];
+    return (
+      held.find((surface) => (surface.pluginId ?? '') === owner) ?? held[0]
+    );
   }
 
   private reportOnce(key: string, message: string): void {

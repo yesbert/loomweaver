@@ -7,6 +7,7 @@ import {
   parseIdSet,
   toggledIdSet,
 } from '../persistence/stored-values/persisted-id-set';
+import { PluginDeploymentService } from '../plugin-store/lifecycle/plugin-deployment.service';
 
 const STORAGE_KEY = 'lw.shell.capability-revocations';
 
@@ -30,6 +31,10 @@ function revocationKey(pluginId: string, capability: Capability): string {
   return `${pluginId}:${capability}`;
 }
 
+function pluginOfRevocation(key: string): string {
+  return key.slice(0, key.lastIndexOf(':'));
+}
+
 function parseRevocations(raw: string | undefined): ReadonlySet<string> {
   return new Set(
     [...parseIdSet(raw)].filter((key) =>
@@ -45,18 +50,28 @@ function parseRevocations(raw: string | undefined): ReadonlySet<string> {
  * decision is user-local and persisted through the {@link SETTINGS_STORE}, exactly like the rest of
  * the chrome state. Every `ctx` call consults {@link isGranted}, so a revocation takes effect on the
  * plugin's next call without a reload, and the user's choices in the Permissions settings can never
- * reach wider than the distribution allowed.
+ * reach wider than the distribution allowed. A plugin the operator deploys is offered no switch, so a
+ * revocation stored while the same id was the user's own is not honoured for it.
  */
 @Service()
 export class CapabilityGrantService {
   private readonly grants = inject(CAPABILITY_GRANTS);
+
+  private readonly deployment = inject(PluginDeploymentService);
 
   private readonly revocations = persistedSetting(STORAGE_KEY, {
     ...ID_SET_CODEC,
     parse: parseRevocations,
   });
 
-  private readonly revoked = this.revocations.value;
+  private readonly revoked = computed<ReadonlySet<string>>(
+    () =>
+      new Set(
+        [...this.revocations.value()].filter(
+          (key) => !this.deployment.isDeployed(pluginOfRevocation(key)),
+        ),
+      ),
+  );
 
   private readonly bases = signal<ReadonlyMap<string, ReadonlySet<Capability>>>(
     new Map(),
@@ -132,6 +147,19 @@ export class CapabilityGrantService {
   setGranted(pluginId: string, capability: Capability, granted: boolean): void {
     this.revocations.update((revoked) =>
       toggledIdSet(revoked, revocationKey(pluginId, capability), !granted),
+    );
+  }
+
+  /**
+   * Drops every revocation stored for a plugin. Removing an installed plugin calls it, so that
+   * installing it again grants what the consent shows rather than what was withdrawn before.
+   */
+  restoreAll(pluginId: string): void {
+    this.revocations.update(
+      (revoked) =>
+        new Set(
+          [...revoked].filter((key) => pluginOfRevocation(key) !== pluginId),
+        ),
     );
   }
 }

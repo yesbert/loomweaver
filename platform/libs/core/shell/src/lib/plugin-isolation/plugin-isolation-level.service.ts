@@ -12,6 +12,9 @@ export class PluginIsolationLevelService {
   );
 
   register(pluginId: string, level: PluginIsolationLevel): void {
+    if (this.levels().get(pluginId) === level) {
+      return;
+    }
     const next = new Map(this.levels());
     next.set(pluginId, level);
     this.levels.set(next);

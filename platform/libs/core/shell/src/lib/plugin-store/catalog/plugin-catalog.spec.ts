@@ -5,6 +5,8 @@ import {
   urlPluginCatalog,
 } from './plugin-catalog';
 import { providePluginCatalog } from './provide-plugin-catalog';
+import { PluginCatalogEntries } from './plugin-catalog-entries';
+import { PluginCatalogEntry } from './catalog-entry';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
@@ -102,6 +104,26 @@ describe('urlPluginCatalog', () => {
     expect(entry.downloads).toBeUndefined();
   });
 
+  it('names each entry it drops from the catalogue at an address in the console, once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          { id: 'good', name: 'Good', entryUrl: '/good/plugin.html' },
+          { id: 'evil', entryUrl: 'https://evil.example/plugin.html' },
+        ]),
+    }) as unknown as typeof fetch;
+    const catalog = urlPluginCatalog('/plugins/catalog.json');
+
+    await catalog.load();
+    await catalog.load();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0][0])).toContain('"evil"');
+    warn.mockRestore();
+  });
+
   it('throws on a non-ok catalog response', async () => {
     globalThis.fetch = vi
       .fn()
@@ -157,6 +179,72 @@ describe('providePluginCatalog', () => {
       .find((section) => section.id === 'shell.pluginStore');
 
     expect(store?.title).toBe('product.marketplace');
+  });
+
+  it("entries from a product's own catalogue port are read as defensively as those from an address", async () => {
+    configure({
+      load: () =>
+        Promise.resolve([
+          { id: 'good', name: 'Good', entryUrl: '/good/plugin.html' },
+          {
+            id: 'foreign',
+            name: 'Foreign',
+            entryUrl: 'https://evil.example/plugin.html',
+            deployed: true,
+          },
+          { id: 'shell.fake', name: 'Fake', entryUrl: '/fake/plugin.html' },
+          {
+            id: 'caps',
+            name: 'Caps',
+            entryUrl: '/caps/plugin.html',
+            capabilities: ['contributions', 'root-access'],
+          },
+          'junk',
+        ] as unknown as PluginCatalogEntry[]),
+    });
+    const catalog = TestBed.inject(PluginCatalogEntries);
+
+    const entries = await catalog.load();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    expect(
+      [...document.querySelectorAll('iframe')].map((frame) =>
+        frame.getAttribute('src'),
+      ),
+    ).toEqual([]);
+    expect(entries.map((entry) => entry.id)).toEqual(['good', 'caps']);
+    expect(entries[1].capabilities).toEqual(['contributions']);
+    expect(catalog.entries()).toEqual(entries);
+  });
+
+  it("names each entry it drops from a product's own catalogue port in the console, once", async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    configure({
+      load: () =>
+        Promise.resolve([
+          { id: 'good', name: 'Good', entryUrl: '/good/plugin.html' },
+          {
+            id: 'foreign',
+            name: 'Foreign',
+            entryUrl: 'https://evil.example/plugin.html',
+          },
+          { id: 'shell.fake', name: 'Fake', entryUrl: '/fake/plugin.html' },
+          'junk',
+        ] as unknown as PluginCatalogEntry[]),
+    });
+    const catalog = TestBed.inject(PluginCatalogEntries);
+
+    await catalog.load();
+    await catalog.load();
+
+    const said = warn.mock.calls.map(([message]) => String(message));
+    expect(said).toHaveLength(3);
+    expect(said[0]).toContain('"foreign"');
+    expect(said[1]).toContain('"shell.fake"');
+    expect(said[2]).toContain('entry 4');
+    warn.mockRestore();
   });
 
   it('activates the sandbox runtime so a persisted install spawns without any composed plugin', () => {

@@ -4,6 +4,9 @@ import { KeyValueStore } from '../../persistence/key-value-store';
 import { InstalledPlugin } from './installed-plugin';
 import { PluginDeploymentService } from './plugin-deployment.service';
 import { PluginInstallService } from './plugin-install.service';
+import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
+import { CapabilityGrantService } from '../../permissions/capability-grant.service';
+import { PluginStateService } from '../../plugin/plugin-state.service';
 
 const KEY = 'lw.shell.installed-plugins';
 
@@ -118,6 +121,78 @@ describe('PluginInstallService', () => {
     expect(service.isInstalled('store.sample')).toBe(false);
     expect(JSON.parse(localStorage.getItem(KEY) ?? 'null')).toEqual([]);
     expect(() => service.uninstall('store.sample')).not.toThrow();
+  });
+
+  it('a plugin removed while switched off starts enabled when it is installed again', () => {
+    const service = make();
+    const enablement = TestBed.inject(PluginEnablementService);
+    service.install(entry());
+    service.install(entry({ id: 'store.other', name: 'Other' }));
+    enablement.setEnabled('store.sample', false);
+    enablement.setEnabled('store.other', false);
+
+    service.uninstall('store.sample');
+    service.install(entry());
+
+    expect(enablement.isEnabled('store.sample')).toBe(true);
+    expect(enablement.isEnabled('store.other')).toBe(false);
+  });
+
+  it('a plugin removed with a capability withdrawn holds what its consent shows when it is installed again', () => {
+    const service = make();
+    const grants = TestBed.inject(CapabilityGrantService);
+    service.install(entry());
+    service.install(entry({ id: 'store.other', name: 'Other' }));
+    grants.setGranted('store.sample', 'ui', false);
+    grants.setGranted('store.other', 'ui', false);
+
+    service.uninstall('store.sample');
+    service.install(entry());
+    grants.register('store.sample', ['contributions', 'ui'], ['contributions', 'ui']);
+    grants.register('store.other', ['contributions', 'ui'], ['contributions', 'ui']);
+
+    expect(grants.isGranted('store.sample', 'ui')).toBe(true);
+    expect(grants.isGranted('store.other', 'ui')).toBe(false);
+  });
+
+  it('removing a stored install whose id a composed or deployed plugin holds leaves that plugin\'s state, switch-off and revocations alone', () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify([
+        entry({ id: 'composed' }),
+        entry({ id: 'deployed' }),
+      ]),
+    );
+    const service = make();
+    service.markComposed(['composed']);
+    TestBed.inject(PluginDeploymentService).adopt([
+      { ...entry({ id: 'deployed' }), deployed: true },
+    ]);
+    const enablement = TestBed.inject(PluginEnablementService);
+    const grants = TestBed.inject(CapabilityGrantService);
+    for (const id of ['composed', 'deployed']) {
+      enablement.setEnabled(id, false);
+      grants.setGranted(id, 'ui', false);
+    }
+
+    const removeState = vi.spyOn(
+      TestBed.inject(PluginStateService),
+      'removePlugin',
+    );
+
+    service.uninstall('composed');
+    service.uninstall('deployed');
+
+    expect(removeState).not.toHaveBeenCalled();
+    expect(service.installed()).toEqual([]);
+    expect(
+      JSON.parse(localStorage.getItem('lw.shell.disabled-plugins') ?? '[]'),
+    ).toEqual(['composed', 'deployed']);
+    expect(
+      JSON.parse(
+        localStorage.getItem('lw.shell.capability-revocations') ?? '[]',
+      ),
+    ).toEqual(['composed:ui', 'deployed:ui']);
   });
 
   it('updates an installed entry in place and persists the new declaration', () => {

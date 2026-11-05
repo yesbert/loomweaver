@@ -45,3 +45,14 @@ export function textArgument(
   }
   return value;
 }
+
+const FETCHED_PROTOCOLS: ReadonlySet<string> = new Set(['http:', 'https:']);
+
+export function fetchedUrl(address: string): URL | null {
+  try {
+    const url = new URL(address, document.baseURI);
+    return FETCHED_PROTOCOLS.has(url.protocol) ? url : null;
+  } catch {
+    return null;
+  }
+}

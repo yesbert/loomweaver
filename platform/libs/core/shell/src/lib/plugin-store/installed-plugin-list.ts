@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SettingsService } from '../settings-dialog/settings.service';
+import { SettingsRegistry } from '../settings-dialog/settings-registry';
 import { PluginCatalogEntry } from './catalog/catalog-entry';
 import { PluginDisableGuard } from '../plugin/enablement/plugin-disable-guard';
 import { PluginEnablementService } from '../plugin/enablement/plugin-enablement.service';
@@ -20,7 +21,6 @@ import { PluginStoreConsent } from './lifecycle/plugin-store-consent';
 import { LwButton } from '../elements/button/lw-button';
 import { PluginIcon } from './plugin-icon';
 import { availableUpdate } from './lifecycle/plugin-update';
-import { frameSettingsGroup } from '../plugin/frame/frame-settings-section';
 
 interface InstalledRow {
   readonly id: string;
@@ -45,6 +45,8 @@ export class InstalledPluginList implements OnInit {
   private readonly catalog = inject(PluginCatalogEntries);
 
   private readonly settings = inject(SettingsService);
+
+  private readonly sectionOwners = inject(SettingsRegistry);
 
   private readonly enablement = inject(PluginEnablementService);
 
@@ -86,9 +88,7 @@ export class InstalledPluginList implements OnInit {
           enabled: this.enablement.isEnabled(plugin.id),
           deployed: isDeployed,
           settingsSectionId: sections.find(
-            (section) =>
-              section.group === frameSettingsGroup(this.installs, plugin.id) &&
-              section.id.startsWith(`${plugin.id}.`),
+            (section) => this.sectionOwners.ownerOf(section.id) === plugin.id,
           )?.id,
           update: isDeployed ? undefined : availableUpdate(plugin, entry),
         };

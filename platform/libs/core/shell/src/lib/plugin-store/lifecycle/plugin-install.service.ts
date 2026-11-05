@@ -1,6 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { PluginStateService } from '../../plugin/plugin-state.service';
+import { PluginUserChoices } from '../../plugin/enablement/plugin-user-choices';
 import { PluginDeploymentService } from './plugin-deployment.service';
 import {
   INSTALLED_LIST_CODEC,
@@ -23,6 +24,7 @@ const STORAGE_KEY = 'lw.shell.installed-plugins';
 export class PluginInstallService {
   private readonly pluginState = inject(PluginStateService);
   private readonly deployment = inject(PluginDeploymentService);
+  private readonly userChoices = inject(PluginUserChoices);
 
   private readonly stored = persistedSetting(STORAGE_KEY, INSTALLED_LIST_CODEC);
 
@@ -86,18 +88,24 @@ export class PluginInstallService {
     );
   }
 
-  /** Removes an installed plugin (idempotent); the runtime unloads it live. */
   /**
-   * Removes an installed plugin and **deletes its own store** — deliberately the
-   * opposite of its settings section, which survives so a reinstall finds its configuration. An
-   * abandoned draft of a plugin the user just removed is litter; a preference is not.
+   * Removes an installed plugin (idempotent; the runtime unloads it live) and **deletes its own
+   * store** — deliberately the opposite of its settings section, which survives so a reinstall finds
+   * its configuration. An abandoned draft of a plugin the user just removed is litter; a preference
+   * is not. A switch-off and every withdrawn capability go with the plugin too, so installing it
+   * again starts it holding what its consent shows. Where a composed or deployed plugin holds the
+   * id, the store and those choices are that plugin's and stay.
    */
   uninstall(id: string): void {
     if (!this.isInstalled(id)) {
       return;
     }
     this.stored.update((installed) => installed.filter((entry) => entry.id !== id));
+    if (this.composedIds.has(id) || this.deployment.isDeployed(id)) {
+      return;
+    }
     this.pluginState.removePlugin(id);
+    this.userChoices.forget(id);
   }
 
   private validEntry(plugin: InstalledPlugin): InstalledPlugin {

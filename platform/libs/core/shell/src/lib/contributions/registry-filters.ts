@@ -1,3 +1,4 @@
+import { addressSlot } from '../addressing/address-form';
 import { RegisteredSurface } from './surface-normalize';
 
 export function withoutOmitted<T>(
@@ -25,10 +26,21 @@ export function sameSlotAs(
 ): (existing: RegisteredSurface) => boolean {
   const path = entry.routable?.path;
   if (path !== undefined) {
-    return (existing) => existing.routable?.path === path;
+    const slot = addressSlot(path);
+    return (existing) =>
+      existing.routable !== undefined &&
+      addressSlot(existing.routable.path) === slot;
   }
   return (existing) =>
     existing.routable === undefined &&
     existing.id !== undefined &&
     existing.id === entry.id;
+}
+
+export function heldUnder(
+  id: string,
+  pluginId: string | undefined,
+): (entry: RegisteredSurface) => boolean {
+  return (entry) =>
+    entry.id === id && (pluginId === undefined || entry.pluginId === pluginId);
 }

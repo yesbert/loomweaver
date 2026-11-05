@@ -118,6 +118,24 @@ describe('sanitizeRpcToastInput', () => {
 });
 
 describe('sanitizeRpcMenuItem', () => {
+  it('carries a heading picture only from an address the browser fetches, and keeps the heading without any other', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const heading = (image: string) =>
+      sanitizeRpcMenuItem(
+        asMenuItem({ menu: 'acme/user', menuHeader: { title: 'Ada', image } }),
+      ).menuHeader;
+
+    expect(heading('/avatars/ada.png')?.image).toBe('/avatars/ada.png');
+    expect(heading('https://cdn.example.com/ada.png')?.image).toBe(
+      'https://cdn.example.com/ada.png',
+    );
+    expect(heading('javascript:alert(1)')).toEqual({ title: 'Ada' });
+    expect(heading('data:image/svg+xml,<svg/>')?.image).toBeUndefined();
+    expect(heading('blob:https://cdn.example.com/1')?.image).toBeUndefined();
+    expect(warn).toHaveBeenCalledTimes(3);
+    warn.mockRestore();
+  });
+
   it('carries a variant from the button vocabulary, and drops any other with a report, keeping the entry', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 

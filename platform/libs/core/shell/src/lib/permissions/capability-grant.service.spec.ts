@@ -3,6 +3,7 @@ import { SETTINGS_STORE } from '../persistence/settings-store';
 import { KeyValueStore } from '../persistence/key-value-store';
 import { CAPABILITY_GRANTS, provideCapabilityGrants } from './provide-capability-grants';
 import { CapabilityGrantService } from './capability-grant.service';
+import { PluginDeploymentService } from '../plugin-store/lifecycle/plugin-deployment.service';
 
 const KEY = 'lw.shell.capability-revocations';
 
@@ -155,6 +156,31 @@ describe('CapabilityGrantService', () => {
 
     expect(service.isGranted('p', 'ui')).toBe(false);
     expect(service.isGranted('p', 'contributions')).toBe(true);
+  });
+
+  it('a revocation stored while the plugin was the user\'s own is not honoured once the operator deploys it', () => {
+    localStorage.setItem(KEY, JSON.stringify(['p:ui', 'other:ui']));
+    const service = make({ other: ['ui'] });
+    service.register('p', ['ui'], ['ui']);
+    service.register('other', ['ui']);
+    expect(service.isGranted('p', 'ui')).toBe(false);
+
+    TestBed.inject(PluginDeploymentService).adopt([
+      {
+        id: 'p',
+        name: 'Deployed',
+        entryUrl: '/p/plugin.html',
+        capabilities: ['ui'],
+        deployed: true,
+      },
+    ]);
+
+    expect(service.isGranted('p', 'ui')).toBe(true);
+    expect(service.isGranted('other', 'ui')).toBe(false);
+    expect(
+      service.permissions().find((entry) => entry.pluginId === 'p')
+        ?.capabilities,
+    ).toEqual([{ capability: 'ui', effective: true }]);
   });
 
   it('drops a persisted revocation for a non-revocable capability (a stale contributions key)', () => {

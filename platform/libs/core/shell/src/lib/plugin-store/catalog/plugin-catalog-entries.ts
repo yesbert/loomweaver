@@ -1,6 +1,10 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { PLUGIN_CATALOG } from './plugin-catalog';
-import { PluginCatalogEntry } from './catalog-entry';
+import {
+  PluginCatalogEntry,
+  parseCatalogList,
+  reportingDroppedOnce,
+} from './catalog-entry';
 
 type CatalogState =
   | { readonly status: 'loading' }
@@ -24,6 +28,8 @@ export class PluginCatalogEntries {
 
   readonly failed = computed(() => this.state().status === 'failed');
 
+  private readonly dropped = reportingDroppedOnce();
+
   private requested = false;
 
   ensureLoaded(): void {
@@ -39,7 +45,10 @@ export class PluginCatalogEntries {
     this.requested = true;
     this.state.set({ status: 'loading' });
     try {
-      const entries = await this.catalog.load();
+      const entries = parseCatalogList(
+        await this.catalog.load(),
+        this.dropped,
+      );
       this.state.set({ status: 'loaded', entries });
       return entries;
     } catch (error) {

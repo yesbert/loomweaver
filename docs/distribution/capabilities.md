@@ -38,6 +38,16 @@ take effect immediately: enabling or disabling reconciles activation reactively,
 revocation reads the live grant on the plugin's next `ctx` call. The user can only narrow, never
 widen beyond what you granted here, so least privilege is preserved. Nothing to wire: it appears automatically.
 
+A plugin the operator deployed is listed with what it holds and without switches. A revocation stored
+while the same id was the user's own is not honoured for it, so nobody is left with a capability
+withdrawn and no switch to give it back.
+
+With a settings store that answers only asynchronously, a frame plugin the user can switch off
+starts once the store has answered. One the user turned off is therefore never started ahead of the
+answer, and a rejected read counts as an answer. A required or deployed frame plugin starts at once.
+Plugins that run in the page start at once as well, and one the user turned off is unloaded when the
+answer arrives.
+
 ![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../../assets/media/settings-light.png#gh-light-mode-only)
 
 ![The Settings dialog on its Permissions section, with a switch per plugin and, under each, a switch per capability the plugin holds.](../../assets/media/settings-dark.png#gh-dark-mode-only)

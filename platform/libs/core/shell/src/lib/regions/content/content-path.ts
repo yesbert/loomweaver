@@ -1,16 +1,11 @@
 import { ContentRoute } from '@loomweaver/plugin-sdk';
+import { normalizePath, segmentsOf } from '../../addressing/address-form';
 
 export interface Addressable {
   readonly path: string;
 }
 
-export function normalizePath(url: string): string {
-  return url.split(/[?#]/, 1)[0].replace(/^\/+/, '');
-}
-
-export function segmentsOf(path: string): string[] {
-  return normalizePath(path).split('/').filter(Boolean);
-}
+export { normalizePath, segmentsOf } from '../../addressing/address-form';
 
 export function isHomePath(path: string): boolean {
   return normalizePath(path) === '';

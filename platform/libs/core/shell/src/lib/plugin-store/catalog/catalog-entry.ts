@@ -84,9 +84,41 @@ export function parseCatalogEntry(
   };
 }
 
-export function parseCatalogList(raw: unknown): readonly PluginCatalogEntry[] {
+export type DroppedEntryReport = (raw: unknown, position: number) => void;
+
+export function parseCatalogList(
+  raw: unknown,
+  dropped: DroppedEntryReport = () => undefined,
+): readonly PluginCatalogEntry[] {
   if (!Array.isArray(raw)) {
     return [];
   }
-  return dedupeById(raw.map((entry) => parseCatalogEntry(entry)));
+  return dedupeById(
+    raw.map((entry: unknown, position) => {
+      const parsed = parseCatalogEntry(entry);
+      if (!parsed) {
+        dropped(entry, position);
+      }
+      return parsed;
+    }),
+  );
+}
+
+export function reportingDroppedOnce(): DroppedEntryReport {
+  const reported = new Set<string>();
+  return (raw, position) => {
+    const id = (raw as { id?: unknown } | null)?.id;
+    const name =
+      typeof id === 'string' && id.length > 0
+        ? `entry "${id}"`
+        : `entry ${position + 1}`;
+    if (reported.has(name)) {
+      return;
+    }
+    reported.add(name);
+    console.warn(
+      `Plugin catalogue: ${name} is dropped. An entry needs an id of lower-case letters, digits, ` +
+        `dots and hyphens outside "shell", and an entryUrl served from this origin.`,
+    );
+  };
 }

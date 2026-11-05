@@ -78,6 +78,7 @@ export function makeContext(
   const ctx = TestBed.inject(HostContextFactory).create(
     'test-plugin',
     (capability) => grants.has(capability),
+    'trusted',
   );
   return {
     ctx,

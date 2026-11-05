@@ -1,5 +1,10 @@
 import { Service, Signal, signal, untracked } from '@angular/core';
-import { Disposable, Toolbar, ToolbarCell } from '@loomweaver/plugin-sdk';
+import {
+  Disposable,
+  MenuContext,
+  Toolbar,
+  ToolbarCell,
+} from '@loomweaver/plugin-sdk';
 import { upsertBy, upsertById } from '../foundation/identified';
 
 export interface RegisteredToolbar {
@@ -8,6 +13,14 @@ export interface RegisteredToolbar {
 }
 
 const ACTIONS_SLOT_SUFFIX = '/actions';
+
+export const SURFACE_OWNER = 'surfaceOwner';
+
+export function withoutSurfaceOwner(context: MenuContext): MenuContext {
+  return Object.fromEntries(
+    Object.entries(context).filter(([key]) => key !== SURFACE_OWNER),
+  );
+}
 
 export function surfaceActionsSlot(surfaceId: string): string {
   return `${surfaceId}${ACTIONS_SLOT_SUFFIX}`;

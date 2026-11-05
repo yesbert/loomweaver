@@ -9,6 +9,8 @@ import { provideCapabilityGrants } from '../permissions/provide-capability-grant
 import { PluginEnablementService } from './enablement/plugin-enablement.service';
 import { MenuService } from '../menu/menu.service';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
+import { SETTINGS_STORE } from '../persistence/settings-store';
+import { provideRequiredPlugins } from '../foundation/required-plugins';
 
 class DummyComponent {}
 
@@ -333,5 +335,85 @@ describe('PluginRuntime', () => {
     expect(registry.commands()).toHaveLength(0);
     expect(commandsAtReport).toEqual([0]);
     error.mockRestore();
+  });
+});
+
+describe('PluginRuntime with a settings store that answers only asynchronously', () => {
+  function slowStore(stored: Record<string, string>) {
+    const answered = new Subject<void>();
+    const asked = firstValueFrom(answered);
+    return {
+      answer: () => answered.next(),
+      fail: () => answered.error(new Error('401')),
+      store: {
+        get: (key: string) => asked.then(() => stored[key]),
+        set: () => Promise.resolve(),
+        delete: () => Promise.resolve(),
+      },
+    };
+  }
+
+  function compose(ids: readonly string[], required: readonly string[]) {
+    const { store, answer, fail } = slowStore({
+      'lw.shell.disabled-plugins': JSON.stringify(['off', 'core']),
+    });
+    const activated: string[] = [];
+    const deactivated: string[] = [];
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        menuStub,
+        { provide: SETTINGS_STORE, useValue: store },
+        provideRequiredPlugins(...required),
+        ...ids.map((id) => ({
+          provide: PLUGIN,
+          useValue: {
+            manifest: { id },
+            activate: () => void activated.push(id),
+            deactivate: () => void deactivated.push(id),
+          } satisfies Plugin,
+          multi: true,
+        })),
+      ],
+    });
+    TestBed.inject(PluginRuntime).activateAll();
+    return { activated, deactivated, answer, fail };
+  }
+
+  async function settle(): Promise<void> {
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+  }
+
+  it('starts the in-page plugins at once in the order they were composed, and switches one off when the store says so', async () => {
+    const { activated, deactivated, answer } = compose(
+      ['off', 'on', 'core'],
+      ['core'],
+    );
+    TestBed.tick();
+
+    expect(activated).toEqual(['off', 'on', 'core']);
+    expect(deactivated).toEqual([]);
+
+    answer();
+    await settle();
+
+    expect(activated).toEqual(['off', 'on', 'core']);
+    expect(deactivated).toEqual(['off']);
+  });
+
+  it('leaves every in-page plugin running when the read is rejected', async () => {
+    const { activated, deactivated, fail } = compose(
+      ['off', 'on', 'core'],
+      ['core'],
+    );
+
+    fail();
+    await settle();
+
+    expect(activated).toEqual(['off', 'on', 'core']);
+    expect(deactivated).toEqual([]);
   });
 });

@@ -1,20 +1,49 @@
 import { signal } from '@angular/core';
 import { TabBadge } from '@loomweaver/plugin-sdk';
 
-export class SurfaceBadges {
-  private readonly badges = signal<ReadonlyMap<string, TabBadge>>(new Map());
+interface OwnedBadge {
+  readonly id: string;
+  readonly ownerId: string | undefined;
+  readonly badge: TabBadge;
+}
 
-  badgeOf(id: string | undefined): TabBadge | undefined {
-    return id === undefined ? undefined : this.badges().get(id);
+export class SurfaceBadges {
+  private readonly badges = signal<readonly OwnedBadge[]>([]);
+
+  badgeOf(
+    id: string | undefined,
+    ownerId: string | undefined,
+    orOfAnyOwner = false,
+  ): TabBadge | undefined {
+    const ofId = this.badges().filter((held) => held.id === id);
+    const exact = ofId.find((held) => held.ownerId === ownerId);
+    return (exact ?? (orOfAnyOwner ? ofId[0] : undefined))?.badge;
   }
 
-  set(id: string, badge: TabBadge | undefined): void {
+  set(
+    id: string,
+    ownerId: string | undefined,
+    badge: TabBadge | undefined,
+  ): void {
     this.badges.update((badges) => {
-      if (JSON.stringify(badges.get(id)) === JSON.stringify(badge)) {
+      const current = badges.find(
+        (held) => held.id === id && held.ownerId === ownerId,
+      );
+      if (JSON.stringify(current?.badge) === JSON.stringify(badge)) {
         return badges;
       }
-      const next = new Map([...badges].filter(([key]) => key !== id));
-      return badge === undefined ? next : next.set(id, badge);
+      const others = badges.filter((held) => held !== current);
+      return badge === undefined ? others : [...others, { id, ownerId, badge }];
     });
+  }
+
+  forgetUnless(
+    registered: (id: string, ownerId: string | undefined) => boolean,
+  ): void {
+    this.badges.update((badges) =>
+      badges.every((held) => registered(held.id, held.ownerId))
+        ? badges
+        : badges.filter((held) => registered(held.id, held.ownerId)),
+    );
   }
 }
