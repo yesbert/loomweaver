@@ -1,16 +1,10 @@
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { conclude, installedPackages, offendersAmong } from '../../scripts/licences.mjs';
 
 /**
- * The permissive set the platform and the demo are gated against, from the repository's one
- * allowlist. The site ships client-side JavaScript, so its runtime dependencies deserve the same
- * scrutiny.
- */
-const ALLOWED = new Set(
-  JSON.parse(readFileSync(new URL('../../licence-allowlist.json', import.meta.url), 'utf8')),
-);
-
-/**
+ * The site ships client-side JavaScript, so its runtime dependencies are gated against the same
+ * allowlist as the platform and the demo, read the same way: `scripts/licences.mjs` at the
+ * repository root holds both.
+ *
  * Copyleft exceptions, each named to one package family rather than allowing the licence
  * across the tree. Both are build-time tooling whose code never reaches `dist/`.
  *
@@ -25,31 +19,8 @@ const ALLOWED = new Set(
  */
 const EXCLUDED = [/^@img\/sharp-libvips-/, /^lightningcss(-|$)/];
 
-const raw = execFileSync('npx', ['--yes', 'license-checker', '--production', '--json'], {
-  encoding: 'utf8',
-  maxBuffer: 32 * 1024 * 1024,
-});
+const production = installedPackages(new URL('..', import.meta.url), { production: true }).filter(
+  (entry) => !EXCLUDED.some((pattern) => pattern.test(entry.name)),
+);
 
-const offenders = [];
-for (const [pkg, info] of Object.entries(JSON.parse(raw))) {
-  const name = pkg.slice(0, pkg.lastIndexOf('@'));
-  if (EXCLUDED.some((pattern) => pattern.test(name))) continue;
-
-  // license-checker appends "*" when it inferred the licence from a LICENSE file
-  // rather than the manifest; the licence itself is what matters.
-  const licences = String(info.licenses ?? '')
-    .replace(/[*]/g, '')
-    .replace(/^\((.*)\)$/, '$1')
-    .split(/\s+OR\s+/)
-    .map((l) => l.trim());
-
-  if (!licences.some((l) => ALLOWED.has(l))) offenders.push(`${pkg}: ${info.licenses}`);
-}
-
-if (offenders.length > 0) {
-  console.error(`\nlicence check failed for ${offenders.length} package(s):`);
-  for (const o of offenders) console.error(`  - ${o}`);
-  process.exit(1);
-}
-
-console.log('licence check: all production dependencies use allowed licences');
+conclude(offendersAmong(production), `all ${production.length} production dependencies`);

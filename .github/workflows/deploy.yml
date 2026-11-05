@@ -40,24 +40,16 @@ jobs:
       # Full history: sync-docs.mjs dates every page from its last commit, and those dates are what
       # the sitemap and the structured data publish. A shallow clone would date the whole site to
       # the day it was deployed.
-      - uses: actions/checkout@v7
+      #
+      # Both actions are pinned to a commit rather than a tag, as in release.yml: a tag can be moved,
+      # and this job holds the deploy key. The comment names the version the commit is.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-
-      - name: Prepare the deploy key
-        env:
-          DEPLOY_KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
-          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          echo "$DEPLOY_KEY_B64" | base64 -d > ~/.ssh/loomweaver_deploy
-          chmod 600 ~/.ssh/loomweaver_deploy
-          echo "$DEPLOY_KNOWN_HOSTS" >> ~/.ssh/known_hosts
 
       # The token is for the changelog: the sync reads the release list from the GitHub API, and
       # an unauthenticated read shares a rate limit with every other anonymous caller.
@@ -122,6 +114,20 @@ jobs:
             </FilesMatch>
           </IfModule>
           HTACCESS
+
+      # Written here, directly before the one step that uses it, and not at the top of the job: the
+      # two builds above run `npm install`, and with it the install scripts of every package in two
+      # dependency trees. A key that is not on disk yet is a key none of them can read.
+      - name: Prepare the deploy key
+        env:
+          DEPLOY_KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY_B64" | base64 -d > ~/.ssh/loomweaver_deploy
+          chmod 600 ~/.ssh/loomweaver_deploy
+          echo "$DEPLOY_KNOWN_HOSTS" >> ~/.ssh/known_hosts
 
       # Both uploads travel over one SSH connection, and only opening it is retried. While bots flood
       # the server's port 22, its sshd drops unauthenticated connections at random, so a deploy that

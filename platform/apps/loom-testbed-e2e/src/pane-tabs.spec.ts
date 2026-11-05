@@ -1,8 +1,17 @@
-import { expect, test } from '@playwright/test';
+import { Locator, Page, expect, test } from '@playwright/test';
+
+async function paneBesideTheAddress(page: Page): Promise<Locator> {
+  const stripId = await page
+    .locator(
+      'lw-pane-view:not([data-address-pane]) [role="tablist"][id^="pane-strip:content:"]',
+    )
+    .getAttribute('id');
+  return page
+    .locator('lw-pane-view')
+    .filter({ has: page.locator(`[id="${stripId}"]`) });
+}
 
 test.describe('Per-pane tab groups', () => {
-  const pane = 'lw-pane-view:not([data-address-pane])';
-
   test('a secondary pane is a tab group: own strip, own active tab, add/switch/close, reload-safe', async ({
     page,
   }) => {
@@ -13,43 +22,39 @@ test.describe('Per-pane tab groups', () => {
         'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
       )
       .click();
-    await expect(page.locator(pane)).toHaveCount(1);
-    await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(1);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-search-view',
-      ),
+      page.locator('lw-pane-view:not([data-address-pane])'),
+    ).toHaveCount(1);
+    const secondary = await paneBesideTheAddress(page);
+    const tabs = secondary.getByRole('tab');
+    await expect(tabs).toHaveCount(1);
+    await expect(
+      secondary.locator('lw-surface-body lw-testbed-search-view'),
     ).toBeVisible();
 
-    await page
-      .locator('lw-pane-view:not([data-address-pane])')
-      .getByTestId('pane-add-tab')
-      .click();
+    await secondary.getByTestId('pane-add-tab').click();
     await page.getByRole('menuitem', { name: 'Outline' }).click();
-    await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(2);
+    await expect(tabs).toHaveCount(2);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
-      ),
+      secondary.locator('lw-surface-body lw-testbed-outline-view'),
     ).toBeVisible();
 
     await page.reload();
-    await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(2);
+    await expect(tabs).toHaveCount(2);
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-outline-view',
-      ),
+      secondary.locator('lw-surface-body lw-testbed-outline-view'),
     ).toBeVisible();
 
-    await page.locator(`${pane} [role="tab"]`).first().click();
+    await tabs.first().click();
     await expect(
-      page.locator(
-        'lw-pane-view:not([data-address-pane]) lw-surface-body lw-testbed-search-view',
-      ),
+      secondary.locator('lw-surface-body lw-testbed-search-view'),
     ).toBeVisible();
+    await expect(secondary).toHaveAttribute('data-address-pane');
 
-    await page.locator(`${pane}`).getByTestId('tab-close').first().click();
-    await expect(page.locator(`${pane} [role="tab"]`)).toHaveCount(1);
+    await secondary.getByTestId('tab-close').first().click();
+    await expect(tabs).toHaveCount(1);
+    await expect(secondary.getByRole('tab', { name: 'Outline' })).toBeVisible();
+    await expect(page.locator('lw-content-grid lw-pane-view')).toHaveCount(2);
   });
 
   test('the URL group is a tab group too: its open tabs (incl. titles) survive a reload', async ({

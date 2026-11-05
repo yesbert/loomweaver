@@ -82,6 +82,13 @@ jobs:
           # cannot be withdrawn. scripts/dist-tag.mjs owns that rule, so it lives in one place and
           # can be exercised without a release.
           dist="$(node scripts/dist-tag.mjs "${tag}")"
+          # The tag also has to be the version the code itself carries. Two constants are packed as
+          # they are committed and never stamped from the tag: the version the shell reports, and
+          # the version of our packages the generators tell a product to install. A tag on a commit
+          # where the bump left one of them behind would publish packages that name another release.
+          # scripts/verify-version.mjs compares both with the tag and asks the stamping script
+          # whether the committed file is what it would write; it writes nothing itself.
+          node scripts/verify-version.mjs "${tag}"
           echo "value=${tag}" >> "$GITHUB_OUTPUT"
           echo "dist=${dist}" >> "$GITHUB_OUTPUT"
           echo "Publishing version ${tag} to dist-tag ${dist}"
@@ -144,12 +151,21 @@ jobs:
           done
           exit "${untrusted}"
 
+      # A run that failed part-way can be run again. A version on npm cannot be published twice, so
+      # a plain loop over all seven would stop at the first package the failed run got out and
+      # never reach the ones behind it, leaving a release half on npm. The script asks the registry
+      # for each exact version, names in the log what it skips, and lists the folders still to
+      # publish. A registry that does not answer stops the step, because no answer is not "not
+      # published". The list is taken into a variable first: a command substitution in the `for`
+      # line itself would have its failure ignored.
       - name: Publish
         env:
           DIST_TAG: ${{ steps.version.outputs.dist }}
+          PKG_VERSION: ${{ steps.version.outputs.value }}
         run: |
           set -euo pipefail
-          for dir in $(node scripts/release-packages.mjs roots); do
+          pending="$(node scripts/release-packages.mjs pending "${PKG_VERSION}")"
+          for dir in ${pending}; do
             echo "publishing ${dir} to ${DIST_TAG}"
             ( cd "${dir}" && npm publish --tag "${DIST_TAG}" )
           done

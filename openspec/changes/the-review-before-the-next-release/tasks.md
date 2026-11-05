@@ -164,20 +164,23 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 10.2 The surface inset test fails when no docked surface is found (`surface-inset.spec.ts`)
 - [x] 10.3 Clicking a tab in a pane fails when the tab is missing, and the stable-ids test asserts the address moved (`support/helpers.ts`, `stable-pane-ids.spec.ts`)
 - [x] 10.4 The testbed's reply field is named in each pane of a split, and the accessibility scan covers a split (`platform/libs/weavers/testbed-weaver/src/lib/entry-tabs/testbed-entry-view.html`, `a11y.spec.ts`)
-- [ ] 10.7 The test of a secondary pane as a tab group passes every time: it fails in about one run of seven on unchanged code (`platform/apps/loom-testbed-e2e/src/pane-tabs.spec.ts`, the close at its end)
-- [ ] 10.5 The end-to-end project type-checks clean, and its lint target holds that (`retained-url-pane.spec.ts`, `scrollbars.spec.ts`, the unused import in `content.spec.ts`)
+- [x] 10.7 The test of a secondary pane as a tab group passes every time: it fails in about one run of seven on unchanged code (`platform/apps/loom-testbed-e2e/src/pane-tabs.spec.ts`, the close at its end)
+- [x] 10.5 The end-to-end project type-checks clean, and its lint target holds that (`retained-url-pane.spec.ts`, `scrollbars.spec.ts`, the unused import in `content.spec.ts`)
 - [x] 10.6 The surface inset test polls for the inset instead of waiting a fixed time (`surface-inset.spec.ts`)
 
 ## 11. Guards and the release
 
 - [ ] 11.1 The bundle-size guard counts every file the entry script imports statically; the sum equals the builder's initial total for all four applications, and the ceilings are recorded anew (`platform/tools/checks/check-bundle-size.mjs`)
-- [ ] 11.2 A release run that failed part-way can be run again: a package already published at that version is skipped and named (`.github/workflows/release.yml`)
-- [ ] 11.3 The comment guard sees a comment before a closing brace, bracket or parenthesis (`platform/tools/checks/check-comments.mjs`; six shapes reported, the tree still clean)
-- [ ] 11.4 The comment guard skips only files carrying the generated banner; the six files it skipped are read and cleaned (`check-comments.mjs`)
-- [ ] 11.5 The licence check matches a licence exactly and covers what a tooling bundle inlines (`platform/package.json`, `demo/package.json`)
-- [ ] 11.6 The assistant's contract check fails on a parameter the page drops or widens (`platform/tools/checks/check-llms-contract.mjs`)
-- [ ] 11.7 The deploy key is written directly before the deploy, and the jobs holding secrets pin their actions to commits (`.github/workflows/deploy.yml`, `sonar.yml`)
-- [ ] 11.8 The release refuses a tag whose stamped versions disagree with it (`.github/workflows/release.yml`)
+- [x] 11.2 A release run that failed part-way can be run again: a package already published at that version is skipped and named (`.github/workflows/release.yml`)
+- [x] 11.3 The comment guard sees a comment before a closing brace, bracket or parenthesis (`platform/tools/checks/check-comments.mjs`; six shapes reported, the tree still clean)
+- [x] 11.4 The comment guard skips only files carrying the generated banner; the six files it skipped are read and cleaned (`check-comments.mjs`)
+- [x] 11.5 The licence check matches a licence exactly and covers what a tooling bundle inlines (`platform/package.json`, `demo/package.json`)
+- [x] 11.6 The assistant's contract check fails on a parameter the page drops or widens (`platform/tools/checks/check-llms-contract.mjs`)
+- [x] 11.7 The deploy key is written directly before the deploy, and the jobs holding secrets pin their actions to commits (`.github/workflows/deploy.yml`, `sonar.yml`)
+- [x] 11.8 The release refuses a tag whose stamped versions disagree with it (`.github/workflows/release.yml`)
+- [ ] 11.9 The dist-tag script answers when it is started through a symlinked path, instead of printing nothing and leaving the tag empty (`scripts/dist-tag.mjs`)
+- [ ] 11.10 The release's announce step can run again after the release page exists (`.github/workflows/release.yml`)
+- [ ] 11.11 `release-packages.mjs roots` goes, since no workflow calls it any more
 
 ## 12. What the review did not reach
 
