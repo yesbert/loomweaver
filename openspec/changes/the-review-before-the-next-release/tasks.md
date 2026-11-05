@@ -116,7 +116,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 8.21 A directory given as `./apps/x` gets the same paths as `apps/x`: one normalisation of the project root for both generators, and no path is concatenated in `devkit/src/generators/workspace-tree.ts`
 - [x] 8.22 A malformed `.postcssrc.json`, `postcss.config.json` or `package.json` met during a trial run is reported as a workspace error naming the file (`devkit/src/generators/nx-footprint.ts`, `cli/src/lib/init/nx-trial.ts`)
 - [x] 8.23 The trial run in an Nx workspace says, like the real run, that the style pipeline is left alone beside a PostCSS script and why (`cli/src/lib/init/nx-trial.ts`, `devkit/src/generators/nx-footprint.ts`)
-- [ ] 8.24 The auth-source, layout, theme, settings-store and frame-plugin generators join the application's root to their paths through the shared helper, so an application at the workspace root is written under `src/…` and named without a leading dot (`devkit/src/generators/*/generator.ts`)
+- [x] 8.24 Not reproduced, no code changed: Nx reports the root as `.` and every consumer normalises it; a regression test pins it. Was: The auth-source, layout, theme, settings-store and frame-plugin generators join the application's root to their paths through the shared helper, so an application at the workspace root is written under `src/…` and named without a leading dot (`devkit/src/generators/*/generator.ts`)
 - [x] 8.25 A malformed PostCSS JSON file met when a generator really runs is reported naming the file, as the trial run does (`devkit/src/generators/workspace-tree.ts`, `addPostcssPlugin`)
 
 ## 9. The demo and the example
