@@ -221,6 +221,35 @@ describe('validateCommands', () => {
       expect(found[1].message).toContain("frame.refresh: says an agent's word is enough");
     });
 
+    it('says it cannot judge a callable that is decided by an expression', () => {
+      const found = read(`
+        ctx.registerCommand({ id: 'a.flagged', title: 'a', callable: environment.agents, run: () => undefined });
+        ctx.registerCommand({ id: 'a.short', title: 'a', callable, run: () => undefined });
+      `);
+
+      expect(found.map((finding) => finding.code)).toEqual([
+        'command.unreadable',
+        'command.unreadable',
+      ]);
+      expect(found[0].message).toContain('"a.flagged"');
+      expect(found[0].message).toContain('What it offers an agent is unknown here');
+      expect(found.map((finding) => finding.message).join(' ')).not.toContain(
+        'not offered',
+      );
+    });
+
+    it('takes a callable set to false or to undefined as closed', () => {
+      const found = read(`
+        ctx.registerCommand({ id: 'a.closed', title: 'a', callable: false, run: () => undefined });
+        ctx.registerCommand({ id: 'a.unset', title: 'a', callable: undefined, run: () => undefined });
+      `);
+
+      expect(found.map((finding) => finding.code)).toEqual([
+        'command.private',
+        'command.private',
+      ]);
+    });
+
     it('still says it cannot read an id computed elsewhere', () => {
       const [finding] = read(`
         import { ID } from './ids';

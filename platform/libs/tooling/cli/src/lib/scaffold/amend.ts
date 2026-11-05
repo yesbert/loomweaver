@@ -5,11 +5,19 @@ import {
   ensurePostcssPlugin,
   PackageAmendment,
   PostcssAmendment,
+  postcssFileTheBuildReads,
   postcssWrittenAsCode,
 } from '@loomweaver/devkit';
 import { existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { findWorkspace, readJsonFile, Workspace } from '../workspace';
+import {
+  findWorkspace,
+  projectRootAbove,
+  readJsonFile,
+  resolveBuildProject,
+  Workspace,
+  WorkspaceError,
+} from '../workspace';
 import { AmendLog, PlannedAmendment } from './amend-log';
 import { ProjectAmendment, ProjectWiring } from './project-wiring';
 
@@ -92,24 +100,40 @@ class Amender {
   }
 
   private planPostcss(amendment: PostcssAmendment): void {
-    const writtenAsCode = postcssWrittenAsCode(
-      (name) => existsSync(resolve(this.workspace.root, name)),
-      amendment,
-    );
-    if (writtenAsCode) {
-      this.log.note(writtenAsCode);
-      return;
-    }
-    const file = resolve(this.workspace.root, amendment.file);
+    const exists = (name: string) =>
+      existsSync(resolve(this.workspace.root, name));
+    const projectRoot = this.projectRoot();
+    const name = postcssFileTheBuildReads(exists, amendment, projectRoot);
+    const file = resolve(this.workspace.root, name);
     const result = ensurePostcssPlugin(
       existsSync(file) ? readJsonFile(file) : undefined,
       amendment,
+      name,
     );
     this.log.note(...result.declined);
     if (result.added.length === 0) {
       return;
     }
+    const writtenAsCode = postcssWrittenAsCode(exists, amendment, projectRoot);
+    if (writtenAsCode) {
+      this.log.note(writtenAsCode);
+      return;
+    }
     this.log.plan(file, result.added, `${JSON.stringify(result.value, null, 2)}\n`);
+  }
+
+  private projectRoot(): string {
+    if (this.workspace.kind !== 'angular') {
+      return projectRootAbove(this.workspace, this.target);
+    }
+    try {
+      return resolveBuildProject(this.workspace, this.target).root;
+    } catch (error) {
+      if (error instanceof WorkspaceError) {
+        return '';
+      }
+      throw error;
+    }
   }
 
   private planPackage(amendment: PackageAmendment): void {

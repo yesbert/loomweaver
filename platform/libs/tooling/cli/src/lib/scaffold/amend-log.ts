@@ -1,4 +1,4 @@
-import { relative, sep } from 'node:path';
+import { relativeTo } from '../workspace';
 
 export interface PlannedAmendment {
   readonly file: string;
@@ -22,7 +22,7 @@ export class AmendLog {
   }
 
   displayName(file: string): string {
-    const inside = relative(this.root, file).split(sep).join('/');
+    const inside = relativeTo(this.root, file);
     return inside.startsWith('..') ? file : inside;
   }
 }

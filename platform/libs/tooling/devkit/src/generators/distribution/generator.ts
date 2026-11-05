@@ -8,11 +8,17 @@ import {
 } from '@nx/devkit';
 import { amendments, generate } from '../../lib/generate/generate';
 import { distributionInput } from '../../recipes/angular-distribution/scaffold';
-import { asObject, ensureBuildTarget, JsonObject } from '../../lib/amend/merge';
+import {
+  asObject,
+  ensureBuildTarget,
+  joinProjectPath,
+  JsonObject,
+} from '../../lib/amend/merge';
 import {
   Amendment,
   BuildTargetAmendment,
 } from '../../lib/amend/types';
+import { FileMap } from '../../lib/generate/types';
 import { applyAmendments } from '../apply-amendments';
 import {
   tsconfigPathsFile,
@@ -35,19 +41,20 @@ export async function distributionGenerator(
     baseTsconfig: tsconfigPathsFile(tree),
     withTests: options.unitTestRunner !== 'none',
   });
-  const projectFile = `${distribution.projectRoot}/project.json`;
+  const projectFile = joinProjectPath(distribution.projectRoot, 'project.json');
   const composingIntoExisting = tree.exists(projectFile);
+  const where = distribution.projectRoot || 'the workspace root';
   if (composingIntoExisting) {
     if (!options.force) {
       throw new Error(
-        `A project already exists at ${distribution.projectRoot}. Pass --force to compose the ` +
+        `A project already exists at ${where}. Pass --force to compose the ` +
           'distribution into it, replacing the bootstrap files this scaffold owns.',
       );
     }
     const occupantName: unknown = readJson(tree, projectFile).name;
     if (typeof occupantName === 'string' && occupantName !== options.name) {
       throw new Error(
-        `The project at ${distribution.projectRoot} is named "${occupantName}", not "${options.name}". ` +
+        `The project at ${where} is named "${occupantName}", not "${options.name}". ` +
           'Renaming it here would break every reference to it in the workspace — pass ' +
           `--name ${occupantName}.`,
       );
@@ -63,12 +70,22 @@ export async function distributionGenerator(
     withTests: distribution.withTests,
   });
   const recipeAmendments = amendments(angularDistribution, input);
-  const installed = applyAmendments(tree, recipeAmendments);
+  const installed = applyAmendments(
+    tree,
+    recipeAmendments,
+    undefined,
+    distribution.projectRoot,
+  );
 
   const scaffold = nxDistributionFiles(distribution);
   if (composingIntoExisting) {
-    const { 'project.json': ours, ...rest } = scaffold;
-    writeFiles(tree, distribution.projectRoot, source, rest);
+    const { 'project.json': ours, ...configuration } = scaffold;
+    writeFiles(
+      tree,
+      distribution.projectRoot,
+      source,
+      absentFrom(tree, distribution.projectRoot, configuration),
+    );
     const project = composedProject(
       readJson(tree, projectFile),
       JSON.parse(ours),
@@ -136,6 +153,14 @@ function occupantFirst(occupant: unknown, ours: unknown): unknown {
     merged[key] = occupantFirst(kept[key], value);
   }
   return merged;
+}
+
+function absentFrom(tree: Tree, root: string, files: FileMap): FileMap {
+  return Object.fromEntries(
+    Object.entries(files).filter(
+      ([path]) => !tree.exists(joinProjectPath(root, path)),
+    ),
+  );
 }
 
 function isBuildTarget(

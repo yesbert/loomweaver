@@ -68,19 +68,32 @@ It asks no questions. Every choice is an option with a default:
 
 **In an Angular CLI application** it runs `distribution` over the application's own project root
 with `--force`, because the files it replaces are the bootstrap wiring `ng new` produced, then
-`weaver` into `src/<id>` beneath it. It replaces such a file only while it is still what `ng new`
-wrote. Where one was changed, it names that file and stops before installing or writing anything. **In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the
-Nx generators, because only they register the project and the import alias; the result is what
-[the Nx generators](#the-nx-generators--loomweaverdevkit) produce. The serve command is `npm start`
-in the first case and `npx nx serve <app>` in the second, each spelled for the package manager
-found.
+`weaver` into `src/<id>` beneath it. It replaces such a file only while it is what `ng new` writes.
+Where one is anything else, it names that file and stops before installing or writing anything.
+**In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the Nx
+generators, because only they register the project and the import alias; the result is what
+[the Nx generators](#the-nx-generators--loomweaverdevkit) produce. Where the workspace already has
+that package installed at another version than the CLI's own, `init` first brings it to its own
+version as a step it names. The generators that run are then the ones this CLI was released with.
+It leaves the package alone where nothing is left to generate. The same rule for files holds
+there: a bootstrap file is replaced only while it is what the Nx application generator writes, and
+any other is named before anything is installed or written. What it recognises is what
+`@nx/angular` 24 writes with its default options, so an application generated with other options
+is refused and named in the same way rather than overwritten. The application's own
+`tsconfig*.json` and `eslint.config.mjs` are never replaced. The serve command is `npm start` in
+the first case and `npx nx serve <app>` in the second, each spelled for the package manager found.
 
 **Run twice, it changes nothing** and says so: a package the manifest already carries is not
 installed again, a composition root that already boots the shell is not rewritten, a weaver whose
 entry point exists is not generated again. A trial run walks the same steps and names what each
 would do. Its weaver step is planned against the composition root as it is at that moment, so
 before the distribution step has run it says the plugin would not yet compose. That is true until
-that step has happened.
+that step has happened. In an Nx workspace the generators cannot run before their package is
+installed, so the trial run names the two generator commands and, under each, every file it
+creates, replaces or changes. Under each install it names `package.json` and the lockfile, which
+is created where the workspace has none. Where the distribution generator will leave the style
+pipeline alone beside a PostCSS script, the trial run says so in the generator's own words. Over an application with a file it will not replace, the
+trial run prints all of that first, then names the file and ends with an error.
 
 Outside an Angular application or an Nx workspace it refuses, names what it expected to find, and
 says how to create one.
@@ -167,8 +180,9 @@ build. `--strict` turns warnings into a non-zero exit when you do want to gate o
 The command check, `validate-commands`, reads every registration in a directory, in TypeScript and
 JavaScript alike, so a frame plugin's own script is checked too. It finds `registerCommand` on the
 context and through a destructured or renamed binding, and reads an id held in a string constant
-the same file declares. An id computed anywhere else, or a registration spread from another value,
-is reported as unreadable rather than guessed at. A property set to `undefined` counts as absent,
+the same file declares. An id computed anywhere else, a registration spread from another value, or
+a `callable` decided by an expression instead of written as `true` or `false`, is reported as
+unreadable rather than guessed at. A property set to `undefined` counts as absent,
 as it does at runtime. For each command it says whether an agent is offered it, what would leave
 the agent guessing, or that the registration could not be read. Guessing means an argument without
 a description or a returned value without `answers`. Only a callable command without a description is a warning, so a plugin
@@ -280,6 +294,14 @@ in the browser.
 
 Every amendment is an _ensure this is present_, never a _set this to_. Running a scaffold twice
 changes nothing, and a value you chose yourself is never overruled.
+
+The style pipeline goes into the file the Angular build reads: `postcss.config.json` before
+`.postcssrc.json`, in the project root before the workspace root, and a new `.postcssrc.json` at
+the workspace root where there is none. The build does not read a PostCSS configuration written as
+a script, such as `postcss.config.js`. Beside one, the CLI and the Nx generator write nothing,
+because a JSON file there would shadow the script for every other tool that reads PostCSS
+configuration. They name the JSON file the build would read and what it has to contain, and leave
+the choice to you; until it is made, the workbench renders unstyled.
 
 | Adapter                   | Writes files? | Amends the workspace?                                                                                                                      | Because                                                           |
 | ------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
@@ -495,7 +517,8 @@ nx g @loomweaver/devkit:distribution --name acme-studio --directory apps/acme-st
 ```
 
 That replaces the bootstrap files this scaffold owns, and it merges the scaffold's build targets
-into the project value by value. The wiring the shell needs lands this way: the i18n and frame-kit
+into the project value by value. The application's `tsconfig*.json` and `eslint.config.mjs` stay as
+they are; one that is missing is written. The wiring the shell needs lands this way: the i18n and frame-kit
 assets, the stylesheet, the service worker, `inlineCritical: false` and an initial budget the
 workbench fits. Every value the application already set stays as it set it: its build options and
 configurations, its own targets, its `implicitDependencies` and its tags. An initial budget below

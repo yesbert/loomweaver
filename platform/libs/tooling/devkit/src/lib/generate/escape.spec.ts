@@ -30,7 +30,11 @@ describe('a consumer-supplied name in generated output', () => {
     );
 
   it('leaves a weaver whose sources parse and whose templates compile', () => {
-    const files = generate(angularWeaver, { id: 'notes', name: AWKWARD, about: true, agent: true });
+    const files = generate(angularWeaver, {
+      id: 'notes',
+      name: AWKWARD,
+      features: { about: true, agent: true },
+    });
 
     for (const [path, source] of Object.entries(files)) {
       if (path.endsWith('.ts')) {

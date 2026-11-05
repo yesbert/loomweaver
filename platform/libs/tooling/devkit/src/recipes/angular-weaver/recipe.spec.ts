@@ -230,12 +230,13 @@ describe('angularWeaver recipe', () => {
   });
 
   it('never defaults to a chord a browser keeps for itself, and claims none when every letter is kept', () => {
-    expect(resolveWeaverInput({ id: 'notes', command: true }).features.shortcut).toBe('mod+shift+o');
-    expect(resolveWeaverInput({ id: 'tasks', command: true }).features.shortcut).toBe('mod+shift+a');
-    expect(resolveWeaverInput({ id: 'qtw', command: true }).features.shortcut).toBeUndefined();
-    expect(
-      generate(angularWeaver, { id: 'qtw', command: true })['src/lib/plugin/qtw.plugin.ts'],
-    ).not.toContain('shortcut:');
+    const withCommand = (id: string) => ({ id, features: { command: true } });
+    expect(resolveWeaverInput(withCommand('notes')).features.shortcut).toBe('mod+shift+o');
+    expect(resolveWeaverInput(withCommand('tasks')).features.shortcut).toBe('mod+shift+a');
+    expect(resolveWeaverInput(withCommand('qtw')).features.shortcut).toBeUndefined();
+    const plugin = generate(angularWeaver, withCommand('qtw'))['src/lib/plugin/qtw.plugin.ts'];
+    expect(plugin).toContain('registerCommand');
+    expect(plugin).not.toContain('shortcut:');
   });
 
   it('defaults the command shortcut and lets it be overridden', () => {
@@ -473,10 +474,30 @@ describe('angularWeaver agent connection', () => {
     expect(afterTheRun).toContain('this.busy.set(false);');
   });
 
-  it('labels a tool that has no description by its name instead of an empty button', () => {
-    expect(agentWeaver()['src/lib/agent/notes-agent-panel.html']).toContain(
-      '{{ tool.description || tool.name }}',
+  it('shows a run that failed instead of letting the error leave the click handler', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    const run = panel.slice(
+      panel.indexOf('for await (const event of askAgent(request))'),
+      panel.indexOf('} finally {'),
     );
+    expect(run).toContain('} catch (error) {\n      this.fail(error);');
+    expect(panel).toContain('text: `The run failed: ${');
+    expect(panel).toContain('failed: true,');
+  });
+
+  it('frees the panel again whatever answering the open calls does', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    const afterTheRun = panel.slice(panel.indexOf('} finally {'));
+    expect(afterTheRun).toMatch(
+      /try \{\s+for \(let left = await tools\.flush\(\); left; left = await tools\.flush\(\)\) \{\s+this\.pushAnswer\(left\);\s+\}\s+\} catch \(error\) \{\s+this\.fail\(error\);\s+\} finally \{\s+this\.busy\.set\(false\);/,
+    );
+  });
+
+  it('labels a tool by its name and keeps what it says of itself as the tooltip', () => {
+    const template = agentWeaver()['src/lib/agent/notes-agent-panel.html'];
+    expect(template).toContain('{{ tool.name }}');
+    expect(template).toContain('[attr.title]="tool.description || null"');
+    expect(template).not.toContain('{{ tool.description');
   });
 
   it('fills the generated argument from the schema instead of sending none', () => {

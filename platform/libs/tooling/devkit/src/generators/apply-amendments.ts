@@ -19,9 +19,10 @@ export function applyAmendments(
   tree: Tree,
   amendments: readonly Amendment[],
   into?: AmendedApp,
+  projectRoot: string = into?.app.root ?? '',
 ): GeneratorCallback | undefined {
   for (const amendment of amendments) {
-    apply(tree, amendment, into);
+    apply(tree, amendment, into, projectRoot);
   }
   return installPackages(tree, amendments);
 }
@@ -30,10 +31,11 @@ function apply(
   tree: Tree,
   amendment: Amendment,
   into: AmendedApp | undefined,
+  projectRoot: string,
 ): void {
   switch (amendment.kind) {
     case 'postcss': {
-      addPostcssPlugin(tree, amendment);
+      addPostcssPlugin(tree, amendment, projectRoot);
       return;
     }
     case 'package': {

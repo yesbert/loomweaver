@@ -34,6 +34,19 @@ export function detectPackageManager(root: string): DetectedPackageManager {
   return { manager: 'npm' };
 }
 
+export interface Lockfile {
+  readonly name: string;
+  readonly exists: boolean;
+}
+
+export function lockfileOf(root: string, manager: PackageManager): Lockfile {
+  const names = LOCKFILES.filter(([, owner]) => owner === manager).map(
+    ([name]) => name,
+  );
+  const found = names.find((name) => existsSync(resolve(root, name)));
+  return { name: found ?? names[0], exists: found !== undefined };
+}
+
 export function packageManagerFrom(
   value: string | undefined,
 ): PackageManager | undefined {

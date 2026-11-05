@@ -209,6 +209,21 @@ describe('scaffold', () => {
     expect(text).toContain('inlineCritical');
   });
 
+  it('names the path the generated stylesheet reaches node_modules by, which it could only assume', () => {
+    const text = remaining('distribution', { name: 'acme-studio' });
+    expect(text).toContain(
+      "src/styles.css: @source '../../../node_modules/@loomweaver/shell'",
+    );
+    expect(text).toContain('2 folders below the workspace root');
+    expect(text).toContain('emits none of');
+  });
+
+  it('names no stylesheet path for a distribution that runs no Tailwind', () => {
+    expect(
+      remaining('distribution', { name: 'acme-studio', styles: 'precompiled' }),
+    ).not.toContain('@source');
+  });
+
   it('names the packages it cannot install, and what fails without them', () => {
     const descriptor = findScaffold('weaver');
     if (!descriptor) {

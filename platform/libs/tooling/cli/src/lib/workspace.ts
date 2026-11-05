@@ -70,6 +70,18 @@ export function resolveBuildProject(
   );
 }
 
+export function projectRootAbove(workspace: Workspace, target: string): string {
+  for (const dir of upwardFrom(resolve(target))) {
+    if (existsSync(resolve(dir, 'project.json'))) {
+      return relativeTo(workspace.root, dir);
+    }
+    if (dir === workspace.root) {
+      break;
+    }
+  }
+  return '';
+}
+
 export function readJsonFile(file: string): unknown {
   try {
     return JSON.parse(readFileSync(file, 'utf8'));
@@ -102,6 +114,6 @@ function contains(projectRoot: string, target: string): boolean {
   return projectRoot === '' || target === projectRoot || target.startsWith(`${projectRoot}/`);
 }
 
-function relativeTo(root: string, target: string): string {
+export function relativeTo(root: string, target: string): string {
   return relative(root, resolve(target)).split(sep).join('/');
 }

@@ -208,6 +208,39 @@ describe('distribution generator', () => {
       expect(project.tags).toEqual(['scope:acme']);
     });
 
+    it('leaves the TypeScript and lint configuration the application already has', async () => {
+      const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
+      const own: Record<string, string> = {
+        'tsconfig.json': json({
+          extends: '../../tsconfig.base.json',
+          compilerOptions: { strict: false },
+        }),
+        'tsconfig.app.json': json({ extends: './tsconfig.json', files: [] }),
+        'tsconfig.spec.json': json({ extends: './tsconfig.json', files: [] }),
+        'eslint.config.mjs':
+          "export default [{ rules: { 'no-console': 'off' } }];\n",
+      };
+      for (const [name, content] of Object.entries(own)) {
+        tree.write(`apps/acme-studio/${name}`, content);
+      }
+
+      await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+      for (const [name, content] of Object.entries(own)) {
+        expect(tree.read(`apps/acme-studio/${name}`, 'utf8'), name).toBe(content);
+      }
+    });
+
+    it('writes the configuration the application lacks', async () => {
+      tree.write('apps/acme-studio/tsconfig.json', '{}\n');
+
+      await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+      expect(tree.read('apps/acme-studio/tsconfig.json', 'utf8')).toBe('{}\n');
+      expect(tree.exists('apps/acme-studio/tsconfig.app.json')).toBe(true);
+      expect(tree.exists('apps/acme-studio/eslint.config.mjs')).toBe(true);
+    });
+
     describe('whose build target carries settings of its own', () => {
       const brandAsset = {
         glob: '**/*',
@@ -324,6 +357,64 @@ describe('distribution generator', () => {
     });
   });
 
+  describe('composing into an application at the workspace root', () => {
+    beforeEach(() => {
+      addProjectConfiguration(tree, 'acme-studio', {
+        root: '.',
+        projectType: 'application',
+        targets: {
+          build: { executor: '@angular/build:application', options: {} },
+        },
+      });
+    });
+
+    it.each(['', '.'])(
+      'writes paths that resolve from the root when the directory is "%s"',
+      async (directory) => {
+        await distributionGenerator(tree, {
+          name: 'acme-studio',
+          directory,
+          force: true,
+        });
+
+        expect(readJson(tree, 'tsconfig.json').extends).toBe(
+          './tsconfig.base.json',
+        );
+        expect(readJson(tree, 'tsconfig.app.json').compilerOptions.outDir).toBe(
+          './dist/out-tsc',
+        );
+        const options = readJson(tree, 'project.json').targets.build.options;
+        expect(options.serviceWorker).toBe('ngsw-config.json');
+        expect(options.browser).toBe('src/main.ts');
+        expect(options.styles).toEqual(['src/styles.css']);
+        expect(tree.exists('src/main.ts')).toBe(true);
+      },
+    );
+  });
+
+  it('gives a root-level application no configuration that extends or imports itself', async () => {
+    tree.delete('tsconfig.base.json');
+    addProjectConfiguration(tree, 'acme-studio', {
+      root: '.',
+      projectType: 'application',
+      targets: {
+        build: { executor: '@angular/build:application', options: {} },
+      },
+    });
+
+    await distributionGenerator(tree, {
+      name: 'acme-studio',
+      directory: '.',
+      force: true,
+    });
+
+    expect(readJson(tree, 'tsconfig.json').extends).toBeUndefined();
+    expect(readJson(tree, 'tsconfig.app.json').extends).toBe('./tsconfig.json');
+    expect(tree.read('eslint.config.mjs', 'utf8')).not.toContain(
+      "from './eslint.config.mjs'",
+    );
+  });
+
   it('writes the style pipeline the generated stylesheet needs', async () => {
     await distributionGenerator(tree, { name: 'acme-studio' });
     expect(JSON.parse(tree.read('.postcssrc.json', 'utf8') as string)).toEqual({
@@ -336,7 +427,7 @@ describe('distribution generator', () => {
     expect(tree.exists('.postcssrc.json')).toBe(false);
   });
 
-  it('leaves a style configuration written as code alone and names what to add', async () => {
+  it('writes nothing beside a script the build ignores, and says which file the build would read', async () => {
     const written = 'module.exports = { plugins: {} };\n';
     tree.write('postcss.config.js', written);
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
@@ -345,12 +436,125 @@ describe('distribution generator', () => {
 
     expect(tree.read('postcss.config.js', 'utf8')).toBe(written);
     expect(tree.exists('.postcssrc.json')).toBe(false);
+    const [note] = warn.mock.calls.map(([message]) => String(message));
+    expect(note).toContain(
+      'postcss.config.js is a script, which the Angular build does not read',
+    );
+    expect(note).toContain(
+      '.postcssrc.json containing { "plugins": { "@tailwindcss/postcss": {} } }',
+    );
+    expect(note).toContain('shadows postcss.config.js');
+    expect(note).toContain('renders unstyled');
+    warn.mockRestore();
+  });
+
+  it('writes nothing into a configuration that stands beside a script either, and names it', async () => {
+    tree.write('postcss.config.js', 'module.exports = {};\n');
+    tree.write('postcss.config.json', '{}');
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(JSON.parse(tree.read('postcss.config.json', 'utf8') as string)).toEqual({});
     expect(warn).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /postcss\.config\.js.*@tailwindcss\/postcss.*unstyled/,
+      expect.stringContaining(
+        'postcss.config.json has to name @tailwindcss/postcss under "plugins"',
       ),
     );
     warn.mockRestore();
+  });
+
+  it('says nothing about a script where the build already runs the plugin', async () => {
+    tree.write('postcss.config.js', 'module.exports = {};\n');
+    tree.write(
+      '.postcssrc.json',
+      JSON.stringify({ plugins: { '@tailwindcss/postcss': {} } }),
+    );
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('adds the plugin to the configuration the build reads first', async () => {
+    tree.write(
+      'postcss.config.json',
+      JSON.stringify({ plugins: { autoprefixer: {} } }),
+    );
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(
+      JSON.parse(tree.read('postcss.config.json', 'utf8') as string),
+    ).toEqual({ plugins: { autoprefixer: {}, '@tailwindcss/postcss': {} } });
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+  });
+
+  it('adds the plugin to the configuration in the project root, where the build looks first', async () => {
+    addProjectConfiguration(tree, 'acme-studio', {
+      root: 'apps/acme-studio',
+      projectType: 'application',
+      targets: {
+        build: { executor: '@angular/build:application', options: {} },
+      },
+    });
+    tree.write(
+      'apps/acme-studio/.postcssrc.json',
+      JSON.stringify({ plugins: { autoprefixer: {} } }),
+    );
+    tree.write('postcss.config.json', '{}');
+
+    await distributionGenerator(tree, { name: 'acme-studio', force: true });
+
+    expect(
+      JSON.parse(tree.read('apps/acme-studio/.postcssrc.json', 'utf8') as string),
+    ).toEqual({ plugins: { autoprefixer: {}, '@tailwindcss/postcss': {} } });
+    expect(JSON.parse(tree.read('postcss.config.json', 'utf8') as string)).toEqual({});
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+  });
+
+  it('writes nothing beside a script in the project root either', async () => {
+    tree.write('apps/acme-studio/postcss.config.mjs', 'export default {};\n');
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /apps\/acme-studio\/postcss\.config\.mjs is a script, which the Angular build does not read/,
+      ),
+    );
+    warn.mockRestore();
+  });
+
+  it('gives a directory written as ./apps/x the paths of apps/x', async () => {
+    await distributionGenerator(tree, {
+      name: 'acme-studio',
+      directory: './apps/acme-studio/',
+    });
+
+    const project = readJson(tree, 'apps/acme-studio/project.json');
+    expect(project.sourceRoot).toBe('apps/acme-studio/src');
+    expect(project.targets.build.options.browser).toBe(
+      'apps/acme-studio/src/main.ts',
+    );
+    expect(readJson(tree, 'apps/acme-studio/tsconfig.json').extends).toBe(
+      '../../tsconfig.base.json',
+    );
+    expect(tree.read('apps/acme-studio/src/styles.css', 'utf8')).toContain(
+      "@source '../../../node_modules/@loomweaver/shell'",
+    );
+  });
+
+  it('names a style pipeline file it cannot read as JSON, and writes nothing', async () => {
+    tree.write('.postcssrc.json', '{ "plugins": ');
+
+    await expect(
+      distributionGenerator(tree, { name: 'acme-studio' }),
+    ).rejects.toThrow(/^\.postcssrc\.json is not valid JSON/);
   });
 
   it('keeps the plugins a workspace already configured', async () => {

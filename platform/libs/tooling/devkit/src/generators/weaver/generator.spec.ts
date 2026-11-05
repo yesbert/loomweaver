@@ -106,6 +106,30 @@ describe('weaver generator', () => {
     expect(tsconfig.extends).toBe('../../../tsconfig.base.json');
   });
 
+  it.each(['', '.'])(
+    'writes paths that resolve when the directory is the workspace root ("%s")',
+    async (directory) => {
+      await weaverGenerator(tree, { id: 'notes', directory });
+
+      const project = readJson(tree, 'project.json');
+      expect(project.sourceRoot).toBe('src');
+      expect(project.$schema).toBe(
+        './node_modules/nx/schemas/project-schema.json',
+      );
+      expect(readJson(tree, 'tsconfig.json').extends).toBe(
+        './tsconfig.base.json',
+      );
+      expect(
+        readJson(tree, 'tsconfig.base.json').compilerOptions.paths[
+          '@acme/notes-weaver'
+        ],
+      ).toEqual(['./src/index.ts']);
+      expect(tree.read('eslint.config.mjs', 'utf8')).not.toContain(
+        "from './eslint.config.mjs'",
+      );
+    },
+  );
+
   it('refuses to write over a file that is already there, and leaves it as it was', async () => {
     tree.write('libs/notes-weaver/src/index.ts', 'keep me');
     await expect(weaverGenerator(tree, { id: 'notes' })).rejects.toThrow(
@@ -238,6 +262,40 @@ describe('weaver generator', () => {
     expect(tree.read('apps/studio/src/app/app.config.ts', 'utf8')).toBe(
       'export const appConfig = { providers: [] };\n',
     );
+  });
+
+  it('gives a directory written as ./libs/x the paths of libs/x', async () => {
+    await weaverGenerator(tree, { id: 'notes', directory: './libs/notes/' });
+
+    expect(readJson(tree, 'libs/notes/project.json').sourceRoot).toBe(
+      'libs/notes/src',
+    );
+    expect(readJson(tree, 'libs/notes/tsconfig.json').extends).toBe(
+      '../../tsconfig.base.json',
+    );
+    expect(
+      readJson(tree, 'tsconfig.base.json').compilerOptions.paths[
+        '@acme/notes-weaver'
+      ],
+    ).toEqual(['./libs/notes/src/index.ts']);
+  });
+
+  it('names the composition root of an application at the workspace root without a leading dot', async () => {
+    const root = createTreeWithEmptyWorkspace({ formatter: 'prettier' });
+    addProjectConfiguration(root, 'studio', {
+      root: '.',
+      projectType: 'application',
+      targets: { build: { options: {} } },
+    });
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await weaverGenerator(root, { id: 'notes', directory: 'libs/notes' });
+
+    const missing = warn.mock.calls
+      .map(([message]) => String(message))
+      .find((message) => message.includes('does not exist'));
+    expect(missing?.startsWith('src/app/app.config.ts does not exist')).toBe(true);
+    warn.mockRestore();
   });
 
   it('names what to add where the application has no composition root', async () => {

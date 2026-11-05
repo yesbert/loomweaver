@@ -32,7 +32,8 @@ interface Registration {
  * that it says nothing. Only a callable command without a description is a warning; the rest is
  * information, so a plugin with private commands passes a strict run. Nothing is guessed from an id
  * or a title: saying nothing is a declaration the platform accepts. An id may be a string literal or a
- * string constant the same file declares; anything computed elsewhere is reported as unreadable. A
+ * string constant the same file declares; anything computed elsewhere is reported as unreadable, and
+ * so is a `callable` decided by an expression rather than written as `true` or `false`. A
  * property set to `undefined` counts as absent, as it does at runtime. The TypeScript compiler is
  * passed in rather than imported, so the check costs nothing where it is not used.
  */
@@ -193,17 +194,35 @@ function readRegistration(
   if (id === undefined) {
     return { ...empty, unreadable: 'its id is neither a string literal nor a string constant declared in the file' };
   }
+  const callable = callableOf(ts, properties.get('callable'));
+  if (callable === undefined) {
+    return {
+      ...empty,
+      unreadable: `whether "${id}" is callable is decided by an expression rather than written as true or false`,
+    };
+  }
   const consent = stringOf(ts, properties.get('agentConsent'), constants);
   return {
     at,
     id,
-    callable: unwrapped(ts, properties.get('callable'))?.kind === ts.SyntaxKind.TrueKeyword,
+    callable,
     described: isDeclared(ts, properties.get('description')),
     answers: isDeclared(ts, properties.get('answers')),
     returnsValue: returnsValue(ts, properties.get('run')),
     arguments: readArguments(ts, properties.get('arguments'), constants),
     ...(consent !== undefined && { agentConsent: consent }),
   };
+}
+
+function callableOf(
+  ts: TypeScriptModule,
+  value: TS.Node | undefined,
+): boolean | undefined {
+  const node = unwrapped(ts, value);
+  if (!node || !isDeclared(ts, node) || node.kind === ts.SyntaxKind.FalseKeyword) {
+    return false;
+  }
+  return node.kind === ts.SyntaxKind.TrueKeyword ? true : undefined;
 }
 
 function unwrapped(

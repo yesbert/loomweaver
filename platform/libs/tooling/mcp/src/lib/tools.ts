@@ -1,5 +1,6 @@
 import {
   describeAmendment,
+  FileMap,
   loadTypeScript,
   portableOptions,
   RUNTIME_NOTE,
@@ -73,6 +74,21 @@ function portableValuesFrom(
 }
 
 const WHERE_THE_FILES_LAND = '<the directory you wrote these files into>';
+const SOURCE_BELOW_NODE_MODULES = /@source '((?:\.\.\/)+)(node_modules[^']*)'/;
+
+function assumedSourcePaths(files: FileMap): string[] {
+  return Object.entries(files).flatMap(([path, content]) => {
+    const found = SOURCE_BELOW_NODE_MODULES.exec(content);
+    if (!found) {
+      return [];
+    }
+    const [, hops, target] = found;
+    const depth = hops.length / '../'.length - 1;
+    return [
+      `Check ${path}: @source '${hops}${target}' has to reach your workspace's node_modules from that file, and it was written for a project ${depth} folder${depth === 1 ? '' : 's'} below the workspace root, because this route cannot see where the files land. Add or drop ../ hops until it resolves. Without it Tailwind emits none of the classes that package uses, the workbench renders unstyled, and the build still reports success.`,
+    ];
+  });
+}
 
 export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
   const unknown = unknownOptions(scaffold, args);
@@ -85,11 +101,15 @@ export function scaffold(scaffold: ScaffoldDescriptor, args: Args): ToolResult {
     );
   }
   const values = portableValuesFrom(scaffold, args);
-  const remaining = (
-    scaffold.amend?.({ ...values, directory: WHERE_THE_FILES_LAND }) ?? []
-  ).map((amendment) => describeAmendment(amendment));
+  const files = scaffold.build(values);
+  const remaining = [
+    ...(
+      scaffold.amend?.({ ...values, directory: WHERE_THE_FILES_LAND }) ?? []
+    ).map((amendment) => describeAmendment(amendment)),
+    ...assumedSourcePaths(files),
+  ];
   return ok({
-    files: scaffold.build(values),
+    files,
     ...(remaining.length > 0 && { remaining }),
   });
 }

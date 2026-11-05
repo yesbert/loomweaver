@@ -15,7 +15,7 @@ export interface ComposeResult {
 const APP_CONFIG = /export\s+const\s+appConfig\s*:[^=]*=\s*\{/;
 const NAMESPACES = /provideTranslationNamespaces\(([^)]*)\)/;
 const PROVIDERS_OPEN = /providers\s*:\s*\[/g;
-const SHELL_IMPORT = /import\s*\{([^}]*)\}\s*from\s*'@loomweaver\/shell';/;
+const SHELL_IMPORT = /import\s*\{([^}]*)\}\s*from\s*['"]@loomweaver\/shell['"];?/;
 const REGISTRATION_SHELL_SYMBOLS = [
   'providePlugins',
   'provideCapabilityGrants',
@@ -25,6 +25,7 @@ const REGISTRATION_SHELL_SYMBOLS = [
 interface ProvidersBlock {
   readonly insertAt: number;
   readonly indent: string;
+  readonly unterminatedAt?: number;
 }
 
 function closingLine(source: string, from: number): ProvidersBlock | null {
@@ -40,7 +41,41 @@ function closingLine(source: string, from: number): ProvidersBlock | null {
   const newline = gap.indexOf('\n');
   return newline === -1
     ? null
-    : { insertAt: start + newline, indent: gap.slice(newline + 1) };
+    : {
+        insertAt: start + newline,
+        indent: gap.slice(newline + 1),
+        unterminatedAt: unterminatedEntry(source, from, close),
+      };
+}
+
+function unterminatedEntry(
+  source: string,
+  from: number,
+  close: number,
+): number | undefined {
+  let end: number | undefined;
+  let index = from;
+  while (index < close) {
+    if (source.startsWith('//', index) || source.startsWith('/*', index)) {
+      index = skipLiteral(source, index);
+      continue;
+    }
+    const next = Math.max(skipLiteral(source, index), index + 1);
+    if (source.slice(index, next).trim() !== '') {
+      end = next;
+    }
+    index = next;
+  }
+  return end === undefined || source.charAt(end - 1) === ',' ? undefined : end;
+}
+
+function withEntries(source: string, block: ProvidersBlock, lines: string): string {
+  const before = source.slice(0, block.insertAt);
+  const terminated =
+    block.unterminatedAt === undefined
+      ? before
+      : `${before.slice(0, block.unterminatedAt)},${before.slice(block.unterminatedAt)}`;
+  return `${terminated}\n${lines}${source.slice(block.insertAt)}`;
 }
 
 function matchingBracket(source: string, from: number): number {
@@ -139,7 +174,7 @@ export function composePlugin(
     .map((line) => `${indent}${line}`)
     .join('\n');
   return {
-    source: `${joined.source.slice(0, block.insertAt)}\n${lines}${joined.source.slice(block.insertAt)}`,
+    source: withEntries(joined.source, block, lines),
     composed: true,
     kept: keptProviders(source, amendment).map((provider) => provider.line),
   };
@@ -186,7 +221,7 @@ export function composeProviders(
   }
   const lines = wanted.map((provider) => `${block.indent}  ${provider.line}`).join('\n');
   return {
-    source: `${withImports.slice(0, block.insertAt)}\n${lines}${withImports.slice(block.insertAt)}`,
+    source: withEntries(withImports, block, lines),
     composed: true,
     kept: keptLines,
   };
@@ -250,7 +285,7 @@ function joinNamespaces(
     .split(',')
     .map((name) => name.trim())
     .filter(Boolean);
-  if (names.includes(`'${id}'`)) {
+  if (names.some((name) => name.slice(1, -1) === id)) {
     return { source, joined: true };
   }
   const namespaces = [...names, `'${id}'`].join(', ');

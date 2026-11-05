@@ -1,0 +1,11 @@
+{
+  "src/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>studio</title>\n    <base href=\"/\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n    <link rel=\"icon\" type=\"image/x-icon\" href=\"favicon.ico\" />\n  </head>\n  <body>\n    <app-root></app-root>\n  </body>\n</html>\n",
+  "src/styles.css": "/* You can add global styles to this file, and also import other style files */\n",
+  "src/app/app.config.ts": "import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideRouter } from '@angular/router';\nimport { appRoutes } from './app.routes';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(appRoutes)\n  ]\n};\n",
+  "src/app/app.routes.ts": "import { Route } from '@angular/router';\n\nexport const appRoutes: Route[] = [];\n",
+  "src/app/app.css": "",
+  "src/app/app.html": "<app-nx-welcome></app-nx-welcome>\n<router-outlet></router-outlet>\n",
+  "src/app/app.spec.ts": "import { TestBed } from '@angular/core/testing';\nimport { App } from './app';\nimport { NxWelcome } from './nx-welcome';\n\ndescribe('App', () => {\n  beforeEach(async () => {\n    await TestBed.configureTestingModule({\n      imports: [App, NxWelcome],\n    }).compileComponents();\n  });\n\n  it('should render title', async () => {\n    const fixture = TestBed.createComponent(App);\n    await fixture.whenStable();\n    const compiled = fixture.nativeElement as HTMLElement;\n    expect(compiled.querySelector('h1')?.textContent).toContain(\n      'Welcome studio'\n    );\n  });\n});\n",
+  "src/app/app.ts": "import { Component } from '@angular/core';\nimport { RouterModule } from '@angular/router';\nimport { NxWelcome } from './nx-welcome';\n\n@Component({\n  imports: [NxWelcome, RouterModule],\n  selector: 'app-root',\n  templateUrl: './app.html',\n  styleUrl: './app.css',\n})\nexport class App {\n  protected title = 'studio';\n}\n",
+  "src/main.ts": "import { bootstrapApplication } from '@angular/platform-browser';\nimport { appConfig } from './app/app.config';\nimport { App } from './app/app';\n\nbootstrapApplication(App, appConfig).catch((err) =>\n  console.error(err)\n);\n"
+}

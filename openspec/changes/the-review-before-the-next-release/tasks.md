@@ -87,20 +87,37 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 7.2 A hook that throws or rejects refuses the call instead of ending the run with it unanswered (`command-tools.ts`)
 - [x] 7.3 The tests for a command never opened call it by its tool name (`command-tools.spec.ts`, `platform/apps/loom-testbed/src/app/agent-drives-the-workbench.spec.ts`)
 - [x] 7.4 A tool is not described by its title where it has no description, and its description says what the command answers (`tool-definitions.ts`)
-- [ ] 7.5 The generated agent panel shows a failed run instead of letting the stream's error escape from the click handler (`platform/libs/tooling/devkit/src/recipes/angular-weaver/agent-panel.ts`)
+- [x] 7.5 The generated agent panel shows a failed run instead of letting the stream's error escape from the click handler (`platform/libs/tooling/devkit/src/recipes/angular-weaver/agent-panel.ts`)
 - [x] 7.6 A check that answers with no decision, or one the connection does not know, refuses the call, and the agent is not told the error's message (delta; `command-tools.spec.ts`)
-- [ ] 7.7 The generated panel labels a tool by a name, not by its description with what it answers, and a failing flush cannot leave it busy (`agent-panel.ts`)
+- [x] 7.7 The generated panel labels a tool by a name, not by its description with what it answers, and a failing flush cannot leave it busy (`agent-panel.ts`)
 
 ## 8. The scaffolding tools
 
-- [ ] 8.1 A directory taken from `--out` is written with forward slashes on every platform (`platform/libs/tooling/cli/src/lib/scaffold/scaffold.ts`)
-- [ ] 8.2 `init` in an Nx workspace refuses to replace files that are no longer as generated, leaves existing TypeScript and lint configuration alone, and its trial run names every file (`cli/src/lib/init/init.ts`, `devkit/src/generators/distribution/generator.ts`)
-- [ ] 8.3 An application at the workspace root gets relative paths that resolve (`cli/src/lib/init/nx-applications.ts`, `devkit/src/generators/distribution/`)
-- [ ] 8.4 Composing into a provider list without a trailing comma, or into a file with double quotes, produces code that parses (`devkit/src/lib/amend/compose.ts`)
-- [ ] 8.5 The command check says it cannot judge a `callable` that is not a literal (`devkit/src/lib/validate/commands.ts`)
-- [ ] 8.6 The PostCSS wiring goes into the file the build reads, and a script configuration the build ignores is named as ignored (`devkit/src/lib/amend/postcss.ts`, `cli/src/lib/scaffold/amend.ts`)
-- [ ] 8.7 The distribution scaffold over MCP names the stylesheet source path among what is left to do (`mcp/src/lib/tools.ts`)
-- [ ] 8.8 An untouched application created with another stylesheet language is recognised (`cli/src/lib/init/ng-new-files.ts`)
+- [x] 8.1 A directory taken from `--out` is written with forward slashes on every platform (`platform/libs/tooling/cli/src/lib/scaffold/scaffold.ts`)
+- [x] 8.2 `init` in an Nx workspace refuses to replace files that are no longer as generated, leaves existing TypeScript and lint configuration alone, and its trial run names every file (`cli/src/lib/init/init.ts`, `devkit/src/generators/distribution/generator.ts`)
+- [x] 8.3 An application at the workspace root gets relative paths that resolve (`cli/src/lib/init/nx-applications.ts`, `devkit/src/generators/distribution/`)
+- [x] 8.4 Composing into a provider list without a trailing comma, or into a file with double quotes, produces code that parses (`devkit/src/lib/amend/compose.ts`)
+- [x] 8.5 The command check says it cannot judge a `callable` that is not a literal (`devkit/src/lib/validate/commands.ts`)
+- [x] 8.6 The PostCSS wiring goes into the file the build reads, and a script configuration the build ignores is named as ignored (`devkit/src/lib/amend/postcss.ts`, `cli/src/lib/scaffold/amend.ts`)
+- [x] 8.7 The distribution scaffold over MCP names the stylesheet source path among what is left to do (`mcp/src/lib/tools.ts`)
+- [x] 8.8 An untouched application created with another stylesheet language is recognised (`cli/src/lib/init/ng-new-files.ts`)
+- [x] 8.9 A weaver generated into a directory at the workspace root gets paths that resolve (`devkit/src/generators/weaver/nx-files.ts`)
+- [x] 8.10 A root-level application without a `tsconfig.json`, in a workspace without a base configuration, does not get one that extends itself (`devkit/src/generators/workspace-tree.ts`)
+- [x] 8.11 The PostCSS wiring looks in the project root before the workspace root, as the build does (`devkit/src/lib/amend/postcss.ts`)
+- [x] 8.12 The trial run of `init` in an Nx workspace names `package.json` under the step that changes it
+- [x] 8.13 `init` asks the devkit where a weaver's project lands instead of assuming `libs/<id>-weaver` (`cli/src/lib/init/init.ts`)
+- [x] 8.14 The tooling's spec files type-check, and a target holds that (`libs/tooling/*/tsconfig.spec.json`)
+- [x] 8.15 The fixture of an untouched `ng new` application is what Angular 22 writes: regenerated from a real `ng new`, not from memory (`cli/src/lib/init/ng-new-22.fixture.json`)
+- [x] 8.16 `init` does not run an older devkit than its own: a `@loomweaver/devkit` at another version than the one the CLI carries is brought to that version as a named install step before it generates, and the trial run lists that step (`cli/src/lib/init/init-plan.ts`, `init.ts`)
+- [x] 8.17 Beside a PostCSS script configuration nothing is written, and the note says which JSON file the Angular build would read, what it has to contain, and that creating it shadows the script for other tools (`devkit/src/lib/amend/postcss.ts`, both routes and the footprint)
+- [x] 8.18 A trial run of `init` over an application with a changed file prints the listing and then names the changed files, exits non-zero and writes nothing; in an Nx workspace the refusal points at `init --dry-run` (`cli/src/lib/init/init.ts`)
+- [x] 8.19 The refusal says a file is not what `ng new` or the Nx application generator (24, default options) writes, not that it is "no longer" what was written (`cli/src/lib/init/init.ts`)
+- [x] 8.20 The trial run names a lockfile the install will create, not only one it will change (`cli/src/lib/init/init.ts`)
+- [x] 8.21 A directory given as `./apps/x` gets the same paths as `apps/x`: one normalisation of the project root for both generators, and no path is concatenated in `devkit/src/generators/workspace-tree.ts`
+- [x] 8.22 A malformed `.postcssrc.json`, `postcss.config.json` or `package.json` met during a trial run is reported as a workspace error naming the file (`devkit/src/generators/nx-footprint.ts`, `cli/src/lib/init/nx-trial.ts`)
+- [x] 8.23 The trial run in an Nx workspace says, like the real run, that the style pipeline is left alone beside a PostCSS script and why (`cli/src/lib/init/nx-trial.ts`, `devkit/src/generators/nx-footprint.ts`)
+- [x] 8.24 Not reproduced, no code changed: Nx reports the root as `.` and every consumer normalises it; a regression test pins it. Was: The auth-source, layout, theme, settings-store and frame-plugin generators join the application's root to their paths through the shared helper, so an application at the workspace root is written under `src/…` and named without a leading dot (`devkit/src/generators/*/generator.ts`)
+- [x] 8.25 A malformed PostCSS JSON file met when a generator really runs is reported naming the file, as the trial run does (`devkit/src/generators/workspace-tree.ts`, `addPostcssPlugin`)
 
 ## 9. The demo and the example
 

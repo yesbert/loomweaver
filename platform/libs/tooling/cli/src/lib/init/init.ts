@@ -1,15 +1,21 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { resolveWeaverInput } from '@loomweaver/devkit';
+import {
+  FileMap,
+  joinProjectPath,
+  nxWeaverRoot,
+  resolveWeaverInput,
+} from '@loomweaver/devkit';
 import { parseArgs, ParsedArgs, rejectUnknownFlags } from '../args';
 import { findScaffold, scaffoldValues } from '../scaffold/scaffold';
-import { planWrite } from '../scaffold/write';
 import { WorkspaceError } from '../workspace';
 import { InitDeps, NX_COLLECTION, InitPlan, planInit } from './init-plan';
-import { stillAsNgNewWrote } from './ng-new-files';
+import { refusalToReplace } from './changed-files';
+import { nxTrial } from './nx-trial';
 import {
   execCommand,
   installCommand,
+  lockfileOf,
   runScriptCommand,
 } from './package-manager';
 import type { Io } from '../io';
@@ -32,6 +38,7 @@ interface StepBase {
 interface ExecStep extends StepBase {
   readonly kind: 'exec';
   readonly command: readonly string[];
+  readonly touches?: readonly string[];
 }
 
 interface ScaffoldStep extends StepBase {
@@ -42,12 +49,21 @@ interface ScaffoldStep extends StepBase {
 
 type Step = ExecStep | ScaffoldStep;
 
+interface Planned {
+  readonly steps: readonly Step[];
+  readonly refusal?: string;
+}
+
 export function init(args: ParsedArgs, io: Io, deps: InitDeps): number {
   rejectUnknownFlags(args, INIT_FLAGS);
   const plan = planInit(args, deps);
   report(io, plan);
+  const { steps, refusal } = stepsFor(plan);
+  if (refusal && !plan.dryRun) {
+    throw new WorkspaceError(refusal);
+  }
   let didSomething = false;
-  for (const step of stepsFor(plan)) {
+  for (const step of steps) {
     if (step.done) {
       io.out(`${step.label}: already there.`);
       continue;
@@ -58,6 +74,10 @@ export function init(args: ParsedArgs, io: Io, deps: InitDeps): number {
       io.err(`${step.label} failed; nothing after it was run.`);
       return code;
     }
+  }
+  if (refusal) {
+    io.err(refusal);
+    return 1;
   }
   if (!plan.weaver) {
     io.out(
@@ -94,6 +114,9 @@ function performExec(
 ): number {
   if (plan.dryRun) {
     io.out(`Would run: ${step.command.join(' ')}`);
+    for (const touched of step.touches ?? []) {
+      io.out(`  ${touched}`);
+    }
     return 0;
   }
   io.out(`${step.label}: ${step.describe}`);
@@ -138,11 +161,11 @@ function managerLabel(plan: InitPlan): string {
   return plan.manager;
 }
 
-function stepsFor(plan: InitPlan): Step[] {
+function stepsFor(plan: InitPlan): Planned {
   return plan.workspace.kind === 'nx' ? nxSteps(plan) : angularSteps(plan);
 }
 
-function angularSteps(plan: InitPlan): Step[] {
+function angularSteps(plan: InitPlan): Planned {
   const root = plan.projectRoot;
   const distribution: ScaffoldStep = {
     label: 'Distribution',
@@ -162,9 +185,18 @@ function angularSteps(plan: InitPlan): Step[] {
       '--force',
     ],
   };
-  if (!distribution.done) {
-    refuseToReplaceChangedFiles(distribution.argv, root);
-  }
+  const refusal = distribution.done
+    ? undefined
+    : refusalToReplace(
+        scaffoldFiles(distribution.argv),
+        {
+          directory: root,
+          writer: 'ng new',
+          preview: `loomweaver distribution --out ${root} --dry-run`,
+          shown: (path) => path,
+        },
+        plan.dryRun,
+      );
   const steps: Step[] = [...installSteps(plan), distribution];
   if (plan.weaver) {
     steps.push({
@@ -184,29 +216,52 @@ function angularSteps(plan: InitPlan): Step[] {
       ],
     });
   }
-  return steps;
+  return { steps, refusal };
 }
 
-function nxSteps(plan: InitPlan): Step[] {
+function nxSteps(plan: InitPlan): Planned {
   const root = plan.workspace.root;
   const app = plan.app;
   if (!app) {
-    return [];
+    return { steps: [] };
   }
   const generator = (name: string, argv: readonly string[]) =>
     execCommand(plan.manager, ['nx', 'g', `${NX_COLLECTION}:${name}`, ...argv]);
+  const values = { name: app.name, title: plan.title, styles: plan.styles, directory: app.root };
+  const composed = composesShell(join(root, app.root, 'src/app/app.config.ts'));
+  const replaced = composed ? undefined : findScaffold('distribution').build(values);
+  const refusal =
+    replaced &&
+    refusalToReplace(
+      replaced,
+      {
+        directory: join(root, app.root),
+        writer:
+          'the Nx application generator (@nx/angular 24, default options)',
+        preview: 'loomweaver init --dry-run',
+        shown: (path) => joinProjectPath(app.root, path),
+      },
+      plan.dryRun,
+    );
+  const trial = plan.dryRun
+    ? nxTrial(root, app, replaced, [...plan.runtime, ...plan.dev])
+    : undefined;
+  const weaverThere =
+    plan.weaver === undefined ||
+    existsSync(join(root, nxWeaverRoot(plan.weaver)));
   const steps: Step[] = [
-    ...installSteps(plan),
+    ...installSteps(plan, composed && weaverThere),
     {
       label: 'Distribution',
       describe: `nx g ${NX_COLLECTION}:distribution over ${app.name} for "${plan.title}" (${plan.styles})`,
-      done: composesShell(join(root, app.root, 'src/app/app.config.ts')),
+      done: composed,
       kind: 'exec',
+      touches: trial?.distribution(values),
       command: generator('distribution', [
         '--name',
         app.name,
         '--directory',
-        app.root,
+        app.root || '.',
         '--title',
         plan.title,
         '--styles',
@@ -219,8 +274,9 @@ function nxSteps(plan: InitPlan): Step[] {
     steps.push({
       label: 'First weaver',
       describe: weaverDescription(plan.weaver),
-      done: existsSync(join(root, 'libs', `${plan.weaver}-weaver`)),
+      done: weaverThere,
       kind: 'exec',
+      touches: trial?.weaver(plan.weaver),
       command: generator('weaver', [
         '--id',
         plan.weaver,
@@ -230,26 +286,43 @@ function nxSteps(plan: InitPlan): Step[] {
       ]),
     });
   }
-  return steps;
+  return { steps, refusal };
 }
 
-function installSteps(plan: InitPlan): Step[] {
-  return [
-    {
-      label: 'Install',
-      describe: plan.runtime.join(' '),
-      done: plan.runtime.length === 0,
-      kind: 'exec',
-      command: installCommand(plan.manager, plan.runtime, false),
-    },
-    {
-      label: 'Install for development',
-      describe: plan.dev.join(' '),
-      done: plan.dev.length === 0,
-      kind: 'exec',
-      command: installCommand(plan.manager, plan.dev, true),
-    },
+function installSteps(plan: InitPlan, generated = false): Step[] {
+  const lockfile = lockfileOf(plan.workspace.root, plan.manager);
+  const stale = generated ? undefined : plan.staleDevkit;
+  const installs = [
+    { label: 'Install', packages: plan.runtime, dev: false },
+    { label: 'Install for development', packages: plan.dev, dev: true },
+    ...(stale
+      ? [
+          {
+            label: 'Nx generators',
+            packages: [stale.spec],
+            dev: true,
+            because: `, because the workspace has ${stale.installed} and its generators would run in place of this version's`,
+          },
+        ]
+      : []),
   ];
+  let locked = lockfile.exists;
+  return installs.map((install): Step => {
+    const done = install.packages.length === 0;
+    const touches = [
+      'changes package.json',
+      `${locked ? 'changes' : 'creates'} ${lockfile.name}`,
+    ];
+    locked ||= !done;
+    return {
+      label: install.label,
+      describe: `${install.packages.join(' ')}${install.because ?? ''}`,
+      done,
+      kind: 'exec',
+      touches,
+      command: installCommand(plan.manager, install.packages, install.dev),
+    };
+  });
 }
 
 function weaverDescription(id: string): string {
@@ -271,22 +344,10 @@ function serveCommand(plan: InitPlan): string {
   return runScriptCommand(plan.manager, 'start');
 }
 
-function refuseToReplaceChangedFiles(
-  argv: readonly string[],
-  root: string,
-): void {
+function scaffoldFiles(argv: readonly string[]): FileMap {
   const args = parseArgs(argv);
   const scaffold = findScaffold(args.command);
-  const files = scaffold.build(scaffoldValues(scaffold, args));
-  const changed = planWrite(files, root).conflicts.filter(
-    (path) => !stillAsNgNewWrote(path, readFileSync(join(root, path), 'utf8')),
-  );
-  if (changed.length > 0) {
-    throw new WorkspaceError(
-      `The distribution replaces ${changed.join(', ')}, which ${changed.length === 1 ? 'is' : 'are'} no longer what ng new wrote, so nothing was installed or written. ` +
-        `Move ${changed.length === 1 ? 'it' : 'them'} aside or undo the changes and run init again; "loomweaver distribution --out ${root} --dry-run" shows everything it writes.`,
-    );
-  }
+  return scaffold.build(scaffoldValues(scaffold, args));
 }
 
 function composesShell(file: string): boolean {
