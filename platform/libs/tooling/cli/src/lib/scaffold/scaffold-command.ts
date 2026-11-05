@@ -18,7 +18,7 @@ function reportAmendments(io: Io, amend: AmendPlan, done: boolean): void {
       }
     }
   }
-  if (!(amend.remaining.length > 0)) {
+  if (amend.remaining.length === 0) {
     return;
   }
 

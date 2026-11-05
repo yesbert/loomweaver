@@ -1,13 +1,12 @@
 import { inject } from '@angular/core';
 import { AuthContext } from '../../auth/auth-context';
 import { DialogService } from '../../dialog/dialog.service';
-import { MenuService } from '../../menu/menu.service';
+import { MenuListEntry, MenuService } from '../../menu/menu.service';
 import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { UpdateService } from '../../update/update.service';
 import { VersionService } from '../../version/version.service';
 import { PluginHost, PluginSession, PluginUi, UiMenuItem } from '../plugin';
-import { MenuListEntry } from '../../menu/menu.service';
 
 export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
   const dialogs = inject(DialogService);

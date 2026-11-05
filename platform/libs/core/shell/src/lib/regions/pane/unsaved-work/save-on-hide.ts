@@ -29,16 +29,21 @@ export class SaveOnHide {
       return;
     }
     this.saved.add(instance);
-    new Promise((resolve) => resolve(promisedBy(save.call(instance)))).catch(
-      (error: unknown) => {
-        console.error('saveOn:hide failed — the surface stays dirty', error);
-        this.notifications.show({
-          message: 'retention.saveFailed',
-          kind: 'error',
-        });
-      },
-    );
+    saving(save, instance).catch((error: unknown) => {
+      console.error('saveOn:hide failed — the surface stays dirty', error);
+      this.notifications.show({
+        message: 'retention.saveFailed',
+        kind: 'error',
+      });
+    });
   }
+}
+
+async function saving(
+  save: (this: unknown) => unknown,
+  instance: unknown,
+): Promise<void> {
+  await promisedBy(save.call(instance));
 }
 
 function promisedBy(result: unknown): PromiseLike<unknown> {

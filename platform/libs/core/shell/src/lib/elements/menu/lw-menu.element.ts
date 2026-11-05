@@ -293,19 +293,11 @@ export class LwMenuElement extends HTMLElement {
       }
       case 'Enter':
       case ' ': {
-        if (item && nestedMenu(item)) {
-          this.openSubmenu(item, true);
-        } else if (item) {
-          this.select(item);
-        }
+        this.activate(item);
         break;
       }
       case 'Escape': {
-        if (isNested(this)) {
-          this.closeFromInside();
-        } else {
-          this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
-        }
+        this.leave();
         break;
       }
       case 'Tab': {
@@ -317,6 +309,25 @@ export class LwMenuElement extends HTMLElement {
       }
     }
     event.preventDefault();
+  }
+
+  private activate(item: HTMLElement | undefined): void {
+    if (!item) {
+      return;
+    }
+    if (nestedMenu(item)) {
+      this.openSubmenu(item, true);
+    } else {
+      this.select(item);
+    }
+  }
+
+  private leave(): void {
+    if (isNested(this)) {
+      this.closeFromInside();
+    } else {
+      this.dispatchEvent(new CustomEvent(LW_MENU_DISMISS, { bubbles: true }));
+    }
   }
 }
 

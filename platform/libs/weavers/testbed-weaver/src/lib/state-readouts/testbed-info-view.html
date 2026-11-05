@@ -108,7 +108,7 @@
   <fieldset class="flex flex-col gap-2 text-sm" data-testid="testbed-availability">
     <legend class="text-content-muted">{{ 'testbed.info.availability' | transloco }}</legend>
     <label class="flex items-center gap-2 text-content">
-      <input type="checkbox" role="switch" class="lw-switch" disabled />
+      <input type="checkbox" role="switch" class="lw-switch" aria-checked="false" disabled />
       {{ 'testbed.info.offline' | transloco }}
     </label>
     <label class="flex items-center gap-2 text-content">
@@ -116,6 +116,7 @@
         type="checkbox"
         role="switch"
         class="lw-switch"
+        aria-checked="false"
         aria-disabled="true"
         aria-describedby="testbed-availability-reason"
         (click)="$event.preventDefault()"
