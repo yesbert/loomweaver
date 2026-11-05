@@ -251,6 +251,45 @@ describe('The one preview in the main area', () => {
     expect(closed).toEqual(['a']);
   });
 
+  it('keeps the teardown of a replaced preview while another pane still holds that tab', async () => {
+    const closed: string[] = [];
+    TestBed.inject(TabCloseHooks).set('doc/a', () => {
+      closed.push('a');
+    });
+    arrange(
+      [{ path: 'reports' }, { path: 'doc/a', preview: true }],
+      [{ path: 'doc/a' }],
+    );
+
+    await openPreview('b');
+
+    expect(tabsOf(PRIMARY_PANE)).toEqual([
+      { path: 'reports', preview: false },
+      { path: 'doc/b', preview: true },
+    ]);
+    expect(closed).toEqual([]);
+
+    service.close('doc/a', { dock: CONTENT_DOCK, paneId: 'side' });
+
+    expect(closed).toEqual(['a']);
+  });
+
+  it('keeps the teardown of a preview replaced in another pane while the pane carrying the address still holds that tab', async () => {
+    const closed: string[] = [];
+    TestBed.inject(TabCloseHooks).set('doc/a', () => {
+      closed.push('a');
+    });
+    arrange(
+      [{ path: 'reports' }, { path: 'doc/a' }],
+      [{ path: 'doc/a', preview: true }],
+    );
+
+    await openPreview('b');
+
+    expect(tabsOf('side')).toEqual([{ path: 'doc/b', preview: true }]);
+    expect(closed).toEqual([]);
+  });
+
   it('replaces the one in the pane carrying the address first when an old arrangement holds several', async () => {
     arrange(
       [{ path: 'reports' }, { path: 'doc/m', preview: true }],

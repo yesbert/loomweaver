@@ -11,7 +11,7 @@ import {
 } from './pane-node';
 import { findLeaf, leavesOf } from './pane-queries';
 import { DEFAULT_RATIO } from './pane-ratio';
-import { isAtOrBelow } from '../../content/content-path';
+import { isAtOrBelow, normalizePath } from '../../content/content-path';
 
 export function transformLeaf(
   node: PaneNode,
@@ -58,6 +58,10 @@ export function collapseLeaf(
   );
 }
 
+function holds(tab: PaneTab, path: string): boolean {
+  return isAtOrBelow(normalizePath(path), normalizePath(tab.path));
+}
+
 function duplicatedTab(
   node: PaneNode,
   paneId: string,
@@ -66,7 +70,7 @@ function duplicatedTab(
   const tabs = findLeaf(node, paneId)?.tabs ?? [];
   return (
     tabs.find((tab) => tab.path === path) ??
-    tabs.find((tab) => isAtOrBelow(path, tab.path))
+    tabs.find((tab) => holds(tab, path))
   );
 }
 
@@ -147,7 +151,7 @@ function heldOutside(node: PaneNode, primaryId: string, path: string): boolean {
   return leavesOf(node).some(
     (leaf) =>
       leaf.id !== primaryId &&
-      leaf.tabs.some((tab) => isAtOrBelow(path, tab.path)),
+      leaf.tabs.some((tab) => holds(tab, path)),
   );
 }
 
@@ -158,7 +162,7 @@ function settledDethroned(
   const match =
     shown === null
       ? undefined
-      : leaf.tabs.find((tab) => isAtOrBelow(shown, tab.path));
+      : leaf.tabs.find((tab) => holds(tab, shown));
   if (match) {
     return { ...leaf, active: match.path };
   }

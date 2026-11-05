@@ -1,15 +1,12 @@
-import { EnvironmentInjector, Injector } from '@angular/core';
+import { DestroyRef, EnvironmentInjector, Injector } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts } from '@angular/router';
 import {
   RegisteredContentRoute,
   RegisteredView,
 } from '../../../contributions/contribution-registry';
 import { syntheticDockedRoute } from './synthetic-route';
-import {
-  LiveSurfaceRoute,
-  SurfaceAddress,
-  liveSurfaceRoute,
-} from './live-surface-route';
+import { LiveSurfaceRoute, SurfaceAddress } from './live-surface-route';
+import { LiveSurfaceRoutes } from './live-surface-routes';
 
 export interface SurfaceMount {
   readonly injector: Injector;
@@ -30,6 +27,19 @@ export function surfaceMounts(
   environmentInjector: EnvironmentInjector,
 ): SurfaceMounts {
   const cache = new Map<RegisteredContentRoute, Map<string, SurfaceMount>>();
+  const lives = parent.get(LiveSurfaceRoutes);
+  const releaseUnless = (kept: (key: string) => boolean): void => {
+    for (const byKey of cache.values()) {
+      for (const [key, mount] of byKey) {
+        if (kept(key)) {
+          continue;
+        }
+        byKey.delete(key);
+        lives.unbind(key, mount.live);
+      }
+    }
+  };
+  parent.get(DestroyRef).onDestroy(() => releaseUnless(() => false));
   return {
     mountFor: (route, key, address) => {
       let byKey = cache.get(route);
@@ -41,33 +51,15 @@ export function surfaceMounts(
       if (cached) {
         return cached;
       }
-      const mount = newMount(route, key, address, parent, environmentInjector);
+      const live = lives.bind(route, key, address);
+      const mount = {
+        live,
+        injector: routeInjector(parent, environmentInjector, live.route),
+      };
       byKey.set(key, mount);
       return mount;
     },
-    releaseUnless: (kept) => {
-      for (const byKey of cache.values()) {
-        for (const key of byKey.keys()) {
-          if (!kept(key)) {
-            byKey.delete(key);
-          }
-        }
-      }
-    },
-  };
-}
-
-function newMount(
-  route: RegisteredContentRoute,
-  key: string,
-  address: SurfaceAddress,
-  parent: Injector,
-  environmentInjector: EnvironmentInjector,
-): SurfaceMount {
-  const live = liveSurfaceRoute(route, address, key);
-  return {
-    live,
-    injector: routeInjector(parent, environmentInjector, live.route),
+    releaseUnless,
   };
 }
 

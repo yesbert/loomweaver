@@ -177,7 +177,8 @@
   },
   "route": {
     "unavailableTitle": "Ansicht nicht verfügbar",
-    "unavailableMessage": "Diese Ansicht gibt es in dieser Anwendung nicht. Möglicherweise stammt der Link aus einer anderen Umgebung."
+    "unavailableMessage": "Diese Ansicht gibt es in dieser Anwendung nicht. Möglicherweise stammt der Link aus einer anderen Umgebung.",
+    "pluginFailedMessage": "Das Plugin, das diese Ansicht bereitstellt, konnte nicht geladen werden. Lade die Anwendung neu, um es erneut zu versuchen."
   },
   "settings": {
     "capability": {

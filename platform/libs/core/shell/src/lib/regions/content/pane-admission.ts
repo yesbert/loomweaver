@@ -4,7 +4,7 @@ import { AuthContext } from '../../auth/auth-context';
 import { isViewPanePath } from '../pane/tree/pane-address';
 import { surfaceForPanePath } from '../pane/pane-surface';
 import { canHostInPane } from './pane-targets';
-import { matchRoute } from './content-path';
+import { declaringRoute } from './content-path';
 
 @Service()
 export class PaneAdmission {
@@ -22,7 +22,7 @@ export class PaneAdmission {
     if (isViewPanePath(path)) {
       return this.viewAllowed(path);
     }
-    const route = matchRoute(this.registry.contentRoutes(), path);
+    const route = declaringRoute(this.registry.contentRoutes(), path);
     return route !== undefined && this.auth.meets(route.access);
   }
 

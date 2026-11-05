@@ -316,6 +316,10 @@ export class SurfaceBody {
       this.stash.version();
       untracked(() => this.releaseMountsLetGo(shown));
     });
+    effect(() => {
+      const opened = this.activeRoute() ?? this.view() ?? {};
+      untracked(() => this.componentLoader.retry(opened));
+    });
   }
 
   protected componentFor(view: View): Type<unknown> | null {

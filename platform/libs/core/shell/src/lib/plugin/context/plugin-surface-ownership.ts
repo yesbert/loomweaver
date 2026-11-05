@@ -1,5 +1,5 @@
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { matchRoute } from '../../regions/content/content-path';
+import { declaringRoute } from '../../regions/content/content-path';
 import { viewIdOfPanePath } from '../../regions/pane/tree/pane-address';
 
 export function pathOwnedBy(
@@ -23,6 +23,6 @@ export function pathOwnedBy(
     if (viewId !== null) {
       return viewIds.has(viewId);
     }
-    return matchRoute(routes, path) !== undefined;
+    return declaringRoute(routes, path) !== undefined;
   };
 }

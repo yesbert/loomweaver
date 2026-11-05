@@ -75,13 +75,14 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 3.7 A frame's navigation target with a dot segment or a backslash is refused (`regions/content/surface/iframe-surface-protocol.ts`)
 - [x] 3.8 At an address nothing declares, the active content reads as nothing rather than as the home surface (`regions/content/tabs/content-tab-state.ts`)
 - [x] 3.9 Leads, each verified first: the boot placeholder at an encoded deep link; the session re-match superseding a navigation in flight; the close hook running while the same tab is open in another pane; a failed lazy load leaving the pane blank (`regions/content/routing/content-router.ts`, `tabs/tab-closing.service.ts`, `surface/surface-body.ts`)
-- [ ] 3.10 A plugin that registers the home route does not count as the owner of every other address (`plugin/context/plugin-surface-ownership.ts`)
-- [ ] 3.11 An address nothing declares is not attributed to the home route when a tab is duplicated or its label updated (`regions/content/pane-admission.ts`, `tabs/tab-label-update.ts`)
-- [ ] 3.12 A tab stored under a path as it was typed is recognised by its address in every pane, not only in the one carrying the address (`regions/pane/tree/pane-structure.ts`)
-- [ ] 3.13 Replacing the preview tab keeps the teardown while another pane still holds that tab (`regions/content/tabs/preview-slot.service.ts`)
-- [ ] 3.14 A lazy surface whose load failed is tried again when its tab is opened again (`regions/pane/component-loader.service.ts`)
-- [ ] 3.15 Lead, verify first: an address carrying matrix parameters finds the content route Angular finds for it (`regions/content/content-path.ts`)
-- [ ] 3.16 Content whose plugin could not be loaded says that, not that the view does not exist in this application (`regions/content/access/`)
+- [x] 3.10 A plugin that registers the home route does not count as the owner of every other address (`plugin/context/plugin-surface-ownership.ts`)
+- [x] 3.11 An address nothing declares is not attributed to the home route when a tab is duplicated or its label updated (`regions/content/pane-admission.ts`, `tabs/tab-label-update.ts`)
+- [x] 3.12 A tab stored under a path as it was typed is recognised by its address in every pane, not only in the one carrying the address (`regions/pane/tree/pane-structure.ts`)
+- [x] 3.13 Replacing the preview tab keeps the teardown while another pane still holds that tab (`regions/content/tabs/preview-slot.service.ts`)
+- [x] 3.14 A lazy surface whose load failed is tried again when its tab is opened again (`regions/pane/component-loader.service.ts`)
+- [x] 3.15 Not done: the routing capability names what an address carries (values, sub-address or owned remainder, query, fragment) and matrix parameters are not among it; no surface can read them and nothing the workbench offers writes them, so matching them the way Angular does would be a new guarantee, not a defect. An address that uses them is left as written (see 3.1). Was: Lead, verify first: an address carrying matrix parameters finds the content route Angular finds for it (`regions/content/content-path.ts`)
+- [x] 3.16 Content whose plugin could not be loaded says that, not that the view does not exist in this application (`regions/content/access/`)
+- [x] 3.17 A kept surface taken over by a re-created pane view goes on hearing its address: sub-address, query and fragment (`regions/content/surface/live-surface-routes.ts`, `surface-injector.ts`)
 
 ## 4. Persistence, identity and workspaces
 
@@ -122,7 +123,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 - [ ] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs
 - [x] 4.14 A picture taken on a screen with a device pixel ratio of 2 has the size that was asked for and every surface drawn where it sits (`capture/workbench-capture.service.ts`, `capture/picture-size.ts`)
-- [ ] 4.15 A surface wholly hidden behind an opaque layer is not asked to draw for a picture (`capture/surface-capture-registry.ts`)
+- [x] 4.15 Not done: whether a layer is opaque cannot be decided cheaply and reliably, and a miss would leave a visible surface blank in a picture; the picture is right since 4.5. Was: A surface wholly hidden behind an opaque layer is not asked to draw for a picture (`capture/surface-capture-registry.ts`)
 - [x] 4.16 A read during adoption sees the write held for the same key, not the store's older value (`persistence/identity-scope/identity-scoped-store.ts`)
 
 ## 5. Commands, menus, dialogs and the UI kit

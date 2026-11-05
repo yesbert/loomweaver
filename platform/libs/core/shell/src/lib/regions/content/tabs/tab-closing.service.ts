@@ -19,7 +19,7 @@ import {
 } from '../../pane/tree/pane-handover';
 import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
 import { LeftOutChildren } from '../../pane/container/left-out-children';
-import { findLeaf, leavesOf } from '../../pane/tree/pane-queries';
+import { findLeaf } from '../../pane/tree/pane-queries';
 import { paneRetentionScope } from '../../pane/retention/retention-keys';
 import { UnsavedWork } from '../../pane/unsaved-work/unsaved-work';
 import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
@@ -150,13 +150,7 @@ export class TabClosingService {
   }
 
   runCloseHook(path: string): void {
-    const { routes, root } = this.state.rootFor(path);
-    const held = leavesOf(this.paneTree.tree(CONTENT_DOCK)).some((leaf) =>
-      leaf.tabs.some((tab) => tabRootOf(routes, tab.path) === root),
-    );
-    if (!held) {
-      this.closeHooks.runSafely(this.closeHooks.take(root));
-    }
+    this.closeHooks.runOnceGone(this.state.rootFor(path).root);
   }
 
   neighbourOf(path: string): string {

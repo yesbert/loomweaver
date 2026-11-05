@@ -14,6 +14,7 @@ import { Plugin, PLUGIN } from './plugin';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
 import { PluginEnablementService } from './enablement/plugin-enablement.service';
 import { ActivationSettled } from './activation-settled';
+import { FailedPluginContent } from './failed-plugin-content';
 
 interface TeardownFailure {
   readonly id: string;
@@ -33,6 +34,8 @@ export class PluginRuntime {
   private readonly factory = inject(HostContextFactory);
 
   private readonly settlement = inject(ActivationSettled);
+
+  private readonly failedContent = inject(FailedPluginContent);
 
   private readonly injector = inject(EnvironmentInjector);
 
@@ -125,6 +128,7 @@ export class PluginRuntime {
       const enabled = !disabled.has(id);
       if (!enabled) {
         this.failed.delete(id);
+        this.failedContent.forget(id);
       }
       if (enabled && !this.active.has(id)) {
         if (!this.failed.has(id)) {
@@ -178,6 +182,7 @@ export class PluginRuntime {
       );
       return;
     }
+    this.failedContent.rememberContentOf(id);
     ctx.disposeAll();
     this.active.delete(id);
     this.failed.add(id);

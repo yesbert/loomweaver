@@ -178,6 +178,64 @@ describe('pane tree structure', () => {
     expect((focused.second as PaneLeaf).id).toBe('side');
   });
 
+  it('focus handoff recognises a tab stored under its path as it was typed', () => {
+    const tree: PaneSplit = {
+      kind: 'split',
+      id: 's',
+      orientation: 'row',
+      ratio: 0.5,
+      first: {
+        kind: 'leaf',
+        id: PRIMARY_PANE,
+        tabs: [{ path: 'overview' }, { path: 'people/Müller/notes' }],
+        active: 'overview',
+      },
+      second: leafOf('side', 'search'),
+    };
+
+    const old = (
+      dethroneLeaf(tree, PRIMARY_PANE, 'people/M%C3%BCller') as PaneSplit
+    ).first as PaneLeaf;
+
+    expect(old.tabs.map((tab) => tab.path)).toEqual([
+      'overview',
+      'people/Müller/notes',
+    ]);
+    expect(old.active).toBe('people/Müller/notes');
+  });
+
+  it('focus handoff carries nothing another pane holds under its path as it was typed', () => {
+    const tree: PaneSplit = {
+      kind: 'split',
+      id: 's',
+      orientation: 'row',
+      ratio: 0.5,
+      first: { kind: 'leaf', id: PRIMARY_PANE, tabs: [], active: undefined },
+      second: leafOf('side', 'people/Müller'),
+    };
+
+    const old = (
+      dethroneLeaf(tree, PRIMARY_PANE, 'people/M%C3%BCller') as PaneSplit
+    ).first as PaneLeaf;
+
+    expect(old.tabs).toEqual([]);
+  });
+
+  it('a split carries the label of a tab stored under its path as it was typed', () => {
+    const showing: PaneLeaf = {
+      kind: 'leaf',
+      id: PRIMARY_PANE,
+      tabs: [{ path: 'people/Müller', title: 'Müller', literalTitle: true }],
+      active: 'people/Müller',
+    };
+
+    const added = (
+      splitLeaf(showing, PRIMARY_PANE, 'row', 'people/M%C3%BCller') as PaneSplit
+    ).second as PaneLeaf;
+
+    expect(added.tabs[0].title).toBe('Müller');
+  });
+
   it('focus handoff leaves no tab behind for the home screen', () => {
     const tree: PaneSplit = {
       kind: 'split',

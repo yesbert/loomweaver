@@ -3,6 +3,7 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { PluginRuntime } from './plugin-runtime';
 import { PLUGIN } from './plugin';
+import { FailedPluginContent } from './failed-plugin-content';
 import { Plugin } from './plugin';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { provideCapabilityGrants } from '../permissions/provide-capability-grants';
@@ -123,6 +124,53 @@ describe('PluginRuntime', () => {
       .map((entry) => entry.pluginId);
     expect(listed).not.toContain('failing');
     error.mockRestore();
+  });
+
+  describe('the content of a plugin whose activation failed after it registered it', () => {
+    function registersThenFails() {
+      const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const failing: Plugin = {
+        manifest: { id: 'orders' },
+        activate: (ctx) => {
+          ctx.registerSurface({
+            id: 'orders.order',
+            title: 'Order',
+            routable: { path: 'orders/:id' },
+            component: DummyComponent,
+          });
+          throw new Error('boom');
+        },
+      };
+      TestBed.configureTestingModule({
+        providers: [
+          provideRouter([]),
+          menuStub,
+          { provide: PLUGIN, useValue: failing, multi: true },
+          provideCapabilityGrants({ orders: ['contributions'] }),
+        ],
+      });
+      TestBed.inject(PluginRuntime).activateAll();
+      return { error, lost: TestBed.inject(FailedPluginContent) };
+    }
+
+    it('is undone, and its addresses are known as those of a plugin that could not be loaded', () => {
+      const { error, lost } = registersThenFails();
+
+      expect(TestBed.inject(ContributionRegistry).contentRoutes()).toEqual([]);
+      expect(lost.holds('orders/7')).toBe(true);
+      expect(lost.holds('invoices/7')).toBe(false);
+      error.mockRestore();
+    });
+
+    it('is no longer known that way once the user switches the plugin off', () => {
+      const { error, lost } = registersThenFails();
+
+      TestBed.inject(PluginEnablementService).setEnabled('orders', false);
+      TestBed.tick();
+
+      expect(lost.holds('orders/7')).toBe(false);
+      error.mockRestore();
+    });
   });
 
   describe('a plugin whose activation failed', () => {

@@ -56,8 +56,7 @@ export class PreviewSlotService {
       return;
     }
 
-    this.closeHooks.runSafely(previous?.onClose);
-    this.closeHooks.delete(previousRoot);
+    this.closeHooks.runOnceGone(previousRoot);
   }
 
   private replaceIn(pane: PaneLeaf, slot: OpenTab): void {
@@ -74,9 +73,7 @@ export class PreviewSlotService {
     );
     this.paneTree.focusPane(CONTENT_DOCK, pane.id, shown);
     if (previous !== undefined) {
-      this.closeHooks.runSafely(
-        this.closeHooks.take(tabRootOf(routes, previous.path)),
-      );
+      this.closeHooks.runOnceGone(tabRootOf(routes, previous.path));
     }
   }
 

@@ -1,7 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, RouterOutlet, provideRouter } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterOutlet,
+  provideRouter,
+} from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
@@ -11,6 +16,7 @@ import {
   SURFACE_PADDING,
 } from '../../../foundation/surface-padding';
 import { SurfaceBody } from './surface-body';
+import { FailedPluginContent } from '../../../plugin/failed-plugin-content';
 import { SURFACE_OWNER_MARK } from '../../../contributions/toolbar-registry';
 import { hostablePaneTargets, navigablePaneTargets } from '../pane-targets';
 import { liveSurfaceRoute } from './live-surface-route';
@@ -281,6 +287,21 @@ describe('A host-mounted pane says why it is empty', () => {
     expect(element.querySelector('[data-testid="param"]')).toBeNull();
   });
 
+  it('says the plugin behind an address could not be loaded, rather than that the view does not exist here', () => {
+    const element = mount(ANONYMOUS, 'orders/7', (registry) => {
+      const registered = registry.addContentRoute(
+        { path: 'orders/:id', component: ParamView },
+        'orders',
+      );
+      TestBed.inject(FailedPluginContent).rememberContentOf('orders');
+      registered.dispose();
+    });
+
+    expect(element.textContent).toContain('route.unavailableTitle');
+    expect(element.textContent).toContain('route.pluginFailedMessage');
+    expect(element.textContent).not.toContain('route.unavailableMessage');
+  });
+
   it('shows nothing while a lazy surface is still loading, rather than saying it is unavailable', () => {
     const element = mount(ANONYMOUS, 'later', (registry) =>
       registry.addContentRoute({
@@ -309,6 +330,46 @@ describe('A host-mounted pane says why it is empty', () => {
 
     expect(element.textContent).toContain('content.loadFailed');
     expect(element.textContent).not.toContain('content.split.unavailable');
+    logged.mockRestore();
+  });
+
+  it('tries a lazy surface whose load failed again when it is opened again, once per opening', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    let calls = 0;
+    const fixture = mounted(ANONYMOUS, 'broken', (registry) => {
+      registry.addContentRoute({ path: 'search', component: ParamView });
+      registry.addContentRoute({
+        path: 'broken',
+        loadComponent: () => {
+          calls += 1;
+          return calls < 3
+            ? Promise.reject(new Error('chunk gone'))
+            : Promise.resolve(ParamView);
+        },
+      });
+    });
+    const element: HTMLElement = fixture.nativeElement;
+    const reopen = async () => {
+      fixture.componentRef.setInput('path', 'search');
+      fixture.detectChanges();
+      fixture.componentRef.setInput('path', 'broken');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(calls).toBe(1);
+
+    await reopen();
+
+    expect(calls).toBe(2);
+    expect(element.textContent).toContain('content.loadFailed');
+
+    await reopen();
+
+    expect(calls).toBe(3);
+    expect(element.querySelector('[data-testid="param"]')).not.toBeNull();
     logged.mockRestore();
   });
 
@@ -477,6 +538,71 @@ describe('SurfaceBody — the inset holds wherever the surface is put', () => {
     expect((await paneFor('inset', false, 'panel')).classList).not.toContain(
       PANEL_INSET,
     );
+  });
+});
+
+@Component({
+  selector: 'lw-test-address-view',
+  template: `<span data-testid="heard">{{ heard() }}</span>`,
+})
+class AddressView {
+  private readonly route = inject(ActivatedRoute);
+  private readonly data = toSignal(this.route.data, { requireSync: true });
+  private readonly query = toSignal(this.route.queryParams, {
+    requireSync: true,
+  });
+  private readonly fragment = toSignal(this.route.fragment, {
+    requireSync: true,
+  });
+  protected readonly heard = computed(
+    () =>
+      `${String(this.data()['sub'] ?? '')}?${String(this.query()['line'] ?? '')}#${this.fragment() ?? ''}`,
+  );
+}
+
+describe('A kept surface whose pane view was replaced', () => {
+  async function paneViewAt(
+    path: string,
+  ): Promise<ComponentFixture<SurfaceBody>> {
+    const fixture = TestBed.createComponent(SurfaceBody);
+    fixture.componentRef.setInput('retentionScope', 'content:primary');
+    fixture.componentRef.setInput('carriesAddress', true);
+    fixture.componentRef.setInput('path', path);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture;
+  }
+
+  it('goes on hearing its sub-address, query and fragment from the pane view that took it over', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([{ path: '**', component: ParamView }])],
+    });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      ...DOC_ROUTE,
+      component: AddressView,
+      retain: 'always',
+    });
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/doc/main/code?line=1#top');
+    const built = await paneViewAt('doc/main/code');
+    const kept = (built.nativeElement as HTMLElement).querySelector(
+      '[data-testid="heard"]',
+    );
+    expect(kept?.textContent).toBe('code?1#top');
+    built.destroy();
+
+    const replacing = await paneViewAt('doc/main/code');
+    const element: HTMLElement = replacing.nativeElement;
+    expect(element.querySelector('[data-testid="heard"]')).toBe(kept);
+
+    await router.navigateByUrl('/doc/main/preview?line=9#end');
+    replacing.componentRef.setInput('path', 'doc/main/preview');
+    replacing.detectChanges();
+    await replacing.whenStable();
+    TestBed.tick();
+
+    expect(element.querySelector('[data-testid="heard"]')).toBe(kept);
+    expect(kept?.textContent).toBe('preview?9#end');
   });
 });
 
