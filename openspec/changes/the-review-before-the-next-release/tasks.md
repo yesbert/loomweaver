@@ -88,6 +88,8 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 7.3 The tests for a command never opened call it by its tool name (`command-tools.spec.ts`, `platform/apps/loom-testbed/src/app/agent-drives-the-workbench.spec.ts`)
 - [x] 7.4 A tool is not described by its title where it has no description, and its description says what the command answers (`tool-definitions.ts`)
 - [ ] 7.5 The generated agent panel shows a failed run instead of letting the stream's error escape from the click handler (`platform/libs/tooling/devkit/src/recipes/angular-weaver/agent-panel.ts`)
+- [x] 7.6 A check that answers with no decision, or one the connection does not know, refuses the call, and the agent is not told the error's message (delta; `command-tools.spec.ts`)
+- [ ] 7.7 The generated panel labels a tool by a name, not by its description with what it answers, and a failing flush cannot leave it busy (`agent-panel.ts`)
 
 ## 8. The scaffolding tools
 
@@ -111,6 +113,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [ ] 9.7 The assistant's prompt keeps the focus across a run (`assistant-agent-panel.html`)
 - [ ] 9.8 The example compiles with `strict` and `strictTemplates` (`examples/assistant-workbench/tsconfig.json`)
 - [ ] 9.9 Leads, each verified first: the demo's service worker serving the sandboxed payments plugin offline; unused exports and files in `demo/src`
+- [ ] 9.10 The example's panel flushes in a `finally`, as the guide says (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
 
 ## 10. Tests that could not fail
 
@@ -119,7 +122,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 10.3 Clicking a tab in a pane fails when the tab is missing, and the stable-ids test asserts the address moved (`support/helpers.ts`, `stable-pane-ids.spec.ts`)
 - [x] 10.4 The testbed's reply field is named in each pane of a split, and the accessibility scan covers a split (`platform/libs/weavers/testbed-weaver/src/lib/entry-tabs/testbed-entry-view.html`, `a11y.spec.ts`)
 - [ ] 10.5 The end-to-end project type-checks clean, and its lint target holds that (`retained-url-pane.spec.ts`, `scrollbars.spec.ts`, the unused import in `content.spec.ts`)
-- [ ] 10.6 The surface inset test polls for the inset instead of waiting a fixed time (`surface-inset.spec.ts`)
+- [x] 10.6 The surface inset test polls for the inset instead of waiting a fixed time (`surface-inset.spec.ts`)
 
 ## 11. Guards and the release
 

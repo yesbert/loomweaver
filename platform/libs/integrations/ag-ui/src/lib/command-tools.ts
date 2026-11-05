@@ -61,16 +61,18 @@ export type ToolDecision =
   | { readonly decision: 'answer'; readonly content: string };
 
 /**
- * What a plugin may supply when it wants a say before a call runs. A hook that throws or rejects has
- * not let the call through: the call is refused, saying what went wrong, its command does not run,
- * and the run carries on with the next event.
+ * What a plugin may supply when it wants a say before a call runs. A hook that throws, rejects or
+ * answers with no decision it could have given has not let the call through: the call is refused,
+ * its command does not run, and the run carries on with the next event. What went wrong is written
+ * to the console and not told to the agent, because an error's message was not written for it.
  */
 export interface CommandToolOptions {
   before?(call: PendingToolCall): ToolDecision | Promise<ToolDecision>;
 }
 
 /**
- * The workbench's own actions, offered to an agent and run on its behalf.
+ * The workbench's own actions, offered to an agent and run on its behalf. One connection follows
+ * one run at a time: give each conversation that may run beside another a connection of its own.
  *
  * Hand every event of a run to {@link receive} and send back whatever it answers. Ask {@link list}
  * for the tools when a run begins rather than keeping the answer: what a plugin may reach changes as
@@ -103,7 +105,7 @@ export interface CommandTools {
 const UNREADABLE = 'its arguments did not arrive as readable JSON.';
 const NOT_OFFERED = 'it is not one of the tools offered to you.';
 const UNFINISHED = 'the run ended before its arguments were complete.';
-const UNDECIDED = 'the check in front of it failed';
+const UNDECIDED = 'the check in front of it failed.';
 
 /**
  * Connects a plugin context to an agent's tool calls.
@@ -187,31 +189,44 @@ async function answerCall(
   if (args === null) {
     return refusalFor(call.toolCallId, UNREADABLE);
   }
-  if (!options.before) {
-    return run(ctx, call.toolCallId, command.id, args);
+  const decision = await decisionOf(options, {
+    toolCallId: call.toolCallId,
+    commandId: command.id,
+    args,
+    ...(command.agentConsent !== undefined && { agentConsent: command.agentConsent }),
+  });
+  switch (decision?.decision) {
+    case 'run': {
+      return run(ctx, call.toolCallId, command.id, args);
+    }
+    case 'decline': {
+      return refusalFor(call.toolCallId, decision.reason);
+    }
+    case 'answer': {
+      return answerFor(call.toolCallId, decision.content);
+    }
+    default: {
+      return refusalFor(call.toolCallId, UNDECIDED);
+    }
   }
-  let decision: ToolDecision;
-  try {
-    decision = await options.before({
-      toolCallId: call.toolCallId,
-      commandId: command.id,
-      args,
-      ...(command.agentConsent !== undefined && { agentConsent: command.agentConsent }),
-    });
-  } catch (error) {
-    return refusalFor(call.toolCallId, `${UNDECIDED}: ${messageOf(error)}`);
-  }
-  if (decision.decision === 'decline') {
-    return refusalFor(call.toolCallId, decision.reason);
-  }
-  if (decision.decision === 'answer') {
-    return answerFor(call.toolCallId, decision.content);
-  }
-  return run(ctx, call.toolCallId, command.id, args);
 }
 
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+async function decisionOf(
+  options: CommandToolOptions,
+  call: PendingToolCall,
+): Promise<ToolDecision | undefined> {
+  if (!options.before) {
+    return { decision: 'run' };
+  }
+  try {
+    return await options.before(call);
+  } catch (error) {
+    console.error(
+      `The check in front of the tool call for "${call.commandId}" failed, so the call is refused.`,
+      error,
+    );
+    return undefined;
+  }
 }
 
 async function run(

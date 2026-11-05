@@ -536,9 +536,11 @@ describe('commandTools hook', () => {
     expect(invoked).toHaveLength(1);
   });
 
-  it('refuses the call when the hook throws, and does not run it', async () => {
+  it('refuses the call when the hook throws, does not run it, and tells the developer rather than the agent', async () => {
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const failure = new Error('the dialog is gone');
     const { tools, invoked } = withHook(() => {
-      throw new Error('the dialog is gone');
+      throw failure;
     });
 
     const [answer] = await play(
@@ -548,10 +550,30 @@ describe('commandTools hook', () => {
 
     expect(invoked).toEqual([]);
     expect(answer.toolCallId).toBe('c1');
-    expect(answer.error).toMatch(/did not run: .*the dialog is gone/);
+    expect(answer.error).toMatch(/did not run: the check in front of it failed/);
+    expect(answer.error).not.toContain('the dialog is gone');
+    expect(reported).toHaveBeenCalledWith(expect.stringContaining('notes.open'), failure);
+    reported.mockRestore();
+  });
+
+  it.each([
+    ['nothing', undefined],
+    ['a decision it does not know', { decision: 'allow' }],
+  ])('refuses the call when the hook answers %s, and does not run it', async (_, decided) => {
+    const { tools, invoked } = withHook(() => decided as never);
+
+    const [answer] = await play(
+      tools,
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
+    );
+
+    expect(invoked).toEqual([]);
+    expect(answer.toolCallId).toBe('c1');
+    expect(answer.error).toMatch(/did not run: the check in front of it failed/);
   });
 
   it('refuses the call when the hook rejects, and the run carries on', async () => {
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     let asked = 0;
     const { tools, invoked } = withHook(() =>
       ++asked === 1
@@ -565,8 +587,9 @@ describe('commandTools hook', () => {
     ]);
 
     expect(answers.map((answer) => answer.toolCallId)).toEqual(['c1', 'c2']);
-    expect(answers[0].error).toMatch(/did not run: .*nobody answered/);
+    expect(answers[0].error).toMatch(/did not run: the check in front of it failed/);
     expect(invoked).toEqual([{ id: 'notes.open', args: { path: 'b' } }]);
+    reported.mockRestore();
   });
 
   it('cannot widen: letting a call through still leaves the workbench to refuse it', async () => {

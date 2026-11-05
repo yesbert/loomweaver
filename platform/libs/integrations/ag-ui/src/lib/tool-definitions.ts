@@ -68,9 +68,7 @@ const TOOL_NAME_LIMIT = 64;
 function descriptionOf(command: InvocableCommand): string {
   const answers =
     command.answers === undefined ? undefined : `Answers: ${command.answers}`;
-  return [command.description, answers]
-    .filter((part) => part !== undefined)
-    .join('\n');
+  return [command.description, answers].filter(Boolean).join('\n');
 }
 
 function toolNameOf(commandId: string): string {

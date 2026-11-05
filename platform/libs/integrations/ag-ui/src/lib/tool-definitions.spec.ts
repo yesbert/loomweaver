@@ -43,6 +43,12 @@ describe('toolFor', () => {
     );
   });
 
+  it('does not open with an empty line where the description is empty', () => {
+    expect(
+      toolFor(command({ description: '', answers: 'The path it opened' })).description,
+    ).toBe('Answers: The path it opened');
+  });
+
   it("carries what the command says an agent's word is enough for", () => {
     const tool = toolFor({
       id: 'notes.delete',

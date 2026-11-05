@@ -48,6 +48,10 @@ Put the `flush` loop in a `finally` around the run. A stream that throws or is c
 the event that ends the run, so nothing else answers the calls it left open. The event that starts the
 next run forgets them: a call from a run that broke off is neither run nor answered in a later one.
 
+One connection follows one run at a time. A conversation that may run beside another one takes a
+connection of its own, because the calls of two runs told to the same connection cannot be told
+apart.
+
 ## What you get, and what you do not
 
 The package is **headless**. It brings no transport, no user interface and no agent: you open the
@@ -141,8 +145,10 @@ const tools = commandTools(ctx, {
 | `{ decision: 'decline', reason }` | The workbench is never asked. The agent is told the call did not run, and why.       |
 | `{ decision: 'answer', content }` | You serve the call yourself. The agent gets your content as the result.              |
 
-It may be asynchronous, which is what a confirmation needs. A hook that throws or rejects has not let
-the call through: the call is refused, the agent is told what went wrong, and the run carries on.
+It may be asynchronous, which is what a confirmation needs. A hook that throws, rejects or
+answers with no decision has not let the call through: the call is refused and the run carries on.
+What went wrong is written to the console and not told to the agent, because an error's message was
+not written for it.
 
 **A decision can only narrow.** Letting a call through does not make it reachable: the workbench
 refuses what it always refused, whatever was decided here. The hook is a place to say no, not a way to
