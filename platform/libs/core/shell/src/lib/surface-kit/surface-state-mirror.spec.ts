@@ -130,6 +130,42 @@ describe('the frame kit state mirror', () => {
     expect(calls).toEqual(['watch draft', 'unwatch draft']);
   });
 
+  it('tells its watchers once of a push that is applied twice', () => {
+    const state = createState();
+    state.connect(recordingHost().host);
+    const handle = state.watch<{ step: number }>('wizard');
+    const heard: unknown[] = [];
+    handle.onChange((value, loaded) => {
+      heard.push([value, loaded]);
+    });
+    const pushed = { step: 2 };
+
+    state.apply('wizard', pushed, true);
+    state.apply('wizard', pushed, true);
+
+    expect(heard).toEqual([[pushed, true]]);
+    handle.dispose();
+  });
+
+  it('still tells its watchers of a push that repeats what the surface wrote itself in between', () => {
+    const state = createState();
+    state.connect(recordingHost().host);
+    const handle = state.watch<string>('draft');
+    const heard: unknown[] = [];
+    handle.onChange((value) => {
+      heard.push(value);
+    });
+
+    state.apply('draft', 'first', true);
+    handle.set('second');
+    state.apply('draft', 'second', true);
+    handle.clear();
+    state.apply('draft', undefined, true);
+
+    expect(heard).toEqual(['first', 'second', undefined]);
+    handle.dispose();
+  });
+
   it('says so, and leaves no rejection behind, when the workbench refuses a call', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const refused = new Error('refused');

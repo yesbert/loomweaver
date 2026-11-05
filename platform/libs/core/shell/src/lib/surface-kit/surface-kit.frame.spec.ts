@@ -30,13 +30,57 @@ describe('the methods the frame kit answers the workbench with', () => {
     handle.dispose();
   });
 
-  it('keep the platform’s own names over a surface’s', () => {
+  it('call a surface’s own stateChanged after the mirror took the push, with the same arguments', () => {
+    const frame = installLwFrame();
+    const handle = frame.state.watch<string>('draft');
+    const heard: unknown[][] = [];
+
+    const methods = frame.surfaceMethods({
+      stateChanged: (key: string, value: unknown, loaded: boolean) => {
+        heard.push([key, value, loaded, handle.value()]);
+      },
+    });
+    methods.stateChanged('draft', 'pushed', true);
+
+    expect(heard).toEqual([['draft', 'pushed', true, 'pushed']]);
+    handle.dispose();
+  });
+
+  it('tell a watcher once where a surface’s own stateChanged feeds the push in a second time', () => {
+    const frame = installLwFrame();
+    const handle = frame.state.watch<{ step: number }>('wizard');
+    const heard: unknown[] = [];
+    handle.onChange((value) => {
+      heard.push(value);
+    });
+
+    const methods = frame.surfaceMethods({
+      stateChanged: (key: string, value: unknown, loaded: boolean) =>
+        frame.state.apply(key, value, loaded),
+    });
+    methods.stateChanged('wizard', { step: 2 }, true);
+
+    expect(heard).toEqual([{ step: 2 }]);
+    handle.dispose();
+  });
+
+  it('call a surface’s own slotChanged after the toolbars took the push, with the same arguments', () => {
+    const frame = installLwFrame();
+    const view = { label: 'Tools', moreLabel: 'More', entries: [] };
+    const own = vi.fn();
+
+    frame.surfaceMethods({ slotChanged: own }).slotChanged('slot-1', view);
+
+    expect(own).toHaveBeenCalledExactlyOnceWith('slot-1', view);
+  });
+
+  it('answer a picture themselves and leave a surface’s own capture uncalled, since one answer is given', () => {
     const frame = installLwFrame();
     const own = vi.fn();
 
-    const methods = frame.surfaceMethods({ stateChanged: own });
-    (methods.stateChanged as (key: string, value: unknown, loaded: boolean) => void)('draft', 1, true);
+    const methods = frame.surfaceMethods({ capture: own });
 
+    expect(methods.capture).toBe(frame.capture);
     expect(own).not.toHaveBeenCalled();
   });
 });

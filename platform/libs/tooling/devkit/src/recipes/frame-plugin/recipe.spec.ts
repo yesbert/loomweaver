@@ -53,7 +53,7 @@ describe('framePlugin recipe', () => {
         },
       },
       LwFrame: {
-        surfaceMethods: (own: Record<string, unknown>) => ({ ...own, capture: 'kit', slotChanged: 'kit' }),
+        surfaceMethods: (own: Record<string, unknown>) => ({ ...own, capture: 'kit', slotChanged: 'kit', stateChanged: 'kit' }),
         applySurfaceState: () => undefined,
         state: { apply: () => undefined },
         connectState: (given: unknown) => {
@@ -69,6 +69,8 @@ describe('framePlugin recipe', () => {
     await Promise.resolve();
 
     expect(Object.keys(methods).toSorted((a, b) => a.localeCompare(b))).toEqual(['capture', 'render', 'slotChanged', 'stateChanged']);
+    expect(methods['stateChanged']).toBe('kit');
+    expect(script).not.toContain('stateChanged');
     expect(calls).toEqual(['state', 'toolbars']);
     expect(view).not.toMatch(/#[0-9a-f]{3,6}\b/i);
   });

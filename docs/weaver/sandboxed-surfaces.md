@@ -288,10 +288,11 @@ Penpal.connect({
 ```
 
 `surfaceMethods` returns your methods plus the ones the workbench may call on any surface. Write it
-this way and requests added to the platform later arrive without you editing the plugin again. The
-platform's own names win over yours, so you cannot shadow one by accident. A surface that does not
-expose them is not broken. It simply appears on the picture as an area saying its content is not
-included.
+this way and requests added to the platform later arrive without you editing the plugin again. A
+push the kit takes itself, `slotChanged` and `stateChanged`, is applied first and then handed to a
+method of the same name you passed, so what you do there still happens. The picture is answered by
+the kit alone, and a `capture` of your own is not called. A surface that does not expose them is not
+broken. It simply appears on the picture as an area saying its content is not included.
 
 The renderer is fetched from beside the kit the first time a picture is asked for, so a surface that
 is never captured never pays for it.

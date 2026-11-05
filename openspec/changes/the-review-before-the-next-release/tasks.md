@@ -259,6 +259,9 @@ What review 12.3 found. Paths are under `platform/libs/core/`.
 - [x] 14.10 A command that declares what it answers and ends without a value has run: it is answered without a value, not reported as failed (`shell/src/lib/commands/command-invocation.service.ts`)
 - [x] 14.11 A rail entry that names a workspace switches to it whatever its command is, as its description says (`shell/src/lib/menu/menu-resolution.ts`)
 - [x] 14.12 The frame kit's bundle is rebuilt when a package it vendors changes (`frame-kit/project.json`, the bundle's inputs)
+- [x] 14.13 A surface that passes its own `stateChanged` or `slotChanged` among its methods still has it called: the kit takes the push first and then calls the surface's method with the same arguments, and a push fed in a second time by hand tells its watchers nothing new (`shell/src/lib/surface-kit/surface-kit.frame.ts`, `surface-state-mirror.ts`, `surface-toolbars.ts`)
+- [x] 14.14 The frame-plugin scaffold and the testbed's sandbox example carry no `stateChanged` of their own that only repeats what the kit does (`platform/libs/tooling/devkit/src/recipes/frame-plugin/recipe.ts`, `platform/apps/loom-testbed/public/sandbox-rpc/view.js`)
+- [x] 14.15 A rail entry that names a workspace takes nothing from a command it also names: not its key, title, icon or shortcut (`shell/src/lib/menu/menu-resolution.ts`)
 
 ## 13. Hand-over
 
