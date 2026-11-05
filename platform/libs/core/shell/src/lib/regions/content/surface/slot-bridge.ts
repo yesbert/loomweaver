@@ -3,8 +3,13 @@ import { MenuContext, MenuHeader } from '@loomweaver/plugin-sdk';
 import { SURFACE_OWNER } from '../../../contributions/toolbar-registry';
 import { Wording } from '../../../i18n/wording';
 import { ResolvedEntry } from '../../../menu/menu-resolution';
-import { MenuAnswer, MenuService } from '../../../menu/menu.service';
+import {
+  LabelledEntry,
+  MenuAnswer,
+  MenuService,
+} from '../../../menu/menu.service';
 import type {
+  LwSlotEntry,
   LwSlotHeader,
   LwSlotView,
 } from '../../../surface-kit/surface-kit.frame';
@@ -172,16 +177,21 @@ export class SlotBridge {
       label: header ? translate(header.title) : '',
       moreLabel: translate(MORE_KEY),
       header: header && this.headerView(header, answer),
-      entries: answer.entries.map((entry) => ({
-        key: entry.key,
-        label: translate(entry.title),
-        group: entry.group,
-        order: entry.order,
-        icon: entry.icon,
-        shortcut: entry.shortcut,
-        pressed: entry.checkbox ? entry.checked : undefined,
-        disabled: entry.disabled,
-      })),
+      entries: answer.entries.map((entry) => this.menuEntry(entry)),
+    };
+  }
+
+  private menuEntry(entry: LabelledEntry): LwSlotEntry {
+    return {
+      key: entry.key,
+      label: this.wording.translate(entry.title),
+      group: entry.group,
+      order: entry.order,
+      icon: entry.icon,
+      shortcut: entry.shortcut,
+      pressed: entry.checkbox ? entry.checked : undefined,
+      disabled: entry.disabled,
+      children: entry.submenu?.map((child) => this.menuEntry(child)),
     };
   }
 

@@ -212,6 +212,24 @@ describe('SlotBridge', () => {
       expect(bridge.open(toolbar, 'nobody')).toBeUndefined();
       expect(bridge.open('unknown', 'acme.sources')).toBeUndefined();
     });
+
+    it('carries what an entry of the menu unfolds into, as the page unfolds it, and runs a chosen entry of it', async () => {
+      registry.addMenuItem({ id: 'acme.more', menu: MENU, title: 'acme.tools', submenu: `${MENU}/more` }, 'acme');
+      registry.addMenuItem({ menu: `${MENU}/more`, command: 'acme.share' }, 'scanner');
+
+      const [menu, view] = await openSources();
+      expect(view.entries).toEqual([
+        expect.objectContaining({
+          key: 'acme.more',
+          label: 'Frame tools',
+          children: [expect.objectContaining({ key: 'acme.more>acme.share', label: 'Share', icon: 'share' })],
+        }),
+      ]);
+      expect(JSON.stringify(view)).not.toContain(`${MENU}/more`);
+
+      bridge.activate(menu, 'acme.more>acme.share');
+      expect(ran).toHaveLength(1);
+    });
   });
 
   describe('where two owners hold a surface of the same id', () => {

@@ -122,7 +122,7 @@ export class CommandInvocationService implements CommandInvoker {
   }
 
   private answerOf(command: Command, returned: unknown): CommandOutcome {
-    if (command.answers === undefined) {
+    if (command.answers === undefined || returned === undefined) {
       return { outcome: 'answered' };
     }
     if (!isCommandAnswer(returned)) {

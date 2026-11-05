@@ -55,7 +55,11 @@ describe('framePlugin recipe', () => {
       LwFrame: {
         surfaceMethods: (own: Record<string, unknown>) => ({ ...own, capture: 'kit', slotChanged: 'kit' }),
         applySurfaceState: () => undefined,
-        state: { apply: () => undefined },
+        state: {
+          apply: (...pushed: unknown[]) => {
+            calls.push(`apply ${pushed.join(' ')}`);
+          },
+        },
         connectState: (given: unknown) => {
           calls.push(given === host ? 'state' : 'wrong');
         },
@@ -70,6 +74,8 @@ describe('framePlugin recipe', () => {
 
     expect(Object.keys(methods).toSorted((a, b) => a.localeCompare(b))).toEqual(['capture', 'render', 'slotChanged', 'stateChanged']);
     expect(calls).toEqual(['state', 'toolbars']);
+    (methods['stateChanged'] as (...pushed: unknown[]) => void)('draft', 'pushed', true);
+    expect(calls.at(-1)).toBe('apply draft pushed true');
     expect(view).not.toMatch(/#[0-9a-f]{3,6}\b/i);
   });
 });

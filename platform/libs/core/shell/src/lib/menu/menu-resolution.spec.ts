@@ -113,6 +113,38 @@ describe('resolveSlot', () => {
     expect(resolved[1].opensMenu).toBe('own');
   });
 
+  it('keeps an entry that names a workspace whatever its command is: unregistered, or one the session may not run', () => {
+    const entries: SlotEntry[] = [
+      { id: 'rail.gone', title: 'gone', workspace: 'ws-1', command: 'omitted' },
+      { id: 'rail.secret', title: 'secret', workspace: 'ws-2', command: 'secret' },
+    ];
+    const resolved = resolveSlot(
+      entries,
+      inContext,
+      sources([command('secret')], { available: () => false }),
+    );
+
+    expect(resolved.map((entry) => entry.item.workspace)).toEqual(['ws-1', 'ws-2']);
+    expect(resolved.map((entry) => entry.command)).toEqual([undefined, undefined]);
+  });
+
+  it('takes nothing from a command an entry that names a workspace also names: not its key, title, icon or shortcut', () => {
+    const entries: SlotEntry[] = [
+      { id: 'rail.sales', title: 'rail.sales', workspace: 'sales', command: 'open' },
+    ];
+    const [resolved] = resolveSlot(
+      entries,
+      inContext,
+      sources([command('open', { icon: 'folder', shortcut: 'mod+o' })]),
+    );
+
+    expect(resolved).toMatchObject({ key: 'rail.sales', title: 'rail.sales' });
+    expect(resolved.icon).toBeUndefined();
+    expect(resolved.chord).toBeUndefined();
+    expect(resolved.shortcut).toBeUndefined();
+    expect(resolved.command).toBeUndefined();
+  });
+
   it("applies the entry's own requirement before the command's: hidden is gone, disabled stays inert", () => {
     const entries: SlotEntry[] = [
       { id: 'hidden', command: 'open', access: { anyRole: ['admin'] } },

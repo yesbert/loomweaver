@@ -21,7 +21,9 @@
             "@tailwindcss/typography",
             "postcss",
             "esbuild",
-            "penpal"
+            "typescript",
+            "penpal",
+            "@zumer/snapdom"
           ]
         }
       ],

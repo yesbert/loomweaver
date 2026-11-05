@@ -277,6 +277,42 @@ describe('ShellBar', () => {
       expect(buttons()).toHaveLength(0);
     });
   });
+
+  it('hides a component whose requirement is unmet even where it asks to be shown disabled, and keeps a button that asks the same', () => {
+    const auth = signal<AuthSnapshot>(ANONYMOUS);
+    TestBed.configureTestingModule({
+      imports: [ShellBar, transloco()],
+      providers: [{ provide: AUTH_SOURCE, useValue: auth }],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    registry.addBarItem({
+      id: 'owned',
+      bar: 'top-bar',
+      slot: 'start',
+      component: TestEntry,
+      access: { authenticated: true, mode: 'disable' },
+    });
+    registry.addBarItem({
+      id: 'drawn',
+      bar: 'top-bar',
+      slot: 'end',
+      icon: 'add',
+      tooltip: 'status.add',
+      run: () => undefined,
+      access: { authenticated: true, mode: 'disable' },
+    });
+    const fixture = TestBed.createComponent(ShellBar);
+    fixture.componentRef.setInput('region', topBar);
+    const shown = () => {
+      fixture.detectChanges();
+      return entriesInBar(fixture);
+    };
+
+    expect(shown()).toEqual(['drawn']);
+
+    auth.set({ authenticated: true, roles: [], claims: {} });
+    expect(shown()).toEqual(['owned', 'drawn']);
+  });
 });
 
 describe('a bar button naming a command the session may not run', () => {

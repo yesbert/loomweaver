@@ -243,6 +243,31 @@ What review 12.1 found in the end-to-end suite (`platform/apps/loom-testbed-e2e/
 - [x] 16.15 Six negatives move behind their anchor or onto what was really open (`hidden-views.spec.ts`, `workspace-definitions.spec.ts`, `settings.spec.ts`, `tab-follows.spec.ts`, `surface-retention.spec.ts`, `plugin-store.spec.ts`)
 - [x] 16.16 Handed to the owner as a decision (see design.md): a plugin's own script can notice that a picture is being made, because the drawing adds and removes nodes in the frame's document; the test that says so is kept as `test.fixme` (`surface-withholding.spec.ts`)
 
+## 14. The published contract and the frame kit
+
+What review 12.3 found. Paths are under `platform/libs/core/`.
+
+- [x] 14.1 A surface that uses the kit's methods answers a state push too, so a watched value arrives and `loaded()` turns true (`shell/src/lib/surface-kit/surface-kit.frame.ts`, `surfaceMethods`; pinned in the frame kit's build spec and the surface kit's specs)
+- [x] 14.2 A slot's menu asked for from a frame carries its submenus, so an entry that unfolds in the page unfolds in the frame (`shell/src/lib/regions/content/surface/slot-bridge.ts`, `shell/src/lib/surface-kit/surface-toolbars.ts`)
+- [x] 14.3 A call from the frame to the workbench that is refused leaves no unhandled rejection in the frame (`shell/src/lib/surface-kit/surface-toolbars.ts`, `surface-state-mirror.ts`)
+- [x] 14.4 A state push that arrives after its last handle was disposed starts no new watch (`shell/src/lib/surface-kit/surface-state-mirror.ts`, `apply`)
+- [x] 14.5 A toolbar cell with an access requirement is hidden while the session does not meet it, whatever its mode, as its description says (`shell/src/lib/regions/toolbar/toolbar-host.service.ts`)
+- [x] 14.6 A component in a bar with an access requirement is hidden while the session does not meet it, whatever its mode (`shell/src/lib/regions/bar/shell-bar.ts`)
+- [ ] 14.7 What a surface withholds from a picture is covered where it was when the picture was taken: the areas are read before the drawing starts (`shell/src/lib/surface-kit/surface-self-capture.ts`)
+- [x] 14.8 A bar entry's menu context names its region, as its description says and as a rail entry's does (`shell/src/lib/regions/bar/bar-context.ts`)
+- [x] 14.9 The frame kit's declarations describe its elements: their properties and a tag-name map, so a typed surface can set `context` on a toolbar (`frame-kit/build.mjs`)
+- [x] 14.10 A command that declares what it answers and ends without a value has run: it is answered without a value, not reported as failed (`shell/src/lib/commands/command-invocation.service.ts`)
+- [x] 14.11 A rail entry that names a workspace switches to it whatever its command is, as its description says (`shell/src/lib/menu/menu-resolution.ts`)
+- [x] 14.12 The frame kit's bundle is rebuilt when a package it vendors changes (`frame-kit/project.json`, the bundle's inputs)
+- [x] 14.13 A surface that passes its own `stateChanged` or `slotChanged` among its methods still has it called: the kit takes the push first and then calls the surface's method with the same arguments, and a push fed in a second time by hand tells its watchers nothing new (`shell/src/lib/surface-kit/surface-kit.frame.ts`, `surface-state-mirror.ts`, `surface-toolbars.ts`) (replaced by 14.16)
+- [x] 14.14 The testbed's sandbox example carries no `stateChanged` of its own, so it runs on the kit's own answer; the frame-plugin scaffold keeps its forward, see 14.18 (`platform/apps/loom-testbed/public/sandbox-rpc/view.js`)
+- [x] 14.15 A rail entry that names a workspace takes nothing from a command it also names: not its key, title, icon or shortcut (`shell/src/lib/menu/menu-resolution.ts`)
+- [x] 14.16 A surface's own `stateChanged` is the only handler when it passes one, exactly as before; the kit answers the push itself only where the surface passes none. Nothing is applied twice, so two identical pushes notify as they always did. `slotChanged` and `capture` stay the kit's alone (`shell/src/lib/surface-kit/surface-kit.frame.ts`, `surface-state-mirror.ts`, `surface-toolbars.ts`)
+- [x] 14.17 `surfaceMethods()` called with no argument answers every push without throwing (`shell/src/lib/surface-kit/surface-kit.frame.ts`)
+- [x] 14.18 The frame-plugin scaffold and the guides keep the `stateChanged` forward, because a plugin written from them also runs on a host whose kit does not answer the push yet; they say that a later host answers it itself where the surface passes no handler (`platform/libs/tooling/devkit/src/recipes/frame-plugin/recipe.ts`, `docs/weaver/plugin-state.md`, `docs/weaver/sandboxed-surfaces.md`, `llms-full.txt`)
+- [x] 14.19 A second `stateWatch` for a key the frame already watches is answered with the current value again, so a handle created later for a key the surface first watched by a raw call does not stay unloaded until the next change (`shell/src/lib/plugin/plugin-state-bridge.ts`)
+- [x] 14.20 The frame's warning says what happened: a call that could not be completed is not reported as refused (`shell/src/lib/surface-kit/surface-host-call.ts`); and the spec of the kit's elements also pins what may be assigned, `null` included, and checks `lw-progress-ring` against its real class
+
 ## 13. Hand-over
 
 - [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged

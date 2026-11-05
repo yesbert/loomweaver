@@ -124,8 +124,9 @@ function resolveEntry<T extends SlotEntry>(
   if (!whenMatches(entry.when, context) || !sources.visible(entry.access)) {
     return null;
   }
-  const command = commandOf(entry, sources);
-  if (entry.command && !command) {
+  const named = entry.workspace === undefined ? entry.command : undefined;
+  const command = commandOf(named, sources);
+  if (named && !command) {
     return null;
   }
   const opensMenu = sources.menuOffered?.(entry, context);
@@ -134,7 +135,7 @@ function resolveEntry<T extends SlotEntry>(
   }
   const checkbox = entry.checkedWhen !== undefined;
   return {
-    key: entry.command ?? entry.id ?? `__inline-${index}`,
+    key: named ?? entry.id ?? `__inline-${index}`,
     title: entry.title ?? command?.title,
     group: entry.group ?? '',
     order: entry.order ?? 0,
@@ -151,15 +152,13 @@ function resolveEntry<T extends SlotEntry>(
 }
 
 function commandOf(
-  entry: SlotEntry,
+  named: string | undefined,
   sources: SlotSources,
 ): Command | undefined {
-  if (!entry.command) {
+  if (!named) {
     return undefined;
   }
-  const command = sources.commands.find(
-    (candidate) => candidate.id === entry.command,
-  );
+  const command = sources.commands.find((candidate) => candidate.id === named);
   return command && sources.available(command) ? command : undefined;
 }
 

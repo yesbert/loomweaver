@@ -118,4 +118,80 @@ describe('the frame kit state mirror', () => {
 
     expect(calls).toEqual(['watch scratch', 'set scratch "now"']);
   });
+
+  it('starts no new watch for a push that arrives after its last handle was disposed', () => {
+    const state = createState();
+    const { host, calls } = recordingHost();
+    state.connect(host);
+    state.watch<string>('draft').dispose();
+
+    state.apply('draft', 'late', true);
+
+    expect(calls).toEqual(['watch draft', 'unwatch draft']);
+  });
+
+  it('tells its watchers of every push, one that repeats the push before it included', () => {
+    const state = createState();
+    state.connect(recordingHost().host);
+    const handle = state.watch<string>('draft');
+    const heard: unknown[] = [];
+    handle.onChange((value, loaded) => {
+      heard.push([value, loaded]);
+    });
+
+    state.apply('draft', 'same', true);
+    state.apply('draft', 'same', true);
+
+    expect(heard).toEqual([
+      ['same', true],
+      ['same', true],
+    ]);
+    handle.dispose();
+  });
+
+  it('still tells its watchers of a push that repeats what the surface wrote itself in between', () => {
+    const state = createState();
+    state.connect(recordingHost().host);
+    const handle = state.watch<string>('draft');
+    const heard: unknown[] = [];
+    handle.onChange((value) => {
+      heard.push(value);
+    });
+
+    state.apply('draft', 'first', true);
+    handle.set('second');
+    state.apply('draft', 'second', true);
+    handle.clear();
+    state.apply('draft', undefined, true);
+
+    expect(heard).toEqual(['first', 'second', undefined]);
+    handle.dispose();
+  });
+
+  it('says that a call failed, and leaves no rejection behind, when the workbench does not complete it', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const refused = new Error('refused');
+    const refuse = () => Promise.reject(refused);
+    const state = createState();
+    state.connect({
+      stateWatch: refuse,
+      stateSet: refuse,
+      stateClear: refuse,
+      stateUnwatch: refuse,
+    });
+
+    const handle = state.watch<string>('draft');
+    handle.set('written');
+    handle.clear();
+    handle.dispose();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(warn.mock.calls.map((call) => call.at(-1))).toEqual([
+      refused,
+      refused,
+      refused,
+      refused,
+    ]);
+    warn.mockRestore();
+  });
 });

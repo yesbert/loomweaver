@@ -43,7 +43,11 @@ export interface LwStateHandle<T = unknown> {
 
 export interface LwStateApi {
   watch<T = unknown>(key: string): LwStateHandle<T>;
-  /** Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`. */
+  /**
+   * Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`.
+   * `surfaceMethods` does it where you pass no `stateChanged` of your own. A push for a key
+   * nothing watches any more is dropped.
+   */
   apply(key: string, value: unknown, loaded: boolean): void;
 }
 
@@ -69,6 +73,12 @@ export interface LwSlotEntry {
   readonly opensMenu?: boolean;
   /** Already narrowed by the workbench: `primary` only where the slot's owner asked for it. */
   readonly variant?: LwSlotVariant;
+  /**
+   * What an entry of an opened menu unfolds into, as the page unfolds it. Only a menu carries it; an
+   * entry of a toolbar says `opensMenu` instead. Activate one of them under the menu's subscription,
+   * with its own `key`.
+   */
+  readonly children?: readonly LwSlotEntry[];
 }
 
 /** The heading of a menu an entry opens, already worded. `leadsTo` names what activating it runs. */
@@ -144,6 +154,7 @@ export type LwSurfaceMethods = Record<string, (...args: never[]) => unknown>;
 export interface LwPlatformSurfaceMethods {
   capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
   slotChanged(subscription: string, view: LwSlotView): void;
+  stateChanged(key: string, value: unknown, loaded: boolean): void;
 }
 
 export interface LwFrameApi {
@@ -171,10 +182,14 @@ export interface LwFrameApi {
    * to `connect({ methods: LwFrame.surfaceMethods({ render }) })` and a surface answers everything
    * the workbench asks of it, including requests added to the platform after you wrote this.
    *
-   * The platform's own names win over yours, so a surface cannot shadow them by accident.
+   * `capture` and `slotChanged` are the kit's alone: a method of your own under either name is
+   * not called, so a surface cannot shadow them by accident. `stateChanged` is yours where you
+   * pass one, and then nothing else takes the push, so feed it in there with `state.apply`; where
+   * you pass none the kit feeds it in itself. Passing one keeps a plugin working on a host whose
+   * kit does not answer the push yet.
    */
   surfaceMethods<T extends LwSurfaceMethods>(
-    own: T,
+    own?: T,
   ): T & LwPlatformSurfaceMethods;
 }
 
@@ -199,7 +214,9 @@ export function installLwFrame(): LwFrameApi {
     connectToolbars: (host) => toolbars.connect(host),
     toolbars,
     capture,
-    surfaceMethods: <T extends LwSurfaceMethods>(own: T) => ({
+    surfaceMethods: <T extends LwSurfaceMethods>(own = {} as T) => ({
+      stateChanged: (key: string, value: unknown, loaded: boolean) =>
+        state.apply(key, value, loaded),
       ...own,
       capture,
       slotChanged: (subscription: string, view: LwSlotView) =>

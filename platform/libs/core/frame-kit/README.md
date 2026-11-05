@@ -10,7 +10,7 @@ paint then always matches the shell it runs in, and no plugin carries a copy of 
 | File                    | What it is                                                                                                     |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `lw-elements.global.js` | the `<lw-*>` element family, with the built-in icons, and `globalThis.LwFrame`                                 |
-| `lw-frame.d.ts`         | the types of `LwFrame` and of what the host pushes and asks, for a surface written in TypeScript               |
+| `lw-frame.d.ts`         | the types of `LwFrame`, of what the host pushes and asks and of the elements by tag, for a typed surface       |
 | `lw-frame.css`          | the `.lw-*` class contracts on the `--lw-*` tokens, with fallbacks for the moment before the host's first push |
 | `penpal.global.js`      | the RPC transport, as `globalThis.Penpal`                                                                      |
 | `snapdom.global.js`     | the renderer `LwFrame.capture` loads the first time a picture of the workbench is asked for                    |
@@ -19,6 +19,8 @@ What `LwFrame` offers is in `lw-frame.d.ts`; the guide below walks through it. T
 toolbar bridge: `LwFrame.connectToolbars(host)` lets the workbench fill a `<lw-toolbar>` the surface
 places, with `LwSlotHost`, `LwSlotView`, `LwSlotEntry` and `LwSlotHeader` as its types
 ([a toolbar inside the surface](https://loomweaver.dev/weaver/sandboxed-surfaces/#a-toolbar-inside-the-surface)).
+The declarations also extend the DOM's tag-name map with the `lw-*` elements, so a surface that
+declared those tags itself drops its own entries.
 
 ## Serving it (distribution)
 

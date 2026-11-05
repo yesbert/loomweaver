@@ -204,6 +204,21 @@ describe('ToolbarHost', () => {
     expect(toolbar.hasAttribute('hidden')).toBe(false);
   });
 
+  it('hides a cell whose requirement is unmet even where it asks to be shown disabled, since nothing can disable it', () => {
+    toolbars.addCell({
+      id: 'scanner.filter',
+      slot: SLOT,
+      component: FilterCell,
+      access: { authenticated: true, mode: 'disable' },
+    });
+    const toolbar = place({ record: 'r1' });
+    expect(toolbar.querySelector('lw-filter-cell')).toBeNull();
+
+    session.set({ authenticated: true, roles: [], claims: {} });
+    TestBed.tick();
+    expect(toolbar.querySelector('lw-filter-cell')).not.toBeNull();
+  });
+
   it('mounts a cell again when the placement it was told about changes', () => {
     toolbars.addCell({ id: 'scanner.filter', slot: SLOT, component: FilterCell });
     const toolbar = place({ record: 'r1' });

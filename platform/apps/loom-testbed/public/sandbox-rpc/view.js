@@ -191,9 +191,6 @@
         render();
       },
       beforeClose: askBeforeClose,
-      stateChanged: function (key, value, loaded) {
-        globalThis.LwFrame.state.apply(key, value, loaded);
-      },
     }),
   });
 

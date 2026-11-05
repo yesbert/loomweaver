@@ -10,6 +10,7 @@ import {
 } from '../elements/toolbar/lw-toolbar.element';
 import { installLwToolbarHost } from '../elements/toolbar/toolbar-bridge';
 import { drawMenu, MenuHeading, MenuRow } from '../menu/menu-drawing';
+import { quietly } from './surface-host-call';
 import type {
   LwSlotEntry,
   LwSlotHeader,
@@ -43,6 +44,7 @@ function menuRow(entry: LwSlotEntry): MenuRow {
     checkbox: entry.pressed !== undefined,
     checked: entry.pressed === true,
     disabled: entry.disabled,
+    children: entry.children?.map((child) => menuRow(child)),
   };
 }
 
@@ -67,7 +69,7 @@ export function createToolbars(): LwToolbarsApi {
   const bySubscription = new Map<string, WatchedToolbar>();
   const submenus = new Map<string, OpenSubmenu>();
 
-  const watch = async (entry: WatchedToolbar): Promise<void> => {
+  const startWatch = async (entry: WatchedToolbar): Promise<void> => {
     const slot = entry.toolbar.menu;
     if (!host || !slot) {
       return;
@@ -75,19 +77,21 @@ export function createToolbars(): LwToolbarsApi {
     const asked = ++entry.watches;
     const id = String(await host.slotWatch(slot, entry.toolbar.context));
     if (asked !== entry.watches || watched.get(entry.toolbar) !== entry) {
-      host?.slotUnwatch(id);
+      quietly(host?.slotUnwatch(id));
       return;
     }
     entry.subscription = id;
     bySubscription.set(id, entry);
   };
 
+  const watch = (entry: WatchedToolbar): void => quietly(startWatch(entry));
+
   const unwatch = (entry: WatchedToolbar): void => {
     entry.watches += 1;
     if (entry.subscription === undefined) {
       return;
     }
-    host?.slotUnwatch(entry.subscription);
+    quietly(host?.slotUnwatch(entry.subscription));
     bySubscription.delete(entry.subscription);
     entry.subscription = undefined;
   };
@@ -99,7 +103,7 @@ export function createToolbars(): LwToolbarsApi {
     }
     submenus.delete(id);
     open.menu?.remove();
-    host?.slotUnwatch(id);
+    quietly(host?.slotUnwatch(id));
     open.owner.toolbar.openKey = null;
     open.trigger.focus();
   };
@@ -137,7 +141,7 @@ export function createToolbars(): LwToolbarsApi {
     menu.addEventListener(LW_MENU_SELECT, (event) => {
       const key = (event as CustomEvent<{ command: string | null }>).detail.command;
       if (key !== null) {
-        host?.slotActivate(id, key);
+        quietly(host?.slotActivate(id, key));
       }
       closeSubmenu(id);
     });
@@ -153,10 +157,10 @@ export function createToolbars(): LwToolbarsApi {
     }
     const drawn = entry.entries.find((candidate) => candidate.key === detail.key);
     if (drawn?.opensMenu) {
-      void openSubmenu(entry, drawn.key, detail.trigger);
+      quietly(openSubmenu(entry, drawn.key, detail.trigger));
       return;
     }
-    host.slotActivate(entry.subscription, detail.key);
+    quietly(host.slotActivate(entry.subscription, detail.key));
   };
 
   installLwToolbarHost({
@@ -170,7 +174,7 @@ export function createToolbars(): LwToolbarsApi {
       };
       toolbar.addEventListener(LW_TOOLBAR_SELECT, entry.onSelect);
       watched.set(toolbar, entry);
-      void watch(entry);
+      watch(entry);
     },
     changed(toolbar) {
       const entry = watched.get(toolbar);
@@ -179,7 +183,7 @@ export function createToolbars(): LwToolbarsApi {
       }
 
       unwatch(entry);
-      void watch(entry);
+      watch(entry);
     },
     detach(toolbar) {
       const entry = watched.get(toolbar);
@@ -208,7 +212,7 @@ export function createToolbars(): LwToolbarsApi {
     connect(next: LwSlotHost): void {
       host = next;
       for (const entry of watched.values()) {
-        void watch(entry);
+        watch(entry);
       }
     },
     apply(subscription: string, view: LwSlotView): void {
