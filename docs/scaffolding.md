@@ -91,7 +91,8 @@ before the distribution step has run it says the plugin would not yet compose. T
 that step has happened. In an Nx workspace the generators cannot run before their package is
 installed, so the trial run names the two generator commands and, under each, every file it
 creates, replaces or changes. Under each install it names `package.json` and the lockfile, which
-is created where the workspace has none. Over an application with a file it will not replace, the
+is created where the workspace has none. Where the distribution generator will leave the style
+pipeline alone beside a PostCSS script, the trial run says so in the generator's own words. Over an application with a file it will not replace, the
 trial run prints all of that first, then names the file and ends with an error.
 
 Outside an Angular application or an Nx workspace it refuses, names what it expected to find, and

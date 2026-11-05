@@ -549,6 +549,14 @@ describe('distribution generator', () => {
     );
   });
 
+  it('names a style pipeline file it cannot read as JSON, and writes nothing', async () => {
+    tree.write('.postcssrc.json', '{ "plugins": ');
+
+    await expect(
+      distributionGenerator(tree, { name: 'acme-studio' }),
+    ).rejects.toThrow(/^\.postcssrc\.json is not valid JSON/);
+  });
+
   it('keeps the plugins a workspace already configured', async () => {
     tree.write('.postcssrc.json', JSON.stringify({ plugins: { autoprefixer: {} } }));
     await distributionGenerator(tree, { name: 'acme-studio' });

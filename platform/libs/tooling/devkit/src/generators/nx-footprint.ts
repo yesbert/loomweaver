@@ -3,6 +3,7 @@ import {
   ensureDependency,
   entryStylesheet,
   joinProjectPath,
+  parseWorkspaceJson,
   usesTailwind,
 } from '../lib/amend/merge';
 import {
@@ -10,7 +11,7 @@ import {
   postcssFileTheBuildReads,
   postcssWrittenAsCode,
 } from '../lib/amend/postcss';
-import { Amendment } from '../lib/amend/types';
+import { Amendment, PostcssAmendment } from '../lib/amend/types';
 import { ScaffoldValues } from '../lib/scaffolds/scaffold-values';
 import { distributionScaffold } from '../recipes/angular-distribution/scaffold';
 import { weaverScaffold } from '../recipes/angular-weaver/scaffold';
@@ -47,6 +48,22 @@ export function nxDistributionFootprint(
     ...(project ? [inApp('project.json')] : []),
     ...amendedFiles(distributionScaffold.amend?.(placed) ?? [], app, read),
   ]);
+}
+
+/**
+ * What the distribution generator will say about a step it leaves undone in the application given:
+ * today, that it writes no style pipeline beside one written as a script, and why.
+ */
+export function nxDistributionNotes(
+  app: NxApplication,
+  values: ScaffoldValues,
+  read: ReadWorkspaceFile,
+): readonly string[] {
+  const placed = { ...values, name: app.name, directory: app.root };
+  return (distributionScaffold.amend?.(placed) ?? [])
+    .filter((amendment) => amendment.kind === 'postcss')
+    .map((amendment) => stylePipeline(amendment, app, read).leftAlone)
+    .filter((note): note is string => note !== undefined);
 }
 
 /** The project root the weaver generator gives a weaver that is placed nowhere in particular. */
@@ -97,11 +114,7 @@ function amendedFile(
 ): string | undefined {
   switch (amendment.kind) {
     case 'postcss': {
-      const exists = (name: string) => read(name) !== undefined;
-      const file = postcssFileTheBuildReads(exists, amendment, app.root);
-      const added = ensurePostcssPlugin(parsed(file, read), amendment).added;
-      const leftAlone = postcssWrittenAsCode(exists, amendment, app.root) !== undefined;
-      return added.length > 0 && !leftAlone ? file : undefined;
+      return stylePipeline(amendment, app, read).written;
     }
     case 'package': {
       const added = ensureDependency(parsed('package.json', read), amendment).added;
@@ -125,6 +138,20 @@ function amendedFile(
   }
 }
 
+function stylePipeline(
+  amendment: PostcssAmendment,
+  app: NxApplication,
+  read: ReadWorkspaceFile,
+): { readonly written?: string; readonly leftAlone?: string } {
+  const exists = (name: string) => read(name) !== undefined;
+  const file = postcssFileTheBuildReads(exists, amendment, app.root);
+  if (ensurePostcssPlugin(parsed(file, read), amendment).added.length === 0) {
+    return {};
+  }
+  const leftAlone = postcssWrittenAsCode(exists, amendment, app.root);
+  return leftAlone === undefined ? { written: file } : { leftAlone };
+}
+
 function stylesheetOf(app: NxApplication, read: ReadWorkspaceFile): string {
   const project = asObject(parsed(joinProjectPath(app.root, 'project.json'), read));
   const build = asObject(asObject(project?.['targets'])?.['build']);
@@ -136,17 +163,13 @@ function stylesheetOf(app: NxApplication, read: ReadWorkspaceFile): string {
 
 function parsed(path: string, read: ReadWorkspaceFile): unknown {
   const json = read(path);
-  if (json === undefined) {
-    return undefined;
-  }
-  try {
-    return JSON.parse(json);
-  } catch (error) {
-    throw new Error(
-      `${path} is not valid JSON, so what the generators would change cannot be told: ${(error as Error).message}`,
-      { cause: error },
-    );
-  }
+  return json === undefined
+    ? undefined
+    : parseWorkspaceJson(
+        path,
+        json,
+        'so what the generators would change cannot be told',
+      );
 }
 
 function unique(paths: readonly string[]): readonly string[] {

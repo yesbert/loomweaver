@@ -12,6 +12,7 @@ import {
   ensureStylesheetSource,
   entryStylesheet,
   joinProjectPath,
+  parseWorkspaceJson,
   usesTailwind,
 } from '../lib/amend/merge';
 import {
@@ -225,7 +226,11 @@ export function addPostcssPlugin(
   const exists = (name: string) => tree.exists(name);
   const file = postcssFileTheBuildReads(exists, amendment, projectRoot);
   const existing = tree.exists(file)
-    ? (JSON.parse(tree.read(file, 'utf8') ?? '{}') as unknown)
+    ? parseWorkspaceJson(
+        file,
+        tree.read(file, 'utf8') ?? '{}',
+        `so ${amendment.plugin} was not added and nothing was written`,
+      )
     : undefined;
   const result = ensurePostcssPlugin(existing, amendment, file);
   for (const reason of result.declined) {

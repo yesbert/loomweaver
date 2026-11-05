@@ -4,6 +4,7 @@ import {
   FileMap,
   joinProjectPath,
   nxDistributionFootprint,
+  nxDistributionNotes,
   nxWeaverFootprint,
   ScaffoldValues,
 } from '@loomweaver/devkit';
@@ -36,8 +37,8 @@ export function nxTrial(
   const afterInstall = (path: string) =>
     path === MANIFEST ? withInstalled(onDisk(path), installed) : onDisk(path);
   return {
-    distribution: (values) =>
-      readable(() => nxDistributionFootprint(app, values, afterInstall)).map(
+    distribution: (values) => [
+      ...readable(() => nxDistributionFootprint(app, values, afterInstall)).map(
         (path) => {
           if (onDisk(path) === undefined) {
             return `creates ${path}`;
@@ -45,6 +46,8 @@ export function nxTrial(
           return pending.has(path) ? `replaces ${path}` : `changes ${path}`;
         },
       ),
+      ...readable(() => nxDistributionNotes(app, values, afterInstall)),
+    ],
     weaver: (id) => {
       const afterDistribution = (path: string) =>
         pending.get(path) ?? afterInstall(path);

@@ -1,7 +1,11 @@
 import { addProjectConfiguration, formatFiles, logger, Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { distributionGenerator } from './distribution/generator';
-import { nxDistributionFootprint, nxWeaverFootprint } from './nx-footprint';
+import {
+  nxDistributionFootprint,
+  nxDistributionNotes,
+  nxWeaverFootprint,
+} from './nx-footprint';
 import { weaverGenerator } from './weaver/generator';
 
 const APP = { name: 'studio', root: 'apps/studio' };
@@ -100,6 +104,24 @@ describe('the footprint of the generators in an Nx workspace', () => {
     expect(footprint).not.toContain('.postcssrc.json');
     expect(sorted(footprint)).toEqual(touchedSince(before, tree));
     warn.mockRestore();
+  });
+
+  it('says beforehand what the generator says about a script it writes nothing beside', async () => {
+    tree.write('postcss.config.js', 'module.exports = {};\n');
+    const notes = nxDistributionNotes(APP, { styles: 'tailwind' }, read);
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: APP.name, directory: APP.root, force: true });
+
+    expect(notes).toHaveLength(1);
+    expect(notes[0]).toContain('postcss.config.js is a script');
+    expect(warn.mock.calls.map(([message]) => String(message))).toEqual(notes);
+    warn.mockRestore();
+  });
+
+  it('has nothing to say where the generator writes the style pipeline', () => {
+    expect(nxDistributionNotes(APP, { styles: 'tailwind' }, read)).toEqual([]);
+    expect(nxDistributionNotes(APP, { styles: 'precompiled' }, read)).toEqual([]);
   });
 
   it.each(['.postcssrc.json', 'postcss.config.json', 'package.json'])(

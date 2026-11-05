@@ -566,6 +566,26 @@ describe('init', () => {
     expect(asked.text().split('\n')).toContain('  creates pnpm-lock.yaml');
   });
 
+  it('says on a trial run that the style pipeline is left alone beside a script, and why', () => {
+    nxWorkspace(dir, ['studio']);
+    writeFileSync(join(dir, 'postcss.config.js'), 'module.exports = {};\n');
+    const c = capture();
+    const { deps } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(0);
+
+    const said = c.text().split('\n');
+    const note = said.find((line) => line.includes('postcss.config.js'));
+    expect(note).toContain(
+      'postcss.config.js is a script, which the Angular build does not read',
+    );
+    expect(note).toContain('Nothing is written beside it');
+    expect(said.indexOf(note ?? '')).toBeGreaterThan(
+      said.findIndex((line) => line.includes('@loomweaver/devkit:distribution')),
+    );
+    expect(said).not.toContain('  creates .postcssrc.json');
+  });
+
   it('names a workspace file it cannot read as JSON on a trial run', () => {
     nxWorkspace(dir, ['studio']);
     writeFileSync(join(dir, '.postcssrc.json'), '{ "plugins": ');

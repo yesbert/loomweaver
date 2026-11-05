@@ -103,6 +103,7 @@ export type {
 export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/adapter-options';
 export {
   nxDistributionFootprint,
+  nxDistributionNotes,
   nxWeaverFootprint,
   nxWeaverRoot,
   type NxApplication,

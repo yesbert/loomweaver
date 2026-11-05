@@ -328,6 +328,21 @@ function inputOf(entry: unknown): string | undefined {
   return typeof asset?.['input'] === 'string' ? asset['input'] : undefined;
 }
 
+export function parseWorkspaceJson(
+  path: string,
+  json: string,
+  consequence: string,
+): unknown {
+  try {
+    return JSON.parse(json);
+  } catch (error) {
+    throw new Error(
+      `${path} is not valid JSON, ${consequence}: ${(error as Error).message}`,
+      { cause: error },
+    );
+  }
+}
+
 export function asObject(value: unknown): JsonObject | undefined {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
     ? (value as JsonObject)
