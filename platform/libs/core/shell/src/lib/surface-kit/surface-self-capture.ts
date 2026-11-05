@@ -9,13 +9,35 @@ import type {
   LwSurfaceCaptureRequest,
 } from './surface-kit.frame';
 
+interface PageCopy {
+  readonly clone?: Element | null;
+}
+
+interface RendererPlugin {
+  readonly name: string;
+  afterClone(copy: PageCopy): void;
+}
+
 interface SnapdomGlobal {
   readonly snapdom: {
     toCanvas(
       target: Element,
-      options: DrawingSize,
+      options: DrawingSize & { readonly plugins: readonly RendererPlugin[] },
     ): Promise<HTMLCanvasElement>;
   };
+}
+
+interface WithheldArea {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+interface PageAsCopied {
+  readonly left: number;
+  readonly top: number;
+  readonly withheld: readonly WithheldArea[];
 }
 
 const rendererSource = new URL(
@@ -43,39 +65,60 @@ function loadRenderer(): Promise<void> {
   return rendererLoad;
 }
 
-function withheldAreas(root: Element, attribute: string): Element[] {
-  return [...root.querySelectorAll(`[${CSS.escape(attribute)}]`)].filter(
-    (element) =>
-      element !== document.body && element !== document.documentElement,
-  );
+function withheldAreas(attribute: string): readonly WithheldArea[] {
+  return [...document.querySelectorAll(`[${CSS.escape(attribute)}]`)]
+    .filter(
+      (element) =>
+        element !== document.body && element !== document.documentElement,
+    )
+    .map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+    });
 }
 
-function hideWithheld(
-  canvas: HTMLCanvasElement,
-  root: Element,
-  scale: number,
-  withheld: { readonly attribute: string; readonly label: string },
-): void {
-  const areas = withheldAreas(root, withheld.attribute);
-  if (areas.length === 0) {
-    return;
+function hideWithheldIn(copy: Element, attribute: string): void {
+  for (const area of copy.querySelectorAll(`[${CSS.escape(attribute)}]`)) {
+    for (const element of [area, ...area.querySelectorAll('*')]) {
+      (element as HTMLElement).style.setProperty(
+        'visibility',
+        'hidden',
+        'important',
+      );
+    }
   }
+}
+
+function pageBackground(): string | undefined {
+  return [document.documentElement, document.body]
+    .map((element) => getComputedStyle(element).backgroundColor)
+    .find((colour) => colour !== 'rgba(0, 0, 0, 0)' && colour !== 'transparent');
+}
+
+function whatTheFrameShows(
+  page: HTMLCanvasElement,
+  copied: PageAsCopied,
+  scale: number,
+): { canvas: HTMLCanvasElement; context: CanvasRenderingContext2D } {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(innerWidth * scale);
+  canvas.height = Math.round(innerHeight * scale);
   const context = canvas.getContext('2d');
   if (!context) {
-    return;
+    throw new Error('the surface has nothing to draw what its frame shows on');
   }
-  const origin = root.getBoundingClientRect();
-  for (const area of areas) {
-    const rect = area.getBoundingClientRect();
-    drawAbsent(
-      context,
-      (rect.left - origin.left) * scale,
-      (rect.top - origin.top) * scale,
-      rect.width * scale,
-      rect.height * scale,
-      withheld.label,
-    );
+  const background = pageBackground();
+  if (background) {
+    context.fillStyle = background;
+    context.fillRect(0, 0, canvas.width, canvas.height);
   }
+  context.drawImage(page, copied.left * scale, copied.top * scale);
+  return { canvas, context };
 }
 
 export async function captureSelf(
@@ -90,11 +133,42 @@ export async function captureSelf(
   }
   const target = document.body ?? document.documentElement;
   const scale = captureScale(request?.scale ?? devicePixelRatio);
-  const canvas = await renderer.snapdom.toCanvas(target, drawingSize(scale));
-  hideWithheld(canvas, target, scale, {
-    attribute: withholdAttribute,
-    label: request?.withheldLabel ?? '',
+  const seen: { copied?: PageAsCopied } = {};
+  const page = await renderer.snapdom.toCanvas(target, {
+    ...drawingSize(scale),
+    plugins: [
+      {
+        name: 'lw-withhold',
+        afterClone: ({ clone }) => {
+          if (!clone) {
+            return;
+          }
+          hideWithheldIn(clone, withholdAttribute);
+          const origin = target.getBoundingClientRect();
+          seen.copied = {
+            left: origin.left,
+            top: origin.top,
+            withheld: withheldAreas(withholdAttribute),
+          };
+        },
+      },
+    ],
   });
+  const copied = seen.copied;
+  if (!copied) {
+    throw new Error('the renderer drew the surface without showing its copy');
+  }
+  const { canvas, context } = whatTheFrameShows(page, copied, scale);
+  for (const area of copied.withheld) {
+    drawAbsent(
+      context,
+      area.left * scale,
+      area.top * scale,
+      area.width * scale,
+      area.height * scale,
+      request?.withheldLabel ?? '',
+    );
+  }
   return {
     image: canvas.toDataURL(
       request?.mediaType ?? 'image/png',

@@ -125,6 +125,8 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.14 A picture taken on a screen with a device pixel ratio of 2 has the size that was asked for and every surface drawn where it sits (`capture/workbench-capture.service.ts`, `capture/picture-size.ts`)
 - [x] 4.15 Not done: whether a layer is opaque cannot be decided cheaply and reliably, and a miss would leave a visible surface blank in a picture; the picture is right since 4.5. Was: A surface wholly hidden behind an opaque layer is not asked to draw for a picture (`capture/surface-capture-registry.ts`)
 - [x] 4.16 A read during adoption sees the write held for the same key, not the store's older value (`persistence/identity-scope/identity-scoped-store.ts`)
+- [x] 4.17 A surface is pictured at the size it has on the screen: one whose page is shorter than its frame is not stretched, and one that is scrolled is not squashed; the picture shows what the frame shows (`surface-kit/surface-self-capture.ts`)
+- [x] 4.22 What a surface withholds from a picture is covered where it was when the picture was taken, whatever the surface re-renders while it is being drawn (`surface-kit/surface-self-capture.ts`)
 
 ## 5. Commands, menus, dialogs and the UI kit
 

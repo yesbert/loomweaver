@@ -168,9 +168,13 @@ export interface LwFrameApi {
   connectToolbars(host: LwSlotHost): void;
   readonly toolbars: LwToolbarsApi;
   /**
-   * Draws this surface and answers with the result, so that a picture of the workbench holds what
-   * the surface was showing instead of a hole where it sits. Expose it from your Penpal `methods`
-   * as `capture` and the workbench will call it; it is never called for you.
+   * Draws what this surface's frame is showing — the part of the page scrolled into view, at the
+   * frame's size — and answers with the result, so that a picture of the workbench holds what the
+   * surface was showing instead of a hole where it sits. Expose it from your Penpal `methods` as
+   * `capture` and the workbench will call it; it is never called for you.
+   *
+   * The limit: in a scrolled page, content positioned `fixed` is drawn where it sits in the
+   * unscrolled page, so it can be missing from the drawing. What is withheld stays off it either way.
    *
    * The renderer is fetched the first time a picture is asked for, so a surface that is never
    * captured never pays for it. A surface that is isolated has no origin of its own, which is why
