@@ -10,9 +10,14 @@ import { paneRetentionScope } from './retention/retention-keys';
 import { isContentSideDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
 import { CONTENT_DOCK, isSamePane } from './tree/pane-address';
-import { TabKeep, keepsEverything } from './tree/pane-handover';
+import {
+  TabKeep,
+  closedWithHandover,
+  keepsEverything,
+  unsplitWithHandover,
+} from './tree/pane-handover';
 import { sparedByBulkClose } from './tree/pane-tabs';
-import { PaneLeaf, leafPath } from './tree/pane-node';
+import { PRIMARY_LEAF, PaneLeaf, PaneNode, leafPath } from './tree/pane-node';
 import { findLeaf, leavesOf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
 
@@ -54,7 +59,12 @@ export class PaneActions {
       return;
     }
     const keeps = this.keepsOnClose(dock);
-    this.closeGuard.guarded(this.candidatesOf(dock, leaf, keeps), () => {
+    const closed = closedWithHandover(this.paneTree.tree(dock), paneId, keeps);
+    const candidates = [
+      ...this.candidatesOf(dock, leaf, keeps),
+      ...this.lostBy(dock, closed),
+    ];
+    this.closeGuard.guarded(candidates, () => {
       if (primary) {
         this.paneTree.collapsePrimary(dock, keeps);
         return;
@@ -69,9 +79,13 @@ export class PaneActions {
     }
     const primary = this.paneTree.primaryId(dock);
     const keeps = this.keepsOnClose(dock);
-    const candidates = leavesOf(this.paneTree.tree(dock))
-      .filter((leaf) => leaf.id !== primary)
-      .flatMap((leaf) => this.candidatesOf(dock, leaf, keeps));
+    const tree = this.paneTree.tree(dock);
+    const candidates = [
+      ...leavesOf(tree)
+        .filter((leaf) => leaf.id !== primary)
+        .flatMap((leaf) => this.candidatesOf(dock, leaf, keeps)),
+      ...this.lostBy(dock, unsplitWithHandover(tree, primary, keeps)),
+    ];
     this.closeGuard.guarded(candidates, () =>
       this.paneTree.unsplit(dock, keeps),
     );
@@ -148,6 +162,14 @@ export class PaneActions {
         ? keepsEverything
         : sparedByBulkClose;
     return (tab) => keeps(tab) || this.leftOut.hides(tab.path);
+  }
+
+  private lostBy(dock: string, next: PaneNode | null): unknown[] {
+    const before = this.paneTree.dockTrees();
+    return this.unsavedWork.lostBy(before, {
+      ...before,
+      [dock]: next ?? PRIMARY_LEAF,
+    });
   }
 
   private candidatesOf(

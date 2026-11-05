@@ -11,8 +11,12 @@ import {
   promotedContentPath,
 } from '../../pane/tree/pane-address';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { PaneTab } from '../../pane/tree/pane-node';
-import { TabKeep, keepsNothing } from '../../pane/tree/pane-handover';
+import { PRIMARY_LEAF, PaneTab } from '../../pane/tree/pane-node';
+import {
+  TabKeep,
+  closedWithHandover,
+  keepsNothing,
+} from '../../pane/tree/pane-handover';
 import { sparedByBulkClose } from '../../pane/tree/pane-tabs';
 import { LeftOutChildren } from '../../pane/container/left-out-children';
 import { findLeaf } from '../../pane/tree/pane-queries';
@@ -106,9 +110,21 @@ export class TabClosingService {
   }
 
   closePrimaryPane(keeps: TabKeep = keepsNothing): void {
-    const candidates = this.paneTree
-      .primaryTabs(CONTENT_DOCK)
-      .flatMap((tab) => (keeps(tab) ? [] : this.urlPaneCandidates(tab.path)));
+    const before = this.paneTree.dockTrees();
+    const closed = closedWithHandover(
+      this.paneTree.tree(CONTENT_DOCK),
+      this.paneTree.primaryId(CONTENT_DOCK),
+      keeps,
+    );
+    const candidates = [
+      ...this.paneTree
+        .primaryTabs(CONTENT_DOCK)
+        .flatMap((tab) => (keeps(tab) ? [] : this.urlPaneCandidates(tab.path))),
+      ...this.unsavedWork.lostBy(before, {
+        ...before,
+        [CONTENT_DOCK]: closed ?? PRIMARY_LEAF,
+      }),
+    ];
     this.closeGuard.guarded(candidates, () => {
       const promoted = this.paneTree.collapsePrimary(CONTENT_DOCK, keeps);
       if (promoted !== null) {

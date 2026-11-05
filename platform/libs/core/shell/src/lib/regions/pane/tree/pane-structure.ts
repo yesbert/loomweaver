@@ -1,5 +1,4 @@
 import {
-  PRIMARY_LEAF,
   PaneLeaf,
   PaneNode,
   PaneTab,
@@ -181,18 +180,4 @@ export function pruneEmptyLeaves(
   return collapseLeaves(node, (leaf) =>
     isDisposableLeaf(leaf, [primaryId, spare]) ? null : leaf,
   );
-}
-
-export function withoutEmptyPrimary(
-  node: PaneNode,
-  primaryId: string,
-): PaneNode {
-  if (node.kind !== 'split') {
-    return node;
-  }
-  const primary = findLeaf(node, primaryId);
-  if (!primary || !isDisposableLeaf(primary, [])) {
-    return node;
-  }
-  return removeLeaf(node, primaryId) ?? PRIMARY_LEAF;
 }

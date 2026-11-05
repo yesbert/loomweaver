@@ -13,10 +13,10 @@ import {
 
 export type DockTrees = Readonly<Record<string, PaneNode>>;
 
-interface TabMove {
+export interface TabDeparture {
   readonly path: string;
   readonly from: string;
-  readonly to: string;
+  readonly to: string | null;
 }
 
 @Service()
@@ -42,10 +42,12 @@ export class TreeRetention {
 
   carryMovedTabs(before: DockTrees, after: DockTrees): void {
     const routes = this.registry.contentRoutes();
-    const moves = tabMoves(before, after).map((move) => ({
-      ...move,
-      addresses: retainedAddressesOf(routes, move.path),
-    }));
+    const moves = tabDepartures(before, after)
+      .filter((tab) => tab.to !== null)
+      .map((move) => ({
+        ...move,
+        addresses: retainedAddressesOf(routes, move.path),
+      }));
     if (moves.length === 0) {
       return;
     }
@@ -76,7 +78,10 @@ export function openPathsByScope(trees: DockTrees): Map<string, Set<string>> {
   return open;
 }
 
-function tabMoves(before: DockTrees, after: DockTrees): TabMove[] {
+export function tabDepartures(
+  before: DockTrees,
+  after: DockTrees,
+): TabDeparture[] {
   const held = openPathsByScope(before);
   const holding = openPathsByScope(after);
   const arrivals = new Map<string, string[]>();
@@ -87,16 +92,17 @@ function tabMoves(before: DockTrees, after: DockTrees): TabMove[] {
       }
     }
   }
-  const moves: TabMove[] = [];
+  const departures: TabDeparture[] = [];
   for (const [from, paths] of held) {
     for (const path of paths) {
-      const to = holding.get(from)?.has(path)
-        ? undefined
-        : arrivals.get(path)?.shift();
-      if (to !== undefined) {
-        moves.push({ path, from, to });
+      if (!holding.get(from)?.has(path)) {
+        departures.push({
+          path,
+          from,
+          to: arrivals.get(path)?.shift() ?? null,
+        });
       }
     }
   }
-  return moves;
+  return departures;
 }

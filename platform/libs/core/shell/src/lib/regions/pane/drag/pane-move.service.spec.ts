@@ -213,6 +213,46 @@ describe('PaneMoveService (move semantics)', () => {
     ).toEqual(['view:a', 'view:b']);
   });
 
+  it('moving the last child out of a container primary promotes the pane that takes its space, not the first one', () => {
+    const dock = 'container@runs/1';
+    const leaf = (id: string, path: string): PaneLeaf => ({
+      kind: 'leaf',
+      id,
+      tabs: [{ path }],
+      active: path,
+    });
+    paneTree.commit(
+      dock,
+      {
+        kind: 'split',
+        id: 'outer',
+        orientation: 'row',
+        ratio: 0.5,
+        first: {
+          kind: 'split',
+          id: 'inner',
+          orientation: 'row',
+          ratio: 0.5,
+          first: leaf('far', 'view:x'),
+          second: leaf('near', 'view:y'),
+        },
+        second: leaf('focused', 'view:a'),
+      },
+      'focused',
+    );
+
+    paneMove.moveToStrip({ dock, paneId: 'focused' }, 'view:a', {
+      dock,
+      paneId: 'far',
+    });
+
+    expect(paneSegments(paneTree.tree(dock)).map((pane) => pane.id)).toEqual([
+      'far',
+      'near',
+    ]);
+    expect(paneTree.primaryId(dock)).toBe('near');
+  });
+
   it('a preview tab promotes when it moves out of the URL group', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     tabs.open({

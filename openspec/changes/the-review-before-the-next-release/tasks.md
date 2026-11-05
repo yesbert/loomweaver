@@ -49,6 +49,11 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 2.7 A close refusal that answers neither yes, no nor a promise counts as consent (`regions/pane/unsaved-work/surface-close-guard.ts`)
 - [x] 2.8 Closing the address pane promotes the pane that takes its space (`regions/pane/tree/pane-handover.ts`)
 - [x] 2.9 Lead: minimising or maximising a pane does not reload a retained isolated surface (`regions/pane/chrome/`)
+- [x] 2.10 A move that would merge a tab holding unsaved work into one already open in the target pane asks first (`regions/pane/drag/pane-move.service.ts`)
+- [x] 2.11 A pane change of an isolated surface that cannot be carried and holds unsaved work asks first
+- [x] 2.12 A surface holding unsaved work that did not ask to be kept survives its pane being taken down: workspace switch, pane removal, minimise, blow-up (`regions/pane/retention/retained-view-stash.ts`, `evacuate`)
+- [x] 2.13 An instance parked by one workspace is not claimed by another workspace showing the same address in a pane of the same id (`retained-view-stash.ts`, `claimableEntry`)
+- [x] 2.14 Lead, verify first: moving the last child out of a container's primary pane promotes the pane that takes its space, as closing does (`regions/pane/tree/pane-structure.ts`, `withoutEmptyPrimary`)
 
 ## 3. Addresses and tabs
 

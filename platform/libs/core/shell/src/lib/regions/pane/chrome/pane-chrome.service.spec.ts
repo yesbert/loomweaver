@@ -1,12 +1,25 @@
-import { Component, Injector, Type, computed, inject } from '@angular/core';
+import {
+  Component,
+  Injector,
+  Type,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PaneChromeService } from './pane-chrome.service';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { leafOf } from '../tree/pane-node';
 import { RetainedComponent } from '../retention/retained-component';
 
+let unsaved = false;
+
 @Component({ selector: 'lw-kept-frame', template: '' })
-class KeptFrame {}
+class KeptFrame {
+  surfaceDirty(): boolean {
+    return unsaved;
+  }
+}
 
 @Component({
   imports: [RetainedComponent],
@@ -18,7 +31,7 @@ class KeptFrame {}
           [componentInjector]="injector"
           retentionKey="content:b|frame"
           mode="in-place"
-          [retain]="true"
+          [retain]="kept()"
         />
       </section>
     } @else if (!minimized()) {
@@ -28,7 +41,7 @@ class KeptFrame {}
           [componentInjector]="injector"
           retentionKey="content:b|frame"
           mode="in-place"
-          [retain]="true"
+          [retain]="kept()"
         />
       </div>
     }
@@ -38,6 +51,7 @@ class PaneOfTheTree {
   private readonly chrome = inject(PaneChromeService);
   readonly frame: Type<unknown> = KeptFrame;
   readonly injector = inject(Injector);
+  readonly kept = signal(true);
   readonly minimized = computed(() => this.chrome.isMinimized('content', 'b'));
   readonly blownUp = computed(
     () => this.chrome.maximizedPaneIn('content') !== null,
@@ -147,8 +161,9 @@ describe('PaneChromeService', () => {
 
     let movedWhileInTheDocument: Node[] = [];
 
-    function drawn() {
+    function drawn(kept = true) {
       const fixture = TestBed.createComponent(PaneOfTheTree);
+      fixture.componentInstance.kept.set(kept);
       fixture.detectChanges();
       const frame: HTMLElement =
         fixture.nativeElement.querySelector('lw-kept-frame');
@@ -179,6 +194,24 @@ describe('PaneChromeService', () => {
 
     afterEach(() => {
       delete (Element.prototype as Partial<MovableParent>).moveBefore;
+      unsaved = false;
+    });
+
+    it('one that holds unsaved work is taken out the same way, though it never asked to be kept', async () => {
+      unsaved = true;
+      const { fixture, frame } = drawn(false);
+
+      chrome.toggleMinimize('content', 'b');
+      fixture.detectChanges();
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+      expect(movedWhileInTheDocument).toEqual([frame]);
+
+      chrome.toggleMinimize('content', 'b');
+      chrome.toggleMaximize('content', 'b');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('lw-kept-frame')).toBe(frame);
     });
 
     it('minimising its pane takes it out before the pane goes, and restoring puts the same one back', () => {

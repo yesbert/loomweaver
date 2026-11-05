@@ -22,7 +22,7 @@ function setup(): UnsavedWork {
         provide: RetainedViewStash,
         useValue: {
           instances: () => kept.map((entry) => entry.instance),
-          keyedInstances: () => kept,
+          keyedInstancesEverywhere: () => kept,
         },
       },
     ],

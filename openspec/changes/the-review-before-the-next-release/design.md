@@ -24,8 +24,9 @@ frame plugin is somebody else's code whichever way it arrived, and the toolbar s
 on ownership alone. A distribution that wants to override does it in its own code.
 
 **Unsaved work moves with its tab.** Where a tab changes panes the instance holding the work is
-carried over rather than the user being asked. The specification already says the tab keeps its
-work in the neighbour, and a question on every drag would teach people to dismiss it.
+carried over wherever it can be, so an ordinary drag asks nothing. Where a move cannot keep an
+instance, because it merges into a tab the target pane already holds or because an isolated surface
+cannot be moved without a reload, that instance is asked about exactly as closing it would be.
 
 **The bundle-size guard counts what the browser fetches.** It follows the static imports of the
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the

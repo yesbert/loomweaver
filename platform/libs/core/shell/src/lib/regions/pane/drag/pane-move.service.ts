@@ -10,11 +10,12 @@ import {
   PaneNode,
   PaneTab,
   PRIMARY_LEAF,
+  isDisposableLeaf,
   newPaneId,
   tabWithout,
 } from '../tree/pane-node';
 import { findLeaf } from '../tree/pane-queries';
-import { splitLeafWith, withoutEmptyPrimary } from '../tree/pane-structure';
+import { splitLeafWith } from '../tree/pane-structure';
 import { isContainerDock } from '../container/container-children';
 import { insertTab, removeTab } from '../tree/pane-tabs';
 import { PaneTreeService } from '../tree/pane-tree.service';
@@ -23,6 +24,8 @@ import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { matchRoute, tabRootOf } from '../../content/content-path';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { LeftOutChildren } from '../container/left-out-children';
+import { SurfaceCloseGuard } from '../unsaved-work/surface-close-guard';
+import { UnsavedWork } from '../unsaved-work/unsaved-work';
 
 export type PaneDropEdge = 'top' | 'bottom' | 'left' | 'right';
 
@@ -59,6 +62,8 @@ export class PaneMoveService {
   private readonly tabs = inject(ContentTabsService);
   private readonly registry = inject(ContributionRegistry);
   private readonly leftOut = inject(LeftOutChildren);
+  private readonly unsavedWork = inject(UnsavedWork);
+  private readonly closeGuard = inject(SurfaceCloseGuard);
 
   moveToStrip(
     source: PaneRef,
@@ -73,12 +78,10 @@ export class PaneMoveService {
     const at = this.paneTree.carriesAddress(target)
       ? undefined
       : this.storedIndex(target, index);
-    const follow = this.urlFollowup(source, tab);
     const moved = departedTab(target.dock, tab);
-    this.relocateTab(source, tab, target.dock, (tree) =>
+    this.relocateTab(source, tab, target, moved, (tree) =>
       insertTab(tree, target.paneId, moved, at),
     );
-    this.afterArrival(target, moved, follow);
   }
 
   moveToEdge(
@@ -94,7 +97,6 @@ export class PaneMoveService {
     if (isSamePane(source, target) && !this.sourceRetainsContent(source, tab)) {
       return;
     }
-    const follow = this.urlFollowup(source, tab);
     const moved = departedTab(target.dock, tab);
     const orientation = edge === 'left' || edge === 'right' ? 'row' : 'column';
     const position = edge === 'left' || edge === 'top' ? 'before' : 'after';
@@ -104,10 +106,10 @@ export class PaneMoveService {
       tabs: [moved],
       active: moved.path,
     };
-    this.relocateTab(source, tab, target.dock, (tree) =>
+    const arrival = { dock: target.dock, paneId: added.id };
+    this.relocateTab(source, tab, arrival, moved, (tree) =>
       splitLeafWith(tree, target.paneId, orientation, added, position),
     );
-    this.afterArrival({ dock: target.dock, paneId: added.id }, moved, follow);
   }
 
   splitTabOut(
@@ -130,25 +132,52 @@ export class PaneMoveService {
   private relocateTab(
     source: PaneRef,
     tab: PaneTab,
-    targetDock: string,
+    arrival: PaneRef,
+    moved: PaneTab,
     applyToTarget: (tree: PaneNode) => PaneNode,
   ): void {
+    const relocated = () =>
+      this.relocated(source, tab, arrival.dock, applyToTarget);
+    const before = this.paneTree.dockTrees();
+    const lost = this.unsavedWork.lostBy(before, { ...before, ...relocated() });
+    this.closeGuard.guarded(lost, () => {
+      if (!this.resolveTab(source, tab.path)) {
+        return;
+      }
+      const follow = this.urlFollowup(source, tab);
+      this.paneTree.commitTogether(relocated());
+      this.collapseEmptiedPrimary(source.dock);
+      this.afterArrival(arrival, moved, follow);
+    });
+  }
+
+  private relocated(
+    source: PaneRef,
+    tab: PaneTab,
+    targetDock: string,
+    applyToTarget: (tree: PaneNode) => PaneNode,
+  ): Record<string, PaneNode> {
     const emptied = this.removeSourceTab(
       this.paneTree.tree(source.dock),
       source,
       tab,
     );
-    if (source.dock === targetDock) {
-      this.paneTree.commit(
-        source.dock,
-        this.settledSource(source.dock, applyToTarget(emptied)),
-      );
-      return;
+    return source.dock === targetDock
+      ? { [source.dock]: applyToTarget(emptied) }
+      : {
+          [source.dock]: emptied,
+          [targetDock]: applyToTarget(this.paneTree.tree(targetDock)),
+        };
+  }
+
+  private collapseEmptiedPrimary(dock: string): void {
+    const primary = findLeaf(
+      this.paneTree.tree(dock),
+      this.paneTree.primaryId(dock),
+    );
+    if (isContainerDock(dock) && primary && isDisposableLeaf(primary, [])) {
+      this.paneTree.collapsePrimary(dock);
     }
-    this.paneTree.commitTogether({
-      [source.dock]: this.settledSource(source.dock, emptied),
-      [targetDock]: applyToTarget(this.paneTree.tree(targetDock)),
-    });
   }
 
   private resolveTab(source: PaneRef, rawPath: string): PaneTab | undefined {
@@ -207,12 +236,6 @@ export class PaneMoveService {
         this.paneTree.primaryId(source.dock),
       ) ?? PRIMARY_LEAF
     );
-  }
-
-  private settledSource(dock: string, node: PaneNode): PaneNode {
-    return isContainerDock(dock)
-      ? withoutEmptyPrimary(node, this.paneTree.primaryId(dock))
-      : node;
   }
 
   private urlFollowup(source: PaneRef, tab: PaneTab): string | null {

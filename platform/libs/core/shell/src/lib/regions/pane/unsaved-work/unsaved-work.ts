@@ -2,6 +2,7 @@ import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
 import { RetainedViewStash } from '../retention/retained-view-stash';
+import { DockTrees, tabDepartures } from '../retention/tree-retention';
 import { instanceDirty } from './dirty-surface';
 import {
   containerChildInstances,
@@ -30,6 +31,17 @@ export class UnsavedWork {
     ];
   }
 
+  lostBy(before: DockTrees, after: DockTrees): unknown[] {
+    const lost = tabDepartures(before, after).flatMap((tab) =>
+      tab.to === null
+        ? this.instancesAt(tab.from, tab.path)
+        : this.addressesOf(tab.path).flatMap((address) =>
+            this.stash.uncarriableAt(tab.from, address),
+          ),
+    );
+    return [...new Set(lost)].filter((instance) => instanceDirty(instance));
+  }
+
   instancesEverywhere(): unknown[] {
     return this.stash.instances();
   }
@@ -37,7 +49,7 @@ export class UnsavedWork {
   instancesOfPlugin(pluginId: string): unknown[] {
     const owns = pathOwnedBy(this.registry, pluginId);
     return this.stash
-      .keyedInstances()
+      .keyedInstancesEverywhere()
       .filter((entry) => owns(pathOfRetentionKey(entry.key)))
       .map((entry) => entry.instance);
   }

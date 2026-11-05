@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
+import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { moveNode, supportsAtomicMove } from './atomic-move';
 import { RetainedComponent } from './retained-component';
 import { RetainedTemplate } from './retained-template';
@@ -33,6 +34,10 @@ class ProbeView implements OnDestroy {
 
   ngOnDestroy(): void {
     destroyed += 1;
+  }
+
+  surfaceDirty(): boolean {
+    return this.draft() !== '';
   }
 }
 
@@ -196,6 +201,69 @@ describe('surface retention', () => {
     });
   });
 
+  describe('what one workspace parked, seen from another', () => {
+    function hidden(fixture: { componentInstance: InPlaceHost }): void {
+      fixture.componentInstance.mountAlive.set(false);
+    }
+
+    function shown(fixture: { componentInstance: InPlaceHost }): void {
+      fixture.componentInstance.mountAlive.set(true);
+    }
+
+    it('is not handed to a pane of the same id showing the same address there, and is still there on return', async () => {
+      const workspace = TestBed.inject(ActiveWorkspaceService);
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+      const [first] = instances;
+      first.draft.set('typed here');
+      hidden(fixture);
+      fixture.detectChanges();
+      await afterSweep();
+
+      workspace.set('elsewhere');
+      shown(fixture);
+      fixture.detectChanges();
+
+      expect(instances).toHaveLength(2);
+      expect(destroyed).toBe(0);
+      expect(
+        TestBed.inject(RetainedViewStash).instancesFor('content:main', 'frame'),
+      ).toEqual([instances[1]]);
+
+      hidden(fixture);
+      fixture.detectChanges();
+      await afterSweep();
+      workspace.set('default');
+      shown(fixture);
+      fixture.detectChanges();
+
+      expect(instances).toHaveLength(2);
+      expect(fixture.nativeElement.textContent).toContain('typed here');
+    });
+
+    it('is not evicted by the other workspace letting go of its own at the same key', async () => {
+      const workspace = TestBed.inject(ActiveWorkspaceService);
+      const stash = TestBed.inject(RetainedViewStash);
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+      hidden(fixture);
+      fixture.detectChanges();
+      workspace.set('elsewhere');
+      shown(fixture);
+      fixture.detectChanges();
+      hidden(fixture);
+      fixture.detectChanges();
+      await afterSweep();
+
+      stash.evictParked('content:main|frame', 'elsewhere');
+
+      expect(destroyed).toBe(1);
+      expect(stash.parked().map((entry) => entry.workspace)).toEqual([
+        'default',
+      ]);
+    });
+  });
+
   describe('atomic DOM move', () => {
     function probeElement(fixture: {
       nativeElement: HTMLElement;
@@ -278,6 +346,60 @@ describe('surface retention', () => {
 
       expect(instances).toHaveLength(1);
       expect(instances[0]).toBe(first);
+      expect(probeElement(fixture)).toBe(element);
+    });
+
+    it('carries an in-place surface with unsaved work through the death of its pane, though it never asked to be kept', async () => {
+      fakeAtomicMove();
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.componentInstance.retain.set(false);
+      fixture.detectChanges();
+      const first = instances[0];
+      first.draft.set('typed');
+      const element = probeElement(fixture);
+
+      TestBed.inject(RetainedViewStash).evacuate((key) =>
+        isKeyOfPane(key, 'content', 'main'),
+      );
+      fixture.componentInstance.paneAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(0);
+
+      fixture.componentInstance.paneAlive.set(true);
+      fixture.detectChanges();
+
+      expect(instances).toEqual([first]);
+      expect(probeElement(fixture)).toBe(element);
+    });
+
+    it('carries one that was already hidden in that pane, too', async () => {
+      fakeAtomicMove();
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.componentInstance.retain.set(false);
+      fixture.detectChanges();
+      const first = instances[0];
+      first.draft.set('typed');
+      const element = probeElement(fixture);
+      fixture.componentInstance.mounted.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      TestBed.inject(RetainedViewStash).evacuate((key) =>
+        isKeyOfPane(key, 'content', 'main'),
+      );
+      fixture.componentInstance.paneAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(0);
+
+      fixture.componentInstance.paneAlive.set(true);
+      fixture.componentInstance.mounted.set(true);
+      fixture.detectChanges();
+
+      expect(instances).toEqual([first]);
       expect(probeElement(fixture)).toBe(element);
     });
 

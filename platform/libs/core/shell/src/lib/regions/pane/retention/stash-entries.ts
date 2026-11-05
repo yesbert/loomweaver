@@ -1,11 +1,18 @@
 import { EmbeddedViewRef, Injector } from '@angular/core';
 import { SurfaceRetentionMode } from './retention-policy';
-import { ParkedEntry, RetainedViewSource } from './retained-view-model';
+import {
+  ParkedEntry,
+  RetainedViewHandle,
+  RetainedViewSource,
+} from './retained-view-model';
 import { SurfaceHoldState } from './surface-hold';
-import { isKeyForSurface } from './retention-keys';
+import { instanceDirty } from '../unsaved-work/dirty-surface';
+import { isKeyForSurface, isPrimaryRetentionKey } from './retention-keys';
 import { HiddenNode } from './holding-area';
 
 export type DeferredPlacement = 'detach' | 'hideInPlace';
+
+const SLOT_SEPARATOR = '\n';
 
 export interface StashEntry {
   key: string;
@@ -24,6 +31,57 @@ export interface StashEntry {
   hidden: readonly HiddenNode[];
   deferred: DeferredPlacement | null;
   unlisten: () => void;
+}
+
+export function newEntry(
+  key: string,
+  source: RetainedViewSource,
+  built: RetainedViewHandle,
+  workspace: string,
+  tracked: boolean,
+): StashEntry {
+  return {
+    key,
+    source,
+    view: built.view,
+    instance: built.instance,
+    injector: built.injector ?? null,
+    tracked,
+    hold: built.hold ?? null,
+    workspace,
+    owner: null,
+    inUse: false,
+    retains: false,
+    inPlace: false,
+    mode: 'move',
+    hidden: [],
+    deferred: null,
+    unlisten: () => undefined,
+  };
+}
+
+export function slotOf(workspaceId: string, key: string): string {
+  return isPrimaryRetentionKey(key)
+    ? key
+    : `${workspaceId}${SLOT_SEPARATOR}${key}`;
+}
+
+export function shownOrParkedIn(
+  entries: Iterable<StashEntry>,
+  workspaceId: string,
+): StashEntry[] {
+  return [...entries].filter(
+    (entry) => entry.inUse || entry.workspace === workspaceId,
+  );
+}
+
+export function evacuable(entry: StashEntry): boolean {
+  return (
+    (entry.inUse || entry.inPlace) &&
+    (entry.retains || instanceDirty(entry.instance)) &&
+    entry.mode === 'in-place' &&
+    !isHeld(entry)
+  );
 }
 
 export function liveRootNodes(entry: StashEntry): readonly Node[] {
@@ -80,14 +138,16 @@ export function adoptHeld(
   entries: Map<string, StashEntry>,
   key: string,
   hold: SurfaceHoldState | null,
+  workspaceId: string,
 ): StashEntry | null {
   const holder = holderOf(entries.values(), hold);
   if (!holder || holder.inUse) {
     return null;
   }
-  entries.delete(holder.key);
+  entries.delete(slotOf(holder.workspace, holder.key));
   holder.key = key;
-  entries.set(key, holder);
+  holder.workspace = workspaceId;
+  entries.set(slotOf(workspaceId, key), holder);
   return holder;
 }
 
@@ -100,16 +160,17 @@ export function rekeyEntries(
   const snapshot = [...entries.values()];
   for (const entry of snapshot) {
     const key = rename(entry.key);
+    const slot = slotOf(workspaceId, key);
     if (
       entry.workspace !== workspaceId ||
       key === entry.key ||
-      entries.has(key)
+      entries.has(slot)
     ) {
       continue;
     }
-    entries.delete(entry.key);
+    entries.delete(slotOf(workspaceId, entry.key));
     entry.key = key;
-    entries.set(key, entry);
+    entries.set(slot, entry);
     moved.push(entry);
   }
   return moved;
@@ -160,6 +221,18 @@ export function instancesAt(
     .filter((entry) => isKeyForSurface(entry.key, scope, path))
     .map((entry) => entry.instance)
     .filter((instance) => instance !== undefined);
+}
+
+export function inPlaceInstancesAt(
+  entries: Iterable<StashEntry>,
+  scope: string,
+  path: string,
+): unknown[] {
+  return instancesAt(
+    [...entries].filter((entry) => entry.mode === 'in-place'),
+    scope,
+    path,
+  );
 }
 
 export function lastHolder(

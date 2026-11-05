@@ -74,6 +74,7 @@ const tree = {
   tree: vi.fn(() => leafOf('p1', 'doc/a')),
   primaryId: vi.fn(() => 'main'),
   arrangement: vi.fn(() => 0),
+  dockTrees: vi.fn(() => ({})),
   carriesAddress: vi.fn(
     (pane: { dock: string; paneId: string }) =>
       pane.dock === 'content' && pane.paneId === tree.primaryId(),

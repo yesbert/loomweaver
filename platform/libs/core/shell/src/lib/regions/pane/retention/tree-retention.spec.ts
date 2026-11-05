@@ -10,6 +10,7 @@ import {
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
+import { DialogService } from '../../../dialog/dialog.service';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { PaneMoveService } from '../drag/pane-move.service';
@@ -17,7 +18,7 @@ import { PaneActions } from '../pane-actions.service';
 import { keepsEverything } from '../tree/pane-handover';
 import { isViewPanePath } from '../tree/pane-address';
 import { PaneLeaf, PaneNode, PaneTab, activeTab } from '../tree/pane-node';
-import { leavesOf } from '../tree/pane-queries';
+import { findLeaf, leavesOf } from '../tree/pane-queries';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { ParkedViewSweep } from './parked-view-sweep';
 import { RetainedComponent } from './retained-component';
@@ -348,7 +349,12 @@ describe('a tab that changes panes keeps its unsaved work', () => {
     await settled(fixture);
 
     expect(typed.destroyed).toBe(false);
-    expect(stash.instancesFor('left:main', 'notes')).toEqual([typed]);
+    expect(
+      stash
+        .parked()
+        .filter((entry) => entry.instance === typed)
+        .map((entry) => [entry.workspace, entry.key]),
+    ).toEqual([['default', 'left:main|notes']]);
     expect(draftsShownIn(fixture, 'left:b')).toEqual(['']);
   });
 
@@ -366,6 +372,238 @@ describe('a tab that changes panes keeps its unsaved work', () => {
     expect(typed.destroyed).toBe(false);
     expect(stash.instancesFor('left:main', 'notes')).toEqual([typed]);
     expect(stash.instancesFor('left:b', 'notes')).toEqual([untouched]);
+  });
+});
+
+describe('a pane change that cannot keep an instance asks first, as closing it would', () => {
+  let paneTree: PaneTreeService;
+  let stash: RetainedViewStash;
+
+  beforeEach(() => {
+    localStorage.clear();
+    drafts = [];
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: ContentTabsService,
+          useValue: {
+            activeTabRoot: () => '',
+            neighbourOf: () => '',
+            navigateTo: vi.fn(),
+            activateViewTab: vi.fn(),
+          },
+        },
+      ],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const path of ['notes', 'other', 'third']) {
+      registry.addContentRoute({ path, component: DraftView });
+    }
+    paneTree = TestBed.inject(PaneTreeService);
+    stash = TestBed.inject(RetainedViewStash);
+    TestBed.inject(ParkedViewSweep).start();
+  });
+
+  async function drawn(
+    mode: SurfaceRetentionMode = 'move',
+  ): Promise<ComponentFixture<PanesHost>> {
+    const fixture = TestBed.createComponent(PanesHost);
+    fixture.componentInstance.mode.set(mode);
+    await settled(fixture);
+    return fixture;
+  }
+
+  async function typedAt(
+    fixture: ComponentFixture<PanesHost>,
+    scope: string,
+  ): Promise<DraftView> {
+    const [typed] = stash.instancesFor(scope, 'notes') as DraftView[];
+    typed.draft.set('typed');
+    await settled(fixture);
+    return typed;
+  }
+
+  function questions(): number {
+    return TestBed.inject(DialogService).dialogs().length;
+  }
+
+  function answer(choice: 'discard' | 'cancel'): void {
+    TestBed.inject(DialogService).dialogs().at(-1)?.ref.close(choice);
+  }
+
+  function tabsOf(paneId: string): string[] {
+    return (findLeaf(paneTree.tree('left'), paneId)?.tabs ?? []).map(
+      (tab) => tab.path,
+    );
+  }
+
+  describe('a tab dropped on a pane that already holds it', () => {
+    beforeEach(() => {
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'notes', 'other'), leaf('b', 'notes')),
+      );
+    });
+
+    it('asks about the unsaved work that would go, and a refusal leaves the tab where it was', async () => {
+      const fixture = await drawn();
+      const typed = await typedAt(fixture, 'left:main');
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+
+      answer('cancel');
+      await settled(fixture);
+
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+      expect(typed.destroyed).toBe(false);
+      expect(draftsShownIn(fixture, 'left:main')).toEqual(['typed']);
+    });
+
+    it('goes ahead once the work is given up', async () => {
+      const fixture = await drawn();
+      const typed = await typedAt(fixture, 'left:main');
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+      answer('discard');
+      await settled(fixture);
+
+      expect(tabsOf('main')).toEqual(['other']);
+      expect(tabsOf('b')).toEqual(['notes']);
+      expect(typed.destroyed).toBe(true);
+    });
+
+    it('asks nothing where the instance that would go holds no unsaved work', async () => {
+      const fixture = await drawn();
+      await typedAt(fixture, 'left:b');
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(0);
+      expect(tabsOf('main')).toEqual(['other']);
+      expect(draftsShownIn(fixture, 'left:b')).toEqual(['typed']);
+    });
+  });
+
+  describe('an isolated surface where the browser cannot move it without a reload', () => {
+    beforeEach(() => {
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'notes', 'other'), leaf('b', 'third')),
+      );
+    });
+
+    it('is asked about before it changes panes, and a refusal leaves it where it was', async () => {
+      const fixture = await drawn('in-place');
+      const typed = await typedAt(fixture, 'left:main');
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+
+      answer('cancel');
+      await settled(fixture);
+
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+      expect(typed.destroyed).toBe(false);
+    });
+
+    it('is asked about when it is dropped on an edge, too', async () => {
+      const fixture = await drawn('in-place');
+      await typedAt(fixture, 'left:main');
+
+      TestBed.inject(PaneMoveService).moveToEdge(
+        { dock: 'left', paneId: 'main' },
+        'notes',
+        { dock: 'left', paneId: 'b' },
+        'right',
+      );
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+    });
+
+    it('is rebuilt without a question where it holds no unsaved work', async () => {
+      const fixture = await drawn('in-place');
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(0);
+      expect(tabsOf('b')).toEqual(['third', 'notes']);
+    });
+  });
+
+  describe('a pane closing with a tab that cannot close', () => {
+    const fixedNotes: PaneTab = { path: 'notes', closable: false };
+
+    it('asks about that tab where the neighbour already holds it and its work would go', async () => {
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'notes'), leaf('b', fixedNotes)),
+      );
+      const fixture = await drawn();
+      const typed = await typedAt(fixture, 'left:b');
+
+      TestBed.inject(PaneActions).close('left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+      expect(paneTree.isSplit('left')).toBe(true);
+      expect(typed.destroyed).toBe(false);
+    });
+
+    it('asks about that tab where it is an isolated surface the neighbour cannot be handed', async () => {
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'other'), leaf('b', fixedNotes)),
+      );
+      const fixture = await drawn('in-place');
+      await typedAt(fixture, 'left:b');
+
+      TestBed.inject(PaneActions).close('left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+      expect(paneTree.isSplit('left')).toBe(true);
+    });
+
+    it('asks the same when the split is undone', async () => {
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'notes'), leaf('b', fixedNotes)),
+      );
+      const fixture = await drawn();
+      await typedAt(fixture, 'left:b');
+
+      TestBed.inject(PaneActions).unsplit('left');
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+      expect(paneTree.isSplit('left')).toBe(true);
+    });
+
+    it('still asks nothing where the neighbour takes the tab with its work', async () => {
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'other'), leaf('b', fixedNotes)),
+      );
+      const fixture = await drawn();
+      const typed = await typedAt(fixture, 'left:b');
+
+      TestBed.inject(PaneActions).close('left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(0);
+      expect(stash.instancesFor('left:main', 'notes')).toEqual([typed]);
+    });
   });
 });
 
