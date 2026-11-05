@@ -1,6 +1,7 @@
 <lw-wide-dialog-frame [title]="'settings.title'">
   <div class="flex min-h-0 flex-1 flex-col sm:flex-row">
     <nav
+      [attr.aria-label]="'settings.title' | transloco"
       class="flex shrink-0 gap-1 overflow-x-auto border-b border-border p-2 sm:w-52 sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:border-r sm:border-b-0"
     >
       @for (group of groups(); track group.key) {

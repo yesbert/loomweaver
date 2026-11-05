@@ -1,4 +1,10 @@
-import { computed, inject, Service } from '@angular/core';
+import {
+  afterNextRender,
+  computed,
+  inject,
+  Injector,
+  Service,
+} from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
@@ -30,6 +36,7 @@ export class WorkspaceService {
   private readonly tabNavigation = inject(TabNavigationService);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly storedRevision = inject(StoredStateRevision);
+  private readonly injector = inject(Injector);
 
   readonly definitions = this.catalog.definitions;
   readonly workspaces = this.catalog.saved;
@@ -156,7 +163,7 @@ export class WorkspaceService {
       void this.workingStateStore.delete(workspaceScopedKey(key, id));
     }
     if (id === this.active.id()) {
-      void this.switchTo(this.catalog.startingId);
+      void this.leaveRemoved(id);
     }
     return true;
   }
@@ -171,6 +178,13 @@ export class WorkspaceService {
 
   destinationFor(path: string): string | null {
     return this.settlement.destinationFor(path);
+  }
+
+  private async leaveRemoved(id: string): Promise<void> {
+    await this.switchTo(this.catalog.startingId);
+    afterNextRender(() => this.stash.evictWorkspace(id), {
+      injector: this.injector,
+    });
   }
 
   private resetNow(id: string): void {

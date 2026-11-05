@@ -8,6 +8,7 @@ import { StateSyncService } from '../cross-tab/state-sync.service';
 export interface PersistedSetting<T> {
   readonly value: Signal<T>;
   readonly answered: Signal<boolean>;
+  readonly unreadable: Signal<boolean>;
   set(next: T): void;
   update(change: (current: T) => T): void;
   clear(): void;
@@ -54,6 +55,7 @@ function storedValue<T>(
   const state = signal(codec.parse(store.peek?.(key)));
   let hydrated = store.peek !== undefined;
   const answered = signal(hydrated);
+  const unreadable = signal(false);
   let early: Change<T>[] = [];
 
   const write = (next: Change<T>): void => {
@@ -96,6 +98,7 @@ function storedValue<T>(
   };
 
   hydrateAsync(store, key, apply, (loaded) => {
+    unreadable.set(!loaded);
     if (!loaded && !hydrated) {
       replay(undefined);
     }
@@ -109,5 +112,12 @@ function storedValue<T>(
       update: (next) => change({ clear: false, change: next }),
       clear: () => change({ clear: true }),
     },
+
+    value: state.asReadonly(),
+    answered: answered.asReadonly(),
+    unreadable: unreadable.asReadonly(),
+    set: (next) => change({ clear: false, change: () => next }),
+    update: (next) => change({ clear: false, change: next }),
+    clear: () => change({ clear: true }),
   };
 }

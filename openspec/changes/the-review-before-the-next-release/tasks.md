@@ -91,10 +91,14 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.7 A stored choice superseded by a declared start opens that workspace from its baseline at any address (`workspace/opening/workbench-opening.ts`)
 - [x] 4.8 A stored active workspace nothing lists any more gives way to the starting one (`workspace/opening/workbench-opening.ts`)
 - [ ] 4.9 Sidebar state, widths, the user's order and view state survive a write made before an asynchronous store answered (`regions/panel/panel-state.ts`, `panel-size.service.ts`, `regions/reorder/user-order.service.ts`, `views/view-state.service.ts`)
-- [ ] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs
+- [x] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs The lead on the picture of a scrolled surface is task 4.17.
 - [x] 4.11 Deleting the workspace in use asks about unsaved work in the surfaces it shows, not only about what it parked (`workspace/workspace.service.ts`, `remove`)
 - [ ] 4.12 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`; was 2.15)
 - [ ] 4.13 Lead, verify first: choosing a view from a secondary pane's add-tab control moves the address to that pane, as a click that moves the address does (`regions/pane/`)
+- [x] 4.18 The guarded-workspace tests seed their arrangement after the storage is cleared, so their assertions that it is gone can fail (`workspace/guarded-workspace-actions.spec.ts`, `compose()`); calibrate each of the four by taking the reset out once
+- [x] 4.19 Lead, verify first: after the workspace in use is removed and its work discarded, nothing of it stays parked under the removed id (`workspace/workspace.service.ts`, `remove`)
+- [x] 4.20 The changed mark and the unusable mark of a workspace reach a screen reader: they are part of the entry's name or description, not only a dot and an icon with a hover tooltip (`workspace/workspace-dialog.html`)
+- [x] 4.21 The settings dialog's navigation has a name (`settings-dialog/settings-dialog.html`)
 
 ## 5. Commands, menus, dialogs and the UI kit
 

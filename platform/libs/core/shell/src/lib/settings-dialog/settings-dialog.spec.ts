@@ -48,6 +48,14 @@ function render(
 }
 
 describe('SettingsDialog', () => {
+  it('names its navigation, so that it is told apart from the rail', () => {
+    const { host } = render();
+
+    expect(host.querySelector('nav')?.getAttribute('aria-label')).toBe(
+      'Settings',
+    );
+  });
+
   it('shows the empty state when no section is registered', () => {
     const { host } = render();
 

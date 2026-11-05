@@ -316,7 +316,8 @@
     "unusableTitle": "Dieser Workspace hat keinen Inhalt mehr",
     "unusableBody": "Sein gespeichertes Layout enthält den Inhalt nicht mehr, den dieser Workspace deklariert, also ist hier nichts zu zeigen. Zurücksetzen stellt das Layout wieder her, mit dem er deklariert wurde. Deine anderen Workspaces bleiben unberührt.",
     "unusableAction": "Diesen Workspace zurücksetzen",
-    "unusableMark": "Funktioniert nicht wie deklariert"
+    "unusableMark": "Funktioniert nicht wie deklariert",
+    "changedMark": "Nicht übernommene Änderungen"
   },
   "railLabels": {
     "desc": "Den Namen jedes Eintrags unter seinem Symbol anzeigen."

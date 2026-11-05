@@ -73,6 +73,12 @@ class LateStore extends AsyncStore {
   }
 }
 
+class UnreadableStore extends AsyncStore {
+  override get(): Promise<string | undefined> {
+    return Promise.reject(new Error('503'));
+  }
+}
+
 async function lateAnswersArrived(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 20));
   await appStableAfterPromiseChains();
@@ -288,6 +294,22 @@ describe('opening the application where the distribution says', () => {
     await lateAnswersArrived();
 
     expect(opened.workspaces.activeId()).toBe('mine');
+    expect(opened.location.path()).toBe('/reports');
+  });
+
+  it('leaves the user in the stored workspace, and the stored choice alone, where the saved list could not be read', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'mine'],
+    ]);
+
+    const opened = await open('/reports', {
+      stores,
+      settings: new UnreadableStore(stores),
+    });
+    await lateAnswersArrived();
+
+    expect(opened.workspaces.activeId()).toBe('mine');
+    expect(stores.get('lw.shell.active-workspace')).toBe('mine');
     expect(opened.location.path()).toBe('/reports');
   });
 

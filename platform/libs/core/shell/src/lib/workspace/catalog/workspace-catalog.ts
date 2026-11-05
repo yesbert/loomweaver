@@ -72,15 +72,15 @@ export class WorkspaceCatalog {
     this.stored.set(next);
   }
 
-  async savedAnswered(): Promise<void> {
-    if (this.stored.answered()) {
-      return;
+  async savedRead(): Promise<boolean> {
+    if (!this.stored.answered()) {
+      await firstValueFrom(
+        toObservable(this.stored.answered, { injector: this.injector }).pipe(
+          filter(Boolean),
+        ),
+      );
     }
-    await firstValueFrom(
-      toObservable(this.stored.answered, { injector: this.injector }).pipe(
-        filter(Boolean),
-      ),
-    );
+    return !this.stored.unreadable();
   }
 
   definitionOf(id: string): WorkspaceDefinition | undefined {

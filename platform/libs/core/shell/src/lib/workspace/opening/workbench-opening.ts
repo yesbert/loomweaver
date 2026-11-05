@@ -55,10 +55,9 @@ export class WorkbenchOpening {
   }
 
   private async leftAnUnlistedWorkspace(): Promise<boolean> {
-    if (this.listed()) {
+    if (this.listed() || !(await this.catalog.savedRead())) {
       return false;
     }
-    await this.catalog.savedAnswered();
     await this.paneTree.arrangementSettled;
     if (this.listed() || this.active.wasChosen()) {
       return false;

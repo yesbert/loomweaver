@@ -30,6 +30,11 @@ was built and taken out again, because it collides with two things the platform 
 surface's instance id is its pane's key, which is what plugins key stored state by, and its injector
 belongs to the pane's body.
 
+**The unsaved-work question follows the work, not the active workspace.** The capability said a
+reset of a workspace the user is not in asks nothing, because no live work is in it. Work parked
+under it is live, and the reset destroys it, so the reset asks for exactly that work. Removing the
+workspace in use asks once for what it shows and what it parked.
+
 **The bundle-size guard counts what the browser fetches.** It follows the static imports of the
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the
 measurement, not growth, and the pull request says both numbers.

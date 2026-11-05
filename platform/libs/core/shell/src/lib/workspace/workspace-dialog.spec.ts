@@ -108,9 +108,15 @@ describe('WorkspaceDialog (where a variant came from)', () => {
   });
 });
 
+interface Marks {
+  readonly changed?: readonly string[];
+  readonly unusable?: readonly string[];
+}
+
 function render(
   saved: readonly Workspace[],
   origins: Readonly<Record<string, string | null>> = {},
+  marks: Marks = {},
 ): HTMLElement {
   const ws = {
     workspaces: signal(saved),
@@ -118,7 +124,7 @@ function render(
     definitions: DEFINITIONS,
     activeId: signal(BUILT_IN_WORKSPACE_ID),
     hasChanges: signal(false),
-    changedIds: signal(new Set<string>()),
+    changedIds: signal(new Set<string>(marks.changed)),
   };
   const catalog = {
     offersBuiltIn: true,
@@ -133,7 +139,12 @@ function render(
         langs: {
           en: {
             k: { review: 'Review' },
-            workspace: { variantOf: 'Variant of {{name}}' },
+            workspace: {
+              default: 'Default',
+              variantOf: 'Variant of {{name}}',
+              changedMark: 'Unapplied changes',
+              unusableMark: 'Cannot work as declared',
+            },
           },
         },
         translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
@@ -145,7 +156,7 @@ function render(
       { provide: WorkspaceCatalog, useValue: catalog },
       {
         provide: UnusableWorkspacesService,
-        useValue: { ids: () => new Set<string>() },
+        useValue: { ids: () => new Set<string>(marks.unusable) },
       },
       { provide: DialogRef, useValue: { close: () => undefined } },
       { provide: DialogService, useValue: {} },
@@ -153,8 +164,15 @@ function render(
     ],
   });
   const fixture = TestBed.createComponent(WorkspaceDialog);
-  fixture.detectChanges();
+  fixture.autoDetectChanges();
   return fixture.nativeElement as HTMLElement;
+}
+
+function nameOf(host: HTMLElement, testId: string): string | null {
+  const entry = [...host.querySelectorAll<HTMLElement>('[data-testid]')].find(
+    (element) => element.dataset['testid'] === testId,
+  );
+  return entry?.getAttribute('aria-label') ?? null;
 }
 
 function switchButton(host: HTMLElement): HTMLButtonElement {
@@ -184,6 +202,58 @@ describe('WorkspaceDialog (what a saved workspace is called)', () => {
 
     expect(switchButton(host).getAttribute('aria-label')).toBe(
       'AB, Alpha Beta, Variant of Review',
+    );
+  });
+});
+
+describe('WorkspaceDialog (what the marks say to a screen reader)', () => {
+  const MINE: readonly Workspace[] = [
+    { id: 'mine', name: 'Alpha Beta', baseline: {} },
+  ];
+
+  it('shows the initials, the name and the origin as words of their own', () => {
+    const host = render(MINE, { mine: 'app.review' });
+
+    expect(switchButton(host).textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(
+      'AB Alpha Beta Variant of Review',
+    );
+  });
+
+  it('names an unchanged, usable workspace by what it shows alone', () => {
+    const host = render(MINE);
+
+    expect(nameOf(host, 'workspace-default')).toBe('Default');
+  });
+
+  it('says in the name of the built-in workspace that it has unapplied changes', () => {
+    const host = render(MINE, {}, { changed: [BUILT_IN_WORKSPACE_ID] });
+
+    expect(nameOf(host, 'workspace-default')).toBe(
+      'Default, Unapplied changes',
+    );
+  });
+
+  it('says in the name of a saved workspace that it has unapplied changes and cannot work as declared', () => {
+    const host = render(
+      MINE,
+      { mine: 'app.review' },
+      { changed: ['mine'], unusable: ['mine'] },
+    );
+
+    expect(switchButton(host).getAttribute('aria-label')).toBe(
+      'AB, Alpha Beta, Variant of Review, Unapplied changes, Cannot work as declared',
+    );
+  });
+
+  it('says in the name of a declared workspace that it cannot work as declared', async () => {
+    const host = render(MINE, {}, { unusable: ['app.review'] });
+    host
+      .querySelector<HTMLElement>('[data-testid="workspace-tab-provided"]')
+      ?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(nameOf(host, 'workspace-def-app.review')).toBe(
+      'Review, Cannot work as declared',
     );
   });
 });
