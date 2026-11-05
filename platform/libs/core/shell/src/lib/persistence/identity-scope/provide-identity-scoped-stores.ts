@@ -102,23 +102,7 @@ export function provideIdentityScopedStores(
       const sync = inject(StateSyncService);
       const auth = inject(AuthContext);
       latch.watchAdoption(() => {
-        void sync
-          .namespaceAdopted()
-          .catch(() => undefined)
-          .then(() =>
-            Promise.all([
-              settings.writeWhereTheNamespaceIsEmpty(),
-              workingState.writeWhereTheNamespaceIsEmpty(),
-            ]),
-          )
-          .catch(() => undefined)
-          .finally(() => {
-            latch.settle();
-            void Promise.all([
-              settings.writeWhatArrivedDuringAdoption(),
-              workingState.writeWhatArrivedDuringAdoption(),
-            ]).catch(() => undefined);
-          });
+        void adoptNamespace(sync, latch, [settings, workingState]);
       });
       effect(() => {
         auth.state();
@@ -126,4 +110,26 @@ export function provideIdentityScopedStores(
       });
     }),
   ];
+}
+
+function adoptNamespace(
+  sync: StateSyncService,
+  latch: BootLatchedIdentity,
+  stores: readonly IdentityScopedStore[],
+): Promise<void> {
+  const ignored = (): undefined => undefined;
+  const writeHeld = (): void => {
+    latch.settle();
+    void Promise.all(
+      stores.map((store) => store.writeWhatArrivedDuringAdoption()),
+    ).catch(ignored);
+  };
+  return sync
+    .namespaceAdopted()
+    .catch(ignored)
+    .then(() =>
+      Promise.all(stores.map((store) => store.writeWhereTheNamespaceIsEmpty())),
+    )
+    .then(ignored, ignored)
+    .finally(writeHeld);
 }

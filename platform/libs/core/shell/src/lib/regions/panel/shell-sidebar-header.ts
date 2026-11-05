@@ -160,8 +160,9 @@ export class ShellSidebarHeader {
     }
     event.preventDefault();
     this.moveToPanel(path, target.id);
+    const strip = CSS.escape(`panel-views-${target.id}`);
     focusMovedEntry(
-      `#${CSS.escape(`panel-views-${target.id}`)} [data-tab-path="${CSS.escape(path)}"]`,
+      `#${strip} [data-tab-path="${CSS.escape(path)}"]`,
       this.injector,
     );
   }
