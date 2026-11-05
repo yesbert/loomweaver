@@ -25,6 +25,9 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 1.17 Uninstalling a plugin removes its stored capability revocations, so a reinstall holds what its consent showed (`plugin-store/lifecycle/plugin-install.service.ts`)
 - [x] 1.18 A frame plugin whose connection failed is not started again on every later reconcile: it is retried when its entry changes or the user switches it on again, and stays reported until then (`plugin/frame/frame-plugin-runtime.ts`)
 - [x] 1.19 The guides say what the code now does: replacing by re-registering an id names the limit for a plugin outside the application's own code; the pages on the plugin store and permissions state the deployed plugin's stored revocation, the connection time limit and the start after an asynchronous settings store has answered (`docs/`, `llms-full.txt`, `skills/`)
+- [ ] 1.20 Lead, verify first: a toolbar placed by slot name, and the frame slot bridge, read the surface they belong to where two owners hold the same id (`regions/toolbar/toolbar-slots.service.ts`)
+- [ ] 1.21 A plugin of the application's own code whose activation failed is not activated again on every later reconcile (`plugin/plugin-runtime.ts`)
+- [ ] 1.22 A settings section that is refused leaves nothing registered behind: its cross-tab applier is not kept until the frame's session ends (`plugin/frame/rpc/frame-rpc-methods.ts`)
 
 ## 2. Unsaved work and panes
 
