@@ -10,7 +10,7 @@ paint then always matches the shell it runs in, and no plugin carries a copy of 
 | File                    | What it is                                                                                                     |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `lw-elements.global.js` | the `<lw-*>` element family, with the built-in icons, and `globalThis.LwFrame`                                 |
-| `lw-frame.d.ts`         | the types of `LwFrame` and of what the host pushes and asks, for a surface written in TypeScript               |
+| `lw-frame.d.ts`         | the types of `LwFrame`, of what the host pushes and asks and of the elements by tag, for a typed surface       |
 | `lw-frame.css`          | the `.lw-*` class contracts on the `--lw-*` tokens, with fallbacks for the moment before the host's first push |
 | `penpal.global.js`      | the RPC transport, as `globalThis.Penpal`                                                                      |
 | `snapdom.global.js`     | the renderer `LwFrame.capture` loads the first time a picture of the workbench is asked for                    |

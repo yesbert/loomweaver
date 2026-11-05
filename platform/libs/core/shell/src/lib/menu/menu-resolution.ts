@@ -125,7 +125,7 @@ function resolveEntry<T extends SlotEntry>(
     return null;
   }
   const command = commandOf(entry, sources);
-  if (entry.command && !command) {
+  if (entry.command && !command && entry.workspace === undefined) {
     return null;
   }
   const opensMenu = sources.menuOffered?.(entry, context);

@@ -14,7 +14,10 @@ export type CommandRefusalReason =
   | 'invalid-arguments'
   | 'too-deep';
 
-/** The command ran; `value` is present where the command declares {@link Command.answers}. */
+/**
+ * The command ran; `value` is what it returned, present where the command declares
+ * {@link Command.answers} and returned something.
+ */
 export interface CommandAnswered {
   readonly outcome: 'answered';
   readonly value?: CommandAnswer;
@@ -28,7 +31,10 @@ export interface CommandRefused {
   readonly message: string;
 }
 
-/** The command ran and threw, or its asynchronous work rejected. */
+/**
+ * The command ran and threw, its asynchronous work rejected, or what it returned for the answer it
+ * declares could not be carried as data.
+ */
 export interface CommandFailed {
   readonly outcome: 'failed';
   readonly message: string;

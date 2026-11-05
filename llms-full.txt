@@ -304,8 +304,9 @@ const SURFACE_HOLD: InjectionToken<SurfaceHold>;   // from @loomweaver/plugin-sd
 // value + count cap per plugin (dev warning at half). SANDBOXED RUNG, both channels: the logic document and each
 // SURFACE call stateWatch/stateSet/stateClear/stateUnwatch and receive stateChanged(key, value, loaded) pushes; the
 // surface channel is what lets two surfaces of one sandboxed plugin agree on anything (a surface holds no ctx). The
-// kit reassembles the pushes into the same handle shape: LwFrame.state.watch(key) + .onChange(fn), feed the push in
-// with LwFrame.state.apply(...) from your methods and call LwFrame.connectState(host) once connected.
+// kit reassembles the pushes into the same handle shape: LwFrame.state.watch(key) + .onChange(fn); the push is fed in
+// by LwFrame.surfaceMethods() (by hand: LwFrame.state.apply(...) from your methods), so call
+// LwFrame.connectState(host) once connected and nothing else.
 interface PluginState { watch<T = unknown>(key: string): StateHandle<T>; }
 interface StateHandle<T = unknown> { readonly value: () => T | undefined; readonly loaded: () => boolean;
                                      set(next: T): void; clear(): void; dispose(): void;
@@ -705,7 +706,8 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // connectToolbars(host: LwSlotHost): void — once your Penpal connection resolves, every <lw-toolbar> in the surface (same element
 // as in the page, see Setup essentials) is filled by the workbench, which pushes an LwSlotView { label, moreLabel, entries:
 // LwSlotEntry[], header?: LwSlotHeader } (entry: key, label, group, order, icon, shortcut, pressed, disabled, opensMenu, variant —
-// an LwSlotVariant, already narrowed so primary arrives only for the slot owner's entries) through
+// an LwSlotVariant, already narrowed so primary arrives only for the slot owner's entries — and, in an opened menu only,
+// children?: LwSlotEntry[], what the entry unfolds into as the page unfolds it, each activated under the menu's subscription by its own key) through
 // slotChanged(subscription, view), which surfaceMethods() already carries; activation runs in the workbench with the context; an
 // `opensMenu` entry is opened through slotOpen(subscription, key), and the workbench answers with the menu the page opens for that
 // entry (its context, its heading as LwSlotHeader { title, detail?, icon?, initials?, image?, leadsTo? }), which the kit draws as an
@@ -723,7 +725,19 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // surfaceMethods<T extends LwSurfaceMethods>(own: T): T & LwPlatformSurfaceMethods — your Penpal methods plus the ones
 // the workbench may call on any surface. Write connect({ methods: LwFrame.surfaceMethods({ render }) }) and the surface
 // answers everything the workbench asks of it, including requests added to the platform after you wrote it. The
-// platform's own names win over yours, so a surface cannot shadow them by accident }.
+// platform's own names win over yours, so a surface cannot shadow them by accident }. LwPlatformSurfaceMethods =
+// { capture, slotChanged, stateChanged }: the picture, the toolbar push and the state push are all answered for you.
+// lw-frame.d.ts also describes the ELEMENTS by tag, for a surface written in TypeScript: LwElementTagNameMap is merged
+// into the DOM's HTMLElementTagNameMap, so document.createElement('lw-toolbar') and querySelector('lw-select') answer
+// with the element's own shape and a wrong property is reported while you write it. Each property is an attribute too:
+// LwToolbarElement { menu, label, size: 'sm' | 'md', context (named strings/numbers/booleans; as an attribute the same
+// object written as JSON) } · LwSelectElement { value, compact, required } · LwOptionElement { value, icon } ·
+// LwMenuElement { openAt(x, y), openBeside(rect: LwMenuAnchorRect { top, right, bottom, left }, side) } ·
+// LwMenuItemElement { label, command } · LwButtonElement { variant, size, iconOnly (attribute icon-only), disabled } ·
+// LwIconElement { name, size } · LwTooltipElement { text, position } · LwMarkdownElement { source } ·
+// LwSpinnerElement { size, label } · LwNavTreeElement { current } · LwNavGroupElement { label, key, collapsed,
+// readonly open, toggle() } · LwNavItemElement { path, label, icon }; <lw-progress-ring> takes attributes alone
+// (value, max, size). The events the elements fire are not described there.
 // LW_WITHHOLD_ATTRIBUTE ('data-lw-withhold'): mark an element and its content stays off every picture of the workbench;
 // the area says so instead. Read at the moment a picture is made, so setting or clearing it takes effect at once and the
 // surface is never told it is being pictured. Marking the surface's own root does nothing — a surface withholds parts of

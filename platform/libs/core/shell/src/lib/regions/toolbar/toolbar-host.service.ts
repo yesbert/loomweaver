@@ -158,7 +158,7 @@ export class ToolbarHost implements LwToolbarHost {
   ): void {
     const wanted = this.toolbars
       .cells()
-      .filter((cell) => cell.slot === slot && this.auth.visible(cell.access));
+      .filter((cell) => cell.slot === slot && this.auth.meets(cell.access));
     let changed = false;
     for (const [id, mounted] of attachment.cells) {
       if (wanted.includes(mounted.cell) && sameContext(mounted.context, context)) {

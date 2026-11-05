@@ -198,8 +198,8 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   `surfaceMethods`, which adds the platform's own methods to yours.
 - **`LwSurfaceRenderState`** is what the host pushes to your `render` handler: theme, design tokens,
   root font size and the product's replacement glyphs. Hand it to `applySurfaceState` unchanged.
-- **`LwStateApi`** is the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)` to
-  feed the host's `stateChanged` push in from your `methods`.
+- **`LwStateApi`** is the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)`,
+  which the host's `stateChanged` push is fed into. `surfaceMethods` does that for you.
 - **`LwStateHandle`** is one key's handle: `value` · `loaded` · `set` · `clear` · `dispose`, plus
   `onChange` so you can re-render. It mirrors what a trusted plugin holds, so the store reads the
   same on both rungs of the isolation ladder.
@@ -211,6 +211,12 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   watched slot or an opened menu, the third one entry of it, the fourth an opened menu's heading.
 - **`LwSurfaceCapture`** / **`LwSurfaceCaptureRequest`** are what the workbench asks for and what you
   answer with when it draws a picture of itself, described next.
+- **`LwElementTagNameMap`** names the elements by tag and is merged into the DOM's own map. So
+  `document.createElement('lw-toolbar')` and `querySelector('lw-select')` answer with the element's
+  shape. That is `LwToolbarElement` with `menu`, `label`, `size` and `context`, `LwSelectElement`
+  with `value`, and one for each of the others. A property the element does not have is reported,
+  and so is a `context` holding something other than strings, numbers and booleans. The events the
+  elements fire are not described.
 
 ## A toolbar inside the surface
 
@@ -248,7 +254,8 @@ written, so word it in the surface's own language.
 An entry that opens a menu says so with `opensMenu`. Activating it asks the workbench for that
 entry's menu, and the answer is the menu the page would open for the same entry: matched against
 the entry's context, with the heading the entry declares. The kit draws it inside the surface,
-beside the entry, with the same drawing the page uses.
+beside the entry, with the same drawing the page uses. An entry of that menu that unfolds into
+further entries carries them as `children`, and they unfold in the surface as they do in the page.
 
 An entry that names a `variant` is pushed with it, already narrowed: `primary` arrives only where
 the slot's owner asked for it, so the surface draws what it is told and cannot promote an entry

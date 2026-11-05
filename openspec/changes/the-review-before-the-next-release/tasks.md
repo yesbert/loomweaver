@@ -247,18 +247,18 @@ What review 12.1 found in the end-to-end suite (`platform/apps/loom-testbed-e2e/
 
 What review 12.3 found. Paths are under `platform/libs/core/`.
 
-- [ ] 14.1 A surface that uses the kit's methods answers a state push too, so a watched value arrives and `loaded()` turns true (`shell/src/lib/surface-kit/surface-kit.frame.ts`, `surfaceMethods`; pinned in the frame kit's build spec and the surface kit's specs)
-- [ ] 14.2 A slot's menu asked for from a frame carries its submenus, so an entry that unfolds in the page unfolds in the frame (`shell/src/lib/regions/content/surface/slot-bridge.ts`, `shell/src/lib/surface-kit/surface-toolbars.ts`)
-- [ ] 14.3 A call from the frame to the workbench that is refused leaves no unhandled rejection in the frame (`shell/src/lib/surface-kit/surface-toolbars.ts`, `surface-state-mirror.ts`)
-- [ ] 14.4 A state push that arrives after its last handle was disposed starts no new watch (`shell/src/lib/surface-kit/surface-state-mirror.ts`, `apply`)
-- [ ] 14.5 A toolbar cell with an access requirement is hidden while the session does not meet it, whatever its mode, as its description says (`shell/src/lib/regions/toolbar/toolbar-host.service.ts`)
-- [ ] 14.6 A component in a bar with an access requirement is hidden while the session does not meet it, whatever its mode (`shell/src/lib/regions/bar/shell-bar.ts`)
+- [x] 14.1 A surface that uses the kit's methods answers a state push too, so a watched value arrives and `loaded()` turns true (`shell/src/lib/surface-kit/surface-kit.frame.ts`, `surfaceMethods`; pinned in the frame kit's build spec and the surface kit's specs)
+- [x] 14.2 A slot's menu asked for from a frame carries its submenus, so an entry that unfolds in the page unfolds in the frame (`shell/src/lib/regions/content/surface/slot-bridge.ts`, `shell/src/lib/surface-kit/surface-toolbars.ts`)
+- [x] 14.3 A call from the frame to the workbench that is refused leaves no unhandled rejection in the frame (`shell/src/lib/surface-kit/surface-toolbars.ts`, `surface-state-mirror.ts`)
+- [x] 14.4 A state push that arrives after its last handle was disposed starts no new watch (`shell/src/lib/surface-kit/surface-state-mirror.ts`, `apply`)
+- [x] 14.5 A toolbar cell with an access requirement is hidden while the session does not meet it, whatever its mode, as its description says (`shell/src/lib/regions/toolbar/toolbar-host.service.ts`)
+- [x] 14.6 A component in a bar with an access requirement is hidden while the session does not meet it, whatever its mode (`shell/src/lib/regions/bar/shell-bar.ts`)
 - [ ] 14.7 What a surface withholds from a picture is covered where it was when the picture was taken: the areas are read before the drawing starts (`shell/src/lib/surface-kit/surface-self-capture.ts`)
-- [ ] 14.8 A bar entry's menu context names its region, as its description says and as a rail entry's does (`shell/src/lib/regions/bar/bar-context.ts`)
-- [ ] 14.9 The frame kit's declarations describe its elements: their properties and a tag-name map, so a typed surface can set `context` on a toolbar (`frame-kit/build.mjs`)
-- [ ] 14.10 A command that declares what it answers and ends without a value has run: it is answered without a value, not reported as failed (`shell/src/lib/commands/command-invocation.service.ts`)
-- [ ] 14.11 A rail entry that names a workspace switches to it whatever its command is, as its description says (`shell/src/lib/menu/menu-resolution.ts`)
-- [ ] 14.12 The frame kit's bundle is rebuilt when a package it vendors changes (`frame-kit/project.json`, the bundle's inputs)
+- [x] 14.8 A bar entry's menu context names its region, as its description says and as a rail entry's does (`shell/src/lib/regions/bar/bar-context.ts`)
+- [x] 14.9 The frame kit's declarations describe its elements: their properties and a tag-name map, so a typed surface can set `context` on a toolbar (`frame-kit/build.mjs`)
+- [x] 14.10 A command that declares what it answers and ends without a value has run: it is answered without a value, not reported as failed (`shell/src/lib/commands/command-invocation.service.ts`)
+- [x] 14.11 A rail entry that names a workspace switches to it whatever its command is, as its description says (`shell/src/lib/menu/menu-resolution.ts`)
+- [x] 14.12 The frame kit's bundle is rebuilt when a package it vendors changes (`frame-kit/project.json`, the bundle's inputs)
 
 ## 13. Hand-over
 

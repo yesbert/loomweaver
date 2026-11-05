@@ -104,7 +104,9 @@ A **sandboxed** plugin gets the same store on both of its channels. Its logic do
 pushes every change back as `stateChanged(key, value, loaded)`. A **surface** has the same four
 methods on its own channel. That matters, because a surface holds no `ctx` at all and this is the
 only way two surfaces of one sandboxed plugin can agree on anything. The kit reassembles the pushes
-into the handle shape above, so the code reads the same as on the trusted rung:
+into the handle shape above, so the code reads the same as on the trusted rung. `surfaceMethods`
+answers the push for you; a surface that writes its `methods` by hand feeds it in with
+`LwFrame.state.apply(key, value, loaded)`.
 
 ```js
 // view.js
@@ -115,7 +117,6 @@ const connection = Penpal.connect({
   messenger,
   methods: LwFrame.surfaceMethods({
     render(state) { LwFrame.applySurfaceState(state); render(); },
-    stateChanged: (key, value, loaded) => LwFrame.state.apply(key, value, loaded),
   }),
 });
 connection.promise.then((host) => LwFrame.connectState(host));

@@ -43,7 +43,10 @@ export interface LwStateHandle<T = unknown> {
 
 export interface LwStateApi {
   watch<T = unknown>(key: string): LwStateHandle<T>;
-  /** Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`. */
+  /**
+   * Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`;
+   * `surfaceMethods` already does. A push for a key nothing watches any more is dropped.
+   */
   apply(key: string, value: unknown, loaded: boolean): void;
 }
 
@@ -69,6 +72,12 @@ export interface LwSlotEntry {
   readonly opensMenu?: boolean;
   /** Already narrowed by the workbench: `primary` only where the slot's owner asked for it. */
   readonly variant?: LwSlotVariant;
+  /**
+   * What an entry of an opened menu unfolds into, as the page unfolds it. Only a menu carries it; an
+   * entry of a toolbar says `opensMenu` instead. Activate one of them under the menu's subscription,
+   * with its own `key`.
+   */
+  readonly children?: readonly LwSlotEntry[];
 }
 
 /** The heading of a menu an entry opens, already worded. `leadsTo` names what activating it runs. */
@@ -144,6 +153,7 @@ export type LwSurfaceMethods = Record<string, (...args: never[]) => unknown>;
 export interface LwPlatformSurfaceMethods {
   capture(request?: LwSurfaceCaptureRequest): Promise<LwSurfaceCapture>;
   slotChanged(subscription: string, view: LwSlotView): void;
+  stateChanged(key: string, value: unknown, loaded: boolean): void;
 }
 
 export interface LwFrameApi {
@@ -204,6 +214,8 @@ export function installLwFrame(): LwFrameApi {
       capture,
       slotChanged: (subscription: string, view: LwSlotView) =>
         toolbars.apply(subscription, view),
+      stateChanged: (key: string, value: unknown, loaded: boolean) =>
+        state.apply(key, value, loaded),
     }),
   };
   const globals = globalThis as Record<string, unknown>;

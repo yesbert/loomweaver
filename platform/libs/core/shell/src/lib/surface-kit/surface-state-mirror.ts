@@ -1,3 +1,4 @@
+import { quietly } from './surface-host-call';
 import type { LwStateApi, LwStateHost } from './surface-kit.frame';
 
 type Listener = (value: unknown, loaded: boolean) => void;
@@ -21,15 +22,15 @@ function deliver(
   watching: boolean,
 ): void {
   if (!watching) {
-    host.stateWatch(key);
+    quietly(host.stateWatch(key));
   }
   if (write.cleared) {
-    host.stateClear(key);
+    quietly(host.stateClear(key));
   } else {
-    host.stateSet(key, write.value);
+    quietly(host.stateSet(key, write.value));
   }
   if (!watching) {
-    host.stateUnwatch(key);
+    quietly(host.stateUnwatch(key));
   }
 }
 
@@ -60,7 +61,7 @@ export function createState(): LwStateApi & {
       listeners: new Set(),
     };
     watched.set(key, entry);
-    host?.stateWatch(key);
+    quietly(host?.stateWatch(key));
     return entry;
   };
 
@@ -68,7 +69,7 @@ export function createState(): LwStateApi & {
     connect(next: LwStateHost): void {
       host = next;
       for (const key of watched.keys()) {
-        next.stateWatch(key);
+        quietly(next.stateWatch(key));
       }
       for (const [key, pending] of early) {
         deliver(next, key, pending, watched.has(key));
@@ -76,7 +77,10 @@ export function createState(): LwStateApi & {
       early.clear();
     },
     apply(key: string, value: unknown, loaded: boolean): void {
-      const entry = entryFor(key);
+      const entry = watched.get(key);
+      if (!entry) {
+        return;
+      }
       entry.value = value;
       entry.loaded = loaded;
       for (const listener of entry.listeners) {
@@ -112,7 +116,7 @@ export function createState(): LwStateApi & {
             return;
           }
           watched.delete(key);
-          host?.stateUnwatch(key);
+          quietly(host?.stateUnwatch(key));
         },
         onChange: (
           listener: (value: T | undefined, loaded: boolean) => void,

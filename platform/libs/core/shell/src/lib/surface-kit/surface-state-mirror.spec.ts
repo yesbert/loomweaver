@@ -118,4 +118,42 @@ describe('the frame kit state mirror', () => {
 
     expect(calls).toEqual(['watch scratch', 'set scratch "now"']);
   });
+
+  it('starts no new watch for a push that arrives after its last handle was disposed', () => {
+    const state = createState();
+    const { host, calls } = recordingHost();
+    state.connect(host);
+    state.watch<string>('draft').dispose();
+
+    state.apply('draft', 'late', true);
+
+    expect(calls).toEqual(['watch draft', 'unwatch draft']);
+  });
+
+  it('says so, and leaves no rejection behind, when the workbench refuses a call', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const refused = new Error('refused');
+    const refuse = () => Promise.reject(refused);
+    const state = createState();
+    state.connect({
+      stateWatch: refuse,
+      stateSet: refuse,
+      stateClear: refuse,
+      stateUnwatch: refuse,
+    });
+
+    const handle = state.watch<string>('draft');
+    handle.set('written');
+    handle.clear();
+    handle.dispose();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(warn.mock.calls.map((call) => call.at(-1))).toEqual([
+      refused,
+      refused,
+      refused,
+      refused,
+    ]);
+    warn.mockRestore();
+  });
 });

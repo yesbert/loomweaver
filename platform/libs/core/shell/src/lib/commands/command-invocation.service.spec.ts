@@ -170,6 +170,34 @@ describe('CommandInvocationService', () => {
         { outcome: 'failed' },
       );
     });
+
+    it('answers without a value where a command that declares an answer ends without one, now or later', async () => {
+      registry.addCommand(
+        open({
+          id: 'other.nothing',
+          title: 'Nothing',
+          answers: 'What it found',
+          run: () => undefined,
+        }),
+        OTHER,
+      );
+      registry.addCommand(
+        open({
+          id: 'other.later',
+          title: 'Later',
+          answers: 'What it found',
+          run: () => Promise.resolve(),
+        }),
+        OTHER,
+      );
+
+      expect(await invocation.invoke(CALLER, true, 'other.nothing')).toStrictEqual({
+        outcome: 'answered',
+      });
+      expect(await invocation.invoke(CALLER, true, 'other.later')).toStrictEqual({
+        outcome: 'answered',
+      });
+    });
   });
 
   describe('failures and loops', () => {

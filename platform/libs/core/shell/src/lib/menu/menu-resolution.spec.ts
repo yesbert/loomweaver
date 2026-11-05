@@ -113,6 +113,21 @@ describe('resolveSlot', () => {
     expect(resolved[1].opensMenu).toBe('own');
   });
 
+  it('keeps an entry that names a workspace whatever its command is: unregistered, or one the session may not run', () => {
+    const entries: SlotEntry[] = [
+      { id: 'rail.gone', title: 'gone', workspace: 'ws-1', command: 'omitted' },
+      { id: 'rail.secret', title: 'secret', workspace: 'ws-2', command: 'secret' },
+    ];
+    const resolved = resolveSlot(
+      entries,
+      inContext,
+      sources([command('secret')], { available: () => false }),
+    );
+
+    expect(resolved.map((entry) => entry.item.workspace)).toEqual(['ws-1', 'ws-2']);
+    expect(resolved.map((entry) => entry.command)).toEqual([undefined, undefined]);
+  });
+
   it("applies the entry's own requirement before the command's: hidden is gone, disabled stays inert", () => {
     const entries: SlotEntry[] = [
       { id: 'hidden', command: 'open', access: { anyRole: ['admin'] } },

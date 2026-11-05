@@ -95,7 +95,7 @@ export class ShellBar {
       .barItems()
       .filter((item) => item.bar === this.region().id);
     const cells = here
-      .filter((item) => !isBarButton(item) && this.auth.visible(item.access))
+      .filter((item) => !isBarButton(item) && this.auth.meets(item.access))
       .map((item) => ({ item }) as BarEntry);
     const buttons = this.slots.resolve(
       here.filter((item) => isBarButton(item)),

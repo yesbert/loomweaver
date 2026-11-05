@@ -225,10 +225,113 @@ describe('toolbars inside an isolated surface', () => {
 
     expect(host.calls).toEqual([{ method: 'slotWatch', args: ['acme/early', { a: 'b' }] }]);
   });
+
+  it('unfolds an entry of an opened menu into the entries it carries, and runs a chosen one under its own key', async () => {
+    const toolbars = createToolbars();
+    const host = fakeHost();
+    toolbars.connect(host);
+    const toolbar = place('acme/toolbar', {});
+    await flush();
+    toolbars.apply('sub-1', {
+      label: 'Tools',
+      moreLabel: 'More',
+      entries: [{ key: 'sources', label: 'Sources', opensMenu: true }],
+    });
+    toolbar.querySelector<HTMLButtonElement>('button[data-lw-entry="sources"]')?.click();
+    await flush();
+
+    toolbars.apply('sub-2', {
+      label: 'Sources',
+      moreLabel: 'More',
+      entries: [
+        {
+          key: 'more',
+          label: 'More',
+          children: [{ key: 'more>import', label: 'Import', disabled: true }],
+        },
+      ],
+    });
+
+    const menu = document.body.querySelector(LW_MENU_TAG) as HTMLElement;
+    const parent = menu.querySelector<HTMLElement>(`${LW_MENU_ITEM_TAG}[command="more"]`) as HTMLElement;
+    const child = parent.querySelector<HTMLElement>(`${LW_MENU_TAG} ${LW_MENU_ITEM_TAG}`) as HTMLElement;
+    expect(child.getAttribute('command')).toBe('more>import');
+    expect(child.getAttribute('label')).toBe('Import');
+    expect(child.hasAttribute('disabled')).toBe(true);
+  });
+
+  describe('where the workbench refuses a call', () => {
+    const refused = new Error('refused');
+    let warn: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      warn.mockRestore();
+    });
+
+    const reasons = () => warn.mock.calls.map((call: unknown[]) => call.at(-1));
+
+    it('says so and leaves no rejection behind for a toolbar whose description is refused', async () => {
+      const toolbars = createToolbars();
+      const host = { ...fakeHost(), slotWatch: () => Promise.reject(refused) };
+      toolbars.connect(host);
+
+      const toolbar = place('acme/toolbar', { record: 'r1' });
+      await flush();
+
+      expect(reasons()).toEqual([refused]);
+      expect(toolbar.entries).toEqual([]);
+    });
+
+    it('says so and opens nothing for an entry whose menu is refused', async () => {
+      const toolbars = createToolbars();
+      const host = { ...fakeHost(), slotOpen: () => Promise.reject(refused) };
+      toolbars.connect(host);
+      const toolbar = place('acme/toolbar', {});
+      await flush();
+      toolbars.apply('sub-1', {
+        label: 'Tools',
+        moreLabel: 'More',
+        entries: [{ key: 'sources', label: 'Sources', opensMenu: true }],
+      });
+
+      toolbar.querySelector<HTMLButtonElement>('button[data-lw-entry="sources"]')?.click();
+      await flush();
+
+      expect(reasons()).toEqual([refused]);
+      expect(toolbar.openKey).toBeNull();
+    });
+
+    it('says so for an activation and a release that are refused', async () => {
+      const toolbars = createToolbars();
+      const host = {
+        ...fakeHost(),
+        slotActivate: () => Promise.reject(refused),
+        slotUnwatch: () => Promise.reject(refused),
+      };
+      toolbars.connect(host);
+      const toolbar = place('acme/toolbar', {});
+      await flush();
+      toolbars.apply('sub-1', {
+        label: 'Tools',
+        moreLabel: 'More',
+        entries: [{ key: 'share', label: 'Share' }],
+      });
+
+      toolbar.querySelector<HTMLButtonElement>('button[data-lw-entry="share"]')?.click();
+      toolbar.remove();
+      await flush();
+
+      expect(reasons()).toEqual([refused, refused]);
+    });
+  });
 });
 
 describe('the entry a frame is told and the entry the toolbar draws', () => {
-  it('carry the same fields, apart from the context menu only the page knows of', () => {
-    expectTypeOf<Same<Omit<LwToolbarEntry, 'hasContextMenu'>, LwSlotEntry>>().toEqualTypeOf<true>();
+  it('carry the same fields, apart from the context menu only the page knows of and the entries only a menu unfolds', () => {
+    expectTypeOf<Same<Omit<LwToolbarEntry, 'hasContextMenu'>, Omit<LwSlotEntry, 'children'>>>().toEqualTypeOf<true>();
   });
 });

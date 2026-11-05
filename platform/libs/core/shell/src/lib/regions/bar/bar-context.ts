@@ -26,7 +26,12 @@ export function isBarButton(item: BarItem): item is BarButtonItem {
 }
 
 export function barMenuContext(item: BarItem): MenuContext {
-  return { targetKind: 'bar-item', id: item.id, bar: item.bar };
+  return {
+    targetKind: 'bar-item',
+    id: item.id,
+    region: item.bar,
+    bar: item.bar,
+  };
 }
 
 export function isButtonEntry(
