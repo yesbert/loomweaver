@@ -4,6 +4,7 @@ import type { TabBadgeTone } from '@loomweaver/plugin-sdk';
 import { ChartConfiguration } from 'chart.js';
 import {
   formatMoney,
+  formatMonth,
   localeOf,
   marginOf,
   openQuoteValue,
@@ -137,26 +138,38 @@ export class InsightsDashboardView {
     };
   });
 
-  protected readonly quotedPerMonth = computed<ChartConfiguration>(() => {
-    const colours = this.colours();
-    const months = [...recentMonths(MONTHS_SHOWN)].reverse();
-    const totals = months.map((month) =>
-      quotes()
+  private readonly monthlyTotals = computed(() =>
+    [...recentMonths(MONTHS_SHOWN)].reverse().map((month) => ({
+      month,
+      cents: quotes()
         .filter((quote) => quote.issuedOn.startsWith(month))
         .reduce((sum, quote) => sum + quoteTotals(quote).gross, 0),
-    );
+    })),
+  );
+
+  protected readonly quotedValues = computed(() => {
+    const lang = this.lang();
+    return this.monthlyTotals().map(({ month, cents }) => ({
+      month: formatMonth(month, lang),
+      total: formatMoney(cents, lang),
+    }));
+  });
+
+  protected readonly quotedPerMonth = computed<ChartConfiguration>(() => {
+    const colours = this.colours();
+    const totals = this.monthlyTotals();
     const formatter = new Intl.DateTimeFormat(localeOf(this.lang()), {
       month: 'short',
     });
     return {
       type: 'bar',
       data: {
-        labels: months.map((month) =>
+        labels: totals.map(({ month }) =>
           formatter.format(new Date(`${month}-01T00:00:00`)),
         ),
         datasets: [
           {
-            data: totals.map((cents) => cents / 100),
+            data: totals.map(({ cents }) => cents / 100),
             backgroundColor: colours.brand,
             borderRadius: 4,
             maxBarThickness: 34,

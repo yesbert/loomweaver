@@ -52,6 +52,15 @@ if (translations.length === 0) {
   );
 }
 
+const pluginStore = ['/api/plugins.json', '/payments/README.md'];
+for (const url of pluginStore) {
+  if (!cached.includes(url)) {
+    problems.push(
+      `the service worker does not cache ${url}, which the page itself fetches for the plugin store`,
+    );
+  }
+}
+
 for (const icon of manifest.icons ?? []) {
   if (!cached.includes(`/${icon.src}`)) {
     problems.push(`the service worker does not cache ${icon.src}, which the manifest points at`);

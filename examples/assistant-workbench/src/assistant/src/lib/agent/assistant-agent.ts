@@ -99,8 +99,12 @@ async function* callEvents(call: ChatToolCall): AsyncGenerator<AGUIEvent> {
 }
 
 function unansweredCalls(history: readonly ChatMessage[]): readonly ChatToolCall[] {
-  const answered = new Set(history.map((message) => message.tool_call_id));
-  return history.flatMap((message) => message.tool_calls ?? []).filter((call) => !answered.has(call.id));
+  const lastAssistant = history.map((message) => message.role).lastIndexOf('assistant');
+  if (lastAssistant < 0) {
+    return [];
+  }
+  const answered = new Set(history.slice(lastAssistant + 1).map((message) => message.tool_call_id));
+  return (history[lastAssistant].tool_calls ?? []).filter((call) => !answered.has(call.id));
 }
 
 function resultOf(answers: Map<string, ToolMessage>, toolCallId: string): ChatMessage {
@@ -148,8 +152,11 @@ async function complete(
   const body = (await response.json()) as ChatCompletion;
   if (!response.ok || body.error) {
     const said = body.error?.message ?? wording('assistant.error.status', { status: response.status });
-    const gone = wording('assistant.error.modelGone', { models: FREE_MODELS });
-    throw new Error(response.status === 404 ? `${said} ${gone}` : said);
+    throw new Error(
+      response.status === 404
+        ? `${said} ${wording('assistant.error.modelGone', { models: FREE_MODELS })}`
+        : said,
+    );
   }
   const message = body.choices?.[0]?.message;
   if (!message) {

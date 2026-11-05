@@ -26,6 +26,7 @@
     "howMany": "How many were counted?",
     "confirm": "Post",
     "unknownItem": "No item in stock carries that number.",
+    "notWholeNumber": "A count is a whole number in plain digits, such as 120. Nothing was posted.",
     "unchanged": "The counted quantity matches the one on the books.",
     "done": "Stock count posted.",
     "description": "Posts a stock count: asks for an item number and the counted quantity, and corrects what is on the books.",

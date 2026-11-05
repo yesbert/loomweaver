@@ -8,7 +8,7 @@ function overflowing(root: Locator): Promise<readonly string[]> {
     const found: string[] = [];
     const measure = (node: Element) => {
       const box = node as HTMLElement;
-      if (box.clientWidth === 0) {
+      if (box.clientWidth === 0 || box.closest('.sr-only')) {
         return;
       }
       if (box.scrollWidth - box.clientWidth > 1) {

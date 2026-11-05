@@ -117,6 +117,38 @@ describe('createAgent', () => {
     ]);
   });
 
+  it('repairs a call left without a result although an earlier round answered one under the same id', async () => {
+    const call = { id: 'call_0', type: 'function', function: { name: 'tickets__assign', arguments: '{}' } };
+    const { fetchLike, sent } = answering([
+      { role: 'assistant', content: null, tool_calls: [call] },
+      { role: 'assistant', content: 'Done.' },
+      { role: 'assistant', content: null, tool_calls: [call] },
+      { role: 'assistant', content: 'Done again.' },
+    ]);
+    const agent = createAgent(wordingOf(en), fetchLike);
+    const request = { runId: 'r1', prompt: 'assign T-1041 to dana', tools: [], key: 'k' };
+    for await (const event of agent.ask(request)) {
+      if (event.type === EventType.TOOL_CALL_END) {
+        agent.answer({ id: 'm1', role: 'tool', toolCallId: 'call_0', content: 'assigned' });
+      }
+    }
+    for await (const event of agent.ask({ ...request, runId: 'r2', prompt: 'and T-1042' })) {
+      if (event.type === EventType.TOOL_CALL_END) {
+        break;
+      }
+    }
+
+    for await (const event of agent.ask({ ...request, runId: 'r3', prompt: 'and now?' })) {
+      void event;
+    }
+
+    expect(sent[3].messages.slice(-3).map((message) => [message['role'], message['tool_call_id'], message['content']])).toEqual([
+      ['assistant', undefined, null],
+      ['tool', 'call_0', 'the workbench did not answer this call.'],
+      ['user', undefined, 'and now?'],
+    ]);
+  });
+
   it('reports a failed request as a run error instead of throwing', async () => {
     const fetchLike: typeof fetch = () =>
       Promise.resolve(new Response(JSON.stringify({ error: { message: 'rate limited' } }), { status: 429 }));
@@ -137,6 +169,20 @@ describe('createAgent', () => {
     expect(message).toContain('This model is unavailable for free.');
     expect(message).toContain('MODEL in assistant-agent.ts');
     expect(message).toContain('supported_parameters=tools');
+  });
+
+  it('asks for the sentence about a model that is gone only when the answer says so', async () => {
+    const asked: string[] = [];
+    const wording: Wording = (key) => {
+      asked.push(key);
+      return key;
+    };
+    const limited: typeof fetch = () =>
+      Promise.resolve(new Response(JSON.stringify({ error: { message: 'rate limited' } }), { status: 429 }));
+
+    await run(limited, () => null, { wording });
+
+    expect(asked).not.toContain('assistant.error.modelGone');
   });
 
   it('says each of its own failures in the language of the catalogue it was given', async () => {

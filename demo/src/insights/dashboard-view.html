@@ -51,31 +51,38 @@
         class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 @3xl:col-span-2"
         data-testid="insights-quoted"
       >
-        <h2 class="text-sm font-medium text-content">
+        <h2 id="insights-quoted-heading" class="text-sm font-medium text-content">
           {{ 'insights.cards.quoted' | transloco }}
         </h2>
         <div class="h-56 min-w-0 @max-sm:h-40">
           <demo-insights-chart
             [config]="quotedPerMonth()"
-            [label]="'insights.cards.quoted' | transloco"
+            labelledBy="insights-quoted-heading"
+            describedBy="insights-quoted-values"
           />
         </div>
+        <ul id="insights-quoted-values" class="sr-only">
+          @for (entry of quotedValues(); track entry.month) {
+            <li>{{ entry.month }}: {{ entry.total }}</li>
+          }
+        </ul>
       </article>
 
       <article
         class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4"
         data-testid="insights-pipeline"
       >
-        <h2 class="text-sm font-medium text-content">
+        <h2 id="insights-pipeline-heading" class="text-sm font-medium text-content">
           {{ 'insights.cards.pipeline' | transloco }}
         </h2>
         <div class="h-40 min-w-0 @max-sm:h-32">
           <demo-insights-chart
             [config]="pipeline()"
-            [label]="'insights.cards.pipeline' | transloco"
+            labelledBy="insights-pipeline-heading"
+            describedBy="insights-pipeline-values"
           />
         </div>
-        <ul class="flex flex-col gap-1">
+        <ul id="insights-pipeline-values" class="flex flex-col gap-1">
           @for (share of shares(); track share.status) {
             <li class="flex items-center gap-2 text-xs">
               <span

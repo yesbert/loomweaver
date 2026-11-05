@@ -33,6 +33,7 @@ function ask(fixture: ComponentFixture<AssistantAgentPanel>, prompt: string): HT
   field.focus();
   field.value = prompt;
   field.dispatchEvent(new Event('input'));
+  fixture.detectChanges();
   panel.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }));
   fixture.detectChanges();
   return field;
@@ -90,6 +91,33 @@ describe('AssistantAgentPanel', () => {
 
     expect(field.readOnly).toBe(false);
     expect(document.activeElement).toBe(field);
+  });
+
+  it('keeps a prompt in the field when the connection to the workbench is not ready', async () => {
+    vi.stubGlobal('fetch', () => Promise.resolve(completion({ role: 'assistant', content: 'Done.' })));
+    assistantTools.set(null);
+    const fixture = render();
+
+    const field = ask(fixture, 'open the ticket');
+
+    expect(field.value).toBe('open the ticket');
+  });
+
+  it('keeps a prompt in the field when it is submitted while a run is under way', async () => {
+    let answer: ((response: Response) => void) | undefined;
+    vi.stubGlobal('fetch', () => new Promise<Response>((resolve) => (answer = resolve)));
+    const fixture = render();
+    ask(fixture, 'open the ticket');
+    await vi.waitFor(() => expect(answer).toBeDefined());
+    fixture.detectChanges();
+
+    const field = ask(fixture, 'and assign it to Dana');
+
+    expect(field.value).toBe('and assign it to Dana');
+    answer?.(completion({ role: 'assistant', content: 'Done.' }));
+    await untilIdle(fixture);
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('and assign it to Dana');
+    expect(field.value).toBe('and assign it to Dana');
   });
 
   it('answers the calls a run left open when the run breaks off, and tells the agent what it answered', async () => {

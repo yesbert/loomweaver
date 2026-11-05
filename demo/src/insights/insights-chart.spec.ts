@@ -5,7 +5,8 @@ import { InsightsChart } from './insights-chart';
 
 @Component({
   imports: [InsightsChart],
-  template: '<demo-insights-chart [config]="config" label="Quoted per month" />',
+  template:
+    '<demo-insights-chart [config]="config" labelledBy="quoted-heading" describedBy="quoted-values" />',
 })
 class Dashboard {
   protected readonly config: ChartConfiguration = {
@@ -36,13 +37,15 @@ describe('InsightsChart', () => {
     vi.restoreAllMocks();
   });
 
-  it('tells assistive technology that the drawing is an image, and which one', () => {
+  it('tells assistive technology that the drawing is an image, named and described by what the card already says', () => {
     const fixture = TestBed.createComponent(Dashboard);
     fixture.detectChanges();
 
     const canvas = (fixture.nativeElement as HTMLElement).querySelector('canvas');
 
     expect(canvas?.getAttribute('role')).toBe('img');
-    expect(canvas?.getAttribute('aria-label')).toBe('Quoted per month');
+    expect(canvas?.getAttribute('aria-labelledby')).toBe('quoted-heading');
+    expect(canvas?.getAttribute('aria-describedby')).toBe('quoted-values');
+    expect(canvas?.hasAttribute('aria-label')).toBe(false);
   });
 });

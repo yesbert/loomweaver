@@ -78,19 +78,16 @@ export class AssistantAgentPanel {
   protected submit(event: Event): void {
     event.preventDefault();
     const prompt = this.draft().trim();
-    if (!prompt) {
+    const tools = assistantTools();
+    const key = this.key();
+    if (!prompt || !tools || !key || this.busy()) {
       return;
     }
     this.draft.set('');
-    void this.send(prompt);
+    void this.send(tools, prompt, key);
   }
 
-  private async send(prompt: string): Promise<void> {
-    const tools = assistantTools();
-    const key = this.key();
-    if (!tools || this.busy() || !key) {
-      return;
-    }
+  private async send(tools: CommandTools, prompt: string, key: string): Promise<void> {
     this.busy.set(true);
     try {
       await this.run(tools, prompt, key);
