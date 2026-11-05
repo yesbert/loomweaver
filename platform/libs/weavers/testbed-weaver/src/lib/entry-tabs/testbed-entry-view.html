@@ -114,7 +114,8 @@
             {{ 'testbed.entry.send' | transloco }}
           </button>
           @if (dirty()) {
-            <span class="text-xs text-caution" data-testid="entry-dirty">
+            <span class="flex items-center gap-1.5 text-xs text-content" data-testid="entry-dirty">
+              <span aria-hidden="true" class="h-1.5 w-1.5 shrink-0 rounded-full bg-unsaved"></span>
               {{ 'testbed.entry.unsaved' | transloco }}
             </span>
           }

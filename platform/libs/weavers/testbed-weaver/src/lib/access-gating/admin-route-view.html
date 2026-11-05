@@ -21,7 +21,7 @@
           <span
             class="font-medium"
             [class.text-negative]="entry.priority === 'urgent'"
-            [class.text-caution]="entry.priority !== 'urgent'"
+            [class.text-content]="entry.priority !== 'urgent'"
           >
             {{ 'testbed.list.priority.' + entry.priority | transloco }}
           </span>

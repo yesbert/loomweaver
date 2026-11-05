@@ -290,6 +290,8 @@ What reviews 12.4 and 12.5 found. Paths are under `platform/libs/core/shell/src/
 - [x] 15.5 A link in rendered text has the contrast of text in the light theme (`styles/theme/lw-markdown.css`)
 - [x] 15.6 A switch that is off can be told from its background (`styles/theme/controls.css`, `.lw-switch`)
 - [x] 15.7 The tokens the guide calls verified for text meet 4.5:1 on every surface they are used on, or the guide says where they may be used (`styles/theme/tokens.css`, `docs/reference/design-tokens.md`)
+- [x] 15.8 Asking to apply an update while that question is already open opens no second dialog: the second request joins the first (`update/update.service.ts`, `activateUpdate`)
+- [x] 15.9 The testbed uses no fill tone as a text colour: the places that put `text-caution` on real text take a tone the guide calls text-safe, or carry the warning as an icon beside text in the content colour (`platform/libs/weavers/testbed-weaver/src/lib/dashboard/testbed-dashboard-view.html`, `entry-tabs/testbed-entry-view.html`, `entry-tabs/testbed-list-view.ts`, `access-gating/admin-route-view.html`)
 
 ## 13. Hand-over
 

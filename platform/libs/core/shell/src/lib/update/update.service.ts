@@ -74,6 +74,8 @@ export class UpdateService {
 
   private lastCheckAt = 0;
 
+  private applying: Promise<void> | null = null;
+
   private readonly checked = signal<UpdateCheck | null>(null);
 
   /** True once a new version is downloaded and ready to activate. */
@@ -158,7 +160,8 @@ export class UpdateService {
    *
    * Where work is unsaved anywhere in the workbench the user is asked first, with the question any
    * other action that would destroy it asks. Declining abandons the update: nothing is activated,
-   * nothing is dropped and the page is not reloaded, so the update stays on offer.
+   * nothing is dropped and the page is not reloaded, so the update stays on offer. A call made
+   * while that question is still open joins it rather than asking a second time.
    *
    * When the worker is {@link updateBroken} activating is pointless: the broken registration would
    * still control the next load and report the same failure, which is a loop the user cannot leave
@@ -167,7 +170,14 @@ export class UpdateService {
    * the `ngsw:` caches of the application's base are touched; anything else the product registered,
    * and any other distribution served on the same origin, is left alone.
    */
-  async activateUpdate(): Promise<void> {
+  activateUpdate(): Promise<void> {
+    this.applying ??= this.applyUpdate().finally(() => {
+      this.applying = null;
+    });
+    return this.applying;
+  }
+
+  private async applyUpdate(): Promise<void> {
     const allowed = await this.closeGuard.confirmDiscard(
       this.unsavedWork.instancesEverywhere(),
     );

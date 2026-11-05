@@ -341,6 +341,36 @@ describe('UpdateService applying an update over unsaved work', () => {
     expect(app.reload).toHaveBeenCalledTimes(1);
   });
 
+  it('a second request while the question is open joins the first instead of asking again', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+
+    const first = app.service.activateUpdate();
+    const second = app.service.activateUpdate();
+    await Promise.resolve();
+
+    expect(app.dialogs.dialogs()).toHaveLength(1);
+
+    await answerTheQuestion(app.dialogs, 'discard');
+    await Promise.all([first, second]);
+
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(1);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('a request after a decline asks again', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    const declined = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'cancel');
+    await declined;
+
+    const again = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await again;
+
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(1);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+  });
+
   it('asks nothing where nothing is unsaved', async () => {
     const app = setupOverUnsavedWork([{ surfaceDirty: () => false }]);
 
