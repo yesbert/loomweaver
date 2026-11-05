@@ -25,7 +25,11 @@ export {
   usesTailwind,
   type MergeResult,
 } from './lib/amend/merge';
-export { ensurePostcssPlugin, postcssWrittenAsCode } from './lib/amend/postcss';
+export {
+  ensurePostcssPlugin,
+  postcssFileTheBuildReads,
+  postcssWrittenAsCode,
+} from './lib/amend/postcss';
 export {
   composeLines,
   composePlugin,
@@ -97,6 +101,12 @@ export type {
   ScaffoldValues,
 } from './lib/scaffolds/scaffold-values';
 export { nxSchemaFor, portableOptions, usageFor } from './lib/scaffolds/adapter-options';
+export {
+  nxDistributionFootprint,
+  nxWeaverFootprint,
+  type NxApplication,
+  type ReadWorkspaceFile,
+} from './generators/nx-footprint';
 export type { Finding, FindingLevel } from './lib/validate/types';
 export {
   validateManifest,

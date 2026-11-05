@@ -1,3 +1,4 @@
+import { joinProjectPath } from '../../lib/amend/merge';
 import { DISTRIBUTION_INITIAL_BUDGET } from '../../recipes/angular-distribution/amendments';
 import { FileMap } from '../../lib/generate/types';
 import { NEUTRAL_PREFIX } from '../../lib/scaffolds/scaffold-values';
@@ -11,6 +12,7 @@ import {
 } from '../project-config-files';
 
 const APP_ROOT_PREFIX = 'app';
+const WORKSPACE_ROOT = /^\.?\/?$/;
 
 export interface NxDistributionOptions {
   readonly name: string;
@@ -35,11 +37,12 @@ export interface NxDistribution {
 export function nxDistribution(
   options: NxDistributionOptions,
 ): NxDistribution {
-  const projectRoot = options.directory ?? `apps/${options.name}`;
+  const directory = options.directory ?? `apps/${options.name}`;
+  const projectRoot = WORKSPACE_ROOT.test(directory) ? '' : directory;
   return {
     name: options.name,
     projectRoot,
-    outputPath: `dist/${projectRoot}`,
+    outputPath: `dist/${projectRoot || options.name}`,
     tags: options.tags ?? [],
     prefix: options.prefix ?? NEUTRAL_PREFIX,
     baseTsconfig: options.baseTsconfig ?? 'tsconfig.base.json',
@@ -49,14 +52,14 @@ export function nxDistribution(
 }
 
 function projectJson(distribution: NxDistribution): string {
-  const root = distribution.projectRoot;
+  const inProject = (path: string) => joinProjectPath(distribution.projectRoot, path);
   return JSON.stringify(
     {
       name: distribution.name,
       $schema: `${distribution.depth.toRoot}/node_modules/nx/schemas/project-schema.json`,
       projectType: 'application',
       prefix: distribution.prefix,
-      sourceRoot: `${root}/src`,
+      sourceRoot: inProject('src'),
       tags: distribution.tags,
       targets: {
         build: {
@@ -65,11 +68,11 @@ function projectJson(distribution: NxDistribution): string {
           defaultConfiguration: 'production',
           options: {
             outputPath: distribution.outputPath,
-            browser: `${root}/src/main.ts`,
-            tsConfig: `${root}/tsconfig.app.json`,
-            serviceWorker: `${root}/ngsw-config.json`,
+            browser: inProject('src/main.ts'),
+            tsConfig: inProject('tsconfig.app.json'),
+            serviceWorker: inProject('ngsw-config.json'),
             assets: [
-              { glob: '**/*', input: `${root}/public` },
+              { glob: '**/*', input: inProject('public') },
               {
                 glob: '**/*',
                 input: 'node_modules/@loomweaver/shell/i18n',
@@ -81,7 +84,7 @@ function projectJson(distribution: NxDistribution): string {
                 output: 'frame-kit',
               },
             ],
-            styles: [`${root}/src/styles.css`],
+            styles: [inProject('src/styles.css')],
           },
           configurations: {
             production: {

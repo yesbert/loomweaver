@@ -5,6 +5,7 @@ import {
   ensurePostcssPlugin,
   PackageAmendment,
   PostcssAmendment,
+  postcssFileTheBuildReads,
   postcssWrittenAsCode,
 } from '@loomweaver/devkit';
 import { existsSync, writeFileSync } from 'node:fs';
@@ -92,22 +93,22 @@ class Amender {
   }
 
   private planPostcss(amendment: PostcssAmendment): void {
-    const writtenAsCode = postcssWrittenAsCode(
-      (name) => existsSync(resolve(this.workspace.root, name)),
-      amendment,
-    );
-    if (writtenAsCode) {
-      this.log.note(writtenAsCode);
-      return;
-    }
-    const file = resolve(this.workspace.root, amendment.file);
+    const exists = (name: string) =>
+      existsSync(resolve(this.workspace.root, name));
+    const name = postcssFileTheBuildReads(exists, amendment);
+    const file = resolve(this.workspace.root, name);
     const result = ensurePostcssPlugin(
       existsSync(file) ? readJsonFile(file) : undefined,
       amendment,
+      name,
     );
     this.log.note(...result.declined);
     if (result.added.length === 0) {
       return;
+    }
+    const ignored = postcssWrittenAsCode(exists, amendment);
+    if (ignored) {
+      this.log.note(ignored);
     }
     this.log.plan(file, result.added, `${JSON.stringify(result.value, null, 2)}\n`);
   }

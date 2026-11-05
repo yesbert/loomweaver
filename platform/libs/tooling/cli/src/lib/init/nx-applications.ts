@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
-import { basename, join, relative, sep } from 'node:path';
-import { readJsonFile } from '../workspace';
+import { basename, join } from 'node:path';
+import { readJsonFile, relativeTo } from '../workspace';
 
 export interface Application {
   readonly name: string;
@@ -22,7 +22,7 @@ export function nxApplications(
       if (config['projectType'] === 'application' && !name.endsWith('-e2e')) {
         found.push({
           name,
-          root: relative(workspaceRoot, folder).split(sep).join('/'),
+          root: relativeTo(workspaceRoot, folder),
         });
       }
     }

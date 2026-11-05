@@ -102,6 +102,6 @@ function contains(projectRoot: string, target: string): boolean {
   return projectRoot === '' || target === projectRoot || target.startsWith(`${projectRoot}/`);
 }
 
-function relativeTo(root: string, target: string): string {
+export function relativeTo(root: string, target: string): string {
   return relative(root, resolve(target)).split(sep).join('/');
 }

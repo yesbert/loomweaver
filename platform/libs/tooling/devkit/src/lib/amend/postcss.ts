@@ -4,6 +4,7 @@ import { PostcssAmendment } from './types';
 export function ensurePostcssPlugin(
   existing: unknown,
   amendment: PostcssAmendment,
+  file: string = amendment.file,
 ): MergeResult {
   const root = asObject(existing) ?? {};
   const plugins = asObject(root['plugins']);
@@ -11,7 +12,7 @@ export function ensurePostcssPlugin(
     return {
       value: root,
       added: [],
-      declined: [`${amendment.file}: "plugins" is not an object`],
+      declined: [`${file}: "plugins" is not an object`],
     };
   }
   const next = { ...plugins };
@@ -21,12 +22,21 @@ export function ensurePostcssPlugin(
   next[amendment.plugin] = {};
   return {
     value: { ...root, plugins: next },
-    added: [`${amendment.file}: ${amendment.plugin}`],
+    added: [`${file}: ${amendment.plugin}`],
     declined: [],
   };
 }
 
-const CODE_POSTCSS_CONFIGS = [
+const READ_BY_THE_BUILD = ['postcss.config.json', '.postcssrc.json'] as const;
+
+export function postcssFileTheBuildReads(
+  exists: (file: string) => boolean,
+  amendment: PostcssAmendment,
+): string {
+  return READ_BY_THE_BUILD.find((name) => exists(name)) ?? amendment.file;
+}
+
+const SCRIPT_POSTCSS_CONFIGS = [
   'postcss.config.js',
   'postcss.config.mjs',
   'postcss.config.cjs',
@@ -37,9 +47,9 @@ export function postcssWrittenAsCode(
   exists: (file: string) => boolean,
   amendment: PostcssAmendment,
 ): string | undefined {
-  const inTheWay = CODE_POSTCSS_CONFIGS.find((name) => exists(name));
-  return inTheWay === undefined
+  const ignored = SCRIPT_POSTCSS_CONFIGS.find((name) => exists(name));
+  return ignored === undefined
     ? undefined
-    : `${inTheWay} is written as code and cannot be merged into, so add ${amendment.plugin} to it yourself; until then the stylesheet emits no utility class and the workbench renders unstyled.`;
+    : `${ignored} is a script, which the Angular build does not read: it takes its style pipeline from ${READ_BY_THE_BUILD.join(' or ')} alone. That is why ${amendment.plugin} is added to ${postcssFileTheBuildReads(exists, amendment)}, and why nothing ${ignored} sets up reaches this build until it is stated there too.`;
 }
 

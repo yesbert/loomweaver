@@ -105,7 +105,9 @@ so scaffolding over an existing app can never overwrite the app's own `README.md
 `--styles` decides how the app is styled. The default `tailwind` compiles the shell's source theme,
 which is also what lets you write Tailwind utilities of your own; the generator writes the
 `.postcssrc.json` that needs, at the workspace root, merging into one that is already there rather
-than replacing it. `precompiled` imports the stylesheet we compiled instead — no `tailwindcss`, no
+than replacing it. Where the workspace has a `postcss.config.json`, the plugin goes there instead,
+because the Angular build reads that file first. A `postcss.config.js` or other script is not read
+by the build at all, and the generator says so. `precompiled` imports the stylesheet we compiled instead — no `tailwindcss`, no
 style pipeline, no `@source` paths — which is what you want if the product is themed with Bootstrap,
 Bulma or hand-written CSS.
 

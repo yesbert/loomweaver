@@ -14,6 +14,13 @@ const NG_NEW = JSON.parse(
   readFileSync(join(import.meta.dirname, 'ng-new-22.fixture.json'), 'utf8'),
 ) as Record<string, string>;
 
+const NX_APPLICATION = JSON.parse(
+  readFileSync(
+    join(import.meta.dirname, 'nx-application-24.fixture.json'),
+    'utf8',
+  ),
+) as Record<string, string>;
+
 function angularApp(root: string, name = 'my-studio'): void {
   writeFiles(root, {
     'package.json': JSON.stringify(
@@ -76,6 +83,7 @@ function nxWorkspace(root: string, apps: readonly string[]): void {
     'nx.json': JSON.stringify({
       $schema: './node_modules/nx/schemas/nx-schema.json',
     }),
+    'tsconfig.base.json': '{}\n',
   });
   for (const app of apps) {
     writeFiles(root, {
@@ -85,8 +93,13 @@ function nxWorkspace(root: string, apps: readonly string[]): void {
         sourceRoot: `apps/${app}/src`,
         targets: { build: {} },
       }),
-      [`apps/${app}/src/app/app.config.ts`]:
-        'export const appConfig = { providers: [] };\n',
+      [`apps/${app}/tsconfig.json`]: '{}\n',
+      ...Object.fromEntries(
+        Object.entries(NX_APPLICATION).map(([path, content]) => [
+          `apps/${app}/${path}`,
+          content,
+        ]),
+      ),
     });
   }
 }
@@ -399,6 +412,69 @@ describe('init', () => {
       'studio',
     ]);
     expect(c.text()).toContain('Serve it with: npx nx serve studio');
+  });
+
+  it('stops before installing anything where a file of an Nx application is no longer as generated', () => {
+    nxWorkspace(dir, ['studio']);
+    const developed =
+      "import { Component } from '@angular/core';\n\n@Component({ selector: 'app-root', template: '<app-orders />' })\nexport class App {}\n";
+    writeFileSync(join(dir, 'apps/studio/src/app/app.ts'), developed);
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init'], c.io, deps)).toBe(1);
+
+    expect(calls).toEqual([]);
+    expect(c.errText()).toContain('apps/studio/src/app/app.ts');
+    expect(c.errText()).toContain('nothing was installed or written');
+    expect(
+      readFileSync(join(dir, 'apps/studio/src/app/app.ts'), 'utf8'),
+    ).toBe(developed);
+  });
+
+  it('names every file the Nx generators would write or change on a trial run', () => {
+    nxWorkspace(dir, ['studio']);
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(0);
+
+    expect(calls).toEqual([]);
+    const said = c.text().split('\n');
+    for (const line of [
+      '  replaces apps/studio/src/main.ts',
+      '  creates apps/studio/ngsw-config.json',
+      '  creates apps/studio/tsconfig.app.json',
+      '  changes apps/studio/project.json',
+      '  creates .postcssrc.json',
+      '  creates libs/notes-weaver/src/index.ts',
+      '  creates libs/notes-weaver/project.json',
+      '  changes tsconfig.base.json',
+      '  changes apps/studio/src/app/app.config.ts',
+      '  changes apps/studio/src/styles.css',
+    ]) {
+      expect(said, line).toContain(line);
+    }
+    expect(c.text()).not.toContain('apps/studio/tsconfig.json');
+  });
+
+  it('hands the generator the workspace root for an application that sits there', () => {
+    nxWorkspace(dir, []);
+    writeFiles(dir, {
+      'project.json': JSON.stringify({
+        name: 'studio',
+        projectType: 'application',
+        targets: { build: {} },
+      }),
+      ...NX_APPLICATION,
+    });
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init', '--no-weaver'], c.io, deps)).toBe(0);
+
+    const distribution = calls.at(-1) ?? [];
+    expect(distribution[distribution.indexOf('--directory') + 1]).toBe('.');
   });
 
   it('names the candidates and does nothing when an Nx workspace has several applications', () => {

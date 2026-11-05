@@ -6,9 +6,14 @@ import {
   ScaffoldValues,
   findScaffold as findDescriptor,
 } from '@loomweaver/devkit';
-import { relative, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { ArgError, boolFlag, ParsedArgs, stringFlag } from '../args';
-import { findWorkspace, resolveBuildProject, WorkspaceError } from '../workspace';
+import {
+  findWorkspace,
+  relativeTo,
+  resolveBuildProject,
+  WorkspaceError,
+} from '../workspace';
 
 export { SCAFFOLDS, type ScaffoldDescriptor } from '@loomweaver/devkit';
 
@@ -69,7 +74,7 @@ function valuesFor(
 function directoryFromOut(out: string | undefined): string {
   const target = resolve(out ?? '.');
   const base = findWorkspace(target)?.root ?? process.cwd();
-  const below = relative(base, target);
+  const below = relativeTo(base, target);
   if (below.startsWith('..')) {
     return '';
   }

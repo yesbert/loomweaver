@@ -1,3 +1,4 @@
+import ts from 'typescript';
 import {
   composeLines,
   composePlugin,
@@ -56,6 +57,86 @@ const SESSION: ComposePluginAmendment = {
     },
   ],
 };
+
+function syntaxErrors(source: string): string[] {
+  const { diagnostics } = ts.transpileModule(source, { reportDiagnostics: true });
+  return (diagnostics ?? []).map((diagnostic) =>
+    ts.flattenDiagnosticMessageText(diagnostic.messageText, ' '),
+  );
+}
+
+const WITHOUT_TRAILING_COMMA = GENERATED.replace(
+  'provideLayout(layout),\n  ],',
+  'provideLayout(layout)\n  ],',
+);
+
+describe('composing into a file a formatter rewrote', () => {
+  it('ends the last entry before it adds a plugin after it', () => {
+    const { source, composed } = composePlugin(WITHOUT_TRAILING_COMMA, NOTES, '../notes/src');
+
+    expect(composed).toBe(true);
+    expect(source).toContain('provideLayout(layout),\n    provideTranslationNamespaces');
+    expect(syntaxErrors(source)).toEqual([]);
+  });
+
+  it('ends the last entry before a comment that follows it', () => {
+    const commented = WITHOUT_TRAILING_COMMA.replace(
+      'provideLayout(layout)\n',
+      "provideLayout(layout) // the product's own, see [layout]\n",
+    );
+
+    const { source } = composePlugin(commented, NOTES, '../notes/src');
+
+    expect(source).toContain("provideLayout(layout), // the product's own, see [layout]\n");
+    expect(syntaxErrors(source)).toEqual([]);
+  });
+
+  it('ends the last entry before it adds a provider after it', () => {
+    const result = composeProviders(
+      WITHOUT_TRAILING_COMMA,
+      {
+        kind: 'compose-provider',
+        providers: [{ line: 'provideIcons({}),', shell: ['provideIcons'] }],
+        without: 'Without it no icon is drawn.',
+      },
+      undefined,
+    );
+
+    expect(result.source).toContain('provideLayout(layout),\n    provideIcons({}),\n  ]');
+    expect(syntaxErrors(result.source)).toEqual([]);
+  });
+
+  it('adds no comma to an array that is still empty', () => {
+    const empty = GENERATED.replace(/providers: \[[\s\S]*?\],/, 'providers: [\n  ],');
+
+    const { source } = composePlugin(empty, NOTES, '../notes/src');
+
+    expect(source).toContain("providers: [\n    provideTranslationNamespaces('notes'),");
+    expect(syntaxErrors(source)).toEqual([]);
+  });
+
+  it('composes into a file whose strings are double-quoted', () => {
+    const doubleQuoted = GENERATED.replaceAll("'", '"');
+
+    const { source, composed } = composePlugin(doubleQuoted, NOTES, '../notes/src');
+
+    expect(composed).toBe(true);
+    expect(source).toContain('...providePlugins(notesPlugin),');
+    expect(source.match(/@loomweaver\/shell/g)).toHaveLength(1);
+    expect(syntaxErrors(source)).toEqual([]);
+  });
+
+  it('joins a namespace list whose names are double-quoted without naming one twice', () => {
+    const declared = GENERATED.replaceAll("'", '"').replace(
+      'provideLayout(layout),',
+      'provideLayout(layout),\n    provideTranslationNamespaces("notes"),',
+    );
+
+    const { source } = composePlugin(declared, NOTES, '../notes/src');
+
+    expect(source.match(/notes['"]/g)).toHaveLength(1);
+  });
+});
 
 describe('composePlugin', () => {
   it('registers the plugin in a composition root of the generated shape', () => {

@@ -1,12 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { resolveWeaverInput } from '@loomweaver/devkit';
+import { FileMap, joinProjectPath, resolveWeaverInput } from '@loomweaver/devkit';
 import { parseArgs, ParsedArgs, rejectUnknownFlags } from '../args';
 import { findScaffold, scaffoldValues } from '../scaffold/scaffold';
 import { planWrite } from '../scaffold/write';
 import { WorkspaceError } from '../workspace';
 import { InitDeps, NX_COLLECTION, InitPlan, planInit } from './init-plan';
-import { stillAsNgNewWrote } from './ng-new-files';
+import { stillAsGenerated } from './generated-files';
+import { nxTrial } from './nx-trial';
 import {
   execCommand,
   installCommand,
@@ -32,6 +33,7 @@ interface StepBase {
 interface ExecStep extends StepBase {
   readonly kind: 'exec';
   readonly command: readonly string[];
+  readonly touches?: readonly string[];
 }
 
 interface ScaffoldStep extends StepBase {
@@ -94,6 +96,9 @@ function performExec(
 ): number {
   if (plan.dryRun) {
     io.out(`Would run: ${step.command.join(' ')}`);
+    for (const touched of step.touches ?? []) {
+      io.out(`  ${touched}`);
+    }
     return 0;
   }
   io.out(`${step.label}: ${step.describe}`);
@@ -163,7 +168,11 @@ function angularSteps(plan: InitPlan): Step[] {
     ],
   };
   if (!distribution.done) {
-    refuseToReplaceChangedFiles(distribution.argv, root);
+    refuseToReplaceChangedFiles(scaffoldFiles(distribution.argv), {
+      directory: root,
+      wrote: 'ng new',
+      shown: (path) => path,
+    });
   }
   const steps: Step[] = [...installSteps(plan), distribution];
   if (plan.weaver) {
@@ -195,18 +204,30 @@ function nxSteps(plan: InitPlan): Step[] {
   }
   const generator = (name: string, argv: readonly string[]) =>
     execCommand(plan.manager, ['nx', 'g', `${NX_COLLECTION}:${name}`, ...argv]);
+  const values = { name: app.name, title: plan.title, styles: plan.styles, directory: app.root };
+  const composed = composesShell(join(root, app.root, 'src/app/app.config.ts'));
+  const replaced = composed ? undefined : findScaffold('distribution').build(values);
+  if (replaced) {
+    refuseToReplaceChangedFiles(replaced, {
+      directory: join(root, app.root),
+      wrote: 'the Nx application generator',
+      shown: (path) => joinProjectPath(app.root, path),
+    });
+  }
+  const trial = plan.dryRun ? nxTrial(root, app, replaced) : undefined;
   const steps: Step[] = [
     ...installSteps(plan),
     {
       label: 'Distribution',
       describe: `nx g ${NX_COLLECTION}:distribution over ${app.name} for "${plan.title}" (${plan.styles})`,
-      done: composesShell(join(root, app.root, 'src/app/app.config.ts')),
+      done: composed,
       kind: 'exec',
+      touches: trial?.distribution(values),
       command: generator('distribution', [
         '--name',
         app.name,
         '--directory',
-        app.root,
+        app.root || '.',
         '--title',
         plan.title,
         '--styles',
@@ -221,6 +242,7 @@ function nxSteps(plan: InitPlan): Step[] {
       describe: weaverDescription(plan.weaver),
       done: existsSync(join(root, 'libs', `${plan.weaver}-weaver`)),
       kind: 'exec',
+      touches: trial?.weaver(plan.weaver),
       command: generator('weaver', [
         '--id',
         plan.weaver,
@@ -271,19 +293,28 @@ function serveCommand(plan: InitPlan): string {
   return runScriptCommand(plan.manager, 'start');
 }
 
-function refuseToReplaceChangedFiles(
-  argv: readonly string[],
-  root: string,
-): void {
+interface Occupied {
+  readonly directory: string;
+  readonly wrote: string;
+  shown(path: string): string;
+}
+
+function scaffoldFiles(argv: readonly string[]): FileMap {
   const args = parseArgs(argv);
   const scaffold = findScaffold(args.command);
-  const files = scaffold.build(scaffoldValues(scaffold, args));
-  const changed = planWrite(files, root).conflicts.filter(
-    (path) => !stillAsNgNewWrote(path, readFileSync(join(root, path), 'utf8')),
-  );
+  return scaffold.build(scaffoldValues(scaffold, args));
+}
+
+function refuseToReplaceChangedFiles(files: FileMap, occupied: Occupied): void {
+  const root = occupied.directory;
+  const changed = planWrite(files, root)
+    .conflicts.filter(
+      (path) => !stillAsGenerated(path, readFileSync(join(root, path), 'utf8')),
+    )
+    .map((path) => occupied.shown(path));
   if (changed.length > 0) {
     throw new WorkspaceError(
-      `The distribution replaces ${changed.join(', ')}, which ${changed.length === 1 ? 'is' : 'are'} no longer what ng new wrote, so nothing was installed or written. ` +
+      `The distribution replaces ${changed.join(', ')}, which ${changed.length === 1 ? 'is' : 'are'} no longer what ${occupied.wrote} wrote, so nothing was installed or written. ` +
         `Move ${changed.length === 1 ? 'it' : 'them'} aside or undo the changes and run init again; "loomweaver distribution --out ${root} --dry-run" shows everything it writes.`,
     );
   }

@@ -13,7 +13,11 @@ import {
   entryStylesheet,
   usesTailwind,
 } from '../lib/amend/merge';
-import { ensurePostcssPlugin, postcssWrittenAsCode } from '../lib/amend/postcss';
+import {
+  ensurePostcssPlugin,
+  postcssFileTheBuildReads,
+  postcssWrittenAsCode,
+} from '../lib/amend/postcss';
 import {
   composeLines,
   composePlugin,
@@ -225,15 +229,12 @@ export function addPostcssPlugin(
   tree: Tree,
   amendment: PostcssAmendment,
 ): void {
-  const writtenAsCode = postcssWrittenAsCode((name) => tree.exists(name), amendment);
-  if (writtenAsCode) {
-    logger.warn(writtenAsCode);
-    return;
-  }
-  const existing = tree.exists(amendment.file)
-    ? (JSON.parse(tree.read(amendment.file, 'utf8') ?? '{}') as unknown)
+  const exists = (name: string) => tree.exists(name);
+  const file = postcssFileTheBuildReads(exists, amendment);
+  const existing = tree.exists(file)
+    ? (JSON.parse(tree.read(file, 'utf8') ?? '{}') as unknown)
     : undefined;
-  const result = ensurePostcssPlugin(existing, amendment);
+  const result = ensurePostcssPlugin(existing, amendment, file);
   for (const reason of result.declined) {
     logger.warn(
       `${reason}, so ${amendment.plugin} was not added; until it is, the workbench renders unstyled.`,
@@ -242,7 +243,11 @@ export function addPostcssPlugin(
   if (result.added.length === 0) {
     return;
   }
-  tree.write(amendment.file, `${JSON.stringify(result.value, null, 2)}\n`);
+  const ignored = postcssWrittenAsCode(exists, amendment);
+  if (ignored) {
+    logger.warn(ignored);
+  }
+  tree.write(file, `${JSON.stringify(result.value, null, 2)}\n`);
 }
 
 export function addStylesheetImport(

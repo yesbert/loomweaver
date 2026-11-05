@@ -69,18 +69,23 @@ It asks no questions. Every choice is an option with a default:
 **In an Angular CLI application** it runs `distribution` over the application's own project root
 with `--force`, because the files it replaces are the bootstrap wiring `ng new` produced, then
 `weaver` into `src/<id>` beneath it. It replaces such a file only while it is still what `ng new`
-wrote. Where one was changed, it names that file and stops before installing or writing anything. **In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the
-Nx generators, because only they register the project and the import alias; the result is what
-[the Nx generators](#the-nx-generators--loomweaverdevkit) produce. The serve command is `npm start`
-in the first case and `npx nx serve <app>` in the second, each spelled for the package manager
-found.
+wrote. Where one was changed, it names that file and stops before installing or writing anything.
+**In an Nx workspace** it installs `@loomweaver/devkit` as a dev dependency and runs the Nx
+generators, because only they register the project and the import alias; the result is what
+[the Nx generators](#the-nx-generators--loomweaverdevkit) produce. The same rule holds there: a
+bootstrap file is replaced only while it is still what the Nx application generator wrote, and one
+that was changed is named before anything is installed or written. The application's own
+`tsconfig*.json` and `eslint.config.mjs` are never replaced. The serve command is `npm start` in
+the first case and `npx nx serve <app>` in the second, each spelled for the package manager found.
 
 **Run twice, it changes nothing** and says so: a package the manifest already carries is not
 installed again, a composition root that already boots the shell is not rewritten, a weaver whose
 entry point exists is not generated again. A trial run walks the same steps and names what each
 would do. Its weaver step is planned against the composition root as it is at that moment, so
 before the distribution step has run it says the plugin would not yet compose. That is true until
-that step has happened.
+that step has happened. In an Nx workspace the generators cannot run before their package is
+installed, so the trial run names the two generator commands and, under each, every file it
+creates, replaces or changes.
 
 Outside an Angular application or an Nx workspace it refuses, names what it expected to find, and
 says how to create one.
@@ -167,8 +172,9 @@ build. `--strict` turns warnings into a non-zero exit when you do want to gate o
 The command check, `validate-commands`, reads every registration in a directory, in TypeScript and
 JavaScript alike, so a frame plugin's own script is checked too. It finds `registerCommand` on the
 context and through a destructured or renamed binding, and reads an id held in a string constant
-the same file declares. An id computed anywhere else, or a registration spread from another value,
-is reported as unreadable rather than guessed at. A property set to `undefined` counts as absent,
+the same file declares. An id computed anywhere else, a registration spread from another value, or
+a `callable` decided by an expression instead of written as `true` or `false`, is reported as
+unreadable rather than guessed at. A property set to `undefined` counts as absent,
 as it does at runtime. For each command it says whether an agent is offered it, what would leave
 the agent guessing, or that the registration could not be read. Guessing means an argument without
 a description or a returned value without `answers`. Only a callable command without a description is a warning, so a plugin
@@ -495,7 +501,8 @@ nx g @loomweaver/devkit:distribution --name acme-studio --directory apps/acme-st
 ```
 
 That replaces the bootstrap files this scaffold owns, and it merges the scaffold's build targets
-into the project value by value. The wiring the shell needs lands this way: the i18n and frame-kit
+into the project value by value. The application's `tsconfig*.json` and `eslint.config.mjs` stay as
+they are; one that is missing is written. The wiring the shell needs lands this way: the i18n and frame-kit
 assets, the stylesheet, the service worker, `inlineCritical: false` and an initial budget the
 workbench fits. Every value the application already set stays as it set it: its build options and
 configurations, its own targets, its `implicitDependencies` and its tags. An initial budget below

@@ -5,7 +5,9 @@ export interface NxScaffoldDepth {
 /** The relative path back to the workspace root from a project root such as `libs/a/b`. */
 export function depthFor(projectRoot: string): NxScaffoldDepth {
   const segments = projectRoot.split('/').filter(Boolean).length;
-  return { toRoot: Array.from({ length: segments }, () => '..').join('/') };
+  return {
+    toRoot: Array.from({ length: segments }, () => '..').join('/') || '.',
+  };
 }
 
 export const SHARED_COMPILER_OPTIONS = {

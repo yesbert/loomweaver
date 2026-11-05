@@ -1,5 +1,6 @@
 import { Amendment } from '@loomweaver/devkit';
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -117,11 +118,35 @@ describe('planAmend', () => {
     expect(readFileSync(join(dir, 'angular.json'), 'utf8')).toBe(after);
   });
 
-  it('leaves a code-written style configuration alone and says what it costs', () => {
+  it('writes the configuration the build reads beside a script the build ignores, and says so', () => {
     writeFileSync(join(dir, 'postcss.config.js'), 'module.exports = {};');
     const plan = planAmend([POSTCSS], dir);
-    expect(plan.amendments).toHaveLength(0);
-    expect(plan.remaining.join(' ')).toContain('renders unstyled');
+    applyAmend(plan);
+    expect(
+      JSON.parse(readFileSync(join(dir, '.postcssrc.json'), 'utf8')),
+    ).toEqual({ plugins: { '@tailwindcss/postcss': {} } });
+    expect(readFileSync(join(dir, 'postcss.config.js'), 'utf8')).toBe(
+      'module.exports = {};',
+    );
+    expect(plan.remaining.join(' ')).toMatch(
+      /postcss\.config\.js is a script, which the Angular build does not read/,
+    );
+  });
+
+  it('adds the plugin to the configuration the build reads first', () => {
+    writeFileSync(
+      join(dir, 'postcss.config.json'),
+      JSON.stringify({ plugins: { autoprefixer: {} } }),
+    );
+    const plan = planAmend([POSTCSS], dir);
+    applyAmend(plan);
+    expect(
+      JSON.parse(readFileSync(join(dir, 'postcss.config.json'), 'utf8')),
+    ).toEqual({ plugins: { autoprefixer: {}, '@tailwindcss/postcss': {} } });
+    expect(existsSync(join(dir, '.postcssrc.json'))).toBe(false);
+    expect(plan.amendments[0].added).toEqual([
+      'postcss.config.json: @tailwindcss/postcss',
+    ]);
   });
 
   it('names the candidates rather than wiring the wrong project', () => {

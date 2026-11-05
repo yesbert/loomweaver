@@ -62,14 +62,31 @@ export class ${weaver.className}AgentPanel {
         // how a call ends up half-assembled.
         this.pushAnswer(await tools.receive(event));
       }
+    } catch (error) {
+      this.fail(error);
     } finally {
       // Every call the agent left open is answered, one per flush(), until none is left. Here rather
       // than after the loop, because a run that broke off has no event that answers them.
-      for (let left = await tools.flush(); left; left = await tools.flush()) {
-        this.pushAnswer(left);
+      try {
+        for (let left = await tools.flush(); left; left = await tools.flush()) {
+          this.pushAnswer(left);
+        }
+      } catch (error) {
+        this.fail(error);
+      } finally {
+        this.busy.set(false);
       }
-      this.busy.set(false);
     }
+  }
+
+  // A stream that breaks off, or a call that cannot be answered, is shown where the run is shown.
+  // Nothing else would report it: this runs from a click, and an error leaving it reaches no one.
+  private fail(error: unknown): void {
+    this.push({
+      kind: 'result',
+      text: \`The run failed: \${error instanceof Error ? error.message : String(error)}\`,
+      failed: true,
+    });
   }
 
   private pushAnswer(message: ToolMessage | null): void {
@@ -174,9 +191,10 @@ export function panelTemplateFile(weaver: ResolvedWeaver): string {
         type="button"
         class="lw-btn lw-btn--default lw-btn--sm h-auto justify-start py-2 text-left whitespace-normal"
         [disabled]="busy()"
+        [attr.title]="tool.description || null"
         (click)="ask(tool.name)"
       >
-        {{ tool.description || tool.name }}
+        {{ tool.name }}
       </button>
     } @empty {
       <span class="px-1 text-xs text-content-faint">

@@ -473,10 +473,30 @@ describe('angularWeaver agent connection', () => {
     expect(afterTheRun).toContain('this.busy.set(false);');
   });
 
-  it('labels a tool that has no description by its name instead of an empty button', () => {
-    expect(agentWeaver()['src/lib/agent/notes-agent-panel.html']).toContain(
-      '{{ tool.description || tool.name }}',
+  it('shows a run that failed instead of letting the error leave the click handler', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    const run = panel.slice(
+      panel.indexOf('for await (const event of askAgent(request))'),
+      panel.indexOf('} finally {'),
     );
+    expect(run).toContain('} catch (error) {\n      this.fail(error);');
+    expect(panel).toContain('text: `The run failed: ${');
+    expect(panel).toContain('failed: true,');
+  });
+
+  it('frees the panel again whatever answering the open calls does', () => {
+    const panel = agentWeaver()['src/lib/agent/notes-agent-panel.ts'];
+    const afterTheRun = panel.slice(panel.indexOf('} finally {'));
+    expect(afterTheRun).toMatch(
+      /try \{\s+for \(let left = await tools\.flush\(\); left; left = await tools\.flush\(\)\) \{\s+this\.pushAnswer\(left\);\s+\}\s+\} catch \(error\) \{\s+this\.fail\(error\);\s+\} finally \{\s+this\.busy\.set\(false\);/,
+    );
+  });
+
+  it('labels a tool by its name and keeps what it says of itself as the tooltip', () => {
+    const template = agentWeaver()['src/lib/agent/notes-agent-panel.html'];
+    expect(template).toContain('{{ tool.name }}');
+    expect(template).toContain('[attr.title]="tool.description || null"');
+    expect(template).not.toContain('{{ tool.description');
   });
 
   it('fills the generated argument from the schema instead of sending none', () => {
