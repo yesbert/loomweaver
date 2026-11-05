@@ -60,7 +60,11 @@ export type ToolDecision =
   | { readonly decision: 'decline'; readonly reason: string }
   | { readonly decision: 'answer'; readonly content: string };
 
-/** What a plugin may supply when it wants a say before a call runs. */
+/**
+ * What a plugin may supply when it wants a say before a call runs. A hook that throws or rejects has
+ * not let the call through: the call is refused, saying what went wrong, its command does not run,
+ * and the run carries on with the next event.
+ */
 export interface CommandToolOptions {
   before?(call: PendingToolCall): ToolDecision | Promise<ToolDecision>;
 }
@@ -79,7 +83,9 @@ export interface CommandTools {
   /**
    * Takes one event of the run. Answers the message to send back where the event completed a call,
    * and nothing otherwise. Events that are not part of a tool call are ignored. The event that ends
-   * the run answers the first call still open; ask {@link flush} for the rest.
+   * the run answers the first call still open; ask {@link flush} for the rest. The event that starts
+   * a run forgets every call an earlier run left open, so a call from a run that broke off without
+   * its last event is neither run nor answered in the next one.
    */
   receive(event: BaseEvent): Promise<ToolMessage | null>;
   /**
@@ -87,6 +93,9 @@ export interface CommandTools {
    * nothing when the run is over. A call left open never received all of its arguments, so it is
    * refused, saying why, and its command does not run. Only the call carried by chunks is closed by
    * a run that finished, as the protocol defines, and runs.
+   *
+   * Ask it where the run broke off too, when the stream threw or was cancelled before its last
+   * event: no event answers those calls, and the next run forgets them.
    */
   flush(): Promise<ToolMessage | null>;
 }
@@ -94,6 +103,7 @@ export interface CommandTools {
 const UNREADABLE = 'its arguments did not arrive as readable JSON.';
 const NOT_OFFERED = 'it is not one of the tools offered to you.';
 const UNFINISHED = 'the run ended before its arguments were complete.';
+const UNDECIDED = 'the check in front of it failed';
 
 /**
  * Connects a plugin context to an agent's tool calls.
@@ -125,6 +135,10 @@ export function commandTools(
     receive: async (received) => {
       const event = received as AGUIEvent;
       switch (event.type) {
+        case EventType.RUN_STARTED: {
+          assembly.clear();
+          return null;
+        }
         case EventType.TOOL_CALL_START: {
           assembly.start(event.toolCallId, event.toolCallName);
           return null;
@@ -176,12 +190,17 @@ async function answerCall(
   if (!options.before) {
     return run(ctx, call.toolCallId, command.id, args);
   }
-  const decision = await options.before({
-    toolCallId: call.toolCallId,
-    commandId: command.id,
-    args,
-    ...(command.agentConsent !== undefined && { agentConsent: command.agentConsent }),
-  });
+  let decision: ToolDecision;
+  try {
+    decision = await options.before({
+      toolCallId: call.toolCallId,
+      commandId: command.id,
+      args,
+      ...(command.agentConsent !== undefined && { agentConsent: command.agentConsent }),
+    });
+  } catch (error) {
+    return refusalFor(call.toolCallId, `${UNDECIDED}: ${messageOf(error)}`);
+  }
   if (decision.decision === 'decline') {
     return refusalFor(call.toolCallId, decision.reason);
   }
@@ -189,6 +208,10 @@ async function answerCall(
     return answerFor(call.toolCallId, decision.content);
   }
   return run(ctx, call.toolCallId, command.id, args);
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 async function run(

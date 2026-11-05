@@ -1,11 +1,17 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { openRpcSandbox } from './support/helpers';
 
 const SURFACE = 'iframe[src*="/sandbox-rpc/view.html"]';
+const SANDBOX_STORE = 'lw.plugin-state:sandbox-rpc:scratch';
+const HOST_STORE = 'lw.plugin-state:testbed:scratch';
 
-async function openSandbox(page: import('@playwright/test').Page) {
+async function openSandbox(page: Page) {
   await openRpcSandbox(page);
   return page.frameLocator(SURFACE);
+}
+
+async function stored(page: Page, key: string): Promise<string> {
+  return (await page.evaluate((name) => localStorage.getItem(name), key)) ?? '';
 }
 
 test.describe('A sandboxed surface reaches its plugin store', () => {
@@ -18,11 +24,7 @@ test.describe('A sandboxed surface reaches its plugin store', () => {
       .fill('written from the iframe');
 
     await expect
-      .poll(() =>
-        page.evaluate(() =>
-          localStorage.getItem('lw.plugin-state:sandbox-rpc:scratch'),
-        ),
-      )
+      .poll(() => stored(page, SANDBOX_STORE))
       .toContain('written from the iframe');
 
     await page.reload();
@@ -37,9 +39,18 @@ test.describe('A sandboxed surface reaches its plugin store', () => {
   }) => {
     const surface = await openSandbox(page);
     await surface.getByTestId('sandbox-scratch').fill('sandbox side');
+    await expect
+      .poll(() => stored(page, SANDBOX_STORE))
+      .toContain('sandbox side');
 
+    expect(await stored(page, HOST_STORE)).not.toContain('sandbox side');
     await expect(page.getByTestId('scratch-echo')).toHaveText('');
+
     await page.getByTestId('scratch-input').fill('trusted side');
+    await expect.poll(() => stored(page, HOST_STORE)).toContain('trusted side');
+    await expect(page.getByTestId('scratch-echo')).toHaveText('trusted side');
+
+    expect(await stored(page, SANDBOX_STORE)).toContain('sandbox side');
     await expect(surface.getByTestId('sandbox-scratch')).toHaveValue(
       'sandbox side',
     );

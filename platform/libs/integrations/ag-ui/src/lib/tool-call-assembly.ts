@@ -61,4 +61,9 @@ export class ToolCallAssembly {
     const [first] = this.openCalls.keys();
     return first === undefined ? undefined : this.take(first);
   }
+
+  clear(): void {
+    this.openCalls.clear();
+    this.chunkedCallId = null;
+  }
 }

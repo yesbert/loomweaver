@@ -182,11 +182,11 @@ describe('commandTools receive', () => {
     expect(answer.error).toContain('not one of the tools offered');
   });
 
-  it('refuses a command its plugin registered without opening it, named by its own id', async () => {
+  it('refuses a command its plugin registered without opening it, called by the tool name it would have', async () => {
     const { ctx, invoked } = access();
     const [answer] = await play(
       commandTools(ctx, { before: () => ({ decision: 'run' }) }),
-      streamedCall('c1', 'notes.wipe', '{}'),
+      streamedCall('c1', 'notes__wipe', '{}'),
     );
 
     expect(invoked).toEqual([]);
@@ -373,6 +373,65 @@ describe('commandTools at the end of a run', () => {
   });
 });
 
+describe('commandTools after a run that ended without its last event', () => {
+  const RUN_STARTED = event(EventType.RUN_STARTED, {});
+  const RUN_FINISHED = event(EventType.RUN_FINISHED, {});
+
+  it('does not run a call carried by chunks when the next run finishes', async () => {
+    const { ctx, invoked } = access();
+    const tools = commandTools(ctx);
+    await play(tools, [
+      RUN_STARTED,
+      event(EventType.TOOL_CALL_CHUNK, {
+        toolCallId: 'c1',
+        toolCallName: 'notes__open',
+        delta: '{"path":"inbox"}',
+      }),
+    ]);
+
+    const answers = await play(tools, [RUN_STARTED, RUN_FINISHED]);
+
+    expect(invoked).toEqual([]);
+    expect(answers).toEqual([]);
+  });
+
+  it('does not answer a call left open in the run that follows', async () => {
+    const { ctx } = access();
+    const tools = commandTools(ctx);
+    await play(tools, [
+      RUN_STARTED,
+      event(EventType.TOOL_CALL_START, {
+        toolCallId: 'c1',
+        toolCallName: 'notes__open',
+      }),
+    ]);
+
+    const answers = await play(tools, [RUN_STARTED, RUN_FINISHED]);
+
+    expect(answers).toEqual([]);
+    expect(await tools.flush()).toBeNull();
+  });
+
+  it('still answers a call left open where it is asked before the next run starts', async () => {
+    const { ctx, invoked } = access();
+    const tools = commandTools(ctx);
+    await play(tools, [
+      RUN_STARTED,
+      event(EventType.TOOL_CALL_CHUNK, {
+        toolCallId: 'c1',
+        toolCallName: 'notes__open',
+        delta: '{"path":"inbox"}',
+      }),
+    ]);
+
+    const left = await tools.flush();
+
+    expect(left?.toolCallId).toBe('c1');
+    expect(left?.error).toMatch(/did not run/);
+    expect(invoked).toEqual([]);
+  });
+});
+
 describe('commandTools hook', () => {
   function withHook(before: CommandToolOptions['before']) {
     const { ctx, invoked } = access();
@@ -475,6 +534,39 @@ describe('commandTools hook', () => {
     await play(tools, streamedCall('c1', 'notes__open', '{"path":"a"}'));
 
     expect(invoked).toHaveLength(1);
+  });
+
+  it('refuses the call when the hook throws, and does not run it', async () => {
+    const { tools, invoked } = withHook(() => {
+      throw new Error('the dialog is gone');
+    });
+
+    const [answer] = await play(
+      tools,
+      streamedCall('c1', 'notes__open', '{"path":"a"}'),
+    );
+
+    expect(invoked).toEqual([]);
+    expect(answer.toolCallId).toBe('c1');
+    expect(answer.error).toMatch(/did not run: .*the dialog is gone/);
+  });
+
+  it('refuses the call when the hook rejects, and the run carries on', async () => {
+    let asked = 0;
+    const { tools, invoked } = withHook(() =>
+      ++asked === 1
+        ? Promise.reject(new Error('nobody answered'))
+        : { decision: 'run' },
+    );
+
+    const answers = await play(tools, [
+      ...streamedCall('c1', 'notes__open', '{"path":"a"}'),
+      ...streamedCall('c2', 'notes__open', '{"path":"b"}'),
+    ]);
+
+    expect(answers.map((answer) => answer.toolCallId)).toEqual(['c1', 'c2']);
+    expect(answers[0].error).toMatch(/did not run: .*nobody answered/);
+    expect(invoked).toEqual([{ id: 'notes.open', args: { path: 'b' } }]);
   });
 
   it('cannot widen: letting a call through still leaves the workbench to refuse it', async () => {

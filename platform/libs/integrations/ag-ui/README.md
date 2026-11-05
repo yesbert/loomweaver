@@ -14,9 +14,15 @@ agent.runAgent({ tools: tools.list(), ...rest });
 // for every event the run produces
 const answer = await tools.receive(event);
 if (answer) messages.push(answer);
+
+// once the run is over, and in a `finally` so it also happens where the run broke off
+for (let left = await tools.flush(); left; left = await tools.flush()) {
+  messages.push(left);
+}
 ```
 
-That is the whole integration. The actions the agent can reach are the ones the workbench already
+That is the whole integration. `flush` answers one call the agent left open each time it is asked,
+and nothing once none is left; a call left open is refused, not run. The actions the agent can reach are the ones the workbench already
 knows about, narrowed by everything that would refuse them — so an agent reaches what the user could
 have reached, and nothing more.
 

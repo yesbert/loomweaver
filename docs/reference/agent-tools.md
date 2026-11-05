@@ -44,6 +44,10 @@ part of a tool call are ignored, so you can hand it everything without filtering
 ends the run answers only the first call still open; `flush` answers the next one each time it is
 called, and `null` once none is left.
 
+Put the `flush` loop in a `finally` around the run. A stream that throws or is cancelled never sends
+the event that ends the run, so nothing else answers the calls it left open. The event that starts the
+next run forgets them: a call from a run that broke off is neither run nor answered in a later one.
+
 ## What you get, and what you do not
 
 The package is **headless**. It brings no transport, no user interface and no agent: you open the
@@ -62,6 +66,10 @@ tools.list();  // readonly Tool[]
 `list()` reads `ctx.invocableCommands()` at the moment you call it. **Do not keep the answer.** What a
 plugin may reach changes as plugins load and unload and as the session changes, and a list kept from
 earlier promises actions that are no longer there.
+
+A tool's `description` is the command's own, followed on a line of its own by what the command says it
+`answers`. A command without a description is not described by its title: the field is then empty, or
+holds only the answer.
 
 Each entry is already narrowed by everything that would refuse the invocation. The command declared
 itself `callable`, the session meets its `access`, and it belongs in this window. For a command your
@@ -133,7 +141,8 @@ const tools = commandTools(ctx, {
 | `{ decision: 'decline', reason }` | The workbench is never asked. The agent is told the call did not run, and why.       |
 | `{ decision: 'answer', content }` | You serve the call yourself. The agent gets your content as the result.              |
 
-It may be asynchronous, which is what a confirmation needs.
+It may be asynchronous, which is what a confirmation needs. A hook that throws or rejects has not let
+the call through: the call is refused, the agent is told what went wrong, and the run carries on.
 
 **A decision can only narrow.** Letting a call through does not make it reachable: the workbench
 refuses what it always refused, whatever was decided here. The hook is a place to say no, not a way to

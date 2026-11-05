@@ -34,9 +34,12 @@ test('pane ids are stable — handing the URL role around renames no pane', asyn
     await clickTabInPane(page, side, label);
     await expect
       .poll(async () =>
-        (await paneStripsLeftToRight(page)).map((pane) => pane.stripId),
+        (await paneStripsLeftToRight(page)).map((pane) => pane.address),
       )
-      .toEqual(before);
+      .toEqual(side === 'left' ? [true, false] : [false, true]);
+    expect(
+      (await paneStripsLeftToRight(page)).map((pane) => pane.stripId),
+    ).toEqual(before);
   }
 });
 

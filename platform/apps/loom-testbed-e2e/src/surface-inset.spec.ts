@@ -3,12 +3,16 @@ import { expect, test, type Page } from '@playwright/test';
 const leftPanelTabs = '#panel-views-left-panel';
 
 async function insetOfDockedView(page: Page): Promise<string> {
-  return page.evaluate(() => {
+  const inset = await page.evaluate(() => {
     const docked = [
       ...document.querySelectorAll<HTMLElement>('[class*="container/surface"]'),
     ].find((surface) => surface.getBoundingClientRect().left < 500);
-    return docked ? getComputedStyle(docked).padding : 'no docked surface';
+    return docked ? getComputedStyle(docked).padding : null;
   });
+  if (inset === null) {
+    throw new Error('insetOfDockedView: no docked surface on the left');
+  }
+  return inset;
 }
 
 test.describe('The inset a sidebar gives a view', () => {

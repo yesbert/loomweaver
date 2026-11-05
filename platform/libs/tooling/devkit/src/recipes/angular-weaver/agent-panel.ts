@@ -62,11 +62,12 @@ export class ${weaver.className}AgentPanel {
         // how a call ends up half-assembled.
         this.pushAnswer(await tools.receive(event));
       }
-      // Every call the agent left open is answered, one per flush(), until none is left.
+    } finally {
+      // Every call the agent left open is answered, one per flush(), until none is left. Here rather
+      // than after the loop, because a run that broke off has no event that answers them.
       for (let left = await tools.flush(); left; left = await tools.flush()) {
         this.pushAnswer(left);
       }
-    } finally {
       this.busy.set(false);
     }
   }
@@ -175,7 +176,7 @@ export function panelTemplateFile(weaver: ResolvedWeaver): string {
         [disabled]="busy()"
         (click)="ask(tool.name)"
       >
-        {{ tool.description }}
+        {{ tool.description || tool.name }}
       </button>
     } @empty {
       <span class="px-1 text-xs text-content-faint">
