@@ -1,4 +1,9 @@
-import { captureScale, drawAbsent } from './picture-primitives';
+import {
+  captureScale,
+  drawAbsent,
+  DrawingSize,
+  drawingSize,
+} from './picture-primitives';
 import type {
   LwSurfaceCapture,
   LwSurfaceCaptureRequest,
@@ -8,7 +13,7 @@ interface SnapdomGlobal {
   readonly snapdom: {
     toCanvas(
       target: Element,
-      options: { readonly scale: number },
+      options: DrawingSize,
     ): Promise<HTMLCanvasElement>;
   };
 }
@@ -85,7 +90,7 @@ export async function captureSelf(
   }
   const target = document.body ?? document.documentElement;
   const scale = captureScale(request?.scale ?? devicePixelRatio);
-  const canvas = await renderer.snapdom.toCanvas(target, { scale });
+  const canvas = await renderer.snapdom.toCanvas(target, drawingSize(scale));
   hideWithheld(canvas, target, scale, {
     attribute: withholdAttribute,
     label: request?.withheldLabel ?? '',

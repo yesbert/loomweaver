@@ -282,6 +282,56 @@ describe('IdentityScopedStore while it adopts an identity', () => {
     expect(data.get('lw.id.ada:during')).toBe('changed');
   });
 
+  function adopting(stored: Record<string, string>) {
+    let identity: string | null = null;
+    const latch = new BootLatchedIdentity(() => identity);
+    latch.watchAdoption(() => undefined);
+    latch.latch();
+    identity = 'ada';
+    const data = new Map(Object.entries(stored));
+    const inner: KeyValueStore = {
+      get: (key) => Promise.resolve(data.get(key)),
+      set: (key, value) => {
+        data.set(key, value);
+        return Promise.resolve();
+      },
+      delete: (key) => {
+        data.delete(key);
+        return Promise.resolve();
+      },
+    };
+    const store = new IdentityScopedStore(inner, latch, new Set());
+    latch.latch();
+    return { store, latch, data };
+  }
+
+  it('reads back a write held for a key the adopted namespace holds nothing for', async () => {
+    const { store, data } = adopting({});
+
+    await store.set('setting', 'built meanwhile');
+
+    await expect(store.get('setting')).resolves.toBe('built meanwhile');
+    expect(data.has('lw.id.ada:setting')).toBe(false);
+  });
+
+  it('reads what the adopted namespace holds rather than a write held before it was read', async () => {
+    const { store } = adopting({ 'lw.id.ada:setting': 'adas' });
+
+    await store.set('setting', 'built meanwhile');
+
+    await expect(store.get('setting')).resolves.toBe('adas');
+  });
+
+  it('reads back a write that arrived once the adopted namespace had been read', async () => {
+    const { store, data } = adopting({ 'lw.id.ada:setting': 'adas' });
+    await store.writeWhereTheNamespaceIsEmpty();
+
+    await store.set('setting', 'changed since');
+
+    await expect(store.get('setting')).resolves.toBe('changed since');
+    expect(data.get('lw.id.ada:setting')).toBe('adas');
+  });
+
   it('answers a read issued while nobody was known from the namespace adopted since', async () => {
     let identity: string | null = null;
     const slow = handAnsweredStore({

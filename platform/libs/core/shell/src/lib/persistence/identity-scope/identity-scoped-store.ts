@@ -8,7 +8,9 @@ export class IdentityScopedStore implements KeyValueStore {
   private readonly inner: KeyValueStore;
   private readonly latch: BootLatchedIdentity;
   private readonly deviceKeys: ReadonlySet<string>;
-  private readonly withheld = new Map<string, string>();
+  private readonly built = new Map<string, string>();
+  private readonly arrived = new Map<string, string>();
+  private namespaceRead = false;
 
   constructor(
     inner: KeyValueStore,
@@ -23,18 +25,18 @@ export class IdentityScopedStore implements KeyValueStore {
 
   async get(key: string): Promise<string | undefined> {
     const asked = this.scoped(key);
-    const answer = await this.inner.get(asked);
+    const answer = await this.read(asked);
     const adopted = this.scoped(key);
     if (adopted === asked) {
       return answer;
     }
-    return (await this.inner.get(adopted)) ?? answer;
+    return (await this.read(adopted)) ?? answer;
   }
 
   set(key: string, value: string): Promise<void> {
     const scoped = this.scoped(key);
     if (this.held(key)) {
-      this.withheld.set(scoped, value);
+      this.withheld().set(scoped, value);
       return Promise.resolve();
     }
     return this.inner.set(scoped, value);
@@ -43,28 +45,41 @@ export class IdentityScopedStore implements KeyValueStore {
   delete(key: string): Promise<void> {
     const scoped = this.scoped(key);
     if (this.held(key)) {
-      this.withheld.delete(scoped);
+      this.withheld().delete(scoped);
       return Promise.resolve();
     }
     return this.inner.delete(scoped);
   }
 
   async writeWhereTheNamespaceIsEmpty(): Promise<void> {
-    const pending = [...this.withheld];
-    this.withheld.clear();
-    for (const [scoped, value] of pending) {
-      if ((await this.inner.get(scoped)) === undefined) {
-        await this.inner.set(scoped, value);
+    this.namespaceRead = true;
+    try {
+      for (const [scoped, value] of this.built) {
+        if ((await this.inner.get(scoped)) === undefined) {
+          await this.inner.set(scoped, value);
+        }
       }
+    } finally {
+      this.built.clear();
     }
   }
 
   async writeWhatArrivedDuringAdoption(): Promise<void> {
-    const arrived = [...this.withheld];
-    this.withheld.clear();
+    const arrived = [...this.arrived];
+    this.arrived.clear();
     for (const [scoped, value] of arrived) {
       await this.inner.set(scoped, value);
     }
+  }
+
+  private async read(scoped: string): Promise<string | undefined> {
+    const built = this.built.get(scoped);
+    const stored = await this.inner.get(scoped);
+    return this.arrived.get(scoped) ?? stored ?? built;
+  }
+
+  private withheld(): Map<string, string> {
+    return this.namespaceRead ? this.arrived : this.built;
   }
 
   private held(key: string): boolean {

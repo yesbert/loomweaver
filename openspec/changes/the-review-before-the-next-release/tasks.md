@@ -120,6 +120,11 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.27 Withdrawn: the question covers everything the workspace shows or parked; narrowing it to what the switch destroys left a hole (a tab the start holds but does not show)
 - [x] 4.28 The delta says what the code does: the unreadable-list scenario is narrowed to an address that names content, and every sentence is checked against the code after 4.23 to 4.27
 
+- [ ] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs
+- [x] 4.14 A picture taken on a screen with a device pixel ratio of 2 has the size that was asked for and every surface drawn where it sits (`capture/workbench-capture.service.ts`, `capture/picture-size.ts`)
+- [ ] 4.15 A surface wholly hidden behind an opaque layer is not asked to draw for a picture (`capture/surface-capture-registry.ts`)
+- [x] 4.16 A read during adoption sees the write held for the same key, not the store's older value (`persistence/identity-scope/identity-scoped-store.ts`)
+
 ## 5. Commands, menus, dialogs and the UI kit
 
 - [x] 5.1 A surface whose title or action was updated is still removed with its plugin (`contributions/contribution-registry.ts`)

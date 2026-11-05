@@ -130,6 +130,19 @@ describe('WorkbenchCaptureService', () => {
     expect(picture.width).toBe(Math.round(WORKBENCH_WIDTH * scales[0]));
   });
 
+  it('draws the size asked for on a screen with two device pixels to a CSS pixel', async () => {
+    const { service } = setUp();
+    vi.spyOn(globalThis, 'devicePixelRatio', 'get').mockReturnValue(2);
+    drawnAt(service);
+
+    const screen = await service.capture();
+    const plain = await service.capture({ size: 'plain' });
+    vi.restoreAllMocks();
+
+    expect(screen.width).toBe(WORKBENCH_WIDTH * 2);
+    expect(plain.width).toBe(WORKBENCH_WIDTH);
+  });
+
   it('draws fewer pixels when asked for a plainer picture', async () => {
     const { service } = setUp();
     drawnAt(service);
@@ -399,9 +412,13 @@ function drawnAt(
   const scales: number[] = [];
   const encoded: [string, number | undefined][] = [];
   vi.spyOn(service as unknown as { load(): unknown }, 'load').mockResolvedValue({
-    toCanvas: async (_: Element, options: { scale: number }) => {
+    toCanvas: async (_: Element, options: { scale: number; dpr?: number }) => {
       scales.push(options.scale);
-      return stubCanvas(options.scale, encoded, encodeAs);
+      return stubCanvas(
+        options.scale * (options.dpr ?? globalThis.devicePixelRatio),
+        encoded,
+        encodeAs,
+      );
     },
   });
   return { scales, encoded };

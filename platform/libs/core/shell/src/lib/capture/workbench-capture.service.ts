@@ -14,6 +14,7 @@ import {
   WorkbenchPictureForm,
 } from './picture-form';
 import { decodeCapture, DrawRequest } from './ask-surface';
+import { DrawingSize, drawingSize } from '../surface-kit/picture-primitives';
 
 /** What a caller may ask for about the picture before it is drawn. */
 export interface WorkbenchPictureRequest {
@@ -58,7 +59,7 @@ interface PictureParts {
 interface Renderer {
   toCanvas(
     target: Element,
-    options: { readonly scale: number },
+    options: DrawingSize,
   ): Promise<HTMLCanvasElement>;
 }
 
@@ -99,17 +100,18 @@ export class WorkbenchCaptureService {
     );
 
     const drawRequest = { scale, ...pictureEncoding(request?.form) };
+    const size = drawingSize(scale);
 
     const placements = this.placements();
     const plan = paintPlan(root, placements, view);
     const origin = root.getBoundingClientRect();
     const [images, canvas, covers] = await Promise.all([
       this.drawSurfaces(placements, drawRequest, view),
-      renderer.toCanvas(root, { scale }),
+      renderer.toCanvas(root, size),
       Promise.all(
         plan.passes.map((pass) =>
           pass.covers.length > 0
-            ? renderer.toCanvas(pass.layer.element, { scale })
+            ? renderer.toCanvas(pass.layer.element, size)
             : undefined,
         ),
       ),

@@ -9,6 +9,15 @@ export function captureScale(preferred: number): number {
   return Math.min(LARGEST_SCALE, Math.max(SMALLEST_SCALE, preferred));
 }
 
+export interface DrawingSize {
+  readonly scale: number;
+  readonly dpr: number;
+}
+
+export function drawingSize(scale: number): DrawingSize {
+  return { scale, dpr: 1 };
+}
+
 const ABSENT_FILL = '#6b7280';
 
 const ABSENT_STRIPE = 'rgba(255, 255, 255, 0.14)';
