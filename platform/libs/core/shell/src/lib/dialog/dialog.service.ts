@@ -291,20 +291,21 @@ export class DialogService {
     this.items.update((list) => [...list, { ...spec, id, ref }]);
 
     void ref.closed.then(() => {
+      const wasTop = this.items().at(-1)?.id === id;
       this.items.update((list) => list.filter((dialog) => dialog.id !== id));
-      afterNextRender(() => this.giveFocusBack(id), {
+      afterNextRender(() => this.giveFocusBack(id, wasTop), {
         injector: this.injector,
       });
     });
   }
 
-  private giveFocusBack(id: string): void {
+  private giveFocusBack(id: string, wasTop: boolean): void {
     const opener = this.openers.get(id);
     this.openers.delete(id);
     if (!opener?.isConnected) {
       return;
     }
-    if (this.openers.size > 0) {
+    if (!wasTop) {
       this.handDown(opener);
     } else if (!inheritFocusReturn(this.document, opener)) {
       opener.focus();

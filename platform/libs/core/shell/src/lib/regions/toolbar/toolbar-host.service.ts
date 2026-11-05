@@ -245,12 +245,19 @@ export class ToolbarHost implements LwToolbarHost {
 
 function contextWhereItStands(toolbar: LwToolbarElement): MenuContext {
   const context = toolbar.context;
-  const owner = toolbar
-    .closest(`[${CSS.escape(SURFACE_OWNER_MARK)}]`)
-    ?.getAttribute(SURFACE_OWNER_MARK);
-  return typeof owner === 'string' && context[SURFACE_OWNER] === undefined
+  const owner = surfaceOwnerAround(toolbar);
+  return owner !== null && context[SURFACE_OWNER] === undefined
     ? { ...context, [SURFACE_OWNER]: owner }
     : context;
+}
+
+function surfaceOwnerAround(element: Element): string | null {
+  const marked = element.closest(`[${CSS.escape(SURFACE_OWNER_MARK)}]`);
+  if (marked) {
+    return marked.getAttribute(SURFACE_OWNER_MARK);
+  }
+  const root = element.getRootNode();
+  return root instanceof ShadowRoot ? surfaceOwnerAround(root.host) : null;
 }
 
 function sameContext(a: MenuContext, b: MenuContext): boolean {

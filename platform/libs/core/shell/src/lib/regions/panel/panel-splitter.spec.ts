@@ -75,6 +75,23 @@ describe('PanelSplitter', () => {
     );
   });
 
+  it('leaves an arrow, Home or End with Alt, Ctrl or Meta alone, so a command bound to it still runs', () => {
+    render('left');
+    const handle = fixture.nativeElement.querySelector('[role="separator"]') as HTMLElement;
+    const prevented = [
+      { key: 'ArrowLeft', altKey: true },
+      { key: 'Home', ctrlKey: true },
+      { key: 'ArrowRight', metaKey: true },
+    ].map((init) => {
+      const event = new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true });
+      handle.dispatchEvent(event);
+      return event.defaultPrevented;
+    });
+
+    expect(size.width('primary')).toBe(DEFAULT_PANEL_WIDTH);
+    expect(prevented).toEqual([false, false, false]);
+  });
+
   it('ArrowRight grows a left-docked panel, ArrowLeft shrinks it', () => {
     render('left');
     press('ArrowRight');

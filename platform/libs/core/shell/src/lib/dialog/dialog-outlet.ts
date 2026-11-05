@@ -96,7 +96,8 @@ export class DialogOutlet {
         return;
       }
       const top = panels.at(-1)?.nativeElement;
-      if (!top || top.contains(this.document.activeElement)) {
+      const active = this.document.activeElement;
+      if (!top || top.contains(active) || overlayMenuIn(this.document)?.contains(active)) {
         return;
       }
       (top.querySelector<HTMLElement>('[data-lw-autofocus]') ?? top).focus();

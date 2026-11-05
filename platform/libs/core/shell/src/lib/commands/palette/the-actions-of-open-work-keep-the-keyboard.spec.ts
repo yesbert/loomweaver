@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { CommandPalette } from './command-palette';
@@ -29,7 +29,10 @@ function tick(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-async function askForTheActions() {
+@Component({ template: '<button type="button" id="find">Find</button>' })
+class Below {}
+
+async function askForTheActions(overADialog = false) {
   TestBed.configureTestingModule({
     imports: [
       DialogOutlet,
@@ -51,8 +54,14 @@ async function askForTheActions() {
   registry.addMenuItem({ menu: TAB_CONTEXT_MENU, command: 'tab.close' });
   const fixture = TestBed.createComponent(DialogOutlet);
   const host = fixture.nativeElement as HTMLElement;
-  const opener = document.createElement('button');
+  let opener = document.createElement('button');
   document.body.append(opener, host);
+  if (overADialog) {
+    TestBed.inject(DialogService).open(Below, { title: 'below' });
+    fixture.detectChanges();
+    await tick();
+    opener = host.querySelector('#find') as HTMLButtonElement;
+  }
   opener.focus();
   TestBed.inject(DialogService).open(CommandPalette, {
     bare: true,
@@ -91,6 +100,19 @@ describe('the actions of open work, asked for in the search', () => {
 
     expect(menu).not.toBeNull();
     expect(menu?.contains(document.activeElement)).toBe(true);
+  });
+
+  it('hand the focus to the control in the dialog the search was opened over when they are dismissed', async () => {
+    const t = await askForTheActions(true);
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+    expect(menu?.contains(document.activeElement)).toBe(true);
+
+    (document.activeElement as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+    );
+
+    expect(t.host.querySelectorAll('dialog')).toHaveLength(1);
+    expect(document.activeElement).toBe(t.opener);
   });
 
   it('hand the focus to what opened the search when they are dismissed', async () => {

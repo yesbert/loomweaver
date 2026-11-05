@@ -134,6 +134,19 @@ describe('<lw-tooltip> custom element', () => {
       expect(showPopover).toHaveBeenCalledTimes(1);
     });
 
+    it('shows again on keyboard focus after it was detached in the middle of a press and attached again', () => {
+      const { trigger, showPopover } = mountInTrigger({ text: 'Add', 'delay-ms': '600' });
+      const tooltip = trigger.querySelector(LW_TOOLTIP_TAG) as HTMLElement;
+      trigger.dispatchEvent(pointer('pointerdown', 'mouse'));
+
+      tooltip.remove();
+      trigger.append(tooltip);
+      trigger.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      vi.advanceTimersByTime(600);
+
+      expect(showPopover).toHaveBeenCalledTimes(1);
+    });
+
     it('flips above the cursor with only a small gap near the viewport foot', () => {
       const { trigger, bubble, showPopover } = mountInTrigger({
         text: 'Add',

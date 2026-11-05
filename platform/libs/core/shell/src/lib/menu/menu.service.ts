@@ -199,6 +199,10 @@ export class MenuService {
   }
 
   close(): void {
+    this.dismiss(true);
+  }
+
+  private dismiss(restoreFocus: boolean): void {
     const open = this.current;
     if (!open) {
       return;
@@ -210,7 +214,9 @@ export class MenuService {
     open.stopOutside?.();
     document.body.classList.remove('lw-menu-open');
     open.menu.remove();
-    focusReturnOf(open.menu)?.focus?.();
+    if (restoreFocus) {
+      focusReturnOf(open.menu)?.focus?.();
+    }
   }
 
   private present(
@@ -233,11 +239,19 @@ export class MenuService {
     const openedAt = trigger?.getBoundingClientRect();
     let placedAt = at;
     this.trigger.set(trigger ?? null);
+    let hadFocus = false;
+    menu.addEventListener('focusin', () => {
+      hadFocus = true;
+    });
     const listenTimer = setTimeout(() => {
       opened.stopOutside = closeOnOutsidePointer(
         document,
         (target) => menu.contains(target),
-        () => this.close(),
+        (reason) => {
+          if (reason === 'pointer' || hadFocus) {
+            this.dismiss(reason === 'pointer');
+          }
+        },
       );
     }, 0);
     const wording = wordingChanges(this.transloco).subscribe(() => {

@@ -95,6 +95,7 @@ export class LwTooltipElement extends HTMLElement {
 
   disconnectedCallback(): void {
     this.hide();
+    this.pressed = false;
     this.trigger?.removeEventListener('pointerenter', this.onEnter);
     this.trigger?.removeEventListener('pointermove', this.onMove);
     this.trigger?.removeEventListener('pointerleave', this.onLeave);

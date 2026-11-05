@@ -1,5 +1,6 @@
 import { Component, computed, DestroyRef, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { hasCommandModifier } from '../../elements/roving-focus';
 import { PanelSizeService } from './panel-size.service';
 
 const STEP = 16;
@@ -61,6 +62,9 @@ export class PanelSplitter {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    if (hasCommandModifier(event)) {
+      return;
+    }
     const step = (event.shiftKey ? STEP_COARSE : STEP) * this.edgeSign();
     let next: number;
     switch (event.key) {

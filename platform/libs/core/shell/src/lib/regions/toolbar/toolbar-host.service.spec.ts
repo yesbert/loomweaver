@@ -283,7 +283,9 @@ describe('ToolbarHost', () => {
       toolbar.setAttribute('menu', surfaceActionsSlot('shared'));
       toolbar.context = context;
       parent.append(toolbar);
-      document.body.append(parent.parentElement ?? parent);
+      if (!parent.isConnected) {
+        document.body.append(parent.parentElement ?? parent);
+      }
       TestBed.tick();
       return [...toolbar.querySelectorAll('button[data-lw-entry]')].map(
         (button) => button.getAttribute('data-lw-entry') ?? '',
@@ -300,6 +302,18 @@ describe('ToolbarHost', () => {
 
     it('reads the actions of the surface it stands in', () => {
       expect(placedIn(bodyOf('two'))).toEqual(['two.act']);
+    });
+
+    it('reads the actions of the surface it stands in from inside a shadow root', () => {
+      const inner = bodyOf('two');
+      const shadowed = document.createElement('div');
+      inner.append(shadowed);
+      const root = shadowed.attachShadow({ mode: 'open' });
+      const section = document.createElement('section');
+      root.append(section);
+      document.body.append(inner.parentElement as HTMLElement);
+
+      expect(placedIn(section)).toEqual(['two.act']);
     });
 
     it('keeps the owner the workbench’s own actions row names over the surface around it', () => {

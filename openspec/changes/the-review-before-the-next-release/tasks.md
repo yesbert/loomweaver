@@ -92,6 +92,13 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 5.13 Not reproduced, no code changed: the sync service keeps one applier per key, and a test pins it. Was: A frame that registers its own settings section a second time leaves one cross-tab applier, not two (`plugin/frame/rpc/frame-rpc-methods.ts`). Not reproduced: the sync service keeps one applier per key, a later registration replaces the earlier one and the stale disposer does nothing; a test pins that a change from another window is told once
 - [x] 5.14 The arrow keys inside a text field placed as a toolbar cell move the caret, in the row and in the tray; they move the toolbar's focus only from a cell that is not a text field (`elements/toolbar/toolbar-dom.ts`, `lw-toolbar.element.ts`)
 - [x] 5.15 A tooltip hides when its trigger is pressed, so it does not stay drawn over the menu that press opened (`elements/tooltip/lw-tooltip.element.ts`)
+- [x] 5.16 A dialog that closes while it is the top one gives the focus back to what opened it, also when other dialogs are open below it; and a menu that holds the focus by then inherits that opener (`dialog/dialog.service.ts`)
+- [x] 5.17 A menu, tray or bar fold that closes because the window lost the focus does not take the focus back; closing for another reason restores it as before (`elements/row-fold.ts`, `menu/menu.service.ts`, `elements/toolbar/`, `regions/bar/`)
+- [x] 5.18 Roving in an open tray leaves a key alone that the control under the focus has handled or uses itself: a select, a range and a radio group keep their arrow keys (`elements/toolbar/toolbar-layout.ts`, `toolbar-dom.ts`)
+- [x] 5.19 The workbench's own arrow-key handlers act only on unmodified keys, so a product's command on a modified arrow, Home or End still runs while the focus is in a toolbar, a menu or on a splitter (`elements/toolbar/lw-toolbar.element.ts`, `elements/menu/lw-menu.element.ts`, `regions/panel/panel-splitter.ts`, the pane split handle)
+- [x] 5.20 Whether a key types is decided by what it would insert, the same on every platform and browser: in a field, a key the layout turned into a printable character other than the chord's own base key types and runs no chord (`commands/keyboard/chord.ts`)
+- [x] 5.21 A toolbar placed inside a surface that renders in a shadow root finds the mark of the surface it sits in (`regions/toolbar/toolbar-host.service.ts`)
+- [x] 5.22 A tooltip detached in the middle of a press shows again on keyboard focus when it is attached again (`elements/tooltip/lw-tooltip.element.ts`)
 
 ## 6. Bars, rails, sidebars and pop-outs
 

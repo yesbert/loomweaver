@@ -1,4 +1,4 @@
-import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
+import { focusAndReveal, isModified, rovingStep, rovingTabIndex } from '../roving-focus';
 import { clampIntoViewport, fitsInViewport } from '../viewport-fit';
 import { defineElementOnce } from '../custom-elements';
 import {
@@ -269,7 +269,7 @@ export class LwMenuElement extends HTMLElement {
   }
 
   private handleKeydown(event: KeyboardEvent): void {
-    if (!this.owns(event.target)) {
+    if (!this.owns(event.target) || (isModified(event) && event.key !== 'Tab')) {
       return;
     }
     const step = rovingStep(event.key, this.active, this.items().length, 'vertical');

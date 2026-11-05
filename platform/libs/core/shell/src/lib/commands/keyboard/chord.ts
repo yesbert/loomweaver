@@ -225,14 +225,17 @@ function baseKeyFromCode(code: string): string | null {
   return digit ? digit[1] : null;
 }
 
+function baseKeyOf(event: KeyboardEvent): string {
+  return baseKeyFromCode(event.code) ?? canonicalToken(event.key);
+}
+
 export function eventSignature(event: KeyboardEvent): string {
-  const key = baseKeyFromCode(event.code) ?? canonicalToken(event.key);
   return toSignature({
     ctrl: event.ctrlKey,
     meta: event.metaKey,
     alt: event.altKey,
     shift: event.shiftKey,
-    key,
+    key: baseKeyOf(event),
   });
 }
 
@@ -240,10 +243,18 @@ export function isTypingInField(event: KeyboardEvent): boolean {
   if (!isEditableTarget(event.composedPath()[0] ?? event.target)) {
     return false;
   }
-  if (event.getModifierState('AltGraph')) {
+  if (!(event.ctrlKey || event.metaKey || event.altKey)) {
     return true;
   }
-  return !(event.ctrlKey || event.metaKey || event.altKey);
+  return insertsACharacterOfItsOwn(event);
+}
+
+function insertsACharacterOfItsOwn(event: KeyboardEvent): boolean {
+  if (event.metaKey || !event.altKey) {
+    return false;
+  }
+  const inserted = event.key;
+  return [...inserted].length === 1 && inserted.toLowerCase() !== baseKeyOf(event);
 }
 
 export function isEditableTarget(target: EventTarget | null): boolean {

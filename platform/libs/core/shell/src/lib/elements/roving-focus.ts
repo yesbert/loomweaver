@@ -1,3 +1,11 @@
+export function hasCommandModifier(event: KeyboardEvent): boolean {
+  return event.altKey || event.ctrlKey || event.metaKey;
+}
+
+export function isModified(event: KeyboardEvent): boolean {
+  return event.shiftKey || hasCommandModifier(event);
+}
+
 export function rovingTabIndex(
   items: readonly HTMLElement[],
   activeIndex: number,

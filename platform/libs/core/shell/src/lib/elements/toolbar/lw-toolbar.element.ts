@@ -1,6 +1,6 @@
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { defineElementOnce, reflectAttribute, upgradeElementProperty } from '../custom-elements';
-import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
+import { focusAndReveal, isModified, rovingStep, rovingTabIndex } from '../roving-focus';
 import { closeOnOutsidePointer } from '../row-fold';
 import {
   cellIdOf,
@@ -16,7 +16,7 @@ import {
   parseContext,
   reflectExpanded,
   RowItem,
-  typesText,
+  keepsItsKeys,
 } from './toolbar-dom';
 import { LwToolbarEntry } from './toolbar-entry';
 import { ToolbarLayout } from './toolbar-layout';
@@ -249,13 +249,13 @@ export class LwToolbarElement extends HTMLElement {
   };
 
   private readonly onKeydown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.layout.isTrayOpen()) {
-      this.layout.closeTray();
-      this.layout.foldControl()?.focus();
-      event.preventDefault();
-      return;
-    }
-    if (typesText(event) || this.layout.stepInTray(event)) {
+    if (
+      event.defaultPrevented ||
+      isModified(event) ||
+      this.layout.closeOnEscape(event) ||
+      keepsItsKeys(event) ||
+      this.layout.stepInTray(event)
+    ) {
       return;
     }
     const stops = focusStopsOf(this.children);

@@ -27,8 +27,14 @@ export class ToolbarLayout {
     private readonly onTrayChange: (open: boolean) => void,
   ) {}
 
-  isTrayOpen(): boolean {
-    return this.trayOpen;
+  closeOnEscape(event: KeyboardEvent): boolean {
+    if (event.key !== 'Escape' || !this.trayOpen) {
+      return false;
+    }
+    this.closeTray();
+    this.foldControl()?.focus();
+    event.preventDefault();
+    return true;
   }
 
   foldControl(): HTMLButtonElement | null {

@@ -50,8 +50,18 @@ function field(id: string, order: number): HTMLInputElement {
   return element;
 }
 
-function pressIn(target: HTMLElement, key: string): KeyboardEvent {
-  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+function control(tag: 'select' | 'input', id: string, order: number, type?: string): HTMLElement {
+  const element = document.createElement(tag);
+  if (type) {
+    element.setAttribute('type', type);
+  }
+  element.setAttribute('data-lw-cell', id);
+  element.setAttribute('order', String(order));
+  return element;
+}
+
+function pressIn(target: HTMLElement, key: string, modifiers: KeyboardEventInit = {}): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...modifiers });
   target.dispatchEvent(event);
   return event;
 }
@@ -277,6 +287,25 @@ describe('<lw-toolbar>', () => {
     expect(moves.map((event) => event.defaultPrevented)).toEqual([false, false, false, false]);
   });
 
+  it('leaves a modified arrow, Home or End alone, so a command bound to it still runs', () => {
+    const toolbar = mount([
+      { key: 'a', label: 'A', order: 0 },
+      { key: 'b', label: 'B', order: 1 },
+    ]);
+    const [first] = buttons(toolbar);
+    first.focus();
+
+    const pressed = [
+      pressIn(first, 'ArrowRight', { altKey: true }),
+      pressIn(first, 'End', { ctrlKey: true }),
+      pressIn(first, 'ArrowRight', { metaKey: true }),
+      pressIn(first, 'ArrowRight', { shiftKey: true }),
+    ];
+
+    expect(document.activeElement).toBe(first);
+    expect(pressed.map((event) => event.defaultPrevented)).toEqual([false, false, false, false]);
+  });
+
   it('hands itself to the installed host when it connects, tells it about changes, and lets go when it leaves', () => {
     const calls: string[] = [];
     const host: LwToolbarHost = {
@@ -456,6 +485,58 @@ describe('<lw-toolbar> folding', () => {
 
     pressIn(input, 'Escape');
     expect(tray.hidden).toBe(true);
+  });
+
+  describe('with a control of its own folded into the tray', () => {
+    function trayHolding(cellNode: HTMLElement): { tray: HTMLElement; cellNode: HTMLElement } {
+      stubLayout(100, { a: 30, b: 30, f: 30, d: 30 });
+      const toolbar = mount(
+        [
+          { key: 'a', label: 'A', order: 0 },
+          { key: 'b', label: 'B', order: 1 },
+          { key: 'd', label: 'D', order: 3 },
+        ],
+        {},
+        [cellNode],
+      );
+      toolbar.querySelector<HTMLButtonElement>('[data-lw-fold]')?.click();
+      cellNode.focus();
+      return { tray: toolbar.querySelector<HTMLElement>('.lw-toolbar-tray') as HTMLElement, cellNode };
+    }
+
+    it.each([
+      ['a native select', () => control('select', 'f', 2)],
+      ['a range', () => control('input', 'f', 2, 'range')],
+      ['a radio button', () => control('input', 'f', 2, 'radio')],
+    ])('leaves the arrow keys to %s', (_name, make) => {
+      const { cellNode } = trayHolding(make());
+
+      const down = pressIn(cellNode, 'ArrowDown');
+      const right = pressIn(cellNode, 'ArrowRight');
+
+      expect(document.activeElement).toBe(cellNode);
+      expect([down.defaultPrevented, right.defaultPrevented]).toEqual([false, false]);
+    });
+
+    it('leaves a key alone that the control has handled, Escape included', () => {
+      const own = control('input', 'f', 2, 'button');
+      own.addEventListener('keydown', (event) => event.preventDefault());
+      const { tray, cellNode } = trayHolding(own);
+
+      pressIn(cellNode, 'ArrowDown');
+      pressIn(cellNode, 'Escape');
+
+      expect(document.activeElement).toBe(cellNode);
+      expect(tray.hidden).toBe(false);
+    });
+
+    it('still moves on from a button that uses no arrow keys', () => {
+      const { cellNode } = trayHolding(control('input', 'f', 2, 'button'));
+
+      pressIn(cellNode, 'ArrowDown');
+
+      expect(document.activeElement?.getAttribute('data-lw-entry')).toBe('d');
+    });
   });
 
   it('closes the tray after a choice and leaves the keyboard on the fold control', () => {
