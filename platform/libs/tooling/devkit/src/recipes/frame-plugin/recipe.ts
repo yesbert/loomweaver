@@ -99,6 +99,9 @@ function viewHtml(plugin: ResolvedFramePlugin): string {
           render: function (state) {
             globalThis.LwFrame.applySurfaceState(state);
           },
+          stateChanged: function (key, value, loaded) {
+            globalThis.LwFrame.state.apply(key, value, loaded);
+          },
         }),
       });
       connection.promise.then(function (host) {

@@ -6,7 +6,6 @@ type Listener = (value: unknown, loaded: boolean) => void;
 interface Watched {
   value: unknown;
   loaded: boolean;
-  settled: boolean;
   handles: number;
   readonly listeners: Set<Listener>;
 }
@@ -58,7 +57,6 @@ export function createState(): LwStateApi & {
     const entry: Watched = {
       value: undefined,
       loaded: false,
-      settled: false,
       handles: 0,
       listeners: new Set(),
     };
@@ -83,16 +81,8 @@ export function createState(): LwStateApi & {
       if (!entry) {
         return;
       }
-      if (
-        entry.settled &&
-        Object.is(entry.value, value) &&
-        entry.loaded === loaded
-      ) {
-        return;
-      }
       entry.value = value;
       entry.loaded = loaded;
-      entry.settled = true;
       for (const listener of entry.listeners) {
         listener(value, loaded);
       }
@@ -107,12 +97,10 @@ export function createState(): LwStateApi & {
         loaded: () => entry.loaded,
         set: (next: T) => {
           entry.value = next;
-          entry.settled = false;
           write(key, { cleared: false, value: next });
         },
         clear: () => {
           entry.value = undefined;
-          entry.settled = false;
           write(key, { cleared: true });
         },
         dispose: () => {

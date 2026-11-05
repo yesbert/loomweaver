@@ -1,5 +1,5 @@
 export function quietly(call: unknown): void {
   Promise.resolve(call).catch((error: unknown) =>
-    console.warn('[loom] the workbench refused a request from this surface', error),
+    console.warn('[loom] a call from this surface to the workbench failed', error),
   );
 }

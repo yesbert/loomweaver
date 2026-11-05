@@ -13,6 +13,7 @@ import { LW_SELECT_TAG, LwSelectElement } from '../elements/select/lw-select.ele
 import { LW_SPINNER_TAG, LwSpinnerElement } from '../elements/spinner/lw-spinner.element';
 import { LW_TOOLBAR_TAG, LwToolbarElement } from '../elements/toolbar/lw-toolbar.element';
 import { LW_TOOLTIP_TAG, LwTooltipElement } from '../elements/tooltip/lw-tooltip.element';
+import { defineLwElements } from '../elements/lw-elements';
 import type { LwElementTagNameMap } from './surface-kit-elements';
 
 interface Drawn {
@@ -36,7 +37,15 @@ type Undescribed = {
   [Tag in keyof Drawn]: [Drawn[Tag]] extends [LwElementTagNameMap[Tag]] ? never : Tag;
 }[keyof Drawn];
 
+type Lifecycle = 'connectedCallback' | 'disconnectedCallback' | 'attributeChangedCallback';
+
+function told<Tag extends keyof LwElementTagNameMap>(tag: Tag): LwElementTagNameMap[Tag] {
+  return document.createElement(tag) as LwElementTagNameMap[Tag];
+}
+
 describe('what the frame kit says of its elements', () => {
+  beforeAll(() => defineLwElements());
+
   it('names every tag the kit defines, and no other', () => {
     expectTypeOf<keyof LwElementTagNameMap>().toEqualTypeOf<keyof Drawn>();
   });
@@ -47,5 +56,110 @@ describe('what the frame kit says of its elements', () => {
 
   it('takes on a toolbar the description a slot is matched against, named values alone', () => {
     expectTypeOf<LwElementTagNameMap['lw-toolbar']['context']>().toEqualTypeOf<LwToolbarElement['context']>();
+  });
+
+  it('says of the progress ring that it takes attributes alone, as the element drawn in the page does', () => {
+    expectTypeOf<Exclude<keyof LwProgressRingElement, keyof HTMLElement | Lifecycle>>().toEqualTypeOf<never>();
+  });
+
+  it('lets a surface assign what each element takes, and clear it with null as the element does', () => {
+    const button = told('lw-button');
+    button.variant = 'danger';
+    button.size = 'sm';
+    button.iconOnly = true;
+    button.disabled = true;
+    expect(button.getAttributeNames()).toEqual(['variant', 'size', 'icon-only', 'disabled']);
+    button.variant = null;
+    button.size = null;
+    button.iconOnly = false;
+    button.disabled = false;
+    expect(button.getAttributeNames()).toEqual([]);
+    expect([button.variant, button.size]).toEqual(['default', 'md']);
+
+    const icon = told('lw-icon');
+    icon.name = 'add';
+    icon.size = '1rem';
+    icon.name = null;
+    icon.size = null;
+    expect(icon.getAttributeNames()).toEqual([]);
+
+    const markdown = told('lw-markdown');
+    markdown.source = '**bold**';
+    markdown.source = null;
+    expect(markdown.getAttributeNames()).toEqual([]);
+
+    const item = told('lw-menu-item');
+    item.label = 'Import';
+    item.command = 'import';
+    item.label = null;
+    item.command = null;
+    expect(item.getAttributeNames()).toEqual([]);
+
+    const group = told('lw-nav-group');
+    group.label = 'Customers';
+    group.key = 'sales/customers';
+    group.collapsed = true;
+    group.label = null;
+    group.key = null;
+    group.collapsed = false;
+    expect(group.getAttributeNames()).toEqual([]);
+
+    const destination = told('lw-nav-item');
+    destination.path = 'sales/quotes';
+    destination.label = 'Quotes';
+    destination.icon = 'quotes';
+    destination.path = null;
+    destination.label = null;
+    destination.icon = null;
+    expect(destination.getAttributeNames()).toEqual([]);
+
+    const tree = told('lw-nav-tree');
+    tree.current = 'sales/quotes';
+    tree.current = null;
+    expect(tree.getAttributeNames()).toEqual([]);
+
+    const option = told('lw-option');
+    option.value = 'a';
+    option.icon = 'add';
+    option.value = null;
+    option.icon = null;
+    expect(option.getAttributeNames()).toEqual([]);
+
+    const select = told('lw-select');
+    select.value = 'a';
+    select.compact = true;
+    select.required = true;
+    select.value = null;
+    select.compact = false;
+    select.required = false;
+    expect(select.getAttributeNames()).toEqual([]);
+
+    const spinner = told('lw-spinner');
+    spinner.size = '1rem';
+    spinner.label = 'Loading';
+    spinner.size = null;
+    spinner.label = null;
+    expect(spinner.getAttributeNames()).toEqual([]);
+
+    const tooltip = told('lw-tooltip');
+    tooltip.text = 'Add';
+    tooltip.position = 'bottom';
+    tooltip.text = null;
+    tooltip.position = null;
+    expect(tooltip.getAttributeNames()).toEqual([]);
+    expect(tooltip.position).toBe('top');
+
+    const toolbar = told('lw-toolbar');
+    toolbar.menu = 'acme/toolbar';
+    toolbar.label = 'Tools';
+    toolbar.size = 'sm';
+    toolbar.context = { record: 'r1', pinned: true, row: 3 };
+    expect(toolbar.context).toEqual({ record: 'r1', pinned: true, row: 3 });
+    toolbar.menu = null;
+    toolbar.label = null;
+    toolbar.size = null;
+    toolbar.context = undefined;
+    expect(toolbar.getAttributeNames()).toEqual([]);
+    expect([toolbar.size, toolbar.context]).toEqual(['md', {}]);
   });
 });

@@ -19,6 +19,8 @@ What `LwFrame` offers is in `lw-frame.d.ts`; the guide below walks through it. T
 toolbar bridge: `LwFrame.connectToolbars(host)` lets the workbench fill a `<lw-toolbar>` the surface
 places, with `LwSlotHost`, `LwSlotView`, `LwSlotEntry` and `LwSlotHeader` as its types
 ([a toolbar inside the surface](https://loomweaver.dev/weaver/sandboxed-surfaces/#a-toolbar-inside-the-surface)).
+The declarations also extend the DOM's tag-name map with the `lw-*` elements, so a surface that
+declared those tags itself drops its own entries.
 
 ## Serving it (distribution)
 

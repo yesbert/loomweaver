@@ -25,7 +25,6 @@ interface WatchedToolbar {
   subscription?: string;
   watches: number;
   entries: readonly LwSlotEntry[];
-  view?: LwSlotView;
 }
 
 interface OpenSubmenu {
@@ -33,7 +32,6 @@ interface OpenSubmenu {
   readonly key: string;
   readonly trigger: HTMLElement;
   menu?: LwMenuElement;
-  view?: LwSlotView;
 }
 
 function menuRow(entry: LwSlotEntry): MenuRow {
@@ -165,17 +163,6 @@ export function createToolbars(): LwToolbarsApi {
     quietly(host.slotActivate(entry.subscription, detail.key));
   };
 
-  const fill = (entry: WatchedToolbar, view: LwSlotView): void => {
-    if (entry.view === view) {
-      return;
-    }
-    entry.view = view;
-    entry.entries = view.entries;
-    entry.toolbar.entries = view.entries;
-    entry.toolbar.moreLabel = view.moreLabel;
-    entry.toolbar.accessibleName = entry.toolbar.label ? null : view.label;
-  };
-
   installLwToolbarHost({
     attach(toolbar) {
       const entry: WatchedToolbar = {
@@ -231,15 +218,16 @@ export function createToolbars(): LwToolbarsApi {
     apply(subscription: string, view: LwSlotView): void {
       const entry = bySubscription.get(subscription);
       if (entry) {
-        fill(entry, view);
+        entry.entries = view.entries;
+        entry.toolbar.entries = view.entries;
+        entry.toolbar.moreLabel = view.moreLabel;
+        entry.toolbar.accessibleName = entry.toolbar.label ? null : view.label;
         return;
       }
       const open = submenus.get(subscription);
-      if (!open || open.view === view) {
-        return;
+      if (open) {
+        drawSubmenu(subscription, open, view);
       }
-      open.view = view;
-      drawSubmenu(subscription, open, view);
     },
   };
 }

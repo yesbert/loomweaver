@@ -260,33 +260,7 @@ describe('toolbars inside an isolated surface', () => {
     expect(child.hasAttribute('disabled')).toBe(true);
   });
 
-  it('draws an opened menu once where the same push is applied twice', async () => {
-    const toolbars = createToolbars();
-    const host = fakeHost();
-    toolbars.connect(host);
-    const toolbar = place('acme/toolbar', {});
-    await flush();
-    toolbars.apply('sub-1', {
-      label: 'Tools',
-      moreLabel: 'More',
-      entries: [{ key: 'sources', label: 'Sources', opensMenu: true }],
-    });
-    toolbar.querySelector<HTMLButtonElement>('button[data-lw-entry="sources"]')?.click();
-    await flush();
-    const pushed: LwSlotView = {
-      label: 'Sources',
-      moreLabel: 'More',
-      entries: [{ key: 'import', label: 'Import' }],
-    };
-
-    toolbars.apply('sub-2', pushed);
-    const drawn = document.body.querySelector(LW_MENU_TAG);
-    toolbars.apply('sub-2', pushed);
-
-    expect(document.body.querySelector(LW_MENU_TAG)).toBe(drawn);
-  });
-
-  describe('where the workbench refuses a call', () => {
+  describe('where a call to the workbench does not complete', () => {
     const refused = new Error('refused');
     let warn: ReturnType<typeof vi.spyOn>;
 
@@ -300,7 +274,7 @@ describe('toolbars inside an isolated surface', () => {
 
     const reasons = () => warn.mock.calls.map((call: unknown[]) => call.at(-1));
 
-    it('says so and leaves no rejection behind for a toolbar whose description is refused', async () => {
+    it('says that the call failed and leaves no rejection behind for a toolbar whose description is refused', async () => {
       const toolbars = createToolbars();
       const host = { ...fakeHost(), slotWatch: () => Promise.reject(refused) };
       toolbars.connect(host);

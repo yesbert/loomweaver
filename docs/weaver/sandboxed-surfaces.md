@@ -198,8 +198,10 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   `surfaceMethods`, which adds the platform's own methods to yours.
 - **`LwSurfaceRenderState`** is what the host pushes to your `render` handler: theme, design tokens,
   root font size and the product's replacement glyphs. Hand it to `applySurfaceState` unchanged.
-- **`LwStateApi`** is the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)`,
-  which the host's `stateChanged` push is fed into. `surfaceMethods` does that for you.
+- **`LwStateApi`** is the surface half of `ctx.state`: `watch(key)` for a handle, and `apply(...)` to
+  feed the host's `stateChanged` push in from your `methods`. A host newer than 0.20.0 feeds it in
+  itself where the surface passes no `stateChanged`, and passing one keeps the plugin working on an
+  earlier host.
 - **`LwStateHandle`** is one key's handle: `value` · `loaded` · `set` · `clear` · `dispose`, plus
   `onChange` so you can re-render. It mirrors what a trusted plugin holds, so the store reads the
   same on both rungs of the isolation ladder.
@@ -216,7 +218,8 @@ same source the bundle is built from, so the two cannot disagree. What it descri
   shape. That is `LwToolbarElement` with `menu`, `label`, `size` and `context`, `LwSelectElement`
   with `value`, and one for each of the others. A property the element does not have is reported,
   and so is a `context` holding something other than strings, numbers and booleans. The events the
-  elements fire are not described.
+  elements fire are not described. A surface that declared the `lw-*` tags in the tag-name map
+  itself drops its own entries, since the kit's declarations now carry them.
 
 ## A toolbar inside the surface
 
@@ -288,11 +291,11 @@ Penpal.connect({
 ```
 
 `surfaceMethods` returns your methods plus the ones the workbench may call on any surface. Write it
-this way and requests added to the platform later arrive without you editing the plugin again. A
-push the kit takes itself, `slotChanged` and `stateChanged`, is applied first and then handed to a
-method of the same name you passed, so what you do there still happens. The picture is answered by
-the kit alone, and a `capture` of your own is not called. A surface that does not expose them is not
-broken. It simply appears on the picture as an area saying its content is not included.
+this way and requests added to the platform later arrive without you editing the plugin again.
+`capture` and `slotChanged` are the kit's alone. A method of your own under either name is not
+called, so you cannot shadow one by accident. `stateChanged` stays yours where you pass one. A
+surface that does not expose them is not broken. It simply appears on the picture as an area saying
+its content is not included.
 
 The renderer is fetched from beside the kit the first time a picture is asked for, so a surface that
 is never captured never pays for it.

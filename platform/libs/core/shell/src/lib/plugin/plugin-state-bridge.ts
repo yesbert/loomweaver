@@ -20,7 +20,12 @@ export class PluginStateBridge {
 
   watch(raw: unknown): void {
     const key = textArgument(raw, 'stateWatch', 'key');
-    if (this.state === undefined || this.watched.has(key)) {
+    const watching = this.watched.get(key);
+    if (watching) {
+      this.answerAgain(key, watching);
+      return;
+    }
+    if (this.state === undefined) {
       return;
     }
     const handle = this.state.watch(key);
@@ -66,5 +71,13 @@ export class PluginStateBridge {
       entry.stop();
     }
     this.watched.clear();
+  }
+
+  private answerAgain(key: string, watching: WatchedKey): void {
+    queueMicrotask(() => {
+      if (this.watched.get(key) === watching) {
+        this.push(key, watching.handle.value(), watching.handle.loaded());
+      }
+    });
   }
 }

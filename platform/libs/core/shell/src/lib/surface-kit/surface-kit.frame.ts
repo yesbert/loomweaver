@@ -37,19 +37,16 @@ export interface LwStateHandle<T = unknown> {
   set(next: T): void;
   clear(): void;
   dispose(): void;
-  /**
-   * Called after a push for this key, so the surface can re-render. A push that repeats the one
-   * before it, with nothing written here in between, is not announced a second time.
-   */
+  /** Called after every push for this key, so the surface can re-render. */
   onChange(listener: (value: T | undefined, loaded: boolean) => void): void;
 }
 
 export interface LwStateApi {
   watch<T = unknown>(key: string): LwStateHandle<T>;
   /**
-   * Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`;
-   * `surfaceMethods` already does, and feeding the same push in again changes nothing. A push for
-   * a key nothing watches any more is dropped.
+   * Feed the host's `stateChanged(key, value, loaded)` push in from your `methods`.
+   * `surfaceMethods` does it where you pass no `stateChanged` of your own. A push for a key
+   * nothing watches any more is dropped.
    */
   apply(key: string, value: unknown, loaded: boolean): void;
 }
@@ -185,25 +182,15 @@ export interface LwFrameApi {
    * to `connect({ methods: LwFrame.surfaceMethods({ render }) })` and a surface answers everything
    * the workbench asks of it, including requests added to the platform after you wrote this.
    *
-   * A push the kit takes itself (`slotChanged`, `stateChanged`) is applied first and then handed
-   * to a method of the same name you passed, with the same arguments, so what you do there still
-   * happens. A request the kit answers (`capture`) is answered by the kit alone, since only one
-   * answer can be given: a `capture` of your own is not called.
+   * `capture` and `slotChanged` are the kit's alone: a method of your own under either name is
+   * not called, so a surface cannot shadow them by accident. `stateChanged` is yours where you
+   * pass one, and then nothing else takes the push, so feed it in there with `state.apply`; where
+   * you pass none the kit feeds it in itself. Passing one keeps a plugin working on a host whose
+   * kit does not answer the push yet.
    */
   surfaceMethods<T extends LwSurfaceMethods>(
-    own: T,
+    own?: T,
   ): T & LwPlatformSurfaceMethods;
-}
-
-function handOn(
-  own: Record<string, unknown>,
-  name: string,
-  ...pushed: unknown[]
-): void {
-  const method = own[name];
-  if (typeof method === 'function') {
-    (method as (...given: unknown[]) => unknown)(...pushed);
-  }
 }
 
 /** @internal The bundle's own bootstrap. Running the script calls it; a consumer never does. */
@@ -227,17 +214,13 @@ export function installLwFrame(): LwFrameApi {
     connectToolbars: (host) => toolbars.connect(host),
     toolbars,
     capture,
-    surfaceMethods: <T extends LwSurfaceMethods>(own: T) => ({
+    surfaceMethods: <T extends LwSurfaceMethods>(own = {} as T) => ({
+      stateChanged: (key: string, value: unknown, loaded: boolean) =>
+        state.apply(key, value, loaded),
       ...own,
       capture,
-      slotChanged: (subscription: string, view: LwSlotView) => {
-        toolbars.apply(subscription, view);
-        handOn(own, 'slotChanged', subscription, view);
-      },
-      stateChanged: (key: string, value: unknown, loaded: boolean) => {
-        state.apply(key, value, loaded);
-        handOn(own, 'stateChanged', key, value, loaded);
-      },
+      slotChanged: (subscription: string, view: LwSlotView) =>
+        toolbars.apply(subscription, view),
     }),
   };
   const globals = globalThis as Record<string, unknown>;

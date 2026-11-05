@@ -56,6 +56,32 @@ describe('PluginStateBridge', () => {
     expect(state.disposed).toEqual(['draft']);
   });
 
+  it('answers a second watch of a key with its current value again, and still holds the key once', async () => {
+    bridge.watch('draft');
+    bridge.set('draft', 'hello');
+    await settle();
+    const before = pushes.length;
+
+    bridge.watch('draft');
+    await settle();
+
+    expect(pushes.slice(before)).toEqual([['draft', 'hello', true]]);
+    bridge.unwatch('draft');
+    expect(state.disposed).toEqual(['draft']);
+  });
+
+  it('answers nothing for a second watch of a key that was let go before the answer left', async () => {
+    bridge.watch('draft');
+    await settle();
+    const before = pushes.length;
+
+    bridge.watch('draft');
+    bridge.unwatch('draft');
+    await settle();
+
+    expect(pushes.slice(before)).toEqual([]);
+  });
+
   it('refuses a key that is not a string, on every call, whoever makes it', () => {
     for (const call of [
       () => bridge.watch(7),
