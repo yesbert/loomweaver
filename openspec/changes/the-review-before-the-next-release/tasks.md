@@ -241,6 +241,7 @@ What review 12.1 found in the end-to-end suite (`platform/apps/loom-testbed-e2e/
 - [x] 16.13 Three tests check the half their name promises (`view-state-travel.spec.ts`, `plugin-state.spec.ts`, `settings.spec.ts`)
 - [x] 16.14 The test that a switch never collapses a sidebar starts from an expanded one (`workspaces.spec.ts`)
 - [x] 16.15 Six negatives move behind their anchor or onto what was really open (`hidden-views.spec.ts`, `workspace-definitions.spec.ts`, `settings.spec.ts`, `tab-follows.spec.ts`, `surface-retention.spec.ts`, `plugin-store.spec.ts`)
+- [x] 16.16 Handed to the owner as a decision (see design.md): a plugin's own script can notice that a picture is being made, because the drawing adds and removes nodes in the frame's document; the test that says so is kept as `test.fixme` (`surface-withholding.spec.ts`)
 
 ## 13. Hand-over
 
