@@ -217,9 +217,9 @@ async function beats(page) {
   await act.click(page.getByTestId('command-palette-entry'));
   await act.type('Dashboard');
   await act.pause(700);
-  await act.click(
-    page.getByRole('option', { name: 'Dashboard', exact: true }).first(),
-  );
+  // No `.first()`: exactly one command is called Dashboard, and a locator that matches two makes
+  // the click throw instead of picking whichever happens to be listed first.
+  await act.click(page.getByRole('option', { name: 'Dashboard', exact: true }));
   await act.pause(900);
   await act.hush();
 
@@ -232,14 +232,23 @@ async function beats(page) {
   const divider = page.getByRole('separator', { name: 'Resize split' });
   await act.moveTo(divider);
   await divider.focus();
+  // A press that the splitter ignored would record a pane that never moves under a caption that
+  // says it does, so every press is checked against the position the splitter reports.
+  const nudge = async (keys, hold) => {
+    const before = await divider.getAttribute('aria-valuenow');
+    await page.keyboard.press(keys);
+    await act.pause(hold);
+    const after = await divider.getAttribute('aria-valuenow');
+    if (after === null || after === before) {
+      throw new Error(`record-tour: ${keys} did not move the split, it stayed at ${before}`);
+    }
+  };
   for (let press = 0; press < 3; press++) {
-    await page.keyboard.press('Shift+ArrowLeft');
-    await act.pause(420);
+    await nudge('Shift+ArrowLeft', 420);
   }
   await act.pause(1400);
   for (let press = 0; press < 3; press++) {
-    await page.keyboard.press('Shift+ArrowRight');
-    await act.pause(320);
+    await nudge('Shift+ArrowRight', 320);
   }
   await act.hush();
 
@@ -250,10 +259,23 @@ async function beats(page) {
 
   await act.say('And a plugin may re-skin the whole application.', 800);
   const reskin = rail.getByRole('button', { name: 'Toggle the plugin theme' });
+  // The plugin's theme replaces the brand colour, so that token is what tells a click that
+  // re-skinned the application from one that did nothing, and the second click has to put it back.
+  const brand = () =>
+    page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--lw-brand').trim(),
+    );
+  const ownBrand = await brand();
   await act.click(reskin);
   await act.pause(1900);
+  if ((await brand()) === ownBrand) {
+    throw new Error(`record-tour: the plugin theme did not apply, the brand stayed ${ownBrand}`);
+  }
   await act.click(reskin);
   await act.pause(600);
+  if ((await brand()) !== ownBrand) {
+    throw new Error(`record-tour: the plugin theme did not revert to ${ownBrand}`);
+  }
 
   await act.say('LoomWeaver. The workbench your product does not have to build.', 2200);
   await act.hush();

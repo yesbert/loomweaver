@@ -292,6 +292,11 @@ What reviews 12.4 and 12.5 found. Paths are under `platform/libs/core/shell/src/
 - [x] 15.7 The tokens the guide calls verified for text meet 4.5:1 on every surface they are used on, or the guide says where they may be used (`styles/theme/tokens.css`, `docs/reference/design-tokens.md`)
 - [x] 15.8 Asking to apply an update while that question is already open opens no second dialog: the second request joins the first (`update/update.service.ts`, `activateUpdate`)
 - [x] 15.9 The testbed uses no fill tone as a text colour: the places that put `text-caution` on real text take a tone the guide calls text-safe, or carry the warning as an icon beside text in the content colour (`platform/libs/weavers/testbed-weaver/src/lib/dashboard/testbed-dashboard-view.html`, `entry-tabs/testbed-entry-view.html`, `entry-tabs/testbed-list-view.ts`, `access-gating/admin-route-view.html`)
+- [x] 15.10 A request to apply an update cannot make the control dead: the join lasts only while the question is open, and once the user has answered, a later request starts afresh (`update/update.service.ts`)
+- [x] 15.11 Where the question itself fails, the request ends without an unhandled rejection, and out of a broken state the application still reloads (`update/update.service.ts`)
+- [x] 15.12 The descriptions of applying an update say what is true: the question covers unsaved work in this window, the promise resolves without a reload on a decline, and `on-negative` is the label colour on the `negative-fill` surface (`update/update.service.ts`, `platform/libs/core/plugin-sdk/src/lib/host-ui/host-services.ts`, `docs/distribution-api/windows-and-sync.md`, `docs/distribution-api/index.md`, `docs/weaver/host-ui-and-facts.md`, `docs/reference/design-tokens.md`)
+- [x] 15.13 The search entry in the top bar shows the focus under the keyboard: the focusable element carries the ring (`styles/theme/controls.css`)
+- [x] 15.14 The tour recording fails on a step that did nothing: the splitter presses, the Dashboard option and the theme toggle each check their effect (`platform/tools/media/record-tour.mjs`)
 
 ## 13. Hand-over
 

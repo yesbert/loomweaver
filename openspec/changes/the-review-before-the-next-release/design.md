@@ -88,4 +88,9 @@ theme the danger fill `#c62d2d` reads 3.21:1 on the base surface, 2.91:1 on the 
 the button's edge is weak; its white label is unaffected at 5.51:1. Neither was changed here. Fixing
 the first changes the brand's own blue, or gives focus rings a tone other than the brand; fixing the
 second changes how the danger button looks in the dark theme. Both are a judgement about the
-product's appearance rather than a correction.
+product's appearance rather than a correction. Three more numbers belong to the same
+decision. The focus ring this change gave the segmented control and the track of a switch that is on
+are that same brand blue on the overlay surface, 2.95:1 in the light theme. The light `caution`
+`#b27f1e` drawn as an icon on its own 10% tint reads 2.84:1 where that tint lies on the overlay
+surface. And after the user has consented, an update whose activation then fails still reloads,
+which now costs the work the user agreed to discard for an update that did not apply.

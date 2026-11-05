@@ -51,6 +51,9 @@
   .lw-segmented {
     @apply m-0 inline-flex h-8.5 items-center gap-0.5 rounded-md border border-border bg-surface-overlay p-0.5;
   }
+  .lw-segmented:focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand;
+  }
 
   .lw-segmented-item {
     @apply relative flex h-7 w-7 items-center justify-center rounded text-content-muted transition-colors hover:text-content;

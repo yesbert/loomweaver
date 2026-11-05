@@ -161,7 +161,7 @@ function setupOverUnsavedWork(instances: readonly unknown[]) {
 
 async function answerTheQuestion(
   dialogs: DialogService,
-  choice: 'cancel' | 'discard',
+  choice: 'cancel' | 'discard' | 'save',
 ): Promise<void> {
   await Promise.resolve();
   const question = dialogs.dialogs().at(-1);
@@ -169,6 +169,10 @@ async function answerTheQuestion(
     throw new Error('expected to be asked about unsaved work');
   }
   question.ref.close(choice);
+}
+
+async function settled(): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
 function setupWith(sw: FakeSwUpdate, container: unknown) {
@@ -369,6 +373,89 @@ describe('UpdateService applying an update over unsaved work', () => {
 
     expect(app.sw.activateUpdate).toHaveBeenCalledTimes(1);
     expect(app.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('a request after a save that never settles asks afresh instead of hanging with it', async () => {
+    const stuck = {
+      surfaceDirty: () => true,
+      surfaceSave: () => new Promise<void>(() => undefined),
+    };
+    const app = setupOverUnsavedWork([stuck]);
+    void app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'save');
+    await settled();
+
+    const again = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await again;
+
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(1);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('a request after a worker that never answers starts afresh', async () => {
+    const app = setupOverUnsavedWork([]);
+    app.sw.activateUpdate.mockReturnValueOnce(new Promise<boolean>(() => undefined));
+    void app.service.activateUpdate();
+    await settled();
+
+    await app.service.activateUpdate();
+
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(2);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('a question that cannot be put abandons a healthy update without rejecting', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    const complaint = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(app.dialogs, 'open').mockImplementation(() => {
+      throw new Error('no outlet');
+    });
+
+    await expect(app.service.activateUpdate()).resolves.toBeUndefined();
+
+    expect(app.sw.activateUpdate).not.toHaveBeenCalled();
+    expect(app.reload).not.toHaveBeenCalled();
+    expect(complaint).toHaveBeenCalled();
+    complaint.mockRestore();
+  });
+
+  it('a lookup of unsaved work that throws abandons a healthy update, and the next request is not stuck behind it', async () => {
+    const app = setupOverUnsavedWork([]);
+    const complaint = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const lookup = vi
+      .spyOn(TestBed.inject(UnsavedWork), 'instancesEverywhere')
+      .mockImplementationOnce(() => {
+        throw new Error('stash unreadable');
+      });
+
+    await expect(app.service.activateUpdate()).resolves.toBeUndefined();
+    expect(app.reload).not.toHaveBeenCalled();
+
+    await app.service.activateUpdate();
+
+    expect(lookup).toHaveBeenCalledTimes(2);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+    complaint.mockRestore();
+  });
+
+  it('a question that cannot be put still recovers out of a broken state, and leaves the browser to ask', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    const complaint = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const leaving = new Event('beforeunload', { cancelable: true });
+    TestBed.inject(RetentionUnloadGuard).start();
+    vi.spyOn(app.dialogs, 'open').mockImplementation(() => {
+      throw new Error('no outlet');
+    });
+    app.sw.unrecoverable.next(unrecoverable());
+
+    await expect(app.service.activateUpdate()).resolves.toBeUndefined();
+    app.leave(leaving);
+
+    expect(app.worker.unregister).toHaveBeenCalledTimes(1);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+    expect(leaving.defaultPrevented).toBe(true);
+    complaint.mockRestore();
   });
 
   it('asks nothing where nothing is unsaved', async () => {

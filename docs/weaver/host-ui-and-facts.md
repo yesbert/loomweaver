@@ -77,6 +77,10 @@ ctx.host.updatesEnabled;     // is a service worker registered?
 if (ctx.host.updateAvailable()) await ctx.host.activateUpdate();
 ```
 
+`activateUpdate` asks about unsaved work in this window before it applies anything. Where the user
+declines, the promise resolves and nothing is reloaded, so do not write code after the `await` that
+assumes the window is on its way out.
+
 ## Where next
 
 - [Menus](menus.md): host menus, the menu on your own view body, and the one you draw in a sandbox.

@@ -223,7 +223,7 @@ itself uses, so the shell renders correctly without any of this.
 | `on-positive`   | text **on** `positive` surfaces (success button)                                                  |
 | `negative`      | error / destructive (red) — error text & icon                                                     |
 | `negative-fill` | danger **button** fill — deeper than `negative`, so `on-negative` text stays AA                   |
-| `on-negative`   | text **on** `negative` surfaces (danger button)                                                   |
+| `on-negative`   | text **on** the `negative-fill` surface (danger button), not on `negative` itself                 |
 | `caution`       | warning (amber) — a fill and an icon, ≥3:1 on every surface; not a text colour in the light theme |
 | `on-caution`    | text **on** `caution` surfaces (warning button), near-black so it reads on the gold               |
 | `info`          | info (blue)                                                                                       |

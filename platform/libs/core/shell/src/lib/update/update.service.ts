@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
+import { DialogService } from '../dialog/dialog.service';
 import { ServedBase } from '../foundation/served-base';
 import { NotificationService } from '../notifications/notification.service';
 import { RetentionUnloadGuard } from '../regions/pane/unsaved-work/retention-unload-guard';
@@ -27,6 +28,8 @@ export interface UpdateCheck {
   /** `true` where the workbench checked by itself, `false` where a caller asked. */
   readonly automatic: boolean;
 }
+
+type Consent = 'given' | 'refused' | 'unasked';
 
 const CONTROL_WAIT_MS = 2500;
 
@@ -64,6 +67,8 @@ export class UpdateService {
 
   private readonly unsavedWork = inject(UnsavedWork);
 
+  private readonly dialogs = inject(DialogService);
+
   private readonly unloadGuard = inject(RetentionUnloadGuard);
 
   private readonly available = signal(false);
@@ -74,7 +79,7 @@ export class UpdateService {
 
   private lastCheckAt = 0;
 
-  private applying: Promise<void> | null = null;
+  private asking: Promise<void> | null = null;
 
   private readonly checked = signal<UpdateCheck | null>(null);
 
@@ -158,10 +163,15 @@ export class UpdateService {
    * Gets the client onto a working version and reloads into it — it reloads even if that fails,
    * so the affordance is never a silent no-op.
    *
-   * Where work is unsaved anywhere in the workbench the user is asked first, with the question any
-   * other action that would destroy it asks. Declining abandons the update: nothing is activated,
-   * nothing is dropped and the page is not reloaded, so the update stays on offer. A call made
-   * while that question is still open joins it rather than asking a second time.
+   * Where work is unsaved in this window the user is asked first, with the question any other
+   * action that would destroy it asks. Declining abandons the update: nothing is activated, nothing
+   * is dropped and the page is not reloaded, so the update stays on offer and the promise resolves
+   * all the same. A call made while that question is still open joins it rather than asking a second
+   * time; once it is answered, a later call starts afresh.
+   *
+   * The promise never rejects. Where the question itself cannot be put, a healthy update is
+   * abandoned as if declined, while a broken worker is still dropped and the page reloaded, with the
+   * browser's own prompt left to protect the work.
    *
    * When the worker is {@link updateBroken} activating is pointless: the broken registration would
    * still control the next load and report the same failure, which is a loop the user cannot leave
@@ -171,17 +181,13 @@ export class UpdateService {
    * and any other distribution served on the same origin, is left alone.
    */
   activateUpdate(): Promise<void> {
-    this.applying ??= this.applyUpdate().finally(() => {
-      this.applying = null;
-    });
-    return this.applying;
+    this.asking ??= this.applyUpdate();
+    return this.asking;
   }
 
   private async applyUpdate(): Promise<void> {
-    const allowed = await this.closeGuard.confirmDiscard(
-      this.unsavedWork.instancesEverywhere(),
-    );
-    if (!allowed) {
+    const consent = await this.consentToLoseWork();
+    if (consent === 'refused' || (consent === 'unasked' && !this.broken())) {
       return;
     }
     if (this.broken()) {
@@ -189,8 +195,36 @@ export class UpdateService {
     } else {
       await this.tryActivate();
     }
-    this.unloadGuard.suppress();
+    if (consent === 'given') {
+      this.unloadGuard.suppress();
+    }
     this.document.defaultView?.location.reload();
+  }
+
+  private async consentToLoseWork(): Promise<Consent> {
+    try {
+      return (await this.askWhileJoinable()) ? 'given' : 'refused';
+    } catch (error) {
+      console.error('Asking about unsaved work before an update failed', error);
+      return 'unasked';
+    }
+  }
+
+  private askWhileJoinable(): Promise<boolean> {
+    const release = () => {
+      this.asking = null;
+    };
+    const openBefore = this.dialogs.dialogs().length;
+    const answer = this.askAboutUnsavedWork();
+    const question = this.dialogs.dialogs().at(openBefore);
+    void (question?.ref.closed ?? answer).then(release, release);
+    return answer;
+  }
+
+  private async askAboutUnsavedWork(): Promise<boolean> {
+    return this.closeGuard.confirmDiscard(
+      this.unsavedWork.instancesEverywhere(),
+    );
   }
 
   private ensureControlled(): Promise<boolean> {

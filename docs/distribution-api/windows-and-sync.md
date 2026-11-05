@@ -68,7 +68,7 @@ interval and when the user comes back, and each of those lands here. Reading it 
 
 ## What asks about unsaved work
 
-`activateUpdate` asks. Where work is unsaved anywhere in the workbench, it puts the question every other action that would destroy that work puts. A decline abandons the update: nothing is activated, nothing is dropped and the window is not reloaded, so the update stays on offer. With nothing unsaved it reloads the window once the new version is active. `open` does not ask, because it duplicates rather than moves, so the original tab stays.
+`activateUpdate` asks. Where work is unsaved in this window, it puts the question every other action that would destroy that work puts. A decline abandons the update: nothing is activated, nothing is dropped and the window is not reloaded, so the update stays on offer and the promise resolves all the same. With nothing unsaved it reloads the window once the new version is active. `open` does not ask, because it duplicates rather than moves, so the original tab stays.
 
 ## Switched off
 
