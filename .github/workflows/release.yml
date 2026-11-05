@@ -158,13 +158,18 @@ jobs:
       # publish. A registry that does not answer stops the step, because no answer is not "not
       # published". The list is taken into a variable first: a command substitution in the `for`
       # line itself would have its failure ignored.
+      #
+      # A package is skipped only when the registry says its version came from the commit this run
+      # is on. If the tag was moved to a fix between the two runs, the packages already out are from
+      # the old commit, and skipping them would put two commits under one version. The script then
+      # stops before anything is published and says to bump the version instead.
       - name: Publish
         env:
           DIST_TAG: ${{ steps.version.outputs.dist }}
           PKG_VERSION: ${{ steps.version.outputs.value }}
         run: |
           set -euo pipefail
-          pending="$(node scripts/release-packages.mjs pending "${PKG_VERSION}")"
+          pending="$(node scripts/release-packages.mjs pending "${PKG_VERSION}" "${GITHUB_SHA}")"
           for dir in ${pending}; do
             echo "publishing ${dir} to ${DIST_TAG}"
             ( cd "${dir}" && npm publish --tag "${DIST_TAG}" )
@@ -192,6 +197,16 @@ jobs:
         run: |
           set -euo pipefail
           tag="${GITHUB_REF#refs/tags/}"
+          # A second run of this workflow gets here after the page exists, because the publish job
+          # before it now skips what is already on npm and succeeds. The page is then left as it is:
+          # it was written by this step from this same tag, or a person has edited it since, and
+          # `gh release edit` cannot generate the notes again, so an update could only lose text.
+          # If the question itself fails, for a reason other than "no such release", the create
+          # below asks the same API and fails loudly.
+          if gh release view "${tag}" > /dev/null 2>&1; then
+            echo "The release page for ${tag} already exists and is left as it is."
+            exit 0
+          fi
           # Whether this is a preview is read out of the version by the same script the dist-tag
           # comes from, so the rule lives in one place. A preview must not be GitHub's "Latest"
           # for the same reason it must not be npm's.

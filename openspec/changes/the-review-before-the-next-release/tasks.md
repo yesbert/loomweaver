@@ -178,9 +178,12 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 11.6 The assistant's contract check fails on a parameter the page drops or widens (`platform/tools/checks/check-llms-contract.mjs`)
 - [x] 11.7 The deploy key is written directly before the deploy, and the jobs holding secrets pin their actions to commits (`.github/workflows/deploy.yml`, `sonar.yml`)
 - [x] 11.8 The release refuses a tag whose stamped versions disagree with it (`.github/workflows/release.yml`)
-- [ ] 11.9 The dist-tag script answers when it is started through a symlinked path, instead of printing nothing and leaving the tag empty (`scripts/dist-tag.mjs`)
-- [ ] 11.10 The release's announce step can run again after the release page exists (`.github/workflows/release.yml`)
-- [ ] 11.11 `release-packages.mjs roots` goes, since no workflow calls it any more
+- [x] 11.9 The dist-tag script answers when it is started through a symlinked path, instead of printing nothing and leaving the tag empty (`scripts/dist-tag.mjs`)
+- [x] 11.10 The release's announce step can run again after the release page exists (`.github/workflows/release.yml`)
+- [x] 11.11 `release-packages.mjs roots` goes, since no workflow calls it any more
+- [x] 11.12 A package is skipped as already published only when the registry says that version was published from the commit being released; a version that exists from another commit, or from one the registry does not name, stops the step before anything is published (`scripts/release-packages.mjs`, `.github/workflows/release.yml`)
+- [x] 11.13 The comment on the deploy key step says what the move does and no more: the key is not on disk while the installs and builds run (`.github/workflows/deploy.yml`)
+- [x] 11.14 The scanner pin in `sonar.yml` names the version its commit is (`.github/workflows/sonar.yml`)
 
 ## 12. What the review did not reach
 

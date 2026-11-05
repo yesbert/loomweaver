@@ -116,8 +116,8 @@ jobs:
           HTACCESS
 
       # Written here, directly before the one step that uses it, and not at the top of the job: the
-      # two builds above run `npm install`, and with it the install scripts of every package in two
-      # dependency trees. A key that is not on disk yet is a key none of them can read.
+      # key is not on disk while the two builds above run `npm install`, with the install scripts of
+      # two dependency trees, and then build.
       - name: Prepare the deploy key
         env:
           DEPLOY_KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
