@@ -1,4 +1,4 @@
-import { Provider } from '@angular/core';
+import { Component, Provider, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -11,6 +11,12 @@ import { ContributionRegistry } from './contributions/contribution-registry';
 import { provideLayout } from './layout/layout';
 import { NotificationService } from './notifications/notification.service';
 import { DRAW_TOASTS } from './notifications/toast-options';
+import { FeatureSwitches } from './features/feature-switches.service';
+import { SidebarService } from './regions/panel/sidebar.service';
+import { PanelGroupService } from './regions/panel/panel-group.service';
+import { PanelState } from './regions/panel/panel-state';
+import { ViewportService } from './layout/viewport.service';
+import { DialogService } from './dialog/dialog.service';
 
 function translocoTesting(options: TranslocoTestingOptions = {}) {
   return TranslocoTestingModule.forRoot({
@@ -162,5 +168,212 @@ describe('Shell sidebar footer', () => {
       (b) => (b as HTMLButtonElement).getAttribute('aria-label'),
     );
     expect(labels).toContain('help.about');
+  });
+});
+
+describe('Shell with a collapsed sidebar', () => {
+  beforeEach(() => localStorage.clear());
+
+  async function renderCollapsed() {
+    await TestBed.configureTestingModule({
+      imports: [Shell, translocoTesting()],
+      providers: [
+        provideRouter([]),
+        provideLayout({
+          regions: [
+            { id: 'primary', type: 'panel', dock: 'left' },
+            { id: 'main', type: 'content', dock: 'center' },
+          ],
+        }),
+      ],
+    }).compileComponents();
+    TestBed.inject(SidebarService).collapse('primary');
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const banner = () => {
+      fixture.detectChanges();
+      return (fixture.nativeElement as HTMLElement).querySelector(
+        '[role="banner"]',
+      );
+    };
+    return { banner };
+  }
+
+  it('draws the row holding the control to expand it', async () => {
+    const { banner } = await renderCollapsed();
+
+    expect(banner()?.querySelector('button')).not.toBeNull();
+  });
+
+  it('draws no empty banner once collapsing is switched off', async () => {
+    const { banner } = await renderCollapsed();
+
+    TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+
+    expect(banner()).toBeNull();
+    expect(TestBed.inject(SidebarService).isCollapsed('primary')).toBe(true);
+  });
+});
+
+@Component({ selector: 'lw-test-drawer-view', template: '<button>inside</button>' })
+class DrawerView {}
+
+describe('Shell compact drawer', () => {
+  beforeEach(() => localStorage.clear());
+
+  async function openDrawer() {
+    const compact = signal(true);
+    await TestBed.configureTestingModule({
+      imports: [Shell, translocoTesting()],
+      providers: [
+        provideRouter([]),
+        { provide: ViewportService, useValue: { compact } },
+        provideLayout({
+          regions: [
+            { id: 'primary', type: 'panel', dock: 'left' },
+            { id: 'main', type: 'content', dock: 'center' },
+            { id: 'status', type: 'bar', dock: 'bottom' },
+          ],
+        }),
+      ],
+    }).compileComponents();
+    TestBed.inject(ContributionRegistry).addView({
+      id: 'nav',
+      region: 'primary',
+      title: 'nav',
+      icon: 'navigator',
+      order: 0,
+      component: DrawerView,
+    });
+    TestBed.inject(PanelGroupService).seed('primary');
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+    const opener = root.querySelector<HTMLElement>('[aria-label="panel.open"]');
+    opener?.focus();
+    opener?.click();
+    await fixture.whenStable();
+    const drawer = root.querySelector<HTMLElement>(
+      'aside[aria-label="landmark.leftPanel"]',
+    );
+    return { fixture, root, opener, drawer, compact };
+  }
+
+  function press(key: string, shiftKey = false): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', {
+      key,
+      shiftKey,
+      bubbles: true,
+      cancelable: true,
+    });
+    (document.activeElement ?? document.body).dispatchEvent(event);
+    return event;
+  }
+
+  it('takes the focus when it opens', async () => {
+    const { drawer } = await openDrawer();
+
+    expect(drawer?.contains(document.activeElement)).toBe(true);
+  });
+
+  it('leaves the focus with a menu that is open while it opens', async () => {
+    const { fixture, drawer } = await openDrawer();
+    TestBed.inject(PanelState).closeOverlay();
+    await fixture.whenStable();
+    const menu = document.createElement('lw-menu');
+    const entry = document.createElement('button');
+    menu.append(entry);
+    document.body.append(menu);
+    entry.focus();
+
+    TestBed.inject(PanelState).openOverlay('primary');
+    await fixture.whenStable();
+    const held = document.activeElement;
+    menu.remove();
+
+    expect(held).toBe(entry);
+    expect(drawer?.contains(held)).toBe(false);
+  });
+
+  it('makes what is behind it inert and lifts that when it closes', async () => {
+    const { fixture, root } = await openDrawer();
+    const behind = () =>
+      ['lw-shell-edge', 'main', 'footer'].map((selector) =>
+        root.querySelector(selector)?.closest('[inert]') !== null,
+      );
+
+    expect(behind()).toEqual([true, true, true]);
+
+    TestBed.inject(PanelState).closeOverlay();
+    await fixture.whenStable();
+
+    expect(behind()).toEqual([false, false, false]);
+  });
+
+  it('leaves nothing inert once the window is wide again, although the drawer was never closed', async () => {
+    const { fixture, root, compact } = await openDrawer();
+
+    compact.set(false);
+    await fixture.whenStable();
+
+    expect(root.querySelector('[inert]')).toBeNull();
+  });
+
+  it('keeps the focus inside when the person tabs past its last or before its first control', async () => {
+    const { drawer } = await openDrawer();
+    const controls = [
+      ...(drawer?.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      ) ?? []),
+    ];
+    const first = controls[0];
+    const last = controls.at(-1);
+    expect(controls.length).toBeGreaterThan(1);
+
+    last?.focus();
+    expect(press('Tab').defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(first);
+
+    expect(press('Tab', true).defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(last);
+  });
+
+  it('takes the focus back from anything behind it', async () => {
+    const { opener, drawer } = await openDrawer();
+
+    opener?.focus();
+
+    expect(drawer?.contains(document.activeElement)).toBe(true);
+  });
+
+  it('closes on Escape and gives the focus back to the control that opened it', async () => {
+    const { fixture, opener } = await openDrawer();
+
+    expect(press('Escape').defaultPrevented).toBe(true);
+    await fixture.whenStable();
+
+    expect(TestBed.inject(PanelState).anyOverlayOpen()).toBe(false);
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('gives the focus back when its own close control closes it', async () => {
+    const { fixture, opener, drawer } = await openDrawer();
+
+    drawer?.querySelector<HTMLElement>('[aria-label="panel.close"]')?.click();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('leaves Escape and the focus to a dialog opened above it', async () => {
+    const { fixture, drawer } = await openDrawer();
+    void TestBed.inject(DialogService).confirm({ message: 'sure' });
+    await fixture.whenStable();
+
+    press('Escape');
+    await fixture.whenStable();
+
+    expect(TestBed.inject(PanelState).anyOverlayOpen()).toBe(true);
+    expect(drawer?.contains(document.activeElement)).toBe(true);
   });
 });

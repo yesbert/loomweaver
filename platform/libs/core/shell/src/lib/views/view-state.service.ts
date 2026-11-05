@@ -74,22 +74,55 @@ export class ViewStateService {
     if (existing) {
       return existing;
     }
-    const key = STORAGE_PREFIX + instanceId;
+    const entry = this.entryOn(STORAGE_PREFIX + instanceId);
+    this.entries.set(instanceId, entry);
+    return entry;
+  }
+
+  private entryOn(key: string): Entry {
     const value = signal<unknown>(parseStored(this.store.peek?.(key)));
-    hydrateAsync(this.store, key, (raw) => value.set(parseStored(raw)));
-    const cancelPendingSave = () => this.heldWrites.cancel(key);
-    const save = () => {
+    let answered = this.store.peek !== undefined;
+    let writtenEarly = false;
+    const hold = () => {
       const current = value();
       if (current === undefined) {
-        cancelPendingSave();
+        this.heldWrites.cancel(key);
         return;
       }
       this.heldWrites.hold(key, JSON.stringify(current), (held) => {
         void this.store.set(key, held);
       });
     };
-    const entry: Entry = { value, save, cancelPendingSave };
-    this.entries.set(instanceId, entry);
-    return entry;
+    const adopt = (raw: string | undefined) => {
+      if (answered) {
+        return;
+      }
+      answered = true;
+      const stored = parseStored(raw);
+      if (stored !== undefined) {
+        value.set(stored);
+      } else if (writtenEarly) {
+        hold();
+      }
+    };
+    hydrateAsync(this.store, key, adopt, (loaded) => {
+      if (!loaded) {
+        adopt(undefined);
+      }
+    });
+    return {
+      value,
+      save: () => {
+        if (answered) {
+          hold();
+        } else {
+          writtenEarly = true;
+        }
+      },
+      cancelPendingSave: () => {
+        answered = true;
+        this.heldWrites.cancel(key);
+      },
+    };
   }
 }

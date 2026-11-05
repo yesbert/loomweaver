@@ -7,6 +7,7 @@ import { AuthContext } from '../../auth/auth-context';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { viewPanePath } from '../pane/tree/pane-address';
 import { ViewVisibilityService } from '../panel/view-visibility.service';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 import { CurationRow, CurationSource, HIDDEN } from './curation-source';
 
 @Service()
@@ -17,6 +18,7 @@ export class ViewCuration implements CurationSource {
   private readonly transloco = inject(TranslocoService);
   private readonly paneTree = inject(PaneTreeService);
   private readonly visibility = inject(ViewVisibilityService);
+  private readonly features = inject(FeatureSwitches).sidebar;
 
   regions(): LayoutRegion[] {
     return regionsOfType(this.layout, 'panel');
@@ -37,7 +39,16 @@ export class ViewCuration implements CurationSource {
         label: this.transloco.translate(view.title),
         icon: view.icon,
         place: holder !== null && panels.has(holder) ? holder : HIDDEN,
+        home: view.region,
       }));
+  }
+
+  offersHiding(): boolean {
+    return this.features.hideViews();
+  }
+
+  offersMoving(): boolean {
+    return this.features.moveViews();
   }
 
   place(row: CurationRow, place: string): void {

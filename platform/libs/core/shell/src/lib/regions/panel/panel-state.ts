@@ -1,10 +1,5 @@
 import { inject, Service, signal } from '@angular/core';
-import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import {
-  hydrateAsync,
-  readStoredValue,
-} from '../../persistence/stored-values/hydrate';
-import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
+import { persistedWorkingState } from '../../persistence/stored-values/persisted-setting';
 import {
   FlagRecord,
   isTrue,
@@ -22,23 +17,14 @@ function parseCollapsed(raw: string | undefined): FlagRecord {
 
 @Service()
 export class PanelState {
-  private readonly store = inject(WORKING_STATE_STORE);
   private readonly stash = inject(RetainedViewStash);
-  private readonly sync = inject(StateSyncService);
-  private readonly collapsed = signal<FlagRecord>(
-    parseCollapsed(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly stored = persistedWorkingState(STORAGE_KEY, {
+    parse: parseCollapsed,
+    serialize: (state) => JSON.stringify(state),
+  });
+  private readonly collapsed = this.stored.value;
 
   private readonly overlay = signal<string | null>(null);
-
-  constructor() {
-    const apply = (raw: string | undefined) =>
-      this.collapsed.set(parseCollapsed(raw));
-    hydrateAsync(this.store, STORAGE_KEY, apply);
-    this.sync.onNamespaceAdopted(async () =>
-      apply(await readStoredValue(this.store, STORAGE_KEY)),
-    );
-  }
 
   isCollapsed(regionId: string): boolean {
     return this.collapsed()[regionId] === true;
@@ -70,16 +56,13 @@ export class PanelState {
 
   reset(): void {
     this.overlay.set(null);
-    this.collapsed.set({});
-    void this.store.delete(STORAGE_KEY);
+    this.stored.clear();
   }
 
   private setCollapsed(regionId: string, value: boolean): void {
     if (value) {
       this.stash.evacuate((key) => isKeyOfDock(key, regionId));
     }
-    const next = toggledFlag(this.collapsed(), regionId, value);
-    this.collapsed.set(next);
-    void this.store.set(STORAGE_KEY, JSON.stringify(next));
+    this.stored.update((state) => toggledFlag(state, regionId, value));
   }
 }

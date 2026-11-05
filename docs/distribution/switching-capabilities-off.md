@@ -52,10 +52,10 @@ provideShellFeatures({
     resize: true,             // default: the splitter that changes a sidebar's width
     reorderViews: true,       // default: sorting views *within* one sidebar
     moveViews: true,          // default: menu entry + drag + Alt+Shift+Arrow to the other sidebar
-    hideViews: true,          // default: the "Hide" menu entry
+    hideViews: true,          // default: the "Hide" menu entry + "Hidden" in the checklist
     curate: true,             // default: the checklist on the icon strip
     stackViews: true,         // default: menu entry + dropping a view on a sidebar edge
-    acceptTabs: true,         // default: parking a foreign tab in a sidebar
+    acceptTabs: true,         // default: parking a foreign tab in a sidebar, and moving a parked one
     openViewInContent: true,  // default: the menu entry
     resetViewState: true,     // default: the menu entry
     instances: true,          // default: the named-instance switcher in the sidebar header
@@ -63,7 +63,7 @@ provideShellFeatures({
   rail: {
     reorder: true,    // default: sorting items *within* one rail
     moveItems: true,  // default: menu entry + drag + Alt+Shift+Arrow to the other rail
-    hideItems: true,  // default: the "Hide" menu entry
+    hideItems: true,  // default: the "Hide" menu entry + "Hidden" in the checklist
     curate: true,     // default: the checklist on empty rail space
   },
   workspaces: {
@@ -128,8 +128,10 @@ their own band, with the order persisted user-locally. Reordering uses `@angular
 and `sidebar.reorderViews` switch it off per container.
 
 Sorting and moving are separate on purpose. `reorderViews` and `rail.reorder` govern the order
-**inside** one bar; carrying an item **to the other** bar is `moveViews` and `rail.moveItems`, and
-that one switch covers the menu entry, the drag and `Alt+Shift+Arrow` together.
+**inside** one bar; carrying an item **to the other** bar is `moveViews` and `rail.moveItems`. That
+one switch covers the menu entry, the drag, `Alt+Shift+Arrow` and the other side in the checklist
+together. A hidden entry can still be brought back from the checklist, to the side it was declared
+for.
 
 A **container** surface's nested pane tree inherits these switches like any other pane, so a product
 that turns splitting off does not get it back inside a "workspace-in-a-tab".

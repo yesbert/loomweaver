@@ -23,7 +23,8 @@ export class RailCuration implements CurationSource {
   private readonly railItems = inject(RailItemsService);
   private readonly railMove = inject(RailMoveService);
   private readonly workspaces = inject(WorkspaceService);
-  private readonly savedInRail = inject(FeatureSwitches).workspaces.savedInRail;
+  private readonly features = inject(FeatureSwitches);
+  private readonly savedInRail = this.features.workspaces.savedInRail;
 
   regions(): LayoutRegion[] {
     return regionsOfType(this.layout, 'rail');
@@ -42,6 +43,7 @@ export class RailCuration implements CurationSource {
         icon: item.icon,
         initials: item.initials,
         place: this.placeOf(item.id, item.rail ?? fallback),
+        home: item.rail ?? fallback,
       }));
     const known = new Set(this.registry.railItems().map((item) => item.id));
     const initials = this.workspaces.initials();
@@ -53,6 +55,7 @@ export class RailCuration implements CurationSource {
         icon: 'workspaces',
         initials: initials.get(workspace.id),
         place: this.placeOf(workspaceRailItemId(workspace.id), fallback),
+        home: fallback,
       }));
     return [...registered, ...saved];
   }
@@ -63,6 +66,14 @@ export class RailCuration implements CurationSource {
     } else {
       this.railMove.move(row.id, place);
     }
+  }
+
+  offersHiding(): boolean {
+    return this.features.rail.hideItems();
+  }
+
+  offersMoving(): boolean {
+    return this.features.rail.moveItems();
   }
 
   private placeOf(itemId: string, declaredRail: string): string {

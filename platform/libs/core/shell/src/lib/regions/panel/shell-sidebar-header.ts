@@ -104,7 +104,9 @@ export class ShellSidebarHeader {
     () => !this.viewport.compact() && this.panels.isCollapsed(this.region().id),
   );
 
-  protected readonly showExpand = computed(() => this.context() === 'floating');
+  protected readonly showExpand = computed(
+    () => this.context() === 'floating' && this.features.collapse(),
+  );
 
   protected readonly collapseIcon = computed<LoomIconName>(() =>
     this.region().dock === 'right' ? 'sidebarRightOpen' : 'sidebarLeftOpen',
@@ -147,7 +149,7 @@ export class ShellSidebarHeader {
   }
 
   protected onStripKeydown(event: KeyboardEvent): void {
-    const side = this.features.moveViews() ? sideForMoveChord(event) : null;
+    const side = sideForMoveChord(event);
     if (side === null) {
       return;
     }
@@ -155,7 +157,7 @@ export class ShellSidebarHeader {
       '[data-tab-path]',
     )?.dataset['tabPath'];
     const target = this.panelOn(side);
-    if (!path || !target) {
+    if (!path || !target || !this.acceptsTab(path)) {
       return;
     }
     event.preventDefault();

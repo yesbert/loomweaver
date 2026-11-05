@@ -1,9 +1,40 @@
 import { TestBed } from '@angular/core/testing';
 import { UserOrderService } from './user-order.service';
+import { KeyValueStore } from '../../persistence/key-value-store';
+import { provideWorkingStateStore } from '../../persistence/working-state-store';
 
 const STORAGE_KEY = 'lw.shell.item-order';
 const key = (item: { id: string }) => item.id;
 const items = (...ids: string[]) => ids.map((id) => ({ id }));
+
+class HandAnsweredStore implements KeyValueStore {
+  readonly written = new Map<string, string>();
+  private readonly waiting: ((raw: string | undefined) => void)[] = [];
+
+  get(): Promise<string | undefined> {
+    return new Promise((resolve) => {
+      this.waiting.push(resolve);
+    });
+  }
+
+  set(key: string, value: string): Promise<void> {
+    this.written.set(key, value);
+    return Promise.resolve();
+  }
+
+  delete(key: string): Promise<void> {
+    this.written.delete(key);
+    return Promise.resolve();
+  }
+
+  async answer(raw: string | undefined): Promise<void> {
+    for (const resolve of this.waiting.splice(0)) {
+      resolve(raw);
+    }
+    await Promise.resolve();
+    await Promise.resolve();
+  }
+}
 
 describe('UserOrderService', () => {
   beforeEach(() => {
@@ -102,5 +133,27 @@ describe('UserOrderService', () => {
         .applyOrder('e', items('a', 'b'), key)
         .map((item) => key(item)),
     ).toEqual(['a', 'b']);
+  });
+});
+
+describe('UserOrderService on a store that answers later', () => {
+  it('keeps an order made before the store answered, beside the orders the store held', async () => {
+    const store = new HandAnsweredStore();
+    TestBed.configureTestingModule({
+      providers: [provideWorkingStateStore(store)],
+    });
+    const order = TestBed.inject(UserOrderService);
+    const idsIn = (container: string) =>
+      order.applyOrder(container, items('a', 'b'), key).map((item) => key(item));
+
+    order.setOrder('rail', ['b', 'a']);
+    await store.answer(JSON.stringify({ bar: ['b', 'a'] }));
+
+    expect(idsIn('rail')).toEqual(['b', 'a']);
+    expect(idsIn('bar')).toEqual(['b', 'a']);
+    expect(JSON.parse(store.written.get(STORAGE_KEY) ?? '{}')).toEqual({
+      rail: ['b', 'a'],
+      bar: ['b', 'a'],
+    });
   });
 });

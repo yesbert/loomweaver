@@ -48,6 +48,24 @@ describe('popout paths', () => {
     }
   });
 
+  it('round-trips a content address that begins like a view address', () => {
+    for (const target of ['view/123', 'view', 'view/a/b', '-/view/123', '-']) {
+      expect(popoutTargetFromUrl(popoutUrlFor(target))).toBe(target);
+    }
+  });
+
+  it('keeps a view and a content address apart where both name the same words', () => {
+    expect(popoutUrlFor('view/123')).not.toBe(popoutUrlFor('view:123'));
+    expect(popoutTargetFromUrl(popoutUrlFor('view:123'))).toBe('view:123');
+  });
+
+  it('still opens the view an address written before names', () => {
+    expect(popoutTargetFromUrl('/popout/view/123')).toBe('view:123');
+    expect(popoutUrlFor('view:testbed.outline')).toBe(
+      '/popout/view/testbed.outline',
+    );
+  });
+
   it('builds urls the browser can open', () => {
     expect(popoutUrlFor('view:testbed.outline')).toBe(
       '/popout/view/testbed.outline',

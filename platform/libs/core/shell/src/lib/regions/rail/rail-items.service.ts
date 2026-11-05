@@ -1,4 +1,6 @@
-import { Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
+import { SHELL_LAYOUT } from '../../layout/layout';
+import { regionIdsOfType } from '../../layout/layout-queries';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { recordOf } from '../../persistence/stored-values/persisted-record';
 import { parseStored } from '../../persistence/stored-values/parse-stored';
@@ -49,8 +51,13 @@ export class RailItemsService {
 
   private readonly state = this.stored.value;
 
+  private readonly rails = regionIdsOfType(inject(SHELL_LAYOUT), 'rail');
+
   regionOf(itemId: string, declaredRail: string): string {
-    return this.state().placed[itemId] ?? declaredRail;
+    const placed = this.state().placed[itemId];
+    return placed !== undefined && this.rails.includes(placed)
+      ? placed
+      : declaredRail;
   }
 
   isVisible(itemId: string): boolean {

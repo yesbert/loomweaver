@@ -1,6 +1,8 @@
 import { inject, Signal, signal } from '@angular/core';
-import { hydrateAsync } from './hydrate';
+import { hydrateAsync, readStoredValue } from './hydrate';
+import { KeyValueStore } from '../key-value-store';
 import { SETTINGS_STORE } from '../settings-store';
+import { WORKING_STATE_STORE } from '../working-state-store';
 import { StateSyncService } from '../cross-tab/state-sync.service';
 
 export interface PersistedSetting<T> {
@@ -18,11 +20,37 @@ export interface SettingCodec<T> {
 
 type Change<T> = { readonly clear: true } | { readonly clear: false; readonly change: (current: T) => T };
 
+interface StoredValue<T> {
+  readonly setting: PersistedSetting<T>;
+  readonly apply: (raw: string | undefined) => void;
+}
+
 export function persistedSetting<T>(
   key: string,
   codec: SettingCodec<T>,
 ): PersistedSetting<T> {
-  const store = inject(SETTINGS_STORE);
+  const stored = storedValue(inject(SETTINGS_STORE), key, codec);
+  inject(StateSyncService).register('settings', key, stored.apply);
+  return stored.setting;
+}
+
+export function persistedWorkingState<T>(
+  key: string,
+  codec: SettingCodec<T>,
+): PersistedSetting<T> {
+  const store = inject(WORKING_STATE_STORE);
+  const stored = storedValue(store, key, codec);
+  inject(StateSyncService).onNamespaceAdopted(async () =>
+    stored.apply(await readStoredValue(store, key)),
+  );
+  return stored.setting;
+}
+
+function storedValue<T>(
+  store: KeyValueStore,
+  key: string,
+  codec: SettingCodec<T>,
+): StoredValue<T> {
   const state = signal(codec.parse(store.peek?.(key)));
   let hydrated = store.peek !== undefined;
   const answered = signal(hydrated);
@@ -72,12 +100,14 @@ export function persistedSetting<T>(
       replay(undefined);
     }
   });
-  inject(StateSyncService).register('settings', key, apply);
   return {
-    value: state.asReadonly(),
-    answered: answered.asReadonly(),
-    set: (next) => change({ clear: false, change: () => next }),
-    update: (next) => change({ clear: false, change: next }),
-    clear: () => change({ clear: true }),
+    apply,
+    setting: {
+      value: state.asReadonly(),
+      answered: answered.asReadonly(),
+      set: (next) => change({ clear: false, change: () => next }),
+      update: (next) => change({ clear: false, change: next }),
+      clear: () => change({ clear: true }),
+    },
   };
 }

@@ -151,6 +151,45 @@ describe('ShellBarItem', () => {
     );
   });
 
+  it('names a button that says nothing of itself by the command it runs', () => {
+    TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+    TestBed.inject(ContributionRegistry).addCommand({
+      id: 'testbed.act',
+      title: 'status.add',
+      run: () => undefined,
+    });
+    const fixture = TestBed.createComponent(BarItemHost);
+    fixture.componentRef.setInput('item', {
+      id: 'a',
+      bar: 'status-bar',
+      slot: 'start',
+      icon: 'add',
+      command: 'testbed.act',
+    } satisfies BarItem);
+    fixture.componentRef.setInput('dock', 'bottom');
+    fixture.detectChanges();
+
+    expect(
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('button')
+        ?.getAttribute('aria-label'),
+    ).toBe('Add item');
+  });
+
+  it('leaves a button nothing can name without an empty name', () => {
+    const host = render({
+      id: 'a',
+      bar: 'status-bar',
+      slot: 'start',
+      icon: 'add',
+      run: () => undefined,
+    });
+
+    expect(host.querySelector('button')?.hasAttribute('aria-label')).toBe(
+      false,
+    );
+  });
+
   it('names a button by its visible label before its tooltip', () => {
     const host = render({
       id: 'lang',
@@ -294,6 +333,33 @@ describe('ShellBarItem', () => {
       expect(
         host.querySelector('[data-testid="bar-initials"]')?.className,
       ).toContain('lw-chrome-mark');
+    });
+
+    it('tries the picture again when the button is given another address', () => {
+      TestBed.configureTestingModule({ imports: [ShellBarItem, transloco()] });
+      const fixture = TestBed.createComponent(BarItemHost);
+      fixture.componentRef.setInput('item', account());
+      fixture.componentRef.setInput('dock', 'bottom');
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      const picture = () => host.querySelector('[data-testid="bar-picture"]');
+      picture()?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      fixture.componentRef.setInput('item', account({ tooltip: 'status.other' }));
+      fixture.detectChanges();
+      expect(picture()).toBeNull();
+
+      fixture.componentRef.setInput(
+        'item',
+        account({ image: 'https://example.test/grace.png' }),
+      );
+      fixture.detectChanges();
+
+      expect(picture()?.getAttribute('src')).toBe(
+        'https://example.test/grace.png',
+      );
+      expect(host.querySelector('[data-testid="bar-initials"]')).toBeNull();
     });
 
     it('names a button drawn with initials by them first', () => {

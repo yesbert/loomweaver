@@ -14,6 +14,9 @@ const topBar: LayoutRegion = { id: 'top-bar', type: 'bar', dock: 'top' };
 @Component({ selector: 'lw-test-entry', template: 'Acme' })
 class TestEntry {}
 
+@Component({ selector: 'lw-test-search', template: '<input />' })
+class TestSearch {}
+
 beforeAll(() => defineLwTooltip());
 
 function transloco() {
@@ -313,5 +316,70 @@ describe('a bar button naming a command the session may not run', () => {
 
     auth.set({ authenticated: true, roles: [], claims: {} });
     expect(buttons()).toHaveLength(1);
+  });
+});
+
+describe('a component placed in a bar', () => {
+  function renderSearch() {
+    const auth = signal<AuthSnapshot>(ANONYMOUS);
+    TestBed.configureTestingModule({
+      imports: [ShellBar, transloco()],
+      providers: [{ provide: AUTH_SOURCE, useValue: auth }],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    registry.addBarItem({
+      id: 'search',
+      bar: 'top-bar',
+      slot: 'center',
+      component: TestSearch,
+    });
+    const fixture = TestBed.createComponent(ShellBar);
+    fixture.componentRef.setInput('region', topBar);
+    fixture.detectChanges();
+    const box = () => {
+      fixture.detectChanges();
+      return (fixture.nativeElement as HTMLElement).querySelector(
+        'lw-test-search input',
+      ) as HTMLInputElement;
+    };
+    const typed = box();
+    typed.value = 'half a query';
+    return { auth, registry, box, typed };
+  }
+
+  it('keeps its instance and what was typed into it when a command is registered', () => {
+    const { registry, box, typed } = renderSearch();
+
+    registry.addCommand({
+      id: 'notes.new',
+      title: 'status.add',
+      run: () => undefined,
+    });
+
+    expect(box()).toBe(typed);
+    expect(box().value).toBe('half a query');
+  });
+
+  it('keeps its instance when another entry joins the bar', () => {
+    const { registry, box, typed } = renderSearch();
+
+    registry.addBarItem({
+      id: 'brand',
+      bar: 'top-bar',
+      slot: 'start',
+      component: TestEntry,
+    });
+
+    expect(box()).toBe(typed);
+    expect(box().value).toBe('half a query');
+  });
+
+  it('keeps its instance when the session changes', () => {
+    const { auth, box, typed } = renderSearch();
+
+    auth.set({ authenticated: true, roles: [], claims: {} });
+
+    expect(box()).toBe(typed);
+    expect(box().value).toBe('half a query');
   });
 });

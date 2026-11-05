@@ -1,10 +1,5 @@
 import { inject, Service, signal } from '@angular/core';
-import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import {
-  hydrateAsync,
-  readStoredValue,
-} from '../../persistence/stored-values/hydrate';
-import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
+import { persistedWorkingState } from '../../persistence/stored-values/persisted-setting';
 import { parseRecord } from '../../persistence/stored-values/persisted-record';
 import { SHELL_LAYOUT, ShellLayout } from '../../layout/layout';
 import { panelRegions } from '../../layout/layout-queries';
@@ -40,30 +35,19 @@ function panelWidthsByRegion(
 
 @Service()
 export class PanelSizeService {
-  private readonly store = inject(WORKING_STATE_STORE);
-  private readonly sync = inject(StateSyncService);
   private readonly declared = panelWidthsByRegion(inject(SHELL_LAYOUT));
+  private readonly stored = persistedWorkingState(STORAGE_KEY, {
+    parse: parseWidths,
+    serialize: (widths) => JSON.stringify(widths),
+  });
 
-  private readonly widths = signal<Readonly<Record<string, number>>>(
-    parseWidths(this.store.peek?.(STORAGE_KEY)),
-  );
+  private readonly uncommitted = signal<Readonly<Record<string, number>>>({});
   private readonly resizing = signal(false);
-
-  constructor() {
-    const apply = (raw: string | undefined) =>
-      this.widths.set(parseWidths(raw));
-    hydrateAsync(this.store, STORAGE_KEY, apply);
-    this.sync.onNamespaceAdopted(async () =>
-      apply(await readStoredValue(this.store, STORAGE_KEY)),
-    );
-  }
 
   width(regionId: string): number {
     const widths = this.widthsOf(regionId);
-    const stored = this.widths()[regionId];
-    return stored === undefined
-      ? widths.start
-      : clampToPanelWidths(stored, widths);
+    const set = this.uncommitted()[regionId] ?? this.stored.value()[regionId];
+    return set === undefined ? widths.start : clampToPanelWidths(set, widths);
   }
 
   minWidth(regionId: string): number {
@@ -88,17 +72,22 @@ export class PanelSizeService {
   }
 
   setWidth(regionId: string, px: number): void {
+    if (!Number.isFinite(px)) {
+      return;
+    }
     const clamped = clampToPanelWidths(px, this.widthsOf(regionId));
-    this.widths.update((state) => ({ ...state, [regionId]: clamped }));
+    this.uncommitted.update((state) => ({ ...state, [regionId]: clamped }));
   }
 
   commit(): void {
-    void this.store.set(STORAGE_KEY, JSON.stringify(this.widths()));
+    const set = this.uncommitted();
+    this.uncommitted.set({});
+    this.stored.update((state) => ({ ...state, ...set }));
   }
 
   reset(): void {
-    this.widths.set({});
-    void this.store.delete(STORAGE_KEY);
+    this.uncommitted.set({});
+    this.stored.clear();
   }
 
   private widthsOf(regionId: string): PanelWidths {

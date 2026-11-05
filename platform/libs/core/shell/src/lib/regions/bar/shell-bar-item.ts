@@ -63,7 +63,7 @@ export class ShellBarItem {
   protected readonly asButton = computed<BarButtonItem | null>(
     () => this.resolved()?.item ?? null,
   );
-  private readonly brokenPicture = signal(false);
+  private readonly brokenPicture = signal<string | undefined>(undefined);
 
   protected readonly tooltipPosition = computed<TooltipPosition>(() =>
     this.dock() === 'bottom' ? 'top' : 'bottom',
@@ -83,7 +83,10 @@ export class ShellBarItem {
   );
 
   protected readonly componentInjector = computed<Injector>(() => {
-    const item = this.entry().item;
+    const item = this.asComponent();
+    if (!item) {
+      return this.injector;
+    }
     return Injector.create({
       parent: this.injector,
       providers: [
@@ -95,6 +98,9 @@ export class ShellBarItem {
     });
   });
 
+  protected readonly commandTitle = computed<string | undefined>(
+    () => this.resolved()?.command?.title,
+  );
   protected readonly disabled = computed(
     () => this.resolved()?.disabled ?? false,
   );
@@ -106,23 +112,24 @@ export class ShellBarItem {
   );
 
   protected pictureOf(button: BarButtonItem): string | undefined {
-    return this.brokenPicture() ? undefined : button.image;
+    return button.image === this.brokenPicture() ? undefined : button.image;
   }
 
   protected nameOf(
     button: BarButtonItem,
     label: string,
     purpose: string,
-  ): string {
+  ): string | null {
     const initials = this.pictureOf(button) ? undefined : button.initials;
-    return nameWithHint(
+    const name = nameWithHint(
       nameShowing([initials, label], purpose),
       this.shortcut(),
     );
+    return name.trim() ? name : null;
   }
 
-  protected onPictureError(): void {
-    this.brokenPicture.set(true);
+  protected onPictureError(button: BarButtonItem): void {
+    this.brokenPicture.set(button.image);
   }
 
   protected run(button: BarButtonItem): void {

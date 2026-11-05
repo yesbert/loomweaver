@@ -5,9 +5,40 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { provideLayout } from '../../layout/layout';
 import { PanelGroupService } from './panel-group.service';
 import { PanelState } from './panel-state';
+import { KeyValueStore } from '../../persistence/key-value-store';
+import { provideWorkingStateStore } from '../../persistence/working-state-store';
 
 @Component({ selector: 'lw-probe', template: '' })
 class ProbeView {}
+
+class HandAnsweredStore implements KeyValueStore {
+  readonly written = new Map<string, string>();
+  private readonly waiting: ((raw: string | undefined) => void)[] = [];
+
+  get(): Promise<string | undefined> {
+    return new Promise((resolve) => {
+      this.waiting.push(resolve);
+    });
+  }
+
+  set(key: string, value: string): Promise<void> {
+    this.written.set(key, value);
+    return Promise.resolve();
+  }
+
+  delete(key: string): Promise<void> {
+    this.written.delete(key);
+    return Promise.resolve();
+  }
+
+  async answer(raw: string | undefined): Promise<void> {
+    for (const resolve of this.waiting.splice(0)) {
+      resolve(raw);
+    }
+    await Promise.resolve();
+    await Promise.resolve();
+  }
+}
 
 describe('PanelState', () => {
   beforeEach(() => {
@@ -86,5 +117,26 @@ describe('PanelState', () => {
     const panels = TestBed.inject(PanelState);
     expect(panels.isCollapsed('primary')).toBe(false);
     expect(panels.isCollapsed('secondary')).toBe(true);
+  });
+});
+
+describe('PanelState on a store that answers later', () => {
+  it('keeps a sidebar collapsed before the store answered, beside what the store held', async () => {
+    const store = new HandAnsweredStore();
+    TestBed.configureTestingModule({
+      providers: [provideWorkingStateStore(store)],
+    });
+    const panels = TestBed.inject(PanelState);
+
+    panels.toggle('primary');
+    expect(panels.isCollapsed('primary')).toBe(true);
+    await store.answer(JSON.stringify({ secondary: true }));
+
+    expect(panels.isCollapsed('primary')).toBe(true);
+    expect(panels.isCollapsed('secondary')).toBe(true);
+    expect(JSON.parse(store.written.get('lw.shell.panels') ?? '{}')).toEqual({
+      primary: true,
+      secondary: true,
+    });
   });
 });

@@ -33,6 +33,9 @@ export class PanelSplitter {
   }
 
   protected onPointerDown(event: PointerEvent): void {
+    if (event.button !== 0) {
+      return;
+    }
     event.preventDefault();
     this.dragging = true;
     this.startX = event.clientX;
@@ -58,6 +61,10 @@ export class PanelSplitter {
       return;
     }
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+    this.endDrag();
+  }
+
+  protected onCaptureLost(): void {
     this.endDrag();
   }
 
