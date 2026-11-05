@@ -29,6 +29,7 @@
     "unpinTab": "Tab lösen",
     "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, ungespeicherte Änderungen",
+    "loadFailed": "Diese Ansicht konnte nicht geladen werden.",
     "split": {
       "open": "Editor teilen",
       "resize": "Teilung anpassen",

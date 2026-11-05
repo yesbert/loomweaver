@@ -18,7 +18,7 @@ import { AuthContext } from '../../../auth/auth-context';
 import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
 import { buildContentRoutes, routePlaceholder } from './content-route-table';
-import { matchRoute, normalizePath, segmentsOf } from '../content-path';
+import { declaringRoute, matchRoute, normalizePath } from '../content-path';
 import { POPOUT_PREFIX } from '../../../popout/popout-path';
 import { PopoutView } from '../../../popout/popout-view';
 
@@ -125,15 +125,18 @@ export class ContentRouter {
           return;
         }
         untracked(() => {
-          const current = matchRoute(
-            this.registry.contentRoutes(),
-            this.router.url,
-          );
-          if (!current?.access) {
+          const heading = this.router.currentNavigation();
+          const address = heading
+            ? this.router.serializeUrl(heading.extractedUrl)
+            : this.router.url;
+          if (!matchRoute(this.registry.contentRoutes(), address)?.access) {
             return;
           }
           void this.router
-            .navigateByUrl(this.router.url, { onSameUrlNavigation: 'reload' })
+            .navigateByUrl(address, {
+              ...heading?.extras,
+              onSameUrlNavigation: 'reload',
+            })
             .catch(() => undefined);
         });
       },
@@ -188,8 +191,7 @@ export class ContentRouter {
       return [];
     }
     const path = normalizePath(target);
-    const matched = matchRoute(routes, path);
-    if (path === '' || segmentsOf(matched?.path ?? '').length > 0) {
+    if (path === '' || declaringRoute(routes, path) !== undefined) {
       return [];
     }
     return [routePlaceholder(path)];
@@ -232,7 +234,7 @@ export class ContentRouter {
       this.heldAddress = null;
       return;
     }
-    if (matchRoute(this.lastRoutes, target) === undefined) {
+    if (declaringRoute(this.lastRoutes, target) === undefined) {
       return;
     }
     this.heldAddress = null;
@@ -252,8 +254,7 @@ export class ContentRouter {
       return;
     }
 
-    const matched = matchRoute(this.lastRoutes, target);
-    if (matched === undefined || segmentsOf(matched.path).length === 0) {
+    if (declaringRoute(this.lastRoutes, target) === undefined) {
       return;
     }
     void this.router

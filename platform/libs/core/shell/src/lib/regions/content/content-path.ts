@@ -1,11 +1,20 @@
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { normalizePath, segmentsOf } from '../../addressing/address-form';
+import {
+  decodeSegment,
+  normalizePath,
+  segmentsOf,
+} from '../../addressing/address-form';
 
 export interface Addressable {
   readonly path: string;
 }
 
-export { normalizePath, segmentsOf } from '../../addressing/address-form';
+export {
+  decodeSegment,
+  encodeSegment,
+  normalizePath,
+  segmentsOf,
+} from '../../addressing/address-form';
 
 export function isHomePath(path: string): boolean {
   return normalizePath(path) === '';
@@ -59,11 +68,24 @@ export function matchRoute<T extends Addressable>(
   return best;
 }
 
+export function declaringRoute<T extends Addressable>(
+  routes: readonly T[],
+  path: string,
+): T | undefined {
+  const route = matchRoute(routes, path);
+  if (route === undefined) {
+    return undefined;
+  }
+  return segmentsOf(route.path).length === 0 && segmentsOf(path).length > 0
+    ? undefined
+    : route;
+}
+
 export function tabRootOf(
   routes: readonly Addressable[],
   path: string,
 ): string {
-  const route = matchRoute(routes, path);
+  const route = declaringRoute(routes, path);
   const segments = segmentsOf(path);
   if (!route) {
     return segments.join('/');
@@ -80,7 +102,7 @@ export function paramsOfPattern(
   const params: Record<string, string> = {};
   for (const [index, part] of parts.entries()) {
     if (part.startsWith(':') && segments[index] !== undefined) {
-      params[part.slice(1)] = segments[index];
+      params[decodeSegment(part.slice(1))] = decodeSegment(segments[index]);
     }
   }
   return params;

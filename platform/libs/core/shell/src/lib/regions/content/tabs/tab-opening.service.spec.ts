@@ -63,6 +63,42 @@ describe('Opening a content tab', () => {
     });
   });
 
+  it('opens one tab under a path with characters the address encodes, and the address finds it', async () => {
+    await harness.navigateByUrl('/reports');
+    const paneTree = TestBed.inject(PaneTreeService);
+
+    service.open({ path: 'doc/Müller & Söhne', title: 'Müller' });
+    await harness.fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/doc/M%C3%BCller%20&%20S%C3%B6hne');
+    expect(paneTree.primaryTabs(CONTENT_DOCK).map((tab) => tab.path)).toEqual([
+      'reports',
+      'doc/M%C3%BCller%20&%20S%C3%B6hne',
+    ]);
+    expect(service.activeTabRoot()).toBe('doc/M%C3%BCller%20&%20S%C3%B6hne');
+  });
+
+  it('finds the tab an earlier arrangement stored under the path as it was typed', async () => {
+    await harness.navigateByUrl('/reports');
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.setPrimaryTabs(CONTENT_DOCK, [
+      { path: 'reports' },
+      { path: 'doc/Müller', title: 'Stored', literalTitle: true },
+    ]);
+
+    await harness.navigateByUrl('/doc/M%C3%BCller');
+
+    expect(paneTree.primaryTabs(CONTENT_DOCK)).toHaveLength(2);
+    expect(
+      service.tabs().find((tab) => tab.title === 'Stored')?.path,
+    ).toBe(service.activeTabRoot());
+
+    service.open({ path: 'doc/Müller', title: 'Again' });
+    await harness.fixture.whenStable();
+
+    expect(paneTree.primaryTabs(CONTENT_DOCK)).toHaveLength(2);
+  });
+
   it('relabels a tab another pane holds instead of opening a second copy or navigating', async () => {
     await harness.navigateByUrl('/');
     const paneTree = TestBed.inject(PaneTreeService);

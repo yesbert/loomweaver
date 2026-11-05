@@ -21,6 +21,7 @@ import { PaneContainersService } from './pane-containers.service';
 import { activeTab, leafWith } from '../tree/pane-node';
 import { findLeaf, leavesOf } from '../tree/pane-queries';
 import {
+  encodeSegment,
   isAtOrBelow,
   normalizePath,
   restBelow,
@@ -35,7 +36,7 @@ interface ContainerIdentity {
 
 function containerIdentityOf(route: ActivatedRoute): ContainerIdentity {
   const containerPath = route.snapshot.url
-    .map((segment) => segment.path)
+    .map((segment) => encodeSegment(segment.path))
     .join('/');
   return {
     containerPath,

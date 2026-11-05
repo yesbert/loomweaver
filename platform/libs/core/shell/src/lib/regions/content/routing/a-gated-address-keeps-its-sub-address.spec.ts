@@ -169,6 +169,23 @@ describe('a gated address keeps its sub-address', () => {
     expect(heldBack(router)).toBe(false);
   });
 
+  it('lets a navigation in flight arrive when the session changes on the way out of a gated address', async () => {
+    const auth = signal<AuthSnapshot>(SIGNED_IN);
+    const router = await openAt(
+      '/doc/7/general',
+      [DOCUMENT_WITH_TABS, { path: 'welcome', component: TestContent }],
+      auth,
+    );
+
+    const leaving = router.navigateByUrl('/welcome');
+    auth.set(ANONYMOUS);
+    TestBed.tick();
+    await leaving;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(router.url).toBe('/welcome');
+  });
+
   describe('inside the workspace that claims it', () => {
     beforeEach(() => localStorage.clear());
 

@@ -59,6 +59,27 @@ describe('completing the address the application was opened at', () => {
     expect(router.url).toBe('/knowledge-base');
   });
 
+  it('lands on an opening address with encoded characters before its content has arrived', async () => {
+    const router = await openAt('/people/M%C3%BCller%20&%20S%C3%B6hne');
+
+    expect(router.url).toBe('/people/M%C3%BCller%20&%20S%C3%B6hne');
+
+    arrive('people/:name');
+    await turn();
+
+    expect(router.url).toBe('/people/M%C3%BCller%20&%20S%C3%B6hne');
+  });
+
+  it('reaches content declared at an address with characters the address encodes', async () => {
+    const router = await openAt('/');
+    arrive('übersicht/:id');
+    await turn();
+
+    await router.navigateByUrl('/%C3%BCbersicht/5');
+
+    expect(router.url).toBe('/%C3%BCbersicht/5');
+  });
+
   it('still reaches the content where the user has not moved', async () => {
     const router = await openAt('/dashboard');
 

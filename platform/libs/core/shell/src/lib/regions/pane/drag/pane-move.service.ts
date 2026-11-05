@@ -21,7 +21,7 @@ import { insertTab, removeTab } from '../tree/pane-tabs';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneAdmission } from '../../content/pane-admission';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
-import { matchRoute, tabRootOf } from '../../content/content-path';
+import { declaringRoute, tabRootOf } from '../../content/content-path';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { LeftOutChildren } from '../container/left-out-children';
@@ -318,6 +318,6 @@ export class PaneMoveService {
   private currentUrlContent(): string {
     const routes = this.registry.contentRoutes();
     const root = this.tabs.activeTabRoot();
-    return matchRoute(routes, root) ? root : '';
+    return declaringRoute(routes, root) ? root : '';
   }
 }

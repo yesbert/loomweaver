@@ -56,7 +56,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 2.14 Lead, verify first: moving the last child out of a container's primary pane promotes the pane that takes its space, as closing does (`regions/pane/tree/pane-structure.ts`, `withoutEmptyPrimary`)
 - [ ] 2.15 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`)
 - [x] 2.16 Not done, handed to the owner as a decision (see design.md): Lead, verify first: a surface that stays mounted across a workspace switch belongs to the workspace now shown, and is not parked later for the one that built it (`regions/pane/retention/`)
-- [ ] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
+- [x] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
 - [x] 2.18 Not applicable any more: nothing is carried (see 2.2)
 - [x] 2.19 Not done, handed to the owner as a decision (see design.md): An instance in use across a workspace switch belongs to the workspace now shown, so it is parked for that one; and deleting the active workspace leaves nothing parked under an id that no longer exists (`regions/pane/retention/`, `workspace/workspace.service.ts`)
 - [x] 2.20 After the question a move asks, the move is worked out against the tree as it is then: a move whose source or target is gone, or whose workspace changed meanwhile, is abandoned with the tab left where it is (`regions/pane/drag/pane-move.service.ts`)
@@ -66,15 +66,15 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 3. Addresses and tabs
 
-- [ ] 3.1 Address parameters reach a surface decoded, the same in every pane (`regions/content/content-path.ts`)
-- [ ] 3.2 A home route is not the tab root of every undeclared address: no tab's path is overwritten, and closing to the right of a view tab closes only what is right of it (`regions/content/content-path.ts`, `tabs/tab-navigation.service.spec.ts`, `tabs/tab-closing.service.spec.ts`)
-- [ ] 3.3 A retained, hidden isolated surface keeps its own address and is not told another content's query or fragment (`regions/content/surface/iframe-surface.ts`)
-- [ ] 3.4 A tab opened under a path with characters the address encodes is the tab the address finds: no duplicate (`regions/content/tabs/tab-opening.service.ts`)
-- [ ] 3.5 A slot or state push to a frame that fails or is cut off does not leave an unhandled rejection (`regions/content/surface/iframe-surface.ts`)
-- [ ] 3.6 A held address is retried only when its own content registers, not on any registration while a home route exists (`regions/content/routing/content-router.ts`)
-- [ ] 3.7 A frame's navigation target with a dot segment or a backslash is refused (`regions/content/surface/iframe-surface-protocol.ts`)
-- [ ] 3.8 At an address nothing declares, the active content reads as nothing rather than as the home surface (`regions/content/tabs/content-tab-state.ts`)
-- [ ] 3.9 Leads, each verified first: the boot placeholder at an encoded deep link; the session re-match superseding a navigation in flight; the close hook running while the same tab is open in another pane; a failed lazy load leaving the pane blank (`regions/content/routing/content-router.ts`, `tabs/tab-closing.service.ts`, `surface/surface-body.ts`)
+- [x] 3.1 Address parameters reach a surface decoded, the same in every pane (`regions/content/content-path.ts`)
+- [x] 3.2 A home route is not the tab root of every undeclared address: no tab's path is overwritten, and closing to the right of a view tab closes only what is right of it (`regions/content/content-path.ts`, `tabs/tab-navigation.service.spec.ts`, `tabs/tab-closing.service.spec.ts`)
+- [x] 3.3 A retained, hidden isolated surface keeps its own address and is not told another content's query or fragment (`regions/content/surface/iframe-surface.ts`)
+- [x] 3.4 A tab opened under a path with characters the address encodes is the tab the address finds: no duplicate (`regions/content/tabs/tab-opening.service.ts`)
+- [x] 3.5 A slot or state push to a frame that fails or is cut off does not leave an unhandled rejection (`regions/content/surface/iframe-surface.ts`)
+- [x] 3.6 A held address is retried only when its own content registers, not on any registration while a home route exists (`regions/content/routing/content-router.ts`)
+- [x] 3.7 A frame's navigation target with a dot segment or a backslash is refused (`regions/content/surface/iframe-surface-protocol.ts`)
+- [x] 3.8 At an address nothing declares, the active content reads as nothing rather than as the home surface (`regions/content/tabs/content-tab-state.ts`)
+- [x] 3.9 Leads, each verified first: the boot placeholder at an encoded deep link; the session re-match superseding a navigation in flight; the close hook running while the same tab is open in another pane; a failed lazy load leaving the pane blank (`regions/content/routing/content-router.ts`, `tabs/tab-closing.service.ts`, `surface/surface-body.ts`)
 
 ## 4. Persistence, identity and workspaces
 

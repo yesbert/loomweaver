@@ -30,6 +30,25 @@ describe('buildContentRoutes', () => {
     expect(route.data).toEqual({ content: true });
   });
 
+  it('hands the router an address held in its encoded form the way it is typed, which is what the router matches', () => {
+    const [open, gated, heldBack, omitted] = buildContentRoutes(
+      [
+        { path: '%C3%BCbersicht/:id', component: TestRoute },
+        {
+          path: 'b%C3%BCro',
+          component: TestRoute,
+          access: { authenticated: true },
+        },
+      ],
+      [{ path: 'sp%C3%A4ter', component: TestRoute }],
+    );
+
+    expect(open.path).toBe('übersicht/:id');
+    expect(gated.path).toBe('büro');
+    expect(heldBack.path).toBe('büro');
+    expect(omitted.path).toBe('später');
+  });
+
   it('maps an iframe route to the stub, marked as content', () => {
     const [route] = buildContentRoutes([
       { path: 'sandbox-rpc', iframe: '/plugin/view.html' },

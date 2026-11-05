@@ -9,7 +9,7 @@ import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PRIMARY_PANE } from '../../pane/tree/pane-address';
 import { RetainedViewStash } from '../../pane/retention/retained-view-stash';
 import { paneRetentionScope } from '../../pane/retention/retention-keys';
-import { findLeaf } from '../../pane/tree/pane-queries';
+import { findLeaf, findLeafWhere } from '../../pane/tree/pane-queries';
 import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
 import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
@@ -161,6 +161,14 @@ describe('TabClosingService close others/all/right', () => {
       service.closeAll();
       expect(paths()).not.toContain('view:v1');
       expect(paths()).toContain('view:fixed');
+    });
+
+    it('closeToRight of a view closes only what is right of it', () => {
+      service.closeToRight('view:v1');
+
+      expect(paths()).toEqual(
+        expect.arrayContaining(['doc/a', 'doc/b', 'doc/c', 'view:v1']),
+      );
     });
 
     it('closeToRight closes the views after the target', () => {
@@ -413,6 +421,34 @@ describe('TabClosingService close hooks', () => {
     service.close('doc/a');
     expect(onClose).toHaveBeenCalledTimes(1);
     service.runCloseHook('doc/a');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the teardown while another pane still holds the tab that closes in the pane carrying the address', async () => {
+    await harness.navigateByUrl('/');
+    const onClose = vi.fn();
+    service.open({ path: 'doc/a', title: 'A.ts', onClose });
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/a');
+    const primary = paneTree.primaryId(CONTENT_DOCK);
+    const other = findLeafWhere(
+      paneTree.tree(CONTENT_DOCK),
+      (leaf) => leaf.id !== primary && leaf.tabs.some((tab) => tab.path === 'doc/a'),
+    );
+    expect(
+      paneTree.primaryTabs(CONTENT_DOCK).some((tab) => tab.path === 'doc/a'),
+    ).toBe(true);
+    expect(other).toBeDefined();
+
+    service.close('doc/a');
+
+    expect(
+      paneTree.primaryTabs(CONTENT_DOCK).some((tab) => tab.path === 'doc/a'),
+    ).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+
+    service.close('doc/a', { dock: CONTENT_DOCK, paneId: other?.id ?? '' });
+
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

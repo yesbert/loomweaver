@@ -42,6 +42,23 @@ describe('ComponentLoader', () => {
     expect(calls).toBe(1);
   });
 
+  it('says so once a deferred component has failed to load, and not before', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const source = {
+      loadComponent: () => Promise.reject<Type<unknown>>(new Error('chunk gone')),
+    };
+
+    expect(loader.resolve(source)).toBeNull();
+    expect(loader.failed(source)).toBe(false);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(loader.resolve(source)).toBeNull();
+    expect(loader.failed(source)).toBe(true);
+    expect(loader.failed({ component: TestLazy })).toBe(false);
+    logged.mockRestore();
+  });
+
   it('returns null for a source that declares neither form', () => {
     expect(loader.resolve({})).toBeNull();
   });

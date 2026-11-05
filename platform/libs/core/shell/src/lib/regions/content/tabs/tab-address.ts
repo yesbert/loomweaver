@@ -4,7 +4,7 @@ import {
   makeEnvironmentProviders,
 } from '@angular/core';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { matchRoute, segmentsOf } from '../content-path';
+import { encodeSegment, matchRoute, segmentsOf } from '../content-path';
 
 /** What the host knows when it works out where a following tab should point. */
 export interface TabAddressInput {
@@ -12,7 +12,7 @@ export interface TabAddressInput {
   readonly surfaceId?: string;
   /** That surface's route pattern, e.g. `customers/:customerId/orders/:orderId/notes`. */
   readonly pattern: string;
-  /** Parameter values of the address the user is on, by name. */
+  /** Parameter values of the address the user is on, by name, decoded. */
   readonly params: Readonly<Record<string, string>>;
   /** The full active content path, for a resolver that needs more than the names. */
   readonly activePath: string;
@@ -57,7 +57,7 @@ export function computedTabAddress(
     if (value === undefined) {
       break;
     }
-    resolved.push(value);
+    resolved.push(encodeSegment(value));
   }
   return resolved.join('/');
 }

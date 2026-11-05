@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterOutlet, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
@@ -199,6 +199,14 @@ describe('A host-mounted pane says why it is empty', () => {
     path: string,
     seed: (registry: ContributionRegistry) => void,
   ): HTMLElement {
+    return mounted(session, path, seed).nativeElement;
+  }
+
+  function mounted(
+    session: AuthSnapshot,
+    path: string,
+    seed: (registry: ContributionRegistry) => void,
+  ): ComponentFixture<SurfaceBody> {
     TestBed.configureTestingModule({
       imports: [
         TranslocoTestingModule.forRoot({
@@ -217,7 +225,7 @@ describe('A host-mounted pane says why it is empty', () => {
     const fixture = TestBed.createComponent(SurfaceBody);
     fixture.componentRef.setInput('path', path);
     fixture.detectChanges();
-    return fixture.nativeElement;
+    return fixture;
   }
 
   const GATED: ContentRoute = {
@@ -283,6 +291,44 @@ describe('A host-mounted pane says why it is empty', () => {
 
     expect(element.textContent).not.toContain('content.split.unavailable');
     expect(element.textContent?.trim()).toBe('');
+  });
+
+  it('says a lazy surface could not be loaded once its load has failed, rather than staying blank', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const fixture = mounted(ANONYMOUS, 'broken', (registry) =>
+      registry.addContentRoute({
+        path: 'broken',
+        loadComponent: () => Promise.reject(new Error('chunk gone')),
+      }),
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.textContent?.trim()).toBe('');
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.textContent).toContain('content.loadFailed');
+    expect(element.textContent).not.toContain('content.split.unavailable');
+    logged.mockRestore();
+  });
+
+  it('says a lazy view could not be loaded once its load has failed, rather than staying blank', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const fixture = mounted(ANONYMOUS, 'view:broken', (registry) =>
+      registry.addView({
+        id: 'broken',
+        title: 'broken',
+        region: 'primary',
+        loadComponent: () => Promise.reject(new Error('chunk gone')),
+      }),
+    );
+    const element: HTMLElement = fixture.nativeElement;
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.textContent).toContain('content.loadFailed');
+    logged.mockRestore();
   });
 
   it('keeps the split text where it is true — the surface exists and simply cannot be mounted here', () => {

@@ -197,7 +197,8 @@ export class ContentTabsService {
   /**
    * Closes the pane that carries the address, in a split: a neighbour takes the address, is navigated
    * to, and receives the pinned tabs and those that cannot close (every tab while closing is switched
-   * off). Unsaved work in the tabs that really close is asked about first.
+   * off). Unsaved work is asked about first: in the tabs that really close, and in a kept tab the
+   * neighbour cannot take because it already holds that tab.
    */
   closePrimaryPane(): void {
     this.closing.closePrimaryPane(
@@ -214,9 +215,8 @@ export class ContentTabsService {
   }
 
   /**
-   * Runs and clears the close hook of the tab rooted at `path`, for a close outside the pane that
-   * carries the address. Does nothing while the tab is still open there, since closing it there runs
-   * the hook.
+   * Runs and clears the close hook of the tab rooted at `path`, once the tab has left its last pane.
+   * Does nothing while any pane still holds the tab.
    */
   runCloseHook(path: string): void {
     this.closing.runCloseHook(path);

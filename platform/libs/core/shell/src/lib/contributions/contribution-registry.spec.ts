@@ -42,6 +42,23 @@ describe('ContributionRegistry', () => {
     ]);
   });
 
+  it('holds one content route per address, however its characters were encoded when it was registered', () => {
+    registry.addContentRoute({
+      path: 'übersicht/:id',
+      title: 'Typed',
+      component: DummyComponent,
+    });
+    registry.addContentRoute({
+      path: '%C3%BCbersicht/:id',
+      title: 'Encoded',
+      component: DummyComponent,
+    });
+
+    expect(registry.contentRoutes().map((route) => route.title)).toEqual([
+      'Encoded',
+    ]);
+  });
+
   describe('a surface id two owners hold', () => {
     const BETA = { text: 'badges.beta' };
     const flip = { id: 'flip', icon: 'add', title: 'Flip', run: () => undefined };

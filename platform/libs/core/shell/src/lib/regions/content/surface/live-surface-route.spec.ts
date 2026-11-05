@@ -39,6 +39,29 @@ describe('a live surface route', () => {
     ]);
   });
 
+  it('reads the values and segments of an address decoded, however the path was stored', () => {
+    const person = { path: 'people/:name' } as unknown as RegisteredContentRoute;
+
+    for (const path of ['people/M%C3%BCller', 'people/Müller']) {
+      const snapshot = liveSurfaceRoute(person, at(path)).route.snapshot;
+
+      expect(snapshot.paramMap.get('name')).toBe('Müller');
+      expect(snapshot.url.map((segment) => segment.path)).toEqual([
+        'people',
+        'Müller',
+      ]);
+    }
+  });
+
+  it('reads a value that is no encoding as it stands', () => {
+    const person = { path: 'people/:name' } as unknown as RegisteredContentRoute;
+
+    const snapshot = liveSurfaceRoute(person, at('people/%E0%A4%A')).route
+      .snapshot;
+
+    expect(snapshot.paramMap.get('name')).toBe('%E0%A4%A');
+  });
+
   it('follows a new sub-address through its snapshot and its streams', async () => {
     const live = liveSurfaceRoute(entry, at('entry/7'));
     const seen: unknown[] = [];

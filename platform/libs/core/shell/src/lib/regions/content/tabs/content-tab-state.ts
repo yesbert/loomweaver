@@ -3,7 +3,7 @@ import { ActiveContent, ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { AuthContext } from '../../../auth/auth-context';
 import {
-  matchRoute,
+  declaringRoute,
   normalizePath,
   routeParams,
   tabRootOf,
@@ -95,7 +95,7 @@ export class ContentTabState {
   );
 
   readonly activeRoute: Signal<ContentRoute | undefined> = computed(() =>
-    matchRoute(this.registry.contentRoutes(), this.activePath()),
+    declaringRoute(this.registry.contentRoutes(), this.activePath()),
   );
 
   readonly activeTabRoot: Signal<string> = computed(() =>

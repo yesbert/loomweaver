@@ -12,6 +12,10 @@ export class ComponentLoader {
     WritableSignal<Type<unknown> | null>
   >();
 
+  private readonly failures = signal<ReadonlySet<() => Promise<Type<unknown>>>>(
+    new Set(),
+  );
+
   resolve(source: LazyComponentSource): Type<unknown> | null {
     if (source.component) {
       return source.component;
@@ -28,8 +32,16 @@ export class ComponentLoader {
     this.byLoader.set(loader, resolved);
     void loader().then(
       (component) => resolved.set(component),
-      (error: unknown) => console.error('[loom] surface failed to load', error),
+      (error: unknown) => {
+        console.error('[loom] surface failed to load', error);
+        this.failures.update((failed) => new Set(failed).add(loader));
+      },
     );
     return resolved();
+  }
+
+  failed(source: LazyComponentSource): boolean {
+    const loader = source.loadComponent;
+    return loader !== undefined && this.failures().has(loader);
   }
 }

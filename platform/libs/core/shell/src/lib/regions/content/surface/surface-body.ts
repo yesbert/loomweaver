@@ -166,7 +166,7 @@ export class SurfaceBody {
       : '@container/surface block h-full overflow-auto bg-surface-raised text-content';
   });
 
-  protected readonly unavailableKey = inject(PopoutWindow).active
+  private readonly notHostableKey = inject(PopoutWindow).active
     ? 'popout.unavailable'
     : 'content.split.unavailable';
 
@@ -283,15 +283,25 @@ export class SurfaceBody {
       : null;
   });
 
+  private readonly loadFailed = computed(() => {
+    const route = this.activeRoute();
+    return route !== null && this.componentLoader.failed(route);
+  });
+
   protected readonly loading = computed(() => {
     const route = this.activeRoute();
     return (
       route !== null &&
       route.container === undefined &&
       route.loadComponent !== undefined &&
-      this.surface() === null
+      this.surface() === null &&
+      !this.loadFailed()
     );
   });
+
+  protected readonly unavailableKey = computed(() =>
+    this.loadFailed() ? 'content.loadFailed' : this.notHostableKey,
+  );
 
   constructor() {
     effect(() => {
@@ -310,6 +320,10 @@ export class SurfaceBody {
 
   protected componentFor(view: View): Type<unknown> | null {
     return this.componentLoader.resolve(view);
+  }
+
+  protected failedToLoad(view: View): boolean {
+    return this.componentLoader.failed(view);
   }
 
   protected dockedInjector(view: RegisteredView): Injector {

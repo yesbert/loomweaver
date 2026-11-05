@@ -3,6 +3,7 @@ import { ContentRoute } from '@loomweaver/plugin-sdk';
 import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
 import { containerChildren } from '../../pane/container/container-children';
 import { accessCanMatch } from '../access/content-access';
+import { decodeSegment, segmentsOf } from '../content-path';
 import { ContentSubStub } from './content-sub-stub';
 import { keepPopout } from './keep-popout.guard';
 import { settleWorkspace, withholdSettlement } from './settle-workspace.guard';
@@ -14,9 +15,15 @@ export function isContentRoute(route: ActivatedRouteSnapshot): boolean {
   return route.routeConfig?.data?.['content'] === true;
 }
 
-export function routePlaceholder(path: string): Route {
+function asTheRouterMatches(address: string): string {
+  return segmentsOf(address)
+    .map((segment) => decodeSegment(segment))
+    .join('/');
+}
+
+export function routePlaceholder(address: string): Route {
   return {
-    path,
+    path: asTheRouterMatches(address),
     component: SurfaceRouteStub,
     canActivate: [keepPopout, settleWorkspace],
     data: CONTENT_DATA,
@@ -37,8 +44,9 @@ function buildRegisteredRoutes(
   contentRoutes: readonly RegisteredContentRoute[],
 ): Routes {
   return contentRoutes.flatMap((route) => {
+    const path = asTheRouterMatches(route.path);
     const angular: Route = {
-      path: route.path,
+      path,
       component: SurfaceRouteStub,
       canActivate: [keepPopout, settleWorkspace],
       data: CONTENT_DATA,
@@ -51,7 +59,7 @@ function buildRegisteredRoutes(
     if (route.access) {
       angular.canMatch = [accessCanMatch(route.access)];
       const placeholder: Route = {
-        path: route.path,
+        path,
         component: SurfaceRouteStub,
         canActivate: [keepPopout, withholdSettlement],
         data: CONTENT_DATA,

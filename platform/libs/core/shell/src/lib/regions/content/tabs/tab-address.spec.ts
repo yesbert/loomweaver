@@ -21,6 +21,12 @@ describe('computing a following tab address', () => {
     ).toBe('cedents/US003950/programs/205470/reports');
   });
 
+  it('writes a value the way the address holds it, so it stays one segment', () => {
+    expect(
+      computedTabAddress('people/:name/notes', { name: 'Müller & Söhne a/b' }),
+    ).toBe('people/M%C3%BCller%20&%20S%C3%B6hne%20a%2Fb/notes');
+  });
+
   it('leaves a pattern without parameters alone', () => {
     expect(computedTabAddress('dashboard/overview', params)).toBe(
       'dashboard/overview',

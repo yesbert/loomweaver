@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
-import { matchRoute, tabRootOf } from '../content-path';
+import { declaringRoute, tabRootOf } from '../content-path';
 import { OpenTab, toPaneTab } from './content-tab-projection';
 import { TabCloseHooks } from './tab-close-hooks';
 import { ContentTabState } from './content-tab-state';
@@ -82,6 +82,6 @@ export class PreviewSlotService {
 
   private shownContent(): string {
     const root = this.state.activeTabRoot();
-    return matchRoute(this.registry.contentRoutes(), root) ? root : '';
+    return declaringRoute(this.registry.contentRoutes(), root) ? root : '';
   }
 }

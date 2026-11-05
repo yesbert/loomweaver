@@ -29,6 +29,7 @@
     "unpinTab": "Unpin tab",
     "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, unsaved changes",
+    "loadFailed": "This view could not be loaded.",
     "split": {
       "open": "Split editor",
       "resize": "Resize split",
