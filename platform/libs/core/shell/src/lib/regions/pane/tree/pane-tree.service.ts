@@ -24,21 +24,17 @@ import {
 } from './pane-queries';
 import {
   TabKeep,
+  adjacentLeafOf,
   closedWithHandover,
-  collapsedWithHandover,
   keepsNothing,
   unsplitWithHandover,
 } from './pane-handover';
 import { clampRatio, withRatio } from './pane-ratio';
 import { DockEntry, healedPrimary } from './stored-pane-tree';
 import { PaneTreeStorage, isDefault } from './pane-tree-storage';
+import { dethroneLeaf, pruneEmptyLeaves, splitLeaf } from './pane-structure';
 import {
-  dethroneLeaf,
-  pruneEmptyLeaves,
-  removeLeaf,
-  splitLeaf,
-} from './pane-structure';
-import {
+  bringTabToFront,
   clearTabInstance,
   insertTab,
   keepTab,
@@ -61,6 +57,8 @@ export class PaneTreeService {
   private readonly docks = signal<Record<string, DockEntry>>(
     this.storage.peek(),
   );
+  private readonly replacements = signal(0);
+  readonly arrangement = this.replacements.asReadonly();
   readonly hydrated = this.storage.hydrated;
   readonly arrangementSettled = this.storage.arrangementSettled;
 
@@ -233,9 +231,7 @@ export class PaneTreeService {
       tabs: leaf.tabs.filter((tab) => tab.path !== tabPath),
     };
     if (emptied && isDisposableLeaf(emptied, [])) {
-      if (tree.kind === 'split') {
-        this.commit(dock, removeLeaf(tree, primary) ?? PRIMARY_LEAF);
-      }
+      this.collapsePrimary(dock);
       return;
     }
     this.commit(
@@ -256,16 +252,18 @@ export class PaneTreeService {
     this.commit(dock, pinTab(this.tree(dock), paneId, tabPath));
   }
 
+  bringTabToFront(dock: string, paneId: string, tabPath: string): void {
+    this.commit(dock, bringTabToFront(this.tree(dock), paneId, tabPath));
+  }
+
   collapsePrimary(dock: string, keeps: TabKeep = keepsNothing): string | null {
-    const collapsed = collapsedWithHandover(
-      this.tree(dock),
-      this.primaryId(dock),
-      keeps,
-    );
+    const tree = this.tree(dock);
+    const closing = this.primaryId(dock);
+    const collapsed = closedWithHandover(tree, closing, keeps);
     if (collapsed === null) {
       return null;
     }
-    this.commit(dock, collapsed);
+    this.commit(dock, collapsed, adjacentLeafOf(tree, closing) ?? undefined);
     const promoted = findLeaf(collapsed, this.primaryId(dock));
     return promoted ? (activeTab(promoted)?.path ?? '') : '';
   }
@@ -324,6 +322,7 @@ export class PaneTreeService {
       this.evacuateRemovedPanes(dock, next[dock]?.node ?? PRIMARY_LEAF);
     }
     this.docks.set(next);
+    this.replacements.update((count) => count + 1);
     this.persist();
   }
 

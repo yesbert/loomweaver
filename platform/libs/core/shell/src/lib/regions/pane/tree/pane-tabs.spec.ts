@@ -1,6 +1,7 @@
 import { PaneLeaf, PaneNode, leafOf } from './pane-node';
 import { findLeaf } from './pane-queries';
 import {
+  bringTabToFront,
   keepTab,
   pinTab,
   clearTabInstance,
@@ -90,6 +91,31 @@ describe('tab permanence outside the URL pane', () => {
       { path: 'doc/b', pinned: true },
       { path: 'doc/a', pinned: true },
     ]);
+  });
+
+  it('a tab brought into view moves to the front of the band it is in', () => {
+    const stack: PaneLeaf = {
+      kind: 'leaf',
+      id: 'side',
+      tabs: [
+        { path: 'doc/a', pinned: true },
+        { path: 'doc/b' },
+        { path: 'doc/c' },
+        { path: 'doc/d' },
+      ],
+      active: 'doc/d',
+    };
+
+    const next = bringTabToFront(stack, 'side', 'doc/d') as PaneLeaf;
+
+    expect(next.tabs.map((tab) => tab.path)).toEqual([
+      'doc/a',
+      'doc/d',
+      'doc/b',
+      'doc/c',
+    ]);
+    expect(bringTabToFront(stack, 'side', 'doc/a')).toBe(stack);
+    expect(bringTabToFront(stack, 'side', 'doc/unknown')).toBe(stack);
   });
 
   it('unpinTab returns a tab to the front of the unpinned band', () => {

@@ -34,6 +34,10 @@ class ProbeView implements OnDestroy {
   ngOnDestroy(): void {
     destroyed += 1;
   }
+
+  surfaceDirty(): boolean {
+    return this.draft() !== '';
+  }
 }
 
 @Component({
@@ -278,6 +282,60 @@ describe('surface retention', () => {
 
       expect(instances).toHaveLength(1);
       expect(instances[0]).toBe(first);
+      expect(probeElement(fixture)).toBe(element);
+    });
+
+    it('carries an in-place surface with unsaved work through the death of its pane, though it never asked to be kept', async () => {
+      fakeAtomicMove();
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.componentInstance.retain.set(false);
+      fixture.detectChanges();
+      const first = instances[0];
+      first.draft.set('typed');
+      const element = probeElement(fixture);
+
+      TestBed.inject(RetainedViewStash).evacuate((key) =>
+        isKeyOfPane(key, 'content', 'main'),
+      );
+      fixture.componentInstance.paneAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(0);
+
+      fixture.componentInstance.paneAlive.set(true);
+      fixture.detectChanges();
+
+      expect(instances).toEqual([first]);
+      expect(probeElement(fixture)).toBe(element);
+    });
+
+    it('carries one that was already hidden in that pane, too', async () => {
+      fakeAtomicMove();
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.componentInstance.retain.set(false);
+      fixture.detectChanges();
+      const first = instances[0];
+      first.draft.set('typed');
+      const element = probeElement(fixture);
+      fixture.componentInstance.mounted.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      TestBed.inject(RetainedViewStash).evacuate((key) =>
+        isKeyOfPane(key, 'content', 'main'),
+      );
+      fixture.componentInstance.paneAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(0);
+
+      fixture.componentInstance.paneAlive.set(true);
+      fixture.componentInstance.mounted.set(true);
+      fixture.detectChanges();
+
+      expect(instances).toEqual([first]);
       expect(probeElement(fixture)).toBe(element);
     });
 

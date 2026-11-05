@@ -21,19 +21,6 @@ export function closedWithHandover(
   );
 }
 
-export function collapsedWithHandover(
-  node: PaneNode,
-  primaryId: string,
-  keeps: TabKeep,
-): PaneNode | null {
-  return handedOverAndRemoved(
-    node,
-    primaryId,
-    promotedLeafOf(node, primaryId),
-    keeps,
-  );
-}
-
 export function unsplitWithHandover(
   node: PaneNode,
   primaryId: string,
@@ -49,7 +36,7 @@ export function unsplitWithHandover(
   return withTabsAppended(primary, kept);
 }
 
-function adjacentLeafOf(node: PaneNode, paneId: string): string | null {
+export function adjacentLeafOf(node: PaneNode, paneId: string): string | null {
   if (node.kind === 'leaf') {
     return null;
   }
@@ -62,11 +49,6 @@ function adjacentLeafOf(node: PaneNode, paneId: string): string | null {
   return (
     adjacentLeafOf(node.first, paneId) ?? adjacentLeafOf(node.second, paneId)
   );
-}
-
-function promotedLeafOf(node: PaneNode, primaryId: string): string | null {
-  const collapsed = removeLeaf(node, primaryId);
-  return collapsed === null ? null : (collectLeafIds(collapsed)[0] ?? null);
 }
 
 function handedOverAndRemoved(
@@ -90,7 +72,14 @@ function handedOverAndRemoved(
 
 function withTabsAppended(leaf: PaneLeaf, tabs: readonly PaneTab[]): PaneLeaf {
   const held = new Set(leaf.tabs.map((tab) => tab.path));
-  const added = tabs.filter((tab) => !held.has(tab.path));
+  const added: PaneTab[] = [];
+  for (const tab of tabs) {
+    if (held.has(tab.path)) {
+      continue;
+    }
+    held.add(tab.path);
+    added.push(tab);
+  }
   if (added.length === 0) {
     return leaf;
   }

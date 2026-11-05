@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { CONTENT_DOCK, PRIMARY_PANE } from './pane-address';
 import { PaneLeaf, leafOf } from './pane-node';
 import { PaneTreeService } from './pane-tree.service';
+import { isDefault, parseDocks } from './pane-tree-storage';
 import { PaneContainersService } from '../container/pane-containers.service';
 import { containerDockFor } from '../container/container-children';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
@@ -140,6 +141,71 @@ describe('PaneTreeService with a working-state store that can only load asynchro
 
     const leaf = paneTree.tree(dock) as PaneLeaf;
     expect(leaf.tabs.map((tab) => tab.path)).toEqual(['view:runs.cockpit']);
+  });
+});
+
+describe('the default arrangement, which is not stored', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('is the untouched primary pane and nothing else', () => {
+    const untouched: PaneLeaf = { kind: 'leaf', id: PRIMARY_PANE, tabs: [] };
+
+    expect(isDefault({ node: untouched, primary: PRIMARY_PANE })).toBe(true);
+    expect(
+      isDefault({
+        node: { ...untouched, id: 'promoted' },
+        primary: 'promoted',
+      }),
+    ).toBe(false);
+    expect(
+      isDefault({
+        node: { ...untouched, declared: true },
+        primary: PRIMARY_PANE,
+      }),
+    ).toBe(false);
+  });
+
+  it('a container whose only area was declared empty keeps that area, also when it is read back', () => {
+    const paneTree = TestBed.inject(PaneTreeService);
+    const dock = containerDockFor('runs/1');
+    TestBed.inject(PaneContainersService).ensureContainer(dock, {
+      children: ['runs.cockpit'],
+      initial: { columns: [{ tabs: [] }] },
+    });
+
+    expect(paneTree.tree(dock)).toMatchObject({ tabs: [], declared: true });
+    expect(parseDocks(paneTree.serialize())[dock]?.node).toMatchObject({
+      tabs: [],
+      declared: true,
+    });
+  });
+
+  it('an area declared empty survives its last child being closed', () => {
+    const paneTree = TestBed.inject(PaneTreeService);
+    const dock = containerDockFor('runs/1');
+    paneTree.commit(dock, {
+      kind: 'leaf',
+      id: PRIMARY_PANE,
+      tabs: [{ path: 'view:runs.cockpit' }],
+      declared: true,
+    });
+
+    paneTree.setPrimaryTabs(dock, []);
+
+    expect(paneTree.tree(dock)).toMatchObject({ tabs: [], declared: true });
+  });
+
+  it('a pane that took the address over keeps its identity when its last tab closes', () => {
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.commit(
+      CONTENT_DOCK,
+      { kind: 'leaf', id: 'promoted', tabs: [{ path: 'search' }] },
+      'promoted',
+    );
+
+    paneTree.setPrimaryTabs(CONTENT_DOCK, []);
+
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe('promoted');
   });
 });
 

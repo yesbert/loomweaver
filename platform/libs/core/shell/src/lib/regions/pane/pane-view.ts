@@ -274,6 +274,10 @@ export class PaneView {
     this.paneTree.unpinTab(this.dock(), this.leaf().id, tab.path);
   }
 
+  protected onRevealTab(path: string): void {
+    this.paneTree.bringTabToFront(this.dock(), this.leaf().id, path);
+  }
+
   protected releaseTabInstance(): void {
     this.paneTree.clearTabInstance(this.dock(), this.leaf().id, this.path());
   }

@@ -29,6 +29,10 @@ did not know, and carried a call from a run that broke off into the next one.
 - The agent connection follows one run at a time and forgets the calls an earlier run left open. A
   check before a call that throws, rejects or gives no decision refuses the call, and the agent is
   told only that the check failed.
+- A tab that changes panes, and a tab a closing pane hands to its neighbour, is built anew where it
+  arrives. Where that would destroy unsaved work, the move or the close asks first. The capability
+  said a handed-over tab keeps its work and is not asked about; the workbench never kept it, and
+  until a surface can be carried to another pane, asking is what protects the work.
 - Every other finding is fixed where it sits, each with a test that fails before the fix. The task
   list names them by area: the plugin trust boundary, unsaved work and panes, addresses and tabs,
   persistence and workspaces, commands and menus, the chrome, the agent connection, the scaffolding
@@ -47,6 +51,8 @@ None.
 
 - `plugin-runtime`: a plugin that does not run as the application's own code cannot replace a
   contribution another owner registered.
+- `content-tabs`: a tab spared by a bulk close is asked about where handing it over would destroy
+  unsaved work.
 - `commands`: the agent connection follows one run at a time, and a check that fails lets nothing
   through.
 

@@ -105,8 +105,8 @@ export class RetainedViewStash implements OnDestroy {
     let moved = false;
     for (const entry of this.entries.values()) {
       if (
-        !entry.inUse ||
-        !entry.retains ||
+        !(entry.inUse || entry.inPlace) ||
+        !(entry.retains || instanceDirty(entry.instance)) ||
         entry.mode !== 'in-place' ||
         isHeld(entry) ||
         !matches(entry.key)

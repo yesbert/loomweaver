@@ -199,6 +199,20 @@ describe('SurfaceCloseGuard', () => {
     expect(proceed).toHaveBeenCalledTimes(2);
   });
 
+  it('a beforeClose that answers neither yes nor no, nor promises an answer, lets the close proceed', async () => {
+    const guard = TestBed.inject(SurfaceCloseGuard);
+    const proceed = vi.fn();
+
+    for (const answer of [undefined, null, 'no idea', 0]) {
+      const silent = new VetoProbe(true);
+      silent.surfaceBeforeClose = () => answer as unknown as boolean;
+      guard.guarded([silent], proceed);
+    }
+    await settle();
+
+    expect(proceed).toHaveBeenCalledTimes(4);
+  });
+
   it('an approved veto does not bypass the unsaved-changes dialog', async () => {
     const guard = TestBed.inject(SurfaceCloseGuard);
     const proceed = vi.fn();

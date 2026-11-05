@@ -28,10 +28,10 @@ function paths(node: PaneNode, paneId: string): string[] {
   return (findLeaf(node, paneId)?.tabs ?? []).map((tab) => tab.path);
 }
 
-function setUp(tree: PaneNode): PaneTreeService {
+function setUp(tree: PaneNode, primary?: string): PaneTreeService {
   localStorage.clear();
   const paneTree = TestBed.inject(PaneTreeService);
-  paneTree.commit(CONTENT_DOCK, tree);
+  paneTree.commit(CONTENT_DOCK, tree, primary);
   return paneTree;
 }
 
@@ -122,6 +122,62 @@ describe('Closing a pane hands what cannot close to the pane that takes its spac
     expect(paths(paneTree.tree(CONTENT_DOCK), 'other')).toEqual([
       'search',
       FIXED.path,
+    ]);
+  });
+
+  it('closing the pane carrying the address promotes the pane beside it, which takes its space and its fixed tabs', () => {
+    const paneTree = setUp(
+      row(
+        row(
+          leaf('far', [{ path: 'doc/a' }]),
+          leaf('near', [{ path: 'doc/b' }]),
+        ),
+        leaf(PRIMARY_PANE, [FIXED, ORDINARY]),
+      ),
+      PRIMARY_PANE,
+    );
+
+    const promoted = paneTree.collapsePrimary(CONTENT_DOCK, sparedByBulkClose);
+
+    const tree = paneTree.tree(CONTENT_DOCK);
+    expect(promoted).toBe('doc/b');
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe('near');
+    expect(paths(tree, 'near')).toEqual(['doc/b', FIXED.path]);
+    expect(paths(tree, 'far')).toEqual(['doc/a']);
+  });
+
+  it('closing the pane carrying the address between two others promotes the one it shared its split with', () => {
+    const paneTree = setUp(
+      row(
+        leaf('left', [{ path: 'doc/a' }]),
+        row(leaf(PRIMARY_PANE, [FIXED]), leaf('right', [{ path: 'doc/b' }])),
+      ),
+      PRIMARY_PANE,
+    );
+
+    paneTree.collapsePrimary(CONTENT_DOCK, sparedByBulkClose);
+
+    expect(paneTree.primaryId(CONTENT_DOCK)).toBe('right');
+    expect(paths(paneTree.tree(CONTENT_DOCK), 'right')).toEqual([
+      'doc/b',
+      FIXED.path,
+    ]);
+  });
+
+  it('undoing a split hands over once a tab that two of the closing panes hold', () => {
+    const paneTree = setUp(
+      row(
+        leaf(PRIMARY_PANE, [{ path: 'search' }]),
+        row(leaf('middle', [FIXED, PINNED]), leaf('right', [FIXED])),
+      ),
+    );
+
+    paneTree.unsplit(CONTENT_DOCK, sparedByBulkClose);
+
+    expect(paths(paneTree.tree(CONTENT_DOCK), PRIMARY_PANE)).toEqual([
+      'search',
+      FIXED.path,
+      PINNED.path,
     ]);
   });
 

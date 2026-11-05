@@ -13,6 +13,8 @@ import { findLeaf } from '../../pane/tree/pane-queries';
 import { SurfaceCloseGuard } from '../../pane/unsaved-work/surface-close-guard';
 import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
+import { TabClosingService } from './tab-closing.service';
+import { keepsEverything } from '../../pane/tree/pane-handover';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
@@ -173,6 +175,9 @@ describe('TabClosingService close guarding', () => {
   const dirtyChild = {
     surfaceDirty: () => true,
   };
+  const dirtyDocument = {
+    surfaceDirty: () => true,
+  };
 
   async function setup() {
     localStorage.clear();
@@ -185,7 +190,10 @@ describe('TabClosingService close guarding', () => {
           provide: RetainedViewStash,
           useValue: {
             version: signal(0),
-            instancesFor: () => [],
+            instancesFor: (scope: string, path: string) =>
+              scope === 'content:main' && path === 'doc/b'
+                ? [dirtyDocument]
+                : [],
             evacuate: () => undefined,
             keyedInstances: () => [
               { key: 'container@doc/a:c1|canvas', instance: dirtyChild },
@@ -227,6 +235,19 @@ describe('TabClosingService close guarding', () => {
     guard.proceed = true;
     service.closePrimaryPane();
     expect(paneTree.isSplit('content')).toBe(false);
+  });
+
+  it('closePrimaryPane asks about a tab it hands to the pane taking over, since it is built anew there', async () => {
+    const { guard, harness } = await setup();
+    await harness.navigateByUrl('/doc/b');
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/b');
+    guard.proceed = false;
+
+    TestBed.inject(TabClosingService).closePrimaryPane(keepsEverything);
+
+    expect(guard.captured.at(-1)).toEqual([dirtyDocument]);
+    expect(paneTree.isSplit('content')).toBe(true);
   });
 });
 

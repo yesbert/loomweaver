@@ -1,5 +1,7 @@
-import { Provider } from '@angular/core';
+import { Component, Provider, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   ContentFeatures,
   DEFAULT_SHELL_FEATURES,
@@ -61,6 +63,7 @@ const tree = {
   unpinTab: vi.fn(),
   keepTab: vi.fn(),
   pinTab: vi.fn(),
+  bringTabToFront: vi.fn(),
   reorderPaneTabs: vi.fn(),
   splitPane: vi.fn(),
   closePane: vi.fn(),
@@ -70,6 +73,8 @@ const tree = {
   isSplit: vi.fn(() => true),
   tree: vi.fn(() => leafOf('p1', 'doc/a')),
   primaryId: vi.fn(() => 'main'),
+  arrangement: vi.fn(() => 0),
+  dockTrees: vi.fn(() => ({})),
   carriesAddress: vi.fn(
     (pane: { dock: string; paneId: string }) =>
       pane.dock === 'content' && pane.paneId === tree.primaryId(),
@@ -125,17 +130,13 @@ interface BuildExtras {
   readonly containerChildren?: readonly string[];
 }
 
-function build(
-  options: PaneViewOptions,
-  toolbar?: Partial<ContentFeatures>,
-  path = 'search',
-  extras: BuildExtras = {},
-): PaneViewInternals {
-  vi.clearAllMocks();
-  const features: ShellFeatures = {
-    ...DEFAULT_SHELL_FEATURES,
-    content: { ...DEFAULT_SHELL_FEATURES.content, ...toolbar },
-  };
+@Component({ selector: 'lw-pane-tab-strip', template: '' })
+class StripProbe {
+  readonly overflow = input(false);
+  readonly revealRequest = output<string>();
+}
+
+function configure(features: ShellFeatures, extras: BuildExtras = {}): void {
   const providers: Provider[] = [
     { provide: PaneTreeService, useValue: tree },
     { provide: PaneContainersService, useValue: containers },
@@ -155,6 +156,33 @@ function build(
     });
   }
   TestBed.configureTestingModule({ providers });
+}
+
+function renderedStrip(): StripProbe {
+  vi.clearAllMocks();
+  configure(DEFAULT_SHELL_FEATURES);
+  TestBed.overrideComponent(PaneView, {
+    set: { imports: [StripProbe, TranslocoPipe] },
+  });
+  const fixture = TestBed.createComponent(PaneView);
+  fixture.componentRef.setInput('dock', 'content');
+  fixture.componentRef.setInput('leaf', leafOf('p1', 'view:outline'));
+  fixture.detectChanges();
+  return fixture.debugElement.query(By.directive(StripProbe)).componentInstance;
+}
+
+function build(
+  options: PaneViewOptions,
+  toolbar?: Partial<ContentFeatures>,
+  path = 'search',
+  extras: BuildExtras = {},
+): PaneViewInternals {
+  vi.clearAllMocks();
+  const features: ShellFeatures = {
+    ...DEFAULT_SHELL_FEATURES,
+    content: { ...DEFAULT_SHELL_FEATURES.content, ...toolbar },
+  };
+  configure(features, extras);
   TestBed.overrideComponent(PaneView, { set: { template: '', imports: [] } });
   const fixture = TestBed.createComponent(PaneView);
   fixture.componentRef.setInput('dock', 'content');
@@ -325,6 +353,16 @@ describe('PaneView (content pane)', () => {
       paneId: 'p1',
     });
     expect(tree.removeTab).not.toHaveBeenCalled();
+  });
+
+  it('the strip of a pane lists the tabs that do not fit, and one chosen from the list is brought into view', () => {
+    const strip = renderedStrip();
+
+    expect(strip.overflow()).toBe(true);
+
+    strip.revealRequest.emit('doc/a');
+
+    expect(tree.bringTabToFront).toHaveBeenCalledWith('content', 'p1', 'doc/a');
   });
 
   it('unpinning a travelled pinned tab clears the flag on the tree', () => {

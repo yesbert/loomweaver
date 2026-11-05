@@ -12,6 +12,13 @@ type VetoHook = () => boolean | Promise<boolean>;
 
 export const BEFORE_CLOSE_TIMEOUT_MS = 5000;
 
+function promised(result: unknown): result is PromiseLike<boolean> {
+  return (
+    typeof (result as Partial<PromiseLike<boolean>> | null | undefined)
+      ?.then === 'function'
+  );
+}
+
 @Service()
 export class SurfaceCloseGuard implements DialogCloseGuard {
   private readonly dialogs = inject(DialogService);
@@ -85,10 +92,10 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
       console.error('surfaceBeforeClose() threw — closing anyway', error);
       return true;
     }
-    if (typeof result === 'boolean') {
-      return result;
+    if (!promised(result)) {
+      return result !== false;
     }
-    const settled = result.then(
+    const settled = Promise.resolve(result).then(
       (value) => value !== false,
       (error: unknown) => {
         console.error('surfaceBeforeClose() rejected — closing anyway', error);

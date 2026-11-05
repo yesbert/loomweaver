@@ -40,15 +40,29 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 2. Unsaved work and panes
 
-- [ ] 2.1 Closing a pane or undoing a split asks about unsaved work in view tabs and container children too: one lookup, the one closing a tab uses (`regions/pane/pane-actions.service.ts`, `pane.service.spec.ts` with a home route)
-- [ ] 2.2 A tab that changes panes keeps its unsaved work: drag, split, `moveTab`, hand-over on pane close (`regions/pane/retention/parked-view-sweep.ts`, `drag/pane-move.service.ts`, `tree/pane-handover.ts`)
-- [ ] 2.3 Every pane's strip offers the listing control for tabs that do not fit (`regions/pane/pane-view.html`)
-- [ ] 2.4 Only the untouched primary pane counts as the default arrangement; an area declared empty stays (`regions/pane/tree/pane-tree-storage.ts`)
-- [ ] 2.5 Minimised and maximised state does not carry over to another workspace (`regions/pane/chrome/pane-chrome.service.ts`)
-- [ ] 2.6 Tabs handed over on unsplit are not duplicated within the handed list (`regions/pane/tree/pane-handover.ts`)
-- [ ] 2.7 A close refusal that answers neither yes, no nor a promise counts as consent (`regions/pane/unsaved-work/surface-close-guard.ts`)
-- [ ] 2.8 Closing the address pane promotes the pane that takes its space (`regions/pane/tree/pane-handover.ts`)
-- [ ] 2.9 Lead: minimising or maximising a pane does not reload a retained isolated surface (`regions/pane/chrome/`)
+- [x] 2.1 Closing a pane or undoing a split asks about unsaved work in view tabs and container children too: one lookup, the one closing a tab uses (`regions/pane/pane-actions.service.ts`, `pane.service.spec.ts` with a home route)
+- [x] 2.2 A tab that changes panes asks first where the change would destroy unsaved work, and is left where it was on a refusal: drag, split, moveTab, hand-over on pane close. Carrying the instance over is handed to the owner (see design.md)
+- [x] 2.3 Every pane's strip offers the listing control for tabs that do not fit (`regions/pane/pane-view.html`)
+- [x] 2.4 Only the untouched primary pane counts as the default arrangement; an area declared empty stays (`regions/pane/tree/pane-tree-storage.ts`)
+- [x] 2.5 Minimised and maximised state does not carry over to another workspace (`regions/pane/chrome/pane-chrome.service.ts`)
+- [x] 2.6 Tabs handed over on unsplit are not duplicated within the handed list (`regions/pane/tree/pane-handover.ts`)
+- [x] 2.7 A close refusal that answers neither yes, no nor a promise counts as consent (`regions/pane/unsaved-work/surface-close-guard.ts`)
+- [x] 2.8 Closing the address pane promotes the pane that takes its space (`regions/pane/tree/pane-handover.ts`)
+- [x] 2.9 Lead: minimising or maximising a pane does not reload a retained isolated surface (`regions/pane/chrome/`)
+- [x] 2.10 Covered by 2.2: a tab dropped on a pane that already holds it leaves its own pane, so it is asked about like any other move (`regions/pane/drag/pane-move.service.ts`)
+- [x] 2.11 Covered by 2.2: an isolated surface is built anew in its new pane like every other surface, so it is asked about like any other move
+- [x] 2.12 A surface holding unsaved work that did not ask to be kept survives its pane being taken down: workspace switch, pane removal, minimise, blow-up (`regions/pane/retention/retained-view-stash.ts`, `evacuate`)
+- [x] 2.13 Not done, handed to the owner as a decision (see design.md): An instance parked by one workspace is not claimed by another workspace showing the same address in a pane of the same id (`retained-view-stash.ts`, `claimableEntry`)
+- [x] 2.14 Lead, verify first: moving the last child out of a container's primary pane promotes the pane that takes its space, as closing does (`regions/pane/tree/pane-structure.ts`, `withoutEmptyPrimary`)
+- [ ] 2.15 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`)
+- [x] 2.16 Not done, handed to the owner as a decision (see design.md): Lead, verify first: a surface that stays mounted across a workspace switch belongs to the workspace now shown, and is not parked later for the one that built it (`regions/pane/retention/`)
+- [ ] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
+- [x] 2.18 Not applicable any more: nothing is carried (see 2.2)
+- [x] 2.19 Not done, handed to the owner as a decision (see design.md): An instance in use across a workspace switch belongs to the workspace now shown, so it is parked for that one; and deleting the active workspace leaves nothing parked under an id that no longer exists (`regions/pane/retention/`, `workspace/workspace.service.ts`)
+- [x] 2.20 After the question a move asks, the move is worked out against the tree as it is then: a move whose source or target is gone, or whose workspace changed meanwhile, is abandoned with the tab left where it is (`regions/pane/drag/pane-move.service.ts`)
+- [x] 2.21 Covered by 2.2: nothing is re-keyed any more, so every instance whose tab leaves its pane counts as destroyed and is asked about (`regions/pane/retention/open-tabs.ts`, `regions/pane/unsaved-work/unsaved-work.ts`)
+- [x] 2.22 A container emptied of its last child shows its initial children again; an area declared empty stays (`regions/pane/container/container-pane-host.ts`)
+- [x] 2.23 A move that merges a tab away asks a surface that may refuse its close even when it holds no unsaved work, as closing the same tab does (`regions/pane/unsaved-work/unsaved-work.ts`)
 
 ## 3. Addresses and tabs
 

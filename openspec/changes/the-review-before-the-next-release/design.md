@@ -23,9 +23,12 @@ limit it by installation, so that a frame plugin the distribution composes could
 frame plugin is somebody else's code whichever way it arrived, and the toolbar slot already refuses
 on ownership alone. A distribution that wants to override does it in its own code.
 
-**Unsaved work moves with its tab.** Where a tab changes panes the instance holding the work is
-carried over rather than the user being asked. The specification already says the tab keeps its
-work in the neighbour, and a question on every drag would teach people to dismiss it.
+**A move asks before it destroys unsaved work.** A tab that changes panes is built anew in its new
+pane, as before, so every instance whose tab leaves its pane is asked about first, exactly as closing
+that tab would ask, and a refusal leaves the tab where it was. Carrying the instance over instead
+was built and taken out again, because it collides with two things the platform is built on: a
+surface's instance id is its pane's key, which is what plugins key stored state by, and its injector
+belongs to the pane's body.
 
 **The bundle-size guard counts what the browser fetches.** It follows the static imports of the
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the
@@ -38,3 +41,15 @@ measurement, not growth, and the pull request says both numbers.
   routing have merged, and before the hand-over.
 - The release workflow cannot be exercised without publishing. Its changes are kept to a skip and a
   comparison, each tried with `--dry-run` or against an existing version.
+
+## Open for the owner
+
+On `main` a surface parked by one workspace is claimed by another workspace that shows the same
+address in a pane of the same id, taking its unsaved edits along. Separating them per workspace was
+built and taken out again, because it raised questions only the owner can settle: which workspace
+owns a surface that stays on screen across a switch, what happens to in-use surfaces when the active
+workspace is deleted, and when an arrangement counts as arrived while the address is still settling.
+
+Carrying a surface to another pane instead of rebuilding it, so that a drag keeps unsaved work
+without a question, is open too. Two things would have to be decided first: what an instance id
+means once an instance can move between panes, and where a moved surface's injector lives.

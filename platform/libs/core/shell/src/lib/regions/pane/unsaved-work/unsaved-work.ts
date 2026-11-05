@@ -3,6 +3,7 @@ import { ContributionRegistry } from '../../../contributions/contribution-regist
 import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
 import { normalizePath, tabRootOf } from '../../content/content-path';
 import { isViewPanePath } from '../tree/pane-address';
+import { DockTrees, tabsLeavingTheirPane } from '../retention/open-tabs';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import { instanceDirty } from './dirty-surface';
 import {
@@ -28,6 +29,16 @@ export class UnsavedWork {
           containerChildInstances(keyed, address),
         ),
       ]),
+    ];
+  }
+
+  lostBy(before: DockTrees, after: DockTrees): unknown[] {
+    return [
+      ...new Set(
+        tabsLeavingTheirPane(before, after).flatMap((tab) =>
+          this.instancesAt(tab.scope, tab.path),
+        ),
+      ),
     ];
   }
 

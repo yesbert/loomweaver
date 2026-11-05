@@ -9,6 +9,7 @@ import { CONTAINER_CHILD_REGION } from '../../../contributions/surface-normalize
 import { activeTab } from '../tree/pane-node';
 import { collectLeafIds, findLeaf } from '../tree/pane-queries';
 import { PaneTreeService } from '../tree/pane-tree.service';
+import { PaneMoveService } from '../drag/pane-move.service';
 import { containerDockFor } from './container-children';
 import { ContainerPaneHost } from './container-pane-host';
 
@@ -89,6 +90,50 @@ describe('a container whose arrangement is replaced while it is open', () => {
     const drawn = leaf();
     expect(drawn?.tabs.map((tab) => tab.path)).toEqual(['box/a', 'box/b']);
     expect(drawn && activeTab(drawn)?.path).toBe('box/b');
+  });
+
+  it('lays out its children again once the last one has been moved to another dock', async () => {
+    const paneMove = TestBed.inject(PaneMoveService);
+    const only = paneId();
+
+    for (const child of ['box/a', 'box/b']) {
+      paneMove.moveToStrip({ dock: DOCK, paneId: only }, child, {
+        dock: 'left',
+        paneId: 'main',
+      });
+    }
+    await settle();
+
+    expect(leaf()?.tabs.map((tab) => tab.path)).toEqual(['box/a', 'box/b']);
+  });
+
+  it('does the same where the pane emptied last is one that was promoted, rather than staying an empty pane', async () => {
+    const paneMove = TestBed.inject(PaneMoveService);
+    const first = paneId();
+    paneMove.moveToEdge(
+      { dock: DOCK, paneId: first },
+      'box/b',
+      { dock: DOCK, paneId: first },
+      'right',
+    );
+    await settle();
+    const promoted = collectLeafIds(paneTree.tree(DOCK))[1];
+    paneMove.moveToStrip({ dock: DOCK, paneId: first }, 'box/a', {
+      dock: DOCK,
+      paneId: promoted,
+    });
+    await settle();
+    expect(collectLeafIds(paneTree.tree(DOCK))).toEqual([promoted]);
+
+    for (const child of ['box/a', 'box/b']) {
+      paneMove.moveToStrip({ dock: DOCK, paneId: promoted }, child, {
+        dock: 'left',
+        paneId: 'main',
+      });
+    }
+    await settle();
+
+    expect(leaf()?.tabs.map((tab) => tab.path)).toEqual(['box/a', 'box/b']);
   });
 
   it('keeps the address on the child', async () => {

@@ -114,7 +114,9 @@ export class ContainerPaneHost {
       : restBelow(this.containerPath, normalizePath(path));
   });
 
-  private readonly arranged = computed(() => this.paneTree.hasDock(this.dock));
+  private readonly arranged = computed(() =>
+    this.containers.arranged(this.dock),
+  );
 
   constructor() {
     this.containers.ensureContainer(this.dock, this.spec);
