@@ -8,7 +8,12 @@ import {
 import { SurfaceHoldState } from './surface-hold';
 import { instanceDirty } from '../unsaved-work/dirty-surface';
 import { isKeyForSurface, isPrimaryRetentionKey } from './retention-keys';
-import { HiddenNode } from './holding-area';
+import {
+  HiddenNode,
+  HoldingArea,
+  hideElements,
+  revealElements,
+} from './holding-area';
 
 export type DeferredPlacement = 'detach' | 'hideInPlace';
 
@@ -75,6 +80,37 @@ export function shownOrParkedIn(
   );
 }
 
+export function adoptInUse(
+  entries: Map<string, StashEntry>,
+  workspaceId: string,
+): StashEntry[] {
+  const displaced: StashEntry[] = [];
+  const elsewhere = [...entries.values()].filter(
+    (entry) => entry.inUse && entry.workspace !== workspaceId,
+  );
+  for (const entry of elsewhere) {
+    const slot = slotOf(workspaceId, entry.key);
+    if (entries.has(slot) && entries.get(slot) !== entry) {
+      displaced.push(entry);
+      continue;
+    }
+    entries.delete(slotOf(entry.workspace, entry.key));
+    entry.workspace = workspaceId;
+    entries.set(slot, entry);
+  }
+  return displaced;
+}
+
+export function homeless(
+  entry: StashEntry,
+  gone: ReadonlySet<string>,
+): boolean {
+  return (
+    !entry.tracked ||
+    (gone.has(entry.workspace) && !isPrimaryRetentionKey(entry.key))
+  );
+}
+
 export function evacuable(entry: StashEntry): boolean {
   return (
     (entry.inUse || entry.inPlace) &&
@@ -102,6 +138,51 @@ export function parkedInPlaceAt(
   return (
     nodes.length > 0 &&
     nodes.every((node) => node.isConnected && node.parentNode === parent)
+  );
+}
+
+export function pullNodes(entry: StashEntry): void {
+  for (const node of liveRootNodes(entry)) {
+    (node as ChildNode).remove();
+  }
+}
+
+export function hideNodes(
+  entry: StashEntry,
+  holding: HoldingArea | null,
+): void {
+  if (entry.retains && holding) {
+    holding.moveInto(liveRootNodes(entry));
+  }
+  entry.hidden = hideElements(elementsOf(entry));
+  entry.inPlace = true;
+}
+
+export function showNodes(entry: StashEntry): void {
+  revealElements(entry.hidden);
+  entry.hidden = [];
+}
+
+export function reclaimable(
+  entry: StashEntry,
+  source: RetainedViewSource,
+  parent: Node | null,
+  atomicMove: boolean,
+): boolean {
+  return (
+    entry.source === source &&
+    !entry.view.destroyed &&
+    (!entry.inPlace ||
+      parkedInPlaceAt(entry, parent) ||
+      (atomicMove && liveRootNodes(entry).every((node) => node.isConnected)))
+  );
+}
+
+export function spent(entry: StashEntry): boolean {
+  return (
+    !entry.inUse &&
+    !isHeld(entry) &&
+    (orphaned(entry) || (!entry.retains && !instanceDirty(entry.instance)))
   );
 }
 
@@ -223,15 +304,22 @@ export function instancesAt(
     .filter((instance) => instance !== undefined);
 }
 
-export function inPlaceInstancesAt(
-  entries: Iterable<StashEntry>,
-  scope: string,
-  path: string,
+export function uncarried(
+  entries: Map<string, StashEntry>,
+  workspaceId: string,
+  rename: (key: string) => string,
+  atomicMove: boolean,
 ): unknown[] {
-  return instancesAt(
-    [...entries].filter((entry) => entry.mode === 'in-place'),
-    scope,
-    path,
+  return instancesOf(
+    [...entries.values()].filter((entry) => {
+      const key = rename(entry.key);
+      return (
+        entry.workspace === workspaceId &&
+        key !== entry.key &&
+        (entries.has(slotOf(workspaceId, key)) ||
+          (!atomicMove && entry.mode === 'in-place'))
+      );
+    }),
   );
 }
 

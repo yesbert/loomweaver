@@ -60,11 +60,11 @@ export class PaneActions {
     }
     const keeps = this.keepsOnClose(dock);
     const closed = closedWithHandover(this.paneTree.tree(dock), paneId, keeps);
-    const candidates = [
+    const candidates = new Set([
       ...this.candidatesOf(dock, leaf, keeps),
       ...this.lostBy(dock, closed),
-    ];
-    this.closeGuard.guarded(candidates, () => {
+    ]);
+    this.closeGuard.guarded([...candidates], () => {
       if (primary) {
         this.paneTree.collapsePrimary(dock, keeps);
         return;
@@ -80,13 +80,13 @@ export class PaneActions {
     const primary = this.paneTree.primaryId(dock);
     const keeps = this.keepsOnClose(dock);
     const tree = this.paneTree.tree(dock);
-    const candidates = [
+    const candidates = new Set([
       ...leavesOf(tree)
         .filter((leaf) => leaf.id !== primary)
         .flatMap((leaf) => this.candidatesOf(dock, leaf, keeps)),
       ...this.lostBy(dock, unsplitWithHandover(tree, primary, keeps)),
-    ];
-    this.closeGuard.guarded(candidates, () =>
+    ]);
+    this.closeGuard.guarded([...candidates], () =>
       this.paneTree.unsplit(dock, keeps),
     );
   }

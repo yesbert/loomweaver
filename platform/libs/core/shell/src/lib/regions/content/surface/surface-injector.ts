@@ -36,20 +36,17 @@ export function surfaceMounts(
   const cache = new Map<RegisteredContentRoute, Map<string, SurfaceMount>>();
   return {
     mountFor: (route, key, address, built) => {
-      const carried = built?.get(SURFACE_MOUNT, null);
-      if (carried?.route === route) {
-        return carried;
-      }
       let byKey = cache.get(route);
       if (!byKey) {
         byKey = new Map();
         cache.set(route, byKey);
       }
-      const cached = byKey.get(key);
-      if (cached) {
-        return cached;
-      }
-      const mount = newMount(route, key, address, parent, environmentInjector);
+      const carried = built?.get(SURFACE_MOUNT, null);
+      const mount =
+        carried?.route === route
+          ? carried
+          : (byKey.get(key) ??
+            newMount(route, key, address, parent, environmentInjector));
       byKey.set(key, mount);
       return mount;
     },

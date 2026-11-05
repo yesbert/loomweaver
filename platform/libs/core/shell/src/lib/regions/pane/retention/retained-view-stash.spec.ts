@@ -16,6 +16,7 @@ import { moveNode, supportsAtomicMove } from './atomic-move';
 import { RetainedComponent } from './retained-component';
 import { RetainedTemplate } from './retained-template';
 import { RetainedViewStash } from './retained-view-stash';
+import { PaneTreeService } from '../tree/pane-tree.service';
 import { isKeyOfPane } from './retention-keys';
 
 let instances: ProbeView[] = [];
@@ -261,6 +262,101 @@ describe('surface retention', () => {
       expect(stash.parked().map((entry) => entry.workspace)).toEqual([
         'default',
       ]);
+    });
+  });
+
+  describe('what is still in use once another workspace is drawn', () => {
+    function switchedTo(id: string): void {
+      TestBed.inject(ActiveWorkspaceService).set(id);
+      TestBed.inject(PaneTreeService).hydrate(undefined);
+    }
+
+    function parkedFor(): string[] {
+      return TestBed.inject(RetainedViewStash)
+        .parked()
+        .map((entry) => entry.workspace);
+    }
+
+    it('belongs to the workspace now shown, and is parked for that one when it is hidden later', async () => {
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+
+      switchedTo('elsewhere');
+      fixture.detectChanges();
+      fixture.componentInstance.mountAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(parkedFor()).toEqual(['elsewhere']);
+    });
+
+    it('stays with the workspace left when the switch itself takes its pane down', async () => {
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+
+      switchedTo('elsewhere');
+      fixture.componentInstance.mountAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(parkedFor()).toEqual(['default']);
+    });
+
+    it('makes way for what the workspace now shown had parked at the same place, and waits for its own', async () => {
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+      const [theirs] = instances;
+      fixture.componentInstance.mountAlive.set(false);
+      fixture.detectChanges();
+      switchedTo('elsewhere');
+      fixture.componentInstance.mountAlive.set(true);
+      fixture.detectChanges();
+      const mine = instances[1];
+      mine.draft.set('typed elsewhere');
+
+      switchedTo('default');
+      fixture.detectChanges();
+      await afterSweep();
+      fixture.detectChanges();
+
+      expect(destroyed).toBe(0);
+      expect(parkedFor()).toEqual(['elsewhere']);
+      expect(
+        TestBed.inject(RetainedViewStash).instancesFor('content:main', 'frame'),
+      ).toEqual([theirs]);
+    });
+
+    it('is destroyed rather than parked when the workspace it was built in has been deleted', async () => {
+      const stash = TestBed.inject(RetainedViewStash);
+      TestBed.inject(ActiveWorkspaceService).set('doomed');
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+
+      stash.evictWorkspace('doomed');
+      switchedTo('default');
+      fixture.componentInstance.mountAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(1);
+      expect(parkedFor()).toEqual([]);
+    });
+
+    it('is taken over by the workspace now shown when the one it was built in has been deleted', async () => {
+      const stash = TestBed.inject(RetainedViewStash);
+      TestBed.inject(ActiveWorkspaceService).set('doomed');
+      const fixture = TestBed.createComponent(InPlaceHost);
+      fixture.detectChanges();
+
+      stash.evictWorkspace('doomed');
+      switchedTo('default');
+      fixture.detectChanges();
+      fixture.componentInstance.mountAlive.set(false);
+      fixture.detectChanges();
+      await afterSweep();
+
+      expect(destroyed).toBe(0);
+      expect(parkedFor()).toEqual(['default']);
     });
   });
 

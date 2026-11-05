@@ -2,7 +2,11 @@ import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
 import { RetainedViewStash } from '../retention/retained-view-stash';
-import { DockTrees, tabDepartures } from '../retention/tree-retention';
+import {
+  DockTrees,
+  TreeRetention,
+  tabDepartures,
+} from '../retention/tree-retention';
 import { instanceDirty } from './dirty-surface';
 import {
   containerChildInstances,
@@ -14,6 +18,7 @@ import {
 export class UnsavedWork {
   private readonly stash = inject(RetainedViewStash);
   private readonly registry = inject(ContributionRegistry);
+  private readonly retention = inject(TreeRetention);
 
   instancesAt(scope: string, path: string): unknown[] {
     this.stash.version();
@@ -32,14 +37,13 @@ export class UnsavedWork {
   }
 
   lostBy(before: DockTrees, after: DockTrees): unknown[] {
-    const lost = tabDepartures(before, after).flatMap((tab) =>
-      tab.to === null
-        ? this.instancesAt(tab.from, tab.path)
-        : this.addressesOf(tab.path).flatMap((address) =>
-            this.stash.uncarriableAt(tab.from, address),
-          ),
-    );
-    return [...new Set(lost)].filter((instance) => instanceDirty(instance));
+    const closed = tabDepartures(before, after)
+      .filter((tab) => tab.to === null)
+      .flatMap((tab) => this.instancesAt(tab.from, tab.path));
+    const uncarried = this.retention
+      .uncarriedBy(before, after)
+      .filter((instance) => instanceDirty(instance));
+    return [...new Set([...closed, ...uncarried])];
   }
 
   instancesEverywhere(): unknown[] {

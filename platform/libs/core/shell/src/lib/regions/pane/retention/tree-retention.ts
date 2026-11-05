@@ -41,6 +41,21 @@ export class TreeRetention {
   }
 
   carryMovedTabs(before: DockTrees, after: DockTrees): void {
+    const rename = this.renameFor(before, after);
+    if (rename) {
+      this.stash.rekey(rename);
+    }
+  }
+
+  uncarriedBy(before: DockTrees, after: DockTrees): unknown[] {
+    const rename = this.renameFor(before, after);
+    return rename ? this.stash.uncarriedBy(rename) : [];
+  }
+
+  private renameFor(
+    before: DockTrees,
+    after: DockTrees,
+  ): ((key: string) => string) | null {
     const routes = this.registry.contentRoutes();
     const moves = tabDepartures(before, after)
       .filter((tab) => tab.to !== null)
@@ -49,9 +64,9 @@ export class TreeRetention {
         addresses: retainedAddressesOf(routes, move.path),
       }));
     if (moves.length === 0) {
-      return;
+      return null;
     }
-    this.stash.rekey((key) => {
+    return (key) => {
       const scope = scopeOfRetentionKey(key);
       const path = pathOfRetentionKey(key);
       const move = moves.find(
@@ -59,7 +74,7 @@ export class TreeRetention {
           candidate.from === scope && candidate.addresses.includes(path),
       );
       return move ? move.to + key.slice(scope.length) : key;
-    });
+    };
   }
 }
 

@@ -55,8 +55,14 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 2.13 An instance parked by one workspace is not claimed by another workspace showing the same address in a pane of the same id (`retained-view-stash.ts`, `claimableEntry`)
 - [x] 2.14 Lead, verify first: moving the last child out of a container's primary pane promotes the pane that takes its space, as closing does (`regions/pane/tree/pane-structure.ts`, `withoutEmptyPrimary`)
 - [ ] 2.15 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`)
-- [ ] 2.16 Lead, verify first: a surface that stays mounted across a workspace switch belongs to the workspace now shown, and is not parked later for the one that built it (`regions/pane/retention/`)
+- [x] 2.16 Lead, verify first: a surface that stays mounted across a workspace switch belongs to the workspace now shown, and is not parked later for the one that built it (`regions/pane/retention/`)
 - [ ] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
+- [x] 2.18 A tab that was carried to another pane keeps its instance and its unsaved work through a workspace switch (`regions/content/surface/surface-injector.ts`, `surface-body.ts`)
+- [x] 2.19 An instance in use across a workspace switch belongs to the workspace now shown, so it is parked for that one; and deleting the active workspace leaves nothing parked under an id that no longer exists (`regions/pane/retention/`, `workspace/workspace.service.ts`)
+- [x] 2.20 After the question a move asks, the move is worked out against the tree as it is then: a move whose source or target is gone, or whose workspace changed meanwhile, is abandoned with the tab left where it is (`regions/pane/drag/pane-move.service.ts`)
+- [x] 2.21 What a tree edit cannot carry counts as lost: where the slot a moved instance would be re-keyed to is occupied, its unsaved work is asked about (`regions/pane/retention/stash-entries.ts`, `parked-view-sweep.ts`)
+- [x] 2.22 A container emptied of its last child shows its initial children again; an area declared empty stays (`regions/pane/container/container-pane-host.ts`)
+- [x] 2.23 A move that merges a tab away asks a surface that may refuse its close even when it holds no unsaved work, as closing the same tab does (`regions/pane/unsaved-work/unsaved-work.ts`)
 
 ## 3. Addresses and tabs
 

@@ -10,19 +10,28 @@ import {
 import { containerChildTab, containerLayout } from './container-layout';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { LeftOutChildren } from './left-out-children';
-import { withLabel } from '../tree/pane-node';
+import { isDisposableLeaf, withLabel } from '../tree/pane-node';
 
 @Service()
 export class PaneContainersService {
   private readonly paneTree = inject(PaneTreeService);
   private readonly leftOut = inject(LeftOutChildren);
 
+  arranged(dock: string): boolean {
+    const tree = this.paneTree.tree(dock);
+    return (
+      this.paneTree.hasDock(dock) &&
+      !(tree.kind === 'leaf' && isDisposableLeaf(tree, []))
+    );
+  }
+
   ensureContainer(dock: string, spec: ContainerSpec | undefined): void {
-    if (this.paneTree.hasDock(dock)) {
+    if (this.arranged(dock)) {
       return;
     }
     const { node } = containerLayout(dock, spec, [], '');
     if (node === null) {
+      this.paneTree.dropDock(dock);
       return;
     }
     const landing = landingLeaf(node);

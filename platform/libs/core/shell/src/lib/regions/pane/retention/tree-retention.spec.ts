@@ -40,6 +40,7 @@ let drafts: DraftView[] = [];
 class DraftView implements OnDestroy, DirtySurface {
   readonly draft = signal('');
   destroyed = false;
+  refusesToClose = false;
 
   constructor() {
     drafts.push(this);
@@ -51,6 +52,10 @@ class DraftView implements OnDestroy, DirtySurface {
 
   surfaceDirty(): boolean {
     return this.draft() !== '';
+  }
+
+  surfaceBeforeClose(): boolean {
+    return !this.refusesToClose;
   }
 }
 
@@ -477,6 +482,65 @@ describe('a pane change that cannot keep an instance asks first, as closing it w
       expect(typed.destroyed).toBe(true);
     });
 
+    it('is abandoned, with the tab left where it is, when the pane it was going to is gone by the time of the answer', async () => {
+      const fixture = await drawn();
+      await typedAt(fixture, 'left:main');
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      paneTree.closePane('left', 'b');
+      answer('discard');
+      await settled(fixture);
+
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+    });
+
+    it('is abandoned when another workspace is shown by the time of the answer', async () => {
+      const fixture = await drawn();
+      await typedAt(fixture, 'left:main');
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      TestBed.inject(ActiveWorkspaceService).set('elsewhere');
+      answer('discard');
+      await settled(fixture);
+
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+      expect(tabsOf('b')).toEqual(['notes']);
+    });
+
+    it('is abandoned when the tab is no longer where it was by the time of the answer', async () => {
+      const fixture = await drawn();
+      await typedAt(fixture, 'left:main');
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'other'), leaf('b', 'third')),
+      );
+      answer('discard');
+      await settled(fixture);
+
+      expect(tabsOf('b')).toEqual(['third']);
+    });
+
+    it('asks a surface that may refuse its close even where it holds no unsaved work, and its refusal leaves the tab where it was', async () => {
+      const fixture = await drawn();
+      const [refusing] = stash.instancesFor(
+        'left:main',
+        'notes',
+      ) as DraftView[];
+      refusing.refusesToClose = true;
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(0);
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+      expect(refusing.destroyed).toBe(false);
+    });
+
     it('asks nothing where the instance that would go holds no unsaved work', async () => {
       const fixture = await drawn();
       await typedAt(fixture, 'left:b');
@@ -487,6 +551,30 @@ describe('a pane change that cannot keep an instance asks first, as closing it w
       expect(questions()).toBe(0);
       expect(tabsOf('main')).toEqual(['other']);
       expect(draftsShownIn(fixture, 'left:b')).toEqual(['typed']);
+    });
+  });
+
+  describe('a tab whose place in the target pane is taken by another tab below the same address', () => {
+    it('is asked about, instead of its unsaved work going unasked later', async () => {
+      TestBed.inject(ContributionRegistry).addContentRoute({
+        path: 'doc/:id',
+        component: DraftView,
+      });
+      paneTree.commit(
+        'left',
+        sideBySide(leaf('main', 'doc/7/details', 'other'), leaf('b', 'doc/7')),
+      );
+      const fixture = await drawn();
+      const [typed] = stash.instancesFor('left:main', 'doc/7') as DraftView[];
+      typed.draft.set('typed');
+      await settled(fixture);
+
+      TestBed.inject(PaneActions).moveTab('doc/7/details', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(1);
+      expect(tabsOf('main')).toEqual(['doc/7/details', 'other']);
+      expect(typed.destroyed).toBe(false);
     });
   });
 
