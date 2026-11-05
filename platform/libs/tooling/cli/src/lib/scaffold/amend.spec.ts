@@ -118,19 +118,20 @@ describe('planAmend', () => {
     expect(readFileSync(join(dir, 'angular.json'), 'utf8')).toBe(after);
   });
 
-  it('writes the configuration the build reads beside a script the build ignores, and says so', () => {
+  it('writes nothing beside a script the build ignores, and says which file the build would read', () => {
     writeFileSync(join(dir, 'postcss.config.js'), 'module.exports = {};');
     const plan = planAmend([POSTCSS], dir);
     applyAmend(plan);
-    expect(
-      JSON.parse(readFileSync(join(dir, '.postcssrc.json'), 'utf8')),
-    ).toEqual({ plugins: { '@tailwindcss/postcss': {} } });
-    expect(readFileSync(join(dir, 'postcss.config.js'), 'utf8')).toBe(
-      'module.exports = {};',
+    expect(plan.amendments).toHaveLength(0);
+    expect(existsSync(join(dir, '.postcssrc.json'))).toBe(false);
+    const note = plan.remaining.join(' ');
+    expect(note).toContain(
+      'postcss.config.js is a script, which the Angular build does not read',
     );
-    expect(plan.remaining.join(' ')).toMatch(
-      /postcss\.config\.js is a script, which the Angular build does not read/,
+    expect(note).toContain(
+      '.postcssrc.json containing { "plugins": { "@tailwindcss/postcss": {} } }',
     );
+    expect(note).toContain('shadows postcss.config.js');
   });
 
   it('adds the plugin to the configuration the build reads first', () => {

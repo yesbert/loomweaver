@@ -11,6 +11,7 @@ import {
   ensureBuildTarget,
   ensureStylesheetSource,
   entryStylesheet,
+  joinProjectPath,
   usesTailwind,
 } from '../lib/amend/merge';
 import {
@@ -39,6 +40,7 @@ import {
   StylesheetImportAmendment,
 } from '../lib/amend/types';
 import { FileMap } from '../lib/generate/types';
+import { insideWorkspace } from './project-config-files';
 
 export interface ResolvedApp {
   readonly name: string;
@@ -160,16 +162,6 @@ function filesUnder(
   );
 }
 
-function insideWorkspace(directory: string): string {
-  const normal = posix.normalize(directory.replaceAll('\\', '/'));
-  if (posix.isAbsolute(normal) || normal === '..' || normal.startsWith('../')) {
-    throw new Error(
-      `${directory} lies outside the workspace, so nothing was written. Pass a directory inside it, relative to the workspace root.`,
-    );
-  }
-  return normal;
-}
-
 export function amendBuildTarget(
   tree: Tree,
   app: string,
@@ -244,9 +236,10 @@ export function addPostcssPlugin(
   if (result.added.length === 0) {
     return;
   }
-  const ignored = postcssWrittenAsCode(exists, amendment, projectRoot);
-  if (ignored) {
-    logger.warn(ignored);
+  const writtenAsCode = postcssWrittenAsCode(exists, amendment, projectRoot);
+  if (writtenAsCode) {
+    logger.warn(writtenAsCode);
+    return;
   }
   tree.write(file, `${JSON.stringify(result.value, null, 2)}\n`);
 }
@@ -283,9 +276,12 @@ export function composeProvidersIntoAppConfig(
   appRoot: string,
   amendment: ComposeProviderAmendment,
 ): void {
-  const file = `${appRoot}/src/app/app.config.ts`;
+  const file = joinProjectPath(appRoot, 'src/app/app.config.ts');
   const source = tree.read(file, 'utf8');
-  const importPath = moduleImport(`${appRoot}/src/app`, amendment.module);
+  const importPath = moduleImport(
+    joinProjectPath(appRoot, 'src/app'),
+    amendment.module,
+  );
   const result =
     source === null ? undefined : composeProviders(source, amendment, importPath);
   if (!result?.composed) {
@@ -312,7 +308,7 @@ export function composeIntoAppConfig(
   amendment: ComposePluginAmendment,
   importPath: string,
 ): void {
-  const file = `${appRoot}/src/app/app.config.ts`;
+  const file = joinProjectPath(appRoot, 'src/app/app.config.ts');
   const source = tree.read(file, 'utf8');
   const result =
     source === null ? undefined : composePlugin(source, amendment, importPath);

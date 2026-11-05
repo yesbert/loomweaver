@@ -7,6 +7,7 @@ import {
   nxWeaverFootprint,
   ScaffoldValues,
 } from '@loomweaver/devkit';
+import { WorkspaceError } from '../workspace';
 import { Application } from './nx-applications';
 
 export interface NxTrial {
@@ -36,21 +37,34 @@ export function nxTrial(
     path === MANIFEST ? withInstalled(onDisk(path), installed) : onDisk(path);
   return {
     distribution: (values) =>
-      nxDistributionFootprint(app, values, afterInstall).map((path) => {
-        if (onDisk(path) === undefined) {
-          return `creates ${path}`;
-        }
-        return pending.has(path) ? `replaces ${path}` : `changes ${path}`;
-      }),
+      readable(() => nxDistributionFootprint(app, values, afterInstall)).map(
+        (path) => {
+          if (onDisk(path) === undefined) {
+            return `creates ${path}`;
+          }
+          return pending.has(path) ? `replaces ${path}` : `changes ${path}`;
+        },
+      ),
     weaver: (id) => {
       const afterDistribution = (path: string) =>
         pending.get(path) ?? afterInstall(path);
-      return nxWeaverFootprint(app, { id, command: true }, afterDistribution).map(
-        (path) =>
-          afterDistribution(path) === undefined ? `creates ${path}` : `changes ${path}`,
+      return readable(() =>
+        nxWeaverFootprint(app, { id, command: true }, afterDistribution),
+      ).map((path) =>
+        afterDistribution(path) === undefined
+          ? `creates ${path}`
+          : `changes ${path}`,
       );
     },
   };
+}
+
+function readable(footprint: () => readonly string[]): readonly string[] {
+  try {
+    return footprint();
+  } catch (error) {
+    throw new WorkspaceError((error as Error).message, { cause: error });
+  }
 }
 
 function withInstalled(

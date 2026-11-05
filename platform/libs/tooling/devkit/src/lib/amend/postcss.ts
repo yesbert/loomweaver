@@ -62,16 +62,28 @@ const SCRIPT_POSTCSS_CONFIGS = [
   '.postcssrc.js',
 ] as const;
 
+/**
+ * Answers with a note where the style pipeline is written as a script, and with nothing where it is
+ * not. A note means that nothing was written: the Angular build does not read the script, but a
+ * JSON file created beside it would shadow the script for every tool that does. The note names the
+ * JSON file the build would read and what that file has to contain, so the choice stays with whoever
+ * owns the script.
+ */
 export function postcssWrittenAsCode(
   exists: (file: string) => boolean,
   amendment: PostcssAmendment,
   projectRoot = '',
 ): string | undefined {
-  const ignored = whereTheBuildLooks(SCRIPT_POSTCSS_CONFIGS, projectRoot).find(
+  const script = whereTheBuildLooks(SCRIPT_POSTCSS_CONFIGS, projectRoot).find(
     (path) => exists(path),
   );
-  return ignored === undefined
-    ? undefined
-    : `${ignored} is a script, which the Angular build does not read: it takes its style pipeline from ${READ_BY_THE_BUILD.join(' or ')} alone. That is why ${amendment.plugin} is added to ${postcssFileTheBuildReads(exists, amendment, projectRoot)}, and why nothing ${ignored} sets up reaches this build until it is stated there too.`;
+  if (script === undefined) {
+    return undefined;
+  }
+  const file = postcssFileTheBuildReads(exists, amendment, projectRoot);
+  const needed = exists(file)
+    ? `${file} has to name ${amendment.plugin} under "plugins"`
+    : `it needs ${file} containing { "plugins": { "${amendment.plugin}": {} } }, and creating that file shadows ${script} for every tool that reads PostCSS configuration the usual way`;
+  return `${script} is a script, which the Angular build does not read: it takes its style pipeline from ${READ_BY_THE_BUILD.join(' or ')} alone. Nothing is written beside it. For ${amendment.plugin} to run in this build, ${needed}. Until then the stylesheet emits no utility class and the workbench renders unstyled.`;
 }
 

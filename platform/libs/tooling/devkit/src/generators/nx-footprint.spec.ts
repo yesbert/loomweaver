@@ -1,4 +1,4 @@
-import { addProjectConfiguration, formatFiles, Tree } from '@nx/devkit';
+import { addProjectConfiguration, formatFiles, logger, Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { distributionGenerator } from './distribution/generator';
 import { nxDistributionFootprint, nxWeaverFootprint } from './nx-footprint';
@@ -77,7 +77,7 @@ describe('the footprint of the generators in an Nx workspace', () => {
 
   it('names the style pipeline file the build reads first', async () => {
     tree.write('postcss.config.json', '{}\n');
-    tree.write('postcss.config.js', 'module.exports = {};\n');
+    tree.write('.postcssrc.json', '{}\n');
     await formatFiles(tree);
     const footprint = nxDistributionFootprint(APP, { styles: 'tailwind' }, read);
     const before = contents(tree);
@@ -87,6 +87,31 @@ describe('the footprint of the generators in an Nx workspace', () => {
     expect(footprint).toContain('postcss.config.json');
     expect(sorted(footprint)).toEqual(touchedSince(before, tree));
   });
+
+  it('names no style pipeline file beside a script, because none is written there', async () => {
+    tree.write('postcss.config.js', 'module.exports = {};\n');
+    await formatFiles(tree);
+    const footprint = nxDistributionFootprint(APP, { styles: 'tailwind' }, read);
+    const before = contents(tree);
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: APP.name, directory: APP.root, force: true });
+
+    expect(footprint).not.toContain('.postcssrc.json');
+    expect(sorted(footprint)).toEqual(touchedSince(before, tree));
+    warn.mockRestore();
+  });
+
+  it.each(['.postcssrc.json', 'postcss.config.json', 'package.json'])(
+    'names %s where it cannot be read as JSON instead of failing inside the parser',
+    (file) => {
+      tree.write(file, '{ "plugins": ');
+
+      expect(() =>
+        nxDistributionFootprint(APP, { styles: 'tailwind' }, read),
+      ).toThrow(new RegExp(`^${file.replaceAll('.', String.raw`\.`)} is not valid JSON`));
+    },
+  );
 
   it('names the style pipeline file in the project root, where the build looks first', async () => {
     tree.write(`${APP.root}/postcss.config.json`, '{}\n');

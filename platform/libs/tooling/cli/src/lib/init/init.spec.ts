@@ -204,6 +204,7 @@ describe('init', () => {
       edited,
     );
     expect(c.errText()).toContain('src/app/app.config.ts');
+    expect(c.errText()).toContain('which is not what ng new writes');
     expect(c.errText()).toContain('nothing was installed or written');
   });
 
@@ -427,9 +428,153 @@ describe('init', () => {
     expect(calls).toEqual([]);
     expect(c.errText()).toContain('apps/studio/src/app/app.ts');
     expect(c.errText()).toContain('nothing was installed or written');
+    expect(c.errText()).toContain(
+      'is not what the Nx application generator (@nx/angular 24, default options) writes',
+    );
+    expect(c.errText()).not.toContain('no longer');
+    expect(c.errText()).toContain('"loomweaver init --dry-run"');
+    expect(c.errText()).not.toContain('distribution --out');
     expect(
       readFileSync(join(dir, 'apps/studio/src/app/app.ts'), 'utf8'),
     ).toBe(developed);
+  });
+
+  it('prints the whole trial run of an Nx workspace before it names the file that stops it', () => {
+    nxWorkspace(dir, ['studio']);
+    const developed = 'export class App {}\n';
+    writeFileSync(join(dir, 'apps/studio/src/app/app.ts'), developed);
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(1);
+
+    expect(calls).toEqual([]);
+    expect(c.text().split('\n')).toContain(
+      '  replaces apps/studio/src/main.ts',
+    );
+    expect(c.text()).toContain('@loomweaver/devkit:weaver');
+    expect(c.text()).not.toContain('serve it with');
+    expect(c.errText()).toContain('apps/studio/src/app/app.ts');
+    expect(c.errText()).toContain('nothing was installed or written');
+    expect(
+      readFileSync(join(dir, 'apps/studio/src/app/app.ts'), 'utf8'),
+    ).toBe(developed);
+  });
+
+  it('prints the whole trial run of an Angular CLI application before it names the file that stops it', () => {
+    angularApp(dir);
+    writeFileSync(join(dir, 'src/app/app.ts'), 'export class App {}\n');
+    const c = capture();
+    const { deps, calls } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(1);
+
+    expect(calls).toEqual([]);
+    expect(c.text()).toContain('Would write');
+    expect(c.errText()).toContain(
+      'src/app/app.ts, which is not what ng new writes',
+    );
+    expect(existsSync(join(dir, 'ngsw-config.json'))).toBe(false);
+  });
+
+  describe('where the workspace has the Nx generators at another version', () => {
+    const ALIGN = ['npm', 'install', '-D', '@loomweaver/devkit@0.9.2'];
+
+    function withDevkit(installed: string): void {
+      nxWorkspace(dir, ['studio']);
+      writeFiles(dir, {
+        'package.json': JSON.stringify({
+          name: '@acme/source',
+          dependencies: { '@angular/core': '^22.1.0' },
+          devDependencies: { nx: '23.0.0', '@loomweaver/devkit': '^0.9.0' },
+        }),
+        'node_modules/@loomweaver/devkit/package.json': JSON.stringify({
+          version: installed,
+        }),
+      });
+    }
+
+    it('brings them to its own version before it runs them, and says from which', () => {
+      withDevkit('0.9.0');
+      const c = capture();
+      const { deps, calls } = fakeDeps(dir);
+
+      expect(run(['init'], c.io, deps)).toBe(0);
+
+      const aligned = calls.findIndex(
+        (call) => call.join(' ') === ALIGN.join(' '),
+      );
+      const generated = calls.findIndex((call) =>
+        call.includes('@loomweaver/devkit:distribution'),
+      );
+      expect(aligned).toBeGreaterThan(-1);
+      expect(aligned).toBeLessThan(generated);
+      expect(c.text()).toContain('the workspace has 0.9.0');
+    });
+
+    it('lists that step on a trial run', () => {
+      withDevkit('0.9.0');
+      const c = capture();
+      const { deps, calls } = fakeDeps(dir);
+
+      expect(run(['init', '--dry-run'], c.io, deps)).toBe(0);
+
+      expect(calls).toEqual([]);
+      expect(c.text().split('\n')).toContain(`Would run: ${ALIGN.join(' ')}`);
+    });
+
+    it('leaves generators of its own version alone', () => {
+      withDevkit('0.9.2');
+      const { deps, calls } = fakeDeps(dir);
+
+      expect(run(['init'], capture().io, deps)).toBe(0);
+
+      expect(calls.map((call) => call.join(' '))).not.toContain(
+        ALIGN.join(' '),
+      );
+    });
+
+    it('leaves them alone where nothing is left to generate', () => {
+      withDevkit('0.9.0');
+      writeFiles(dir, {
+        'apps/studio/src/app/app.config.ts':
+          'export const appConfig = { providers: [provideShell()] };\n',
+        'libs/notes-weaver/project.json': '{}',
+      });
+      const { deps, calls } = fakeDeps(dir);
+
+      expect(run(['init'], capture().io, deps)).toBe(0);
+
+      expect(calls.map((call) => call.join(' '))).not.toContain(
+        ALIGN.join(' '),
+      );
+    });
+  });
+
+  it('names the lockfile an install creates where the workspace has none', () => {
+    nxWorkspace(dir, ['studio']);
+    const c = capture();
+    const { deps } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(0);
+    expect(c.text().split('\n')).toContain('  creates package-lock.json');
+
+    const asked = capture();
+    expect(
+      run(['init', '--dry-run', '--package-manager', 'pnpm'], asked.io, deps),
+    ).toBe(0);
+    expect(asked.text().split('\n')).toContain('  creates pnpm-lock.yaml');
+  });
+
+  it('names a workspace file it cannot read as JSON on a trial run', () => {
+    nxWorkspace(dir, ['studio']);
+    writeFileSync(join(dir, '.postcssrc.json'), '{ "plugins": ');
+    const c = capture();
+    const { deps } = fakeDeps(dir);
+
+    expect(run(['init', '--dry-run'], c.io, deps)).toBe(1);
+
+    expect(c.errText()).toMatch(/^\.postcssrc\.json is not valid JSON/);
   });
 
   it('names every file the Nx generators would write or change on a trial run', () => {

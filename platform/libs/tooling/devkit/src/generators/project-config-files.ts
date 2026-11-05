@@ -1,14 +1,24 @@
-import { joinProjectPath } from '../lib/amend/merge';
+import { posix } from 'node:path';
+import { joinProjectPath, normalizeProjectRoot } from '../lib/amend/merge';
 
 export interface NxScaffoldDepth {
   readonly toRoot: string;
 }
 
-const WORKSPACE_ROOT = /^\.?\/?$/;
 const AT_THE_ROOT = '.';
 
+export function insideWorkspace(directory: string): string {
+  const normal = posix.normalize(directory.replaceAll('\\', '/'));
+  if (posix.isAbsolute(normal) || normal === '..' || normal.startsWith('../')) {
+    throw new Error(
+      `${directory} lies outside the workspace, so nothing was written. Pass a directory inside it, relative to the workspace root.`,
+    );
+  }
+  return normal;
+}
+
 export function projectRootIn(directory: string): string {
-  return WORKSPACE_ROOT.test(directory) ? '' : directory;
+  return normalizeProjectRoot(insideWorkspace(directory));
 }
 
 /** The relative path back to the workspace root from a project root such as `libs/a/b`. */

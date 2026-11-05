@@ -108,6 +108,13 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 8.13 `init` asks the devkit where a weaver's project lands instead of assuming `libs/<id>-weaver` (`cli/src/lib/init/init.ts`)
 - [x] 8.14 The tooling's spec files type-check, and a target holds that (`libs/tooling/*/tsconfig.spec.json`)
 - [x] 8.15 The fixture of an untouched `ng new` application is what Angular 22 writes: regenerated from a real `ng new`, not from memory (`cli/src/lib/init/ng-new-22.fixture.json`)
+- [x] 8.16 `init` does not run an older devkit than its own: a `@loomweaver/devkit` at another version than the one the CLI carries is brought to that version as a named install step before it generates, and the trial run lists that step (`cli/src/lib/init/init-plan.ts`, `init.ts`)
+- [x] 8.17 Beside a PostCSS script configuration nothing is written, and the note says which JSON file the Angular build would read, what it has to contain, and that creating it shadows the script for other tools (`devkit/src/lib/amend/postcss.ts`, both routes and the footprint)
+- [x] 8.18 A trial run of `init` over an application with a changed file prints the listing and then names the changed files, exits non-zero and writes nothing; in an Nx workspace the refusal points at `init --dry-run` (`cli/src/lib/init/init.ts`)
+- [x] 8.19 The refusal says a file is not what `ng new` or the Nx application generator (24, default options) writes, not that it is "no longer" what was written (`cli/src/lib/init/init.ts`)
+- [x] 8.20 The trial run names a lockfile the install will create, not only one it will change (`cli/src/lib/init/init.ts`)
+- [x] 8.21 A directory given as `./apps/x` gets the same paths as `apps/x`: one normalisation of the project root for both generators, and no path is concatenated in `devkit/src/generators/workspace-tree.ts`
+- [x] 8.22 A malformed `.postcssrc.json`, `postcss.config.json` or `package.json` met during a trial run is reported as a workspace error naming the file (`devkit/src/generators/nx-footprint.ts`, `cli/src/lib/init/nx-trial.ts`)
 
 ## 9. The demo and the example
 

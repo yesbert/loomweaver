@@ -107,8 +107,9 @@ which is also what lets you write Tailwind utilities of your own; the generator 
 `.postcssrc.json` that needs, at the workspace root, merging into one that is already there rather
 than replacing it. Where a configuration already exists, the plugin goes into the one the Angular
 build reads: `postcss.config.json` before `.postcssrc.json`, in the project root before the
-workspace root. A `postcss.config.js` or other script is not read by the build at all, and the
-generator says so. `precompiled` imports the stylesheet we compiled instead — no `tailwindcss`, no
+workspace root. A `postcss.config.js` or other script is not read by the build at all. Beside one
+the generator writes nothing, because a JSON file there would shadow the script for other tools; it
+names the file the build would read and what that file has to contain. `precompiled` imports the stylesheet we compiled instead — no `tailwindcss`, no
 style pipeline, no `@source` paths — which is what you want if the product is themed with Bootstrap,
 Bulma or hand-written CSS.
 

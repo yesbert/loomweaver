@@ -427,7 +427,7 @@ describe('distribution generator', () => {
     expect(tree.exists('.postcssrc.json')).toBe(false);
   });
 
-  it('writes the configuration the build reads beside a script the build ignores, and says so', async () => {
+  it('writes nothing beside a script the build ignores, and says which file the build would read', async () => {
     const written = 'module.exports = { plugins: {} };\n';
     tree.write('postcss.config.js', written);
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
@@ -435,14 +435,46 @@ describe('distribution generator', () => {
     await distributionGenerator(tree, { name: 'acme-studio' });
 
     expect(tree.read('postcss.config.js', 'utf8')).toBe(written);
-    expect(JSON.parse(tree.read('.postcssrc.json', 'utf8') as string)).toEqual({
-      plugins: { '@tailwindcss/postcss': {} },
-    });
+    expect(tree.exists('.postcssrc.json')).toBe(false);
+    const [note] = warn.mock.calls.map(([message]) => String(message));
+    expect(note).toContain(
+      'postcss.config.js is a script, which the Angular build does not read',
+    );
+    expect(note).toContain(
+      '.postcssrc.json containing { "plugins": { "@tailwindcss/postcss": {} } }',
+    );
+    expect(note).toContain('shadows postcss.config.js');
+    expect(note).toContain('renders unstyled');
+    warn.mockRestore();
+  });
+
+  it('writes nothing into a configuration that stands beside a script either, and names it', async () => {
+    tree.write('postcss.config.js', 'module.exports = {};\n');
+    tree.write('postcss.config.json', '{}');
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(JSON.parse(tree.read('postcss.config.json', 'utf8') as string)).toEqual({});
     expect(warn).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /postcss\.config\.js is a script, which the Angular build does not read/,
+      expect.stringContaining(
+        'postcss.config.json has to name @tailwindcss/postcss under "plugins"',
       ),
     );
+    warn.mockRestore();
+  });
+
+  it('says nothing about a script where the build already runs the plugin', async () => {
+    tree.write('postcss.config.js', 'module.exports = {};\n');
+    tree.write(
+      '.postcssrc.json',
+      JSON.stringify({ plugins: { '@tailwindcss/postcss': {} } }),
+    );
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    await distributionGenerator(tree, { name: 'acme-studio' });
+
+    expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });
 
@@ -483,18 +515,38 @@ describe('distribution generator', () => {
     expect(tree.exists('.postcssrc.json')).toBe(false);
   });
 
-  it('names a script in the project root as ignored too', async () => {
+  it('writes nothing beside a script in the project root either', async () => {
     tree.write('apps/acme-studio/postcss.config.mjs', 'export default {};\n');
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
 
     await distributionGenerator(tree, { name: 'acme-studio' });
 
+    expect(tree.exists('.postcssrc.json')).toBe(false);
     expect(warn).toHaveBeenCalledWith(
       expect.stringMatching(
         /apps\/acme-studio\/postcss\.config\.mjs is a script, which the Angular build does not read/,
       ),
     );
     warn.mockRestore();
+  });
+
+  it('gives a directory written as ./apps/x the paths of apps/x', async () => {
+    await distributionGenerator(tree, {
+      name: 'acme-studio',
+      directory: './apps/acme-studio/',
+    });
+
+    const project = readJson(tree, 'apps/acme-studio/project.json');
+    expect(project.sourceRoot).toBe('apps/acme-studio/src');
+    expect(project.targets.build.options.browser).toBe(
+      'apps/acme-studio/src/main.ts',
+    );
+    expect(readJson(tree, 'apps/acme-studio/tsconfig.json').extends).toBe(
+      '../../tsconfig.base.json',
+    );
+    expect(tree.read('apps/acme-studio/src/styles.css', 'utf8')).toContain(
+      "@source '../../../node_modules/@loomweaver/shell'",
+    );
   });
 
   it('keeps the plugins a workspace already configured', async () => {

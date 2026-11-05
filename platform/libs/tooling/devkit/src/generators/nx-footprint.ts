@@ -5,7 +5,11 @@ import {
   joinProjectPath,
   usesTailwind,
 } from '../lib/amend/merge';
-import { ensurePostcssPlugin, postcssFileTheBuildReads } from '../lib/amend/postcss';
+import {
+  ensurePostcssPlugin,
+  postcssFileTheBuildReads,
+  postcssWrittenAsCode,
+} from '../lib/amend/postcss';
 import { Amendment } from '../lib/amend/types';
 import { ScaffoldValues } from '../lib/scaffolds/scaffold-values';
 import { distributionScaffold } from '../recipes/angular-distribution/scaffold';
@@ -93,16 +97,14 @@ function amendedFile(
 ): string | undefined {
   switch (amendment.kind) {
     case 'postcss': {
-      const file = postcssFileTheBuildReads(
-        (name) => read(name) !== undefined,
-        amendment,
-        app.root,
-      );
-      const added = ensurePostcssPlugin(parsed(read(file)), amendment).added;
-      return added.length > 0 ? file : undefined;
+      const exists = (name: string) => read(name) !== undefined;
+      const file = postcssFileTheBuildReads(exists, amendment, app.root);
+      const added = ensurePostcssPlugin(parsed(file, read), amendment).added;
+      const leftAlone = postcssWrittenAsCode(exists, amendment, app.root) !== undefined;
+      return added.length > 0 && !leftAlone ? file : undefined;
     }
     case 'package': {
-      const added = ensureDependency(parsed(read('package.json')), amendment).added;
+      const added = ensureDependency(parsed('package.json', read), amendment).added;
       return added.length > 0 ? 'package.json' : undefined;
     }
     case 'build-target': {
@@ -124,7 +126,7 @@ function amendedFile(
 }
 
 function stylesheetOf(app: NxApplication, read: ReadWorkspaceFile): string {
-  const project = asObject(parsed(read(joinProjectPath(app.root, 'project.json'))));
+  const project = asObject(parsed(joinProjectPath(app.root, 'project.json'), read));
   const build = asObject(asObject(project?.['targets'])?.['build']);
   return (
     entryStylesheet(asObject(build?.['options'])?.['styles']) ??
@@ -132,8 +134,19 @@ function stylesheetOf(app: NxApplication, read: ReadWorkspaceFile): string {
   );
 }
 
-function parsed(json: string | undefined): unknown {
-  return json === undefined ? undefined : JSON.parse(json);
+function parsed(path: string, read: ReadWorkspaceFile): unknown {
+  const json = read(path);
+  if (json === undefined) {
+    return undefined;
+  }
+  try {
+    return JSON.parse(json);
+  } catch (error) {
+    throw new Error(
+      `${path} is not valid JSON, so what the generators would change cannot be told: ${(error as Error).message}`,
+      { cause: error },
+    );
+  }
 }
 
 function unique(paths: readonly string[]): readonly string[] {

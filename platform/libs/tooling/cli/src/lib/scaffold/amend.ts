@@ -114,9 +114,10 @@ class Amender {
     if (result.added.length === 0) {
       return;
     }
-    const ignored = postcssWrittenAsCode(exists, amendment, projectRoot);
-    if (ignored) {
-      this.log.note(ignored);
+    const writtenAsCode = postcssWrittenAsCode(exists, amendment, projectRoot);
+    if (writtenAsCode) {
+      this.log.note(writtenAsCode);
+      return;
     }
     this.log.plan(file, result.added, `${JSON.stringify(result.value, null, 2)}\n`);
   }

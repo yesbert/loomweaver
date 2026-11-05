@@ -58,6 +58,11 @@ interface Manifest {
   readonly devDependencies?: Record<string, string>;
 }
 
+export interface StaleDevkit {
+  readonly installed: string;
+  readonly spec: string;
+}
+
 export interface InitPlan {
   readonly workspace: ConfiguredWorkspace;
   readonly manager: PackageManager;
@@ -68,6 +73,7 @@ export interface InitPlan {
   readonly weaver?: string;
   readonly runtime: readonly string[];
   readonly dev: readonly string[];
+  readonly staleDevkit?: StaleDevkit;
   readonly app?: Application;
   readonly projectRoot: string;
   readonly dryRun: boolean;
@@ -121,6 +127,10 @@ export function planInit(args: ParsedArgs, deps: InitDeps): InitPlan {
         ? [platformSpec(NX_COLLECTION, deps.version)]
         : []),
     ],
+    staleDevkit:
+      workspace.kind === 'nx' && Object.hasOwn(declared, NX_COLLECTION)
+        ? staleDevkit(workspace.root, deps.version)
+        : undefined,
     app,
     projectRoot:
       workspace.kind === 'nx'
@@ -187,6 +197,17 @@ function serviceWorkerSpec(root: string, manifest: Manifest): string {
   }
   const declared = manifest.dependencies?.['@angular/core'];
   return declared ? `${SERVICE_WORKER}@${declared}` : SERVICE_WORKER;
+}
+
+function staleDevkit(root: string, version: string): StaleDevkit | undefined {
+  const manifest = join(root, 'node_modules', NX_COLLECTION, 'package.json');
+  if (version === UNBUNDLED_VERSION || !existsSync(manifest)) {
+    return undefined;
+  }
+  const { version: installed } = readJsonFile(manifest) as { version?: string };
+  return installed === undefined || installed === version
+    ? undefined
+    : { installed, spec: `${NX_COLLECTION}@${version}` };
 }
 
 function platformSpec(name: string, version: string): string {
