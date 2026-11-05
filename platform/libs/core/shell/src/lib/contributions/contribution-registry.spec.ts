@@ -273,6 +273,39 @@ describe('ContributionRegistry', () => {
     });
   });
 
+  describe('a surface that was updated', () => {
+    it('a view whose title was updated is still removed with its plugin', () => {
+      const handle = registry.addView(view, 'notes');
+      registry.retitleSurface('v', 'renamed', 'notes');
+
+      handle.dispose();
+
+      expect(registry.views()).toEqual([]);
+    });
+
+    it('a route whose action was updated is still removed with its plugin', () => {
+      const handle = registry.addContentRoute(
+        { id: 'r', path: 'notes', component: DummyComponent },
+        'notes',
+      );
+      registry.updateSurfaceAction('r', { id: 'save', icon: 'save', label: 'Save' } as never, 'notes');
+
+      handle.dispose();
+
+      expect(registry.contentRoutes()).toEqual([]);
+    });
+
+    it('a superseded handle still removes nothing after the winner was retitled', () => {
+      const superseded = registry.addView(view, 'notes');
+      registry.addView({ ...view, title: 'second' }, 'notes');
+      registry.retitleSurface('v', 'renamed', 'notes');
+
+      superseded.dispose();
+
+      expect(registry.views().map((entry) => entry.title)).toEqual(['renamed']);
+    });
+  });
+
   describe('content route omission', () => {
     const route = {
       id: 'testbed.notes',

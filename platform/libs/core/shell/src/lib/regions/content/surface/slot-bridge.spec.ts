@@ -214,6 +214,56 @@ describe('SlotBridge', () => {
     });
   });
 
+  describe('where two owners hold a surface of the same id', () => {
+    const action = (id: string) => ({ id, icon: 'add', title: id, run: () => undefined });
+
+    function bridgeOf(owner: string): SlotBridge {
+      registry.addView(
+        {
+          id: 'shared',
+          region: 'primary',
+          title: 'One',
+          component: class {},
+          actions: [action('one.act')],
+        } as unknown as Parameters<ContributionRegistry['addView']>[0],
+        'one',
+      );
+      registry.addContentRoute(
+        {
+          id: 'shared',
+          path: 'shared',
+          component: class {},
+          actions: [action('two.act')],
+        } as unknown as Parameters<ContributionRegistry['addContentRoute']>[0],
+        'two',
+      );
+      return new SlotBridge(
+        TestBed.inject(ToolbarSlots),
+        TestBed.inject(Injector),
+        (subscription, view) => {
+          pushes.push([subscription, view]);
+        },
+        owner,
+      );
+    }
+
+    async function keysWatched(owner: string, context: Record<string, string>): Promise<string[]> {
+      const owned = bridgeOf(owner);
+      owned.watch('shared/actions', context);
+      await settle();
+      owned.stopAll();
+      return (pushes.at(-1) as [string, LwSlotView])[1].entries.map((entry) => entry.key);
+    }
+
+    it('answers a frame with the actions of the surface its own plugin holds', async () => {
+      expect(await keysWatched('two', {})).toEqual(['two.act']);
+    });
+
+    it('does not let a frame name another owner to read that owner’s actions', async () => {
+      expect(await keysWatched('two', { surfaceOwner: 'one' })).toEqual(['two.act']);
+    });
+  });
+
   it('replays the last answer of every watched slot when asked', async () => {
     registry.addMenuItem({ menu: SLOT, command: 'acme.share' }, 'scanner');
     const id = bridge.watch(SLOT, {});

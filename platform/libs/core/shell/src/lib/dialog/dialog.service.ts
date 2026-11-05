@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { LwButtonVariant } from '../elements/button/lw-button';
 import { LoomIconName } from '../elements/icon/loom-icons';
+import { inheritFocusReturn } from '../elements/menu/overlay-menu';
 import {
   AlertOptions,
   ConfirmOptions,
@@ -294,7 +295,7 @@ export class DialogService {
   }
 
   private giveFocusBack(trigger: HTMLElement | null): void {
-    if (trigger?.isConnected) {
+    if (trigger?.isConnected && !inheritFocusReturn(this.document, trigger)) {
       trigger.focus();
     }
   }

@@ -1,5 +1,6 @@
 import { effect, Injector } from '@angular/core';
 import { MenuContext, MenuHeader } from '@loomweaver/plugin-sdk';
+import { SURFACE_OWNER } from '../../../contributions/toolbar-registry';
 import { Wording } from '../../../i18n/wording';
 import { ResolvedEntry } from '../../../menu/menu-resolution';
 import { MenuAnswer, MenuService } from '../../../menu/menu.service';
@@ -61,12 +62,14 @@ export class SlotBridge {
     private readonly slots: ToolbarSlots,
     private readonly injector: Injector,
     private readonly push: SlotPush,
+    private readonly owner?: string,
   ) {
     this.menus = injector.get(MenuService);
     this.wording = injector.get(Wording);
   }
 
-  watch(slot: string, context: MenuContext): string {
+  watch(slot: string, asked: MenuContext): string {
+    const context: MenuContext = { ...asked, [SURFACE_OWNER]: this.owner ?? '' };
     let resolved: readonly ResolvedEntry<ToolbarEntry>[] = [];
     const find = (key: string) =>
       resolved.find((candidate) => candidate.item.id === key);

@@ -365,6 +365,91 @@ describe('<lw-toolbar> folding', () => {
     expect(toolbar.querySelector('[data-lw-fold]')).toBeNull();
   });
 
+  function foldedToolbar(last: Partial<LwToolbarEntry> = {}) {
+    stubLayout(100, { a: 30, b: 30, c: 30, d: 30, e: 30 });
+    const toolbar = mount([
+      { key: 'a', label: 'A', order: 0 },
+      { key: 'b', label: 'B', order: 1 },
+      { key: 'c', label: 'C', order: 2 },
+      { key: 'd', label: 'D', order: 3 },
+      { key: 'e', label: 'E', order: 4, ...last },
+    ]);
+    const control = toolbar.querySelector<HTMLButtonElement>('[data-lw-fold]') as HTMLButtonElement;
+    const tray = toolbar.querySelector<HTMLElement>('.lw-toolbar-tray') as HTMLElement;
+    const press = (key: string) =>
+      (document.activeElement as HTMLElement).dispatchEvent(
+        new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }),
+      );
+    const focused = () => document.activeElement?.getAttribute('data-lw-entry');
+    return { toolbar, control, tray, press, focused };
+  }
+
+  it('reaches every folded entry from the keyboard once the tray is open', () => {
+    const t = foldedToolbar();
+    t.control.click();
+    expect(t.focused()).toBe('c');
+
+    t.press('ArrowDown');
+    expect(t.focused()).toBe('d');
+    t.press('ArrowDown');
+    expect(t.focused()).toBe('e');
+    t.press('ArrowDown');
+    expect(t.focused()).toBe('c');
+    t.press('ArrowUp');
+    expect(t.focused()).toBe('e');
+    t.press('Home');
+    expect(t.focused()).toBe('c');
+    expect(t.tray.hidden).toBe(false);
+  });
+
+  it('closes the tray after a choice and leaves the keyboard on the fold control', () => {
+    const t = foldedToolbar();
+    const chosen: string[] = [];
+    t.toolbar.addEventListener(LW_TOOLBAR_SELECT, (event) => {
+      chosen.push((event as CustomEvent<LwToolbarSelectDetail>).detail.key);
+    });
+    t.control.click();
+
+    t.tray.querySelector<HTMLButtonElement>('button[data-lw-entry="d"]')?.click();
+
+    expect(chosen).toEqual(['d']);
+    expect(t.tray.hidden).toBe(true);
+    expect(t.control.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(t.control);
+  });
+
+  it('keeps the tray open under a folded entry that opens a menu of its own', () => {
+    const t = foldedToolbar({ opensMenu: true });
+    t.control.click();
+
+    t.tray.querySelector<HTMLButtonElement>('button[data-lw-entry="e"]')?.click();
+
+    expect(t.tray.hidden).toBe(false);
+  });
+
+  it('stops listening for a press outside once a wider toolbar has no tray left', () => {
+    const t = foldedToolbar();
+    t.control.click();
+    const stopped = vi.spyOn(document, 'removeEventListener');
+
+    restore();
+    stubLayout(400, { a: 30, b: 30, c: 30, d: 30, e: 30 });
+    t.toolbar.entries = [...t.toolbar.entries];
+
+    expect(t.toolbar.querySelector('[data-lw-fold]')).toBeNull();
+    expect(stopped.mock.calls.map(([type]) => type)).toContain('pointerdown');
+    stopped.mockRestore();
+  });
+
+  it('closes the tray when the pointer goes into a frame, which takes the focus from the window', () => {
+    const t = foldedToolbar();
+    t.control.click();
+
+    globalThis.dispatchEvent(new Event('blur'));
+
+    expect(t.tray.hidden).toBe(true);
+  });
+
   it('keeps an entry’s look when it folds into the tray', () => {
     stubLayout(60, { a: 30, b: 30 });
     const toolbar = mount([

@@ -1,6 +1,7 @@
 import { entryWidth, FOLD_CONTROL_PX, foldedIds, sameIds } from '../row-fold';
+import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import {
-  FOCUSABLE_SELECTOR,
+  focusStopsOf,
   FOLD_SELECTOR,
   FOLDED_ATTRIBUTE,
   foldControl,
@@ -110,7 +111,39 @@ export class ToolbarLayout {
     tray.hidden = false;
     control.setAttribute('aria-expanded', 'true');
     this.onTrayChange(true);
-    (tray.querySelector<HTMLElement>(FOCUSABLE_SELECTOR) ?? tray).focus?.();
+    const stops = focusStopsOf(tray.children);
+    rovingTabIndex(stops, 0);
+    (stops[0] ?? tray).focus?.();
+  }
+
+  holdsFocus(): boolean {
+    return this.trayOpen && this.tray()?.contains(document.activeElement) === true;
+  }
+
+  stepInTray(event: KeyboardEvent): void {
+    const tray = this.tray();
+    if (!tray) {
+      return;
+    }
+    const stops = focusStopsOf(tray.children);
+    const current = stops.indexOf(document.activeElement as HTMLElement);
+    const next =
+      rovingStep(event.key, current, stops.length, 'vertical') ??
+      rovingStep(event.key, current, stops.length, 'horizontal');
+    if (next === undefined) {
+      return;
+    }
+    rovingTabIndex(stops, next);
+    focusAndReveal(stops[next]);
+    event.preventDefault();
+  }
+
+  closeAfterChoice(chosen: HTMLElement): void {
+    if (!this.trayOpen || chosen.hasAttribute('aria-haspopup') || !this.tray()?.contains(chosen)) {
+      return;
+    }
+    this.closeTray();
+    this.foldControl()?.focus();
   }
 
   closeTray(): void {
@@ -142,9 +175,9 @@ export class ToolbarLayout {
     let control = this.foldControl();
     let trayElement = this.tray();
     if (away.length === 0) {
+      this.closeTray();
       control?.remove();
       trayElement?.remove();
-      this.trayOpen = false;
       return;
     }
     control ??= foldControl(moreLabel, this.anchorName);

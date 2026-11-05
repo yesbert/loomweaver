@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
+import { overlayMenuIn } from '../elements/menu/overlay-menu';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
 import {
   DialogButtonView,
@@ -49,8 +50,10 @@ const TONE_CIRCLE: Record<DialogTone, string> = {
  * (backdrop, panel, title, close-X, footer buttons) and either the convenience body
  * (message + optional prompt input) or a plugin's custom body via NgComponentOutlet.
  * Owns the modal mechanics: scroll-lock, Escape + backdrop dismiss (an Escape something inside
- * already handled is left alone), focus into the newest dialog, and a lightweight focus trap.
- * `DialogService` returns the focus to the opener once the closed dialog has left the page.
+ * already handled is left alone), focus into the newest dialog, and a lightweight focus trap, which
+ * leaves the focus with a menu opened above the dialog.
+ * `DialogService` returns the focus to the opener once the closed dialog has left the page, or
+ * leaves that to a menu that holds the focus by then.
  */
 @Component({
   selector: 'lw-dialog-outlet',
@@ -116,7 +119,10 @@ export class DialogOutlet {
   protected onFocusIn(event: FocusEvent): void {
     const top = this.topPanel();
     const target = event.target as Node | null;
-    if (top && target && !top.contains(target)) {
+    if (!top || !target || top.contains(target)) {
+      return;
+    }
+    if (!overlayMenuIn(this.document)?.contains(target)) {
       (this.focusable(top)[0] ?? top).focus();
     }
   }

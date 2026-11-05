@@ -203,13 +203,14 @@ export class LwMenuElement extends HTMLElement {
     this.opener = undefined;
     this.pause.cancel();
     const submenu = nestedMenu(item) as LwMenuElement | null;
+    const heldFocus = submenu?.contains(document.activeElement) === true;
     if (submenu) {
       submenu.closeSubmenu(false);
       submenu.active = -1;
       submenu.hidden = true;
     }
     item.setAttribute('aria-expanded', 'false');
-    if (focusOpener) {
+    if (focusOpener || heldFocus) {
       item.focus();
     }
   }

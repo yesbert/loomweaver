@@ -127,6 +127,89 @@ describe('KeybindingService', () => {
     input.remove();
   });
 
+  it('runs no command for a key something already handled', () => {
+    registry.addCommand({
+      id: 'do.save',
+      title: 't',
+      shortcut: 'mod+s',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const grid = document.createElement('div');
+    grid.addEventListener('keydown', (event) => event.preventDefault());
+    document.body.append(grid);
+
+    press(grid, { key: 's', ctrlKey: true });
+
+    expect(execute).not.toHaveBeenCalled();
+    grid.remove();
+  });
+
+  it('does not hijack a plain key typed in a field inside a shadow root', () => {
+    registry.addCommand({
+      id: 'do.a',
+      title: 't',
+      shortcut: 'a',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const host = document.createElement('div');
+    const field = document.createElement('input');
+    host.attachShadow({ mode: 'open' }).append(field);
+    document.body.append(host);
+
+    const prevented = press(field, { key: 'a', composed: true });
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+    host.remove();
+  });
+
+  it('runs no command for a key pressed while a character is being composed', () => {
+    registry.addCommand({
+      id: 'do.add',
+      title: 't',
+      shortcut: 'mod+enter',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const input = document.createElement('input');
+    document.body.append(input);
+
+    const prevented = press(input, { key: 'Enter', ctrlKey: true, isComposing: true });
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+    input.remove();
+  });
+
+  it('lets AltGr type its character in a field where the same keys are a chord', () => {
+    registry.addCommand({
+      id: 'do.export',
+      title: 't',
+      shortcut: 'ctrl+alt+e',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const input = document.createElement('input');
+    document.body.append(input);
+
+    const prevented = press(input, {
+      key: '€',
+      code: 'KeyE',
+      ctrlKey: true,
+      altKey: true,
+      modifierAltGraph: true,
+    });
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+
+    press(input, { key: 'e', code: 'KeyE', ctrlKey: true, altKey: true });
+    expect(execute).toHaveBeenCalledWith('do.export');
+    input.remove();
+  });
+
   it('warns on a shortcut clash and lets the last command win', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     registry.addCommand({

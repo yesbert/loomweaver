@@ -438,6 +438,17 @@ describe('<lw-menu> custom element', () => {
       expect(ownWords(move)).toBe('Verschieben');
     });
 
+    it('keeps the focus on its row when its words change', () => {
+      const { menu, holder, move } = mountNested();
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+      expect(document.activeElement).toBe(move);
+
+      holder.setAttribute('label', 'Verschieben');
+
+      expect(document.activeElement).toBe(move);
+    });
+
     it('marks an entry whose submenu arrives after it was drawn', async () => {
       const menu = mount([['a', 'Resize']]);
       const entry = itemsOf(menu)[0];
@@ -600,6 +611,20 @@ describe('<lw-menu> custom element', () => {
         expect(submenu.hidden).toBe(false);
         vi.advanceTimersByTime(200);
         expect(submenu.hidden).toBe(true);
+      });
+
+      it('takes the focus back to its entry when it closes under the pointer while the keyboard is inside', () => {
+        const { menu, move, submenu, steps } = mountNested();
+        press(menu, 'ArrowDown');
+        press(menu, 'ArrowDown');
+        press(move, 'ArrowRight');
+        expect(document.activeElement).toBe(steps[0]);
+
+        hover(itemsOf(menu)[0]);
+        vi.advanceTimersByTime(200);
+
+        expect(submenu.hidden).toBe(true);
+        expect(document.activeElement).toBe(move);
       });
 
       it('stays open when the pointer moves on into it', () => {

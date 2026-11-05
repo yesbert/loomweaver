@@ -14,9 +14,18 @@ export function closeOnOutsidePointer(
       close();
     }
   };
+  const view = document.defaultView;
+  const onWindowBlur = (event: Event): void => {
+    if (event.target === event.currentTarget) {
+      close();
+    }
+  };
   document.addEventListener('pointerdown', onPointer, { capture: true });
-  return () =>
+  view?.addEventListener('blur', onWindowBlur);
+  return () => {
     document.removeEventListener('pointerdown', onPointer, { capture: true });
+    view?.removeEventListener('blur', onWindowBlur);
+  };
 }
 
 export interface FoldMeasure {

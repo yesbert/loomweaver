@@ -223,10 +223,14 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     );
   });
 
-  function framedSections(pluginId: string) {
+  function framedSections(
+    pluginId: string,
+    stopSync: () => void = () => undefined,
+    granted = true,
+  ) {
     const ctx = TestBed.inject(HostContextFactory).create(
       pluginId,
-      () => true,
+      () => granted,
       'isolated',
     );
     return frameRpcMethods({
@@ -239,7 +243,7 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
       } as unknown as FrameSession,
       install: { isInstalled: () => true } as unknown as PluginInstallService,
       store: new LocalStorageStore(),
-      sync: { register: () => () => undefined } as unknown as StateSyncService,
+      sync: { register: () => stopSync } as unknown as StateSyncService,
       reportRefusal: () => undefined,
     });
   }
@@ -278,6 +282,46 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     expect(warn).toHaveBeenCalledWith(
       expect.stringMatching(/plugin "acme".*plugin "acme\.tools"/),
     );
+    localStorage.clear();
+  });
+
+  it('a settings section refused for its holder stops following the other windows at once', () => {
+    composition();
+    const stopSync = vi.fn();
+    framedSections('acme').registerSettingsSection(
+      sectionTitled('First', 'tools.general'),
+    );
+
+    framedSections('acme.tools', stopSync).registerSettingsSection(
+      sectionTitled('Second', 'general'),
+    );
+
+    expect(stopSync).toHaveBeenCalledTimes(1);
+    localStorage.clear();
+  });
+
+  it('a settings section refused for want of a capability stops following the other windows at once', () => {
+    composition();
+    const stopSync = vi.fn();
+    const ungranted = framedSections('acme', stopSync, false);
+
+    expect(() =>
+      ungranted.registerSettingsSection(sectionTitled('First', 'prefs')),
+    ).toThrow();
+
+    expect(stopSync).toHaveBeenCalledTimes(1);
+    localStorage.clear();
+  });
+
+  it('a settings section that is registered keeps following the other windows', () => {
+    composition();
+    const stopSync = vi.fn();
+
+    framedSections('acme', stopSync).registerSettingsSection(
+      sectionTitled('First', 'prefs'),
+    );
+
+    expect(stopSync).not.toHaveBeenCalled();
     localStorage.clear();
   });
 

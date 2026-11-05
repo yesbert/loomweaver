@@ -122,6 +122,9 @@ export class LwTooltipElement extends HTMLElement {
       return;
     }
     this.hide();
+    if ((event.target as Element | null)?.closest?.('[role="menu"]')) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
   };

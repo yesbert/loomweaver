@@ -236,6 +236,16 @@ export function eventSignature(event: KeyboardEvent): string {
   });
 }
 
+export function isTypingInField(event: KeyboardEvent): boolean {
+  if (!isEditableTarget(event.composedPath()[0] ?? event.target)) {
+    return false;
+  }
+  if (event.getModifierState('AltGraph')) {
+    return true;
+  }
+  return !(event.ctrlKey || event.metaKey || event.altKey);
+}
+
 export function isEditableTarget(target: EventTarget | null): boolean {
   const element = target as HTMLElement | null;
   if (!element?.tagName) {

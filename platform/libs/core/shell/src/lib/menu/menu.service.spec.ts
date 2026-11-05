@@ -258,6 +258,24 @@ describe('MenuService', () => {
     vi.useRealTimers();
   });
 
+  it('closes when the pointer goes into a frame, which takes the focus from the window', () => {
+    vi.useFakeTimers();
+    registry.addCommand({
+      id: 'c.close',
+      title: 'cmd.close',
+      run: () => undefined,
+    });
+    registry.addMenuItem({ menu: 'm', command: 'c.close' });
+
+    service.open('m', context, { x: 0, y: 0 });
+    vi.runAllTimers();
+
+    globalThis.dispatchEvent(new Event('blur'));
+
+    expect(menu()).toBeNull();
+    vi.useRealTimers();
+  });
+
   it('keeps the menu open on a pointerdown inside it', () => {
     vi.useFakeTimers();
     registry.addCommand({

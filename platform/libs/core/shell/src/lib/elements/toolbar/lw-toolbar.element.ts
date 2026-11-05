@@ -219,6 +219,7 @@ export class LwToolbarElement extends HTMLElement {
     if (!button || button.disabled || !this.contains(button)) {
       return;
     }
+    this.layout.closeAfterChoice(button);
     this.dispatchEvent(
       new CustomEvent<LwToolbarSelectDetail>(LW_TOOLBAR_SELECT, {
         detail: { key: button.getAttribute(ENTRY_ATTRIBUTE) ?? '', trigger: button },
@@ -251,6 +252,10 @@ export class LwToolbarElement extends HTMLElement {
       this.layout.closeTray();
       this.layout.foldControl()?.focus();
       event.preventDefault();
+      return;
+    }
+    if (this.layout.holdsFocus()) {
+      this.layout.stepInTray(event);
       return;
     }
     const stops = focusStopsOf(this.children);

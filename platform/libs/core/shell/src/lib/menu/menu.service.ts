@@ -33,6 +33,8 @@ import {
   LW_MENU_DISMISS,
   LW_MENU_SELECT,
 } from '../elements/menu/lw-menu.element';
+import { focusReturnOf, returnFocusTo } from '../elements/menu/overlay-menu';
+import { closeOnOutsidePointer } from '../elements/row-fold';
 
 export interface MenuOpenOptions {
   readonly trigger?: HTMLElement;
@@ -41,8 +43,7 @@ export interface MenuOpenOptions {
 
 interface OpenMenu {
   readonly menu: HTMLElement;
-  readonly onOutside: (event: PointerEvent) => void;
-  readonly restore: HTMLElement | null;
+  stopOutside?: () => void;
   readonly listenTimer: ReturnType<typeof setTimeout>;
   readonly wording: Subscription;
 }
@@ -192,10 +193,10 @@ export class MenuService {
     this.trigger.set(null);
     clearTimeout(open.listenTimer);
     open.wording.unsubscribe();
-    document.removeEventListener('pointerdown', open.onOutside, true);
+    open.stopOutside?.();
     document.body.classList.remove('lw-menu-open');
     open.menu.remove();
-    open.restore?.focus?.();
+    focusReturnOf(open.menu)?.focus?.();
   }
 
   private present(
@@ -204,7 +205,7 @@ export class MenuService {
     onSelect: (key: string | null) => void,
     trigger?: HTMLElement,
   ): void {
-    const restore = document.activeElement as HTMLElement | null;
+    returnFocusTo(menu, document.activeElement as HTMLElement | null);
     menu.addEventListener(LW_MENU_SELECT, (event) => {
       const key = (event as CustomEvent<{ command: string | null }>).detail
         .command;
@@ -212,22 +213,19 @@ export class MenuService {
       onSelect(key);
     });
     menu.addEventListener(LW_MENU_DISMISS, () => this.close());
-    const onOutside = (event: PointerEvent) => {
-      if (!menu.contains(event.target as Node)) {
-        this.close();
-      }
-    };
     document.body.append(menu);
     document.body.classList.add('lw-menu-open');
     place(menu, at);
     const openedAt = trigger?.getBoundingClientRect();
     let placedAt = at;
     this.trigger.set(trigger ?? null);
-    const listenTimer = setTimeout(
-      () =>
-        document.addEventListener('pointerdown', onOutside, { capture: true }),
-      0,
-    );
+    const listenTimer = setTimeout(() => {
+      opened.stopOutside = closeOnOutsidePointer(
+        document,
+        (target) => menu.contains(target),
+        () => this.close(),
+      );
+    }, 0);
     const wording = wordingChanges(this.transloco).subscribe(() => {
       word();
       place(menu, placedAt);
@@ -242,7 +240,8 @@ export class MenuService {
         { injector: this.injector },
       );
     });
-    this.current = { menu, onOutside, restore, listenTimer, wording };
+    const opened: OpenMenu = { menu, listenTimer, wording };
+    this.current = opened;
   }
 
   private readonly translate = (key: string): string => {
