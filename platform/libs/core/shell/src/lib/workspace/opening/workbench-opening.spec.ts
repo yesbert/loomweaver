@@ -9,9 +9,16 @@ import { BUILT_IN_WORKSPACE_ID } from '../declaration/composed-definitions';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { provideLayout } from '../../layout/layout';
 import { provideWorkspaces } from '../declaration/provide-workspaces';
+import { CONTENT_DOCK } from '../../regions/pane/tree/pane-address';
+import { collectTabPaths } from '../../regions/pane/tree/pane-queries';
+import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
 
 @Component({ selector: 'lw-test-view', template: '' })
 class TestView {}
+
+function arrangedTabs(): string[] {
+  return collectTabPaths(TestBed.inject(PaneTreeService).tree(CONTENT_DOCK));
+}
 
 function scoped(base: string, workspaceId: string): string {
   return `${base}:${workspaceId}`;
@@ -25,10 +32,19 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     content: { tabs: [{ path: 'doc', closable: false }] },
   } as const;
 
-  function compose(storedActive?: string): void {
+  function compose(
+    storedActive?: string,
+    options: { saved?: readonly unknown[]; declared?: boolean } = {},
+  ): void {
     localStorage.clear();
     if (storedActive !== undefined) {
       localStorage.setItem('lw.shell.active-workspace', storedActive);
+    }
+    if (options.saved !== undefined) {
+      localStorage.setItem(
+        'lw.shell.workspaces',
+        JSON.stringify(options.saved),
+      );
     }
     TestBed.configureTestingModule({
       providers: [
@@ -37,7 +53,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
           { path: 'search', children: [] },
           { path: '**', children: [] },
         ]),
-        provideWorkspaces(DEFINITION),
+        ...(options.declared === false ? [] : [provideWorkspaces(DEFINITION)]),
         provideLayout({
           regions: [{ id: 'main', type: 'content', dock: 'center' }],
         }),
@@ -99,7 +115,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     expect(ws.activeId()).toBe('dev.start');
   });
 
-  it('starts a stored choice of the built-in workspace in the declared initial, at a deep link too', async () => {
+  it('opens a stored choice of the built-in workspace in the declared initial from its baseline, at a deep link too', async () => {
     compose(BUILT_IN_WORKSPACE_ID);
     await TestBed.inject(Router).navigateByUrl('/search');
     const ws = TestBed.inject(WorkspaceService);
@@ -107,6 +123,68 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     await settle();
 
     expect(ws.activeId()).toBe('dev.start');
+    expect(arrangedTabs()).toContain('doc');
+    expect(arrangedTabs()).toContain('search');
+    expect(TestBed.inject(Router).url).toBe('/search');
+  });
+
+  it('opens a stored choice of the built-in workspace in the declared initial and shows its content where the address named nothing', async () => {
+    compose(BUILT_IN_WORKSPACE_ID);
+    const ws = TestBed.inject(WorkspaceService);
+
+    await settle();
+
+    expect(ws.activeId()).toBe('dev.start');
+    expect(arrangedTabs()).toEqual(['doc']);
+    expect(TestBed.inject(Router).url).toBe('/doc');
+  });
+
+  it('gives a stored workspace that nothing lists any more up for the declared initial, keeping the address', async () => {
+    compose('gone');
+    await TestBed.inject(Router).navigateByUrl('/search');
+    const ws = TestBed.inject(WorkspaceService);
+
+    await settle();
+
+    expect(ws.activeId()).toBe('dev.start');
+    expect(localStorage.getItem('lw.shell.active-workspace')).toBe('dev.start');
+    expect(arrangedTabs()).toContain('doc');
+    expect(arrangedTabs()).toContain('search');
+    expect(TestBed.inject(Router).url).toBe('/search');
+  });
+
+  it('shows the declared content after giving a stored workspace up where the address named nothing', async () => {
+    compose('gone');
+    const ws = TestBed.inject(WorkspaceService);
+
+    await settle();
+
+    expect(ws.activeId()).toBe('dev.start');
+    expect(TestBed.inject(Router).url).toBe('/doc');
+  });
+
+  it('gives a stored workspace that nothing lists any more up for the built-in one where nothing is declared', async () => {
+    compose('gone', { declared: false });
+    await TestBed.inject(Router).navigateByUrl('/search');
+    const ws = TestBed.inject(WorkspaceService);
+
+    await settle();
+
+    expect(ws.activeId()).toBe(BUILT_IN_WORKSPACE_ID);
+    expect(localStorage.getItem('lw.shell.active-workspace')).toBe(
+      BUILT_IN_WORKSPACE_ID,
+    );
+    expect(TestBed.inject(Router).url).toBe('/search');
+  });
+
+  it('leaves the user in a stored workspace they saved', async () => {
+    compose('mine', { saved: [{ id: 'mine', name: 'Mine', baseline: {} }] });
+    await TestBed.inject(Router).navigateByUrl('/search');
+    const ws = TestBed.inject(WorkspaceService);
+
+    await settle();
+
+    expect(ws.activeId()).toBe('mine');
     expect(TestBed.inject(Router).url).toBe('/search');
   });
 

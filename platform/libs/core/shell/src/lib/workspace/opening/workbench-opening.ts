@@ -50,15 +50,34 @@ export class WorkbenchOpening {
       this.switcher.warnDeclarationGaps(adopted);
       this.tabNavigation.keepAddress(this.tabState.activePath());
     }
-    await this.startWhereTheDistributionSays(adopted !== null);
+    const entered = adopted !== null || (await this.leftAnUnlistedWorkspace());
+    await this.startWhereTheDistributionSays(entered);
   }
 
-  private async startWhereTheDistributionSays(adopted: boolean): Promise<void> {
+  private async leftAnUnlistedWorkspace(): Promise<boolean> {
+    if (this.listed()) {
+      return false;
+    }
+    await this.catalog.savedAnswered();
+    await this.paneTree.arrangementSettled;
+    if (this.listed() || this.active.wasChosen()) {
+      return false;
+    }
+    await this.switcher.enter(this.catalog.startingId);
+    this.tabNavigation.keepAddress(this.tabState.activePath());
+    return true;
+  }
+
+  private listed(): boolean {
+    return this.catalog.exists(this.active.id());
+  }
+
+  private async startWhereTheDistributionSays(entered: boolean): Promise<void> {
     const declared = declaredStart(this.catalog.definitions);
     if (declared?.content === undefined || !this.atTheOpeningAddress()) {
       return;
     }
-    if (!adopted) {
+    if (!entered) {
       if (this.active.wasChosen()) {
         return;
       }

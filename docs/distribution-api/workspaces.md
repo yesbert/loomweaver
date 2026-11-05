@@ -19,9 +19,9 @@ await workspaces.saveCurrent('Mine');    // the current arrangement as a new wor
 await workspaces.saveBaseline();         // the current arrangement becomes the baseline
 workspaces.rename(id, 'Reviews');
 const reset = await workspaces.reset();          // active workspace; asks about unsaved work
-await workspaces.reset('review');               // a workspace you are not in; asks nothing
+await workspaces.reset('review');               // a workspace you are not in; asks about unsaved work parked under it
 const all = await workspaces.resetAll();        // asks once for all of them
-const removed = await workspaces.remove(id);    // asks for the work parked under it; if it was active, the user lands in the default workspace
+const removed = await workspaces.remove(id);    // asks for the work parked under it and, if it was active, the work it shows; the user then lands in the default workspace
 ```
 
 ## Read it
@@ -39,7 +39,7 @@ workspaces.destinationFor(path);  // the workspace a path would settle in, by th
 
 ## What asks about unsaved work
 
-Resetting the active workspace, `resetAll()` and `remove()` ask the question the built-in commands ask, inside the service, and answer whether they ran. Resetting a workspace you are not in asks nothing, because no live work is in it. `switchTo` never asks and never loses work: it parks the work, as the capability requires. The "really reset?" confirmation the dialog shows is your control's decision, not the service's.
+Resetting the active workspace, `resetAll()` and `remove()` ask the question the built-in commands ask, inside the service, and answer whether they ran. Resetting a workspace you are not in asks about the unsaved work parked under it, and asks nothing where there is none. Removing the workspace the user is in asks once, for the work its surfaces show and the work parked under it. `switchTo` never asks and never loses work: it parks the work, as the capability requires. The "really reset?" confirmation the dialog shows is your control's decision, not the service's.
 
 ## Switched off
 

@@ -7,6 +7,7 @@ import {
   workspaceScopedKey,
 } from './active-workspace.service';
 import { WORKSPACE_STATE_KEYS } from './working-state/state-channels';
+import { StoredStateRevision } from './working-state/stored-state-revision';
 import { unsavedWorkspaces } from './working-state/unsaved-workspaces';
 import { writeWorkspaceState } from './working-state/working-state-io';
 import { WorkspaceCatalog } from './catalog/workspace-catalog';
@@ -28,6 +29,7 @@ export class WorkspaceService {
   private readonly discard = inject(WorkspaceDiscardConfirmation);
   private readonly tabNavigation = inject(TabNavigationService);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
+  private readonly storedRevision = inject(StoredStateRevision);
 
   readonly definitions = this.catalog.definitions;
   readonly workspaces = this.catalog.saved;
@@ -45,6 +47,7 @@ export class WorkspaceService {
     workspaces: () => this.workspaces(),
     definitions: this.definitions,
     workingStateStore: this.workingStateStore,
+    storedRevision: this.storedRevision.current,
   });
 
   readonly hasChanges = this.unsaved.hasChanges;
@@ -106,7 +109,11 @@ export class WorkspaceService {
     if (!this.catalog.exists(id)) {
       return false;
     }
-    if (id === this.active.id() && !(await this.discard.confirmDiscardAll())) {
+    const allowed =
+      id === this.active.id()
+        ? await this.discard.confirmDiscardAll()
+        : await this.discard.confirmDiscardOf(id);
+    if (!allowed) {
       return false;
     }
     this.resetNow(id);
@@ -138,7 +145,7 @@ export class WorkspaceService {
   }
 
   async remove(id: string): Promise<boolean> {
-    if (this.catalog.isBuiltInOrDeclared(id) || !(await this.discard.confirmDiscardParked(id))) {
+    if (this.catalog.isBuiltInOrDeclared(id) || !(await this.discard.confirmDiscardOf(id))) {
       return false;
     }
     this.catalog.commit(
@@ -175,6 +182,7 @@ export class WorkspaceService {
         this.switcher.baselineOf(id),
         WORKSPACE_STATE_KEYS,
       );
+      this.storedRevision.advance();
       return;
     }
     this.stash.endHolds(id);

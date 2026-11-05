@@ -119,7 +119,7 @@ describe('a workspace whose stored arrangement leaves it without content', () =>
     const { ws, unusable } = compose();
     expect(ws.activeId()).toBe('dashboard');
 
-    ws.reset('payments');
+    await ws.reset('payments');
 
     expect(ws.activeId()).toBe('dashboard');
     expect(unusable.ids().has('payments')).toBe(false);

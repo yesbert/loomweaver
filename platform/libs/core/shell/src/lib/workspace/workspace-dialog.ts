@@ -8,6 +8,8 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogService } from '../dialog/dialog.service';
+import { nameShowing } from '../foundation/name-showing';
+import { type Workspace } from './catalog/saved-workspaces';
 import { BUILT_IN_WORKSPACE_ID } from './declaration/composed-definitions';
 import { WorkspaceCatalog } from './catalog/workspace-catalog';
 import { WorkspaceService } from './workspace.service';
@@ -52,6 +54,18 @@ export class WorkspaceDialog {
     const definition =
       origin === null ? undefined : this.catalog.definitionOf(origin);
     return definition ? this.transloco.translate(definition.title) : null;
+  }
+
+  protected nameOf(workspace: Workspace): string {
+    const origin = this.originName(workspace.id);
+    const variant =
+      origin === null
+        ? undefined
+        : this.transloco.translate('workspace.variantOf', { name: origin });
+    return nameShowing(
+      [this.initials().get(workspace.id)],
+      [workspace.name, variant].filter(Boolean).join(', '),
+    );
   }
 
   protected changed(id: string): boolean {

@@ -26,6 +26,7 @@ export interface UnsavedReading {
   readonly workspaces: () => readonly Workspace[];
   readonly definitions: readonly WorkspaceDefinition[];
   readonly workingStateStore: KeyValueStore;
+  readonly storedRevision: () => number;
 }
 
 export function unsavedWorkspaces(reading: UnsavedReading): {
@@ -40,8 +41,9 @@ export function unsavedWorkspaces(reading: UnsavedReading): {
       declaredPaths,
     ),
   );
-  const changedIds = computed(() =>
-    changedWorkspaceIds({
+  const changedIds = computed(() => {
+    reading.storedRevision();
+    return changedWorkspaceIds({
       activeId: reading.activeId(),
       activeDiffers: hasChanges(),
       canReadBack: reading.workingStateStore.peek !== undefined,
@@ -57,8 +59,8 @@ export function unsavedWorkspaces(reading: UnsavedReading): {
           candidate,
           declaredPaths,
         ),
-    }),
-  );
+    });
+  });
   return { hasChanges, changedIds };
 }
 

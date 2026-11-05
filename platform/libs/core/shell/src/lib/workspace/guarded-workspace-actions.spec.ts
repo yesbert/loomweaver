@@ -1,4 +1,11 @@
-import { inject } from '@angular/core';
+import {
+  Component,
+  ComponentRef,
+  createComponent,
+  EmbeddedViewRef,
+  EnvironmentInjector,
+  inject,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { FeatureSwitches } from '../features/feature-switches.service';
@@ -35,11 +42,38 @@ const REARRANGED = JSON.stringify({
   },
 });
 
+@Component({ selector: 'lw-test-draft', template: '' })
+class Draft {
+  surfaceDirty(): boolean {
+    return true;
+  }
+}
+
+function draft(key: string, placement: 'shown' | 'parked'): ComponentRef<Draft> {
+  const ref = createComponent(Draft, {
+    environmentInjector: TestBed.inject(EnvironmentInjector),
+  });
+  const slot = TestBed.inject(RetainedViewStash).acquire(key, Draft, () => ({
+    view: ref.hostView as EmbeddedViewRef<unknown>,
+    instance: ref.instance,
+  }));
+  if (placement === 'parked') {
+    slot.detach(true);
+  }
+  return ref;
+}
+
 function compose(answer = true) {
   localStorage.clear();
-  const guard = { confirmDiscard: vi.fn(async () => answer) };
+  const guard = {
+    confirmDiscard: vi.fn<(candidates: readonly unknown[]) => Promise<boolean>>(
+      async () => answer,
+    ),
+  };
   const dirty = { surfaceDirty: () => true };
-  const unsavedWork = { instancesEverywhere: vi.fn(() => [dirty]) };
+  const unsavedWork = {
+    instancesEverywhere: vi.fn((): unknown[] => [dirty]),
+  };
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', children: [] }]),
@@ -104,15 +138,35 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     expect(before).toContain('orders/o-1');
   });
 
-  it('resetting a workspace the user is not in asks nothing', async () => {
+  it('resetting a workspace the user is not in asks about nothing the user is looking at', async () => {
     localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
     const { ws, guard } = compose();
 
     const ran = await ws.reset('orders');
 
     expect(ran).toBe(true);
-    expect(guard.confirmDiscard).not.toHaveBeenCalled();
+    expect(guard.confirmDiscard).toHaveBeenLastCalledWith([]);
     expect(stored('orders')).not.toContain('orders/o-1');
+  });
+
+  it('resetting a workspace the user is not in asks for the work parked under it, and keeps it when declined', async () => {
+    const { ws, guard } = compose(false);
+    await ws.switchTo('orders');
+    TestBed.inject(PaneTreeService).insertTab(
+      CONTENT_DOCK,
+      'main',
+      'orders/o-1',
+    );
+    const parked = draft('main:main|orders/o-1', 'parked');
+    await ws.switchTo('overview');
+    expect(stored('orders')).toContain('orders/o-1');
+
+    const ran = await ws.reset('orders');
+
+    expect(ran).toBe(false);
+    expect(guard.confirmDiscard).toHaveBeenLastCalledWith([parked.instance]);
+    expect(parked.hostView.destroyed).toBe(false);
+    expect(stored('orders')).toContain('orders/o-1');
   });
 
   it('resetAll asks once for every workspace', async () => {
@@ -128,13 +182,39 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     expect(stored('orders')).not.toContain('orders/o-1');
   });
 
-  it('removing a workspace asks for the work parked under it', async () => {
+  it('removing the workspace the user is in asks once for the work its surfaces show and the work parked under it', async () => {
+    const { ws, guard, unsavedWork } = compose(false);
+    const stash = TestBed.inject(RetainedViewStash);
+    unsavedWork.instancesEverywhere.mockImplementation(() => stash.instances());
+    await ws.switchTo('orders');
+    draft('main:main|orders/o-9', 'parked');
+    await ws.switchTo('overview');
+    await ws.saveCurrent('scratch');
+    const saved = ws.workspaces().find((w) => w.name === 'scratch');
+    if (!saved) {
+      throw new Error('no saved workspace');
+    }
+    const parked = draft('main:main|notes/parked', 'parked');
+    const shown = draft('main:main|notes/shown', 'shown');
+
+    const ran = await ws.remove(saved.id);
+
+    expect(ran).toBe(false);
+    expect(guard.confirmDiscard).toHaveBeenCalledTimes(1);
+    expect(new Set(guard.confirmDiscard.mock.lastCall?.at(0))).toEqual(
+      new Set([parked.instance, shown.instance]),
+    );
+    expect(ws.workspaces().some((w) => w.id === saved.id)).toBe(true);
+  });
+
+  it('removing a workspace the user is not in asks for the work parked under it', async () => {
     const { ws, guard } = compose(false);
     await ws.saveCurrent('scratch');
     const saved = ws.workspaces().find((w) => w.name === 'scratch');
     if (!saved) {
       throw new Error('no saved workspace');
     }
+    await ws.switchTo('overview');
     const parked = { surfaceDirty: () => true };
     vi.spyOn(
       TestBed.inject(RetainedViewStash),
@@ -155,6 +235,7 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     if (!saved) {
       throw new Error('no saved workspace');
     }
+    await ws.switchTo('overview');
 
     const ran = await ws.remove(saved.id);
 

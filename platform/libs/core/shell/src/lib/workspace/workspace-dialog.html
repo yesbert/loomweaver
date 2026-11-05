@@ -118,6 +118,7 @@
               type="button"
               class="flex flex-1 items-center gap-2 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
               [attr.aria-current]="activeId() === workspace.id ? 'true' : null"
+              [attr.aria-label]="nameOf(workspace)"
               (click)="switchTo(workspace.id)"
             >
               @if (initials().get(workspace.id); as badge) {

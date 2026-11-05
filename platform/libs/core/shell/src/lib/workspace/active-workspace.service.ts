@@ -69,9 +69,9 @@ export class ActiveWorkspaceService {
 
   private resolveInitial(): Promise<string> {
     if (this.workingStateStore.peek) {
-      const raw = this.workingStateStore.peek(ACTIVE_KEY);
-      this.adoptIfUnseen(storedId(raw));
-      this.rewriteSuperseded(raw);
+      this.adoptDeclaredStart(
+        storedId(this.workingStateStore.peek(ACTIVE_KEY)),
+      );
       return Promise.resolve(this.active());
     }
     return this.workingStateStore
@@ -80,10 +80,8 @@ export class ActiveWorkspaceService {
         const id = this.fromStore(raw);
         if (id) {
           this.active.set(id);
-          this.rewriteSuperseded(raw);
-        } else {
-          this.adoptIfUnseen(null);
         }
+        this.adoptDeclaredStart(storedId(raw));
         return this.active();
       })
       .catch(() => this.active());
@@ -94,17 +92,10 @@ export class ActiveWorkspaceService {
     return id === BUILT_IN_WORKSPACE_ID ? this.startingId : id;
   }
 
-  private rewriteSuperseded(raw: string | undefined): void {
-    if (
-      storedId(raw) === BUILT_IN_WORKSPACE_ID &&
-      this.declaredInitial !== null
-    ) {
-      void this.workingStateStore.set(ACTIVE_KEY, this.declaredInitial);
-    }
-  }
-
-  private adoptIfUnseen(stored: string | null): void {
-    if (stored !== null || this.declaredInitial === null) {
+  private adoptDeclaredStart(stored: string | null): void {
+    const yieldsToTheStart =
+      stored === null || stored === BUILT_IN_WORKSPACE_ID;
+    if (!yieldsToTheStart || this.declaredInitial === null) {
       return;
     }
     this.adopted = true;
