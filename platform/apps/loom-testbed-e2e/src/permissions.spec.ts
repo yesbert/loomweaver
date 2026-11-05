@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 async function openPermissions(
   page: import('@playwright/test').Page,
 ): Promise<void> {
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('button', { name: 'Permissions', exact: true }).click();
 }
 
