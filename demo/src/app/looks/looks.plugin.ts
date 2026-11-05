@@ -15,6 +15,7 @@ export const looksPlugin: Plugin = {
       description: 'product.looks.command.description',
       callable: true,
       answers: 'product.looks.command.answers',
+      paletteHidden: true,
       arguments: [
         {
           name: 'look',

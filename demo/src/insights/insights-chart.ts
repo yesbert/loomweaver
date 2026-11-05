@@ -33,10 +33,15 @@ Chart.register(
 @Component({
   selector: 'demo-insights-chart',
   host: { class: 'block h-full w-full min-w-0' },
-  template: '<canvas #canvas></canvas>',
+  template:
+    '<canvas #canvas role="img" [attr.aria-labelledby]="labelledBy()" [attr.aria-describedby]="describedBy()"></canvas>',
 })
 export class InsightsChart {
   readonly config = input.required<ChartConfiguration>();
+
+  readonly labelledBy = input.required<string>();
+
+  readonly describedBy = input.required<string>();
 
   private readonly canvas =
     viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');

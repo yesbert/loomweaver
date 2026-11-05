@@ -35,24 +35,13 @@
       }
     },
     {
-      "name": "picture-renderer",
-      "installMode": "lazy",
-      "updateMode": "prefetch",
-      "resources": {
-        "files": [
-          "/frame-kit/snapdom.global.js"
-        ]
-      }
-    },
-    {
-      "name": "frame-plugins",
+      "name": "plugin-store",
       "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": [
-          "/frame-kit/**",
-          "/payments/**",
-          "/api/**.json"
+          "/api/plugins.json",
+          "/payments/README.md"
         ]
       }
     }

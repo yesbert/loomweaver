@@ -26,6 +26,7 @@
     "howMany": "Wie viele wurden gezählt?",
     "confirm": "Buchen",
     "unknownItem": "Diese Artikelnummer gibt es im Lager nicht.",
+    "notWholeNumber": "Eine gezählte Menge ist eine ganze Zahl in Ziffern, zum Beispiel 120. Es wurde nichts gebucht.",
     "unchanged": "Der gezählte Bestand entspricht dem gebuchten.",
     "done": "Inventur gebucht.",
     "description": "Bucht eine Inventur: fragt nach Artikelnummer und gezählter Menge und korrigiert den Bestand.",

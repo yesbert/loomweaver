@@ -138,16 +138,25 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 9. The demo and the example
 
-- [ ] 9.1 Commands that need arguments are not offered in the search (`demo/src/quotes/quotes-commands.ts`, `demo/src/app/looks/looks.plugin.ts`, `examples/assistant-workbench/src/tickets/src/lib/plugin/tickets.plugin.ts`)
-- [ ] 9.2 An empty stock count posts nothing (`demo/src/inventory/inventory-actions.ts`)
-- [ ] 9.3 Ledger account names come from the catalogue (`demo/src/finance/books.ts`)
-- [ ] 9.4 The assistant's error sentences come from the catalogue, and the unused key goes (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent.ts`)
-- [ ] 9.5 The dashboard charts carry a role and a name (`demo/src/insights/insights-chart.ts`)
-- [ ] 9.6 Bank statement dates are the same day in every time zone (`demo/public/payments/matching.js`, `view.js`)
-- [ ] 9.7 The assistant's prompt keeps the focus across a run (`assistant-agent-panel.html`)
-- [ ] 9.8 The example compiles with `strict` and `strictTemplates` (`examples/assistant-workbench/tsconfig.json`)
-- [ ] 9.9 Leads, each verified first: the demo's service worker serving the sandboxed payments plugin offline; unused exports and files in `demo/src`
-- [ ] 9.10 The example's panel flushes in a `finally`, as the guide says (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
+- [x] 9.1 Commands that need arguments are not offered in the search (`demo/src/quotes/quotes-commands.ts`, `demo/src/app/looks/looks.plugin.ts`, `examples/assistant-workbench/src/tickets/src/lib/plugin/tickets.plugin.ts`)
+- [x] 9.2 An empty stock count posts nothing (`demo/src/inventory/inventory-actions.ts`)
+- [x] 9.3 Ledger account names come from the catalogue (`demo/src/finance/books.ts`)
+- [x] 9.4 The assistant's error sentences come from the catalogue, and the unused key goes (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent.ts`)
+- [x] 9.5 The dashboard charts carry a role and a name (`demo/src/insights/insights-chart.ts`)
+- [x] 9.6 Bank statement dates are the same day in every time zone (`demo/public/payments/matching.js`, `view.js`)
+- [x] 9.7 The assistant's prompt keeps the focus across a run (`assistant-agent-panel.html`)
+- [x] 9.8 The example compiles with `strict` and `strictTemplates` (`examples/assistant-workbench/tsconfig.json`)
+- [x] 9.9 Leads, each verified first: the demo's service worker serving the sandboxed payments plugin offline; unused exports and files in `demo/src`
+- [x] 9.10 The example's panel flushes in a `finally`, as the guide says (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
+- [x] 9.11 A bank statement line on the edge of the chosen period is in or out by its date, the same in every time zone (`demo/public/payments/matching.js`, the period cutoff)
+- [x] 9.12 The answers the example's panel flushes after a run reach the agent's history, so the next run does not meet calls without a result (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
+- [x] 9.13 The example's agent repairs a call without a result by looking at the last assistant message and the tool messages after it, so a provider that reuses call ids between rounds cannot make a dangling call look answered (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent.ts`)
+- [x] 9.14 A prompt submitted while a run is busy or the connection is not ready is kept in the field, not cleared (`assistant-agent-panel.ts`, `submit`)
+- [x] 9.15 `pwa-check` asserts that the files the host page fetches for the plugin store reach the worker's manifest (`demo/tools/check-pwa.mjs`: `/api/plugins.json`, `/payments/README.md`); calibrate by misspelling the group once
+- [x] 9.16 A stock count that is not a whole, non-negative number in plain digits posts nothing and says so: `abc`, `-5`, `12,5`, `1e3`, `1.000` are refused with a notice in both languages, `0` and ` 0 ` post zero (`demo/src/inventory/inventory-actions.ts`)
+- [x] 9.17 The assistant translates the "model is gone" sentence only when the answer says so (`assistant-agent.ts`)
+- [x] 9.18 The guide says what is true of an isolated plugin offline: the worker cannot serve it; whether the browser's own HTTP cache does depends on the headers the host sends, and that is not something to rely on (`docs/distribution/pwa.md`, `frame-plugins.md`, `distribution-api/capture.md`)
+- [x] 9.19 A chart is not announced twice and says what it shows: the canvas takes its name from the card's heading by reference, and the quoted-per-month chart has a text alternative with its values, as the pipeline chart has its list (`demo/src/insights/`)
 
 ## 10. Tests that could not fail
 

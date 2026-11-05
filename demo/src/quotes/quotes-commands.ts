@@ -37,6 +37,7 @@ function openQuote(): Command {
     callable: true,
     answers: 'quotes.command.open.answers',
     arguments: [quoteNumberArgument('quotes.command.open.arg.number')],
+    paletteHidden: true,
     run: (_context, args) => {
       const quote = byNumber(args?.['number']);
       if (!quote) {
@@ -58,6 +59,7 @@ function sendQuote(): Command {
     agentConsent: 'ask',
     answers: 'quotes.command.send.answers',
     arguments: [quoteNumberArgument('quotes.command.send.arg.number')],
+    paletteHidden: true,
     run: (_context, args) => {
       const quote = byNumber(args?.['number']);
       if (!quote) {
@@ -81,6 +83,7 @@ function quoteMargin(): Command {
     access: { anyRole: ['accounting'] },
     answers: 'quotes.command.margin.answers',
     arguments: [quoteNumberArgument('quotes.command.margin.arg.number')],
+    paletteHidden: true,
     run: (_context, args) => {
       const quote = byNumber(args?.['number']);
       if (!quote) {

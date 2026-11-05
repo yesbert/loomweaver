@@ -58,6 +58,13 @@ caches each file the first time it is shown, and `"updateMode": "prefetch"` keep
 that. Offline, the app then has the languages someone has already used and no others. Either way
 the strings are covered; the choice is how much the first visit downloads.
 
+**The worker cannot serve a frame plugin running isolated.** Its frame has no origin, so the browser
+fetches the plugin's files past the worker, whatever your asset groups list. Offline, such a plugin
+opens only if the browser's own HTTP cache still holds its files, and that depends on the headers
+your host sends. Do not rely on it. A plugin running embedded from the application's own origin is
+served by the worker like any other file.
+[The level a frame plugin runs at](frame-plugins.md#the-level-a-frame-plugin-runs-at) has both.
+
 **No worker at all?** Pass `provideShell({ serviceWorker: false })`. Registration is skipped,
 `UpdateService.enabled` reports `false` and no update is ever offered. The service injects
 `SwUpdate` optionally, so nothing else changes. Use it whenever your build emits no

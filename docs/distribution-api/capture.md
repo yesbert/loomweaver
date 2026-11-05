@@ -109,9 +109,11 @@ sits in two places: a chunk beside your application, and a copy under `frame-kit
 surfaces load for themselves. A blanket prefetch rule pulls both down on install, for a feature that
 may never be called.
 
-If you would rather fetch it when someone asks for a picture, give `frame-kit/snapdom.global.js` an
-asset group of its own with `installMode: 'lazy'`. Put it ahead of the group matching the rest of
-`frame-kit`, because the first matching group wins.
+The worker can never hand that second copy to an isolated surface, because such a frame fetches its
+files past the worker. Leave `frame-kit/` out of your asset groups unless a plugin runs embedded from
+your own origin. If one does, give `frame-kit/snapdom.global.js` an asset group of its own with
+`installMode: 'lazy'`, so it is fetched when someone asks for a picture. Put it ahead of the group
+matching the rest of `frame-kit`, because the first matching group wins.
 
 ## Why there is no prompt, and what it costs
 

@@ -6,7 +6,6 @@ const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 const MAX_ROUNDS = 8;
 const TIMEOUT_MS = 60_000;
 const FREE_MODELS = 'https://openrouter.ai/models?fmt=cards&supported_parameters=tools&max_price=0';
-const GONE = `Free models come and go. Put another slug in MODEL in assistant-agent.ts; the free ones that can call tools are listed at ${FREE_MODELS}.`;
 const INSTRUCTIONS =
   'You operate a support workbench for the person at the keyboard. Do what they ask by calling the tools; never describe a step you could take instead of taking it. When a ticket is named by its topic rather than its number, list the tickets first and pick the one that matches. When everything is done, answer in one or two short sentences saying what happened.';
 
@@ -40,11 +39,16 @@ interface ChatCompletion {
   readonly error?: { readonly message: string };
 }
 
-export function createAgent(fetchLike: typeof fetch = (input, init) => fetch(input, init)): Agent {
+export type Wording = (key: string, params?: Record<string, unknown>) => string;
+
+export function createAgent(
+  wording: Wording,
+  fetchLike: typeof fetch = (input, init) => fetch(input, init),
+): Agent {
   const history: ChatMessage[] = [{ role: 'system', content: INSTRUCTIONS }];
   const answers = new Map<string, ToolMessage>();
   return {
-    ask: (request) => ask({ history, answers, fetchLike }, request),
+    ask: (request) => ask({ history, answers, fetchLike, wording }, request),
     answer: (message) => {
       answers.set(message.toolCallId, message);
     },
@@ -55,16 +59,19 @@ interface Conversation {
   readonly history: ChatMessage[];
   readonly answers: Map<string, ToolMessage>;
   readonly fetchLike: typeof fetch;
+  readonly wording: Wording;
 }
 
 async function* ask(conversation: Conversation, request: AgentRequest): AsyncGenerator<AGUIEvent> {
-  const { history, fetchLike } = conversation;
+  const { history } = conversation;
   const thread = { threadId: 'assistant', runId: request.runId };
   yield { type: EventType.RUN_STARTED, ...thread };
+  history.push(...unansweredCalls(history).map((call) => resultOf(conversation.answers, call.id)));
+  conversation.answers.clear();
   history.push({ role: 'user', content: request.prompt });
   try {
     for (let round = 0; round < MAX_ROUNDS; round++) {
-      const message = await complete(fetchLike, request.key, history, request.tools);
+      const message = await complete(conversation, request);
       history.push(message);
       if (message.content) {
         yield* say(`${request.runId}.${round}`, message.content);
@@ -75,13 +82,12 @@ async function* ask(conversation: Conversation, request: AgentRequest): AsyncGen
       }
       for (const call of calls) {
         yield* callEvents(call);
-        const answer = answerTo(conversation.answers, call.id);
-        history.push({ role: 'tool', tool_call_id: call.id, content: answer.error ?? contentToText(answer.content) });
+        history.push(resultOf(conversation.answers, call.id));
       }
     }
     yield { type: EventType.RUN_FINISHED, ...thread };
   } catch (failure) {
-    yield { type: EventType.RUN_ERROR, message: describe(failure) };
+    yield { type: EventType.RUN_ERROR, message: describe(failure, conversation.wording) };
   }
 }
 
@@ -90,6 +96,20 @@ async function* callEvents(call: ChatToolCall): AsyncGenerator<AGUIEvent> {
   yield { type: EventType.TOOL_CALL_START, toolCallId, toolCallName: call.function.name };
   yield { type: EventType.TOOL_CALL_ARGS, toolCallId, delta: call.function.arguments || '{}' };
   yield { type: EventType.TOOL_CALL_END, toolCallId };
+}
+
+function unansweredCalls(history: readonly ChatMessage[]): readonly ChatToolCall[] {
+  const lastAssistant = history.map((message) => message.role).lastIndexOf('assistant');
+  if (lastAssistant < 0) {
+    return [];
+  }
+  const answered = new Set(history.slice(lastAssistant + 1).map((message) => message.tool_call_id));
+  return (history[lastAssistant].tool_calls ?? []).filter((call) => !answered.has(call.id));
+}
+
+function resultOf(answers: Map<string, ToolMessage>, toolCallId: string): ChatMessage {
+  const answer = answerTo(answers, toolCallId);
+  return { role: 'tool', tool_call_id: toolCallId, content: answer.error ?? contentToText(answer.content) };
 }
 
 function answerTo(answers: Map<string, ToolMessage>, toolCallId: string): ToolMessage {
@@ -107,13 +127,11 @@ function answerTo(answers: Map<string, ToolMessage>, toolCallId: string): ToolMe
 }
 
 async function complete(
-  fetchLike: typeof fetch,
-  key: string,
-  history: readonly ChatMessage[],
-  tools: readonly Tool[],
+  { history, fetchLike, wording }: Conversation,
+  { key, tools }: AgentRequest,
 ): Promise<ChatMessage> {
   if (!key) {
-    throw new Error('No OpenRouter key is set. Paste one in the panel first.');
+    throw new Error(wording('assistant.error.noKey'));
   }
   const response = await fetchLike(ENDPOINT, {
     method: 'POST',
@@ -133,12 +151,16 @@ async function complete(
   });
   const body = (await response.json()) as ChatCompletion;
   if (!response.ok || body.error) {
-    const said = body.error?.message ?? `OpenRouter answered with status ${response.status}.`;
-    throw new Error(response.status === 404 ? `${said} ${GONE}` : said);
+    const said = body.error?.message ?? wording('assistant.error.status', { status: response.status });
+    throw new Error(
+      response.status === 404
+        ? `${said} ${wording('assistant.error.modelGone', { models: FREE_MODELS })}`
+        : said,
+    );
   }
   const message = body.choices?.[0]?.message;
   if (!message) {
-    throw new Error('OpenRouter answered without a message.');
+    throw new Error(wording('assistant.error.noMessage'));
   }
   return message;
 }
@@ -160,9 +182,9 @@ async function* say(messageId: string, text: string): AsyncGenerator<AGUIEvent> 
   yield { type: EventType.TEXT_MESSAGE_END, messageId };
 }
 
-function describe(failure: unknown): string {
+function describe(failure: unknown, wording: Wording): string {
   if (failure instanceof DOMException && failure.name === 'TimeoutError') {
-    return `OpenRouter did not answer within ${TIMEOUT_MS / 1000} seconds. Free models are shared; try again.`;
+    return wording('assistant.error.timeout', { seconds: TIMEOUT_MS / 1000 });
   }
   return failure instanceof Error ? failure.message : String(failure);
 }

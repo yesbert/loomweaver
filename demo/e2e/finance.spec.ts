@@ -98,6 +98,15 @@ test('the ledger reports that debit and credit agree', async ({ page }) => {
   await expect(page.getByTestId('ledger-balance')).toHaveText('debit equals credit');
 });
 
+test('the ledger names its accounts in the language of the reader', async ({ page }) => {
+  await page.goto('/finance/ledger');
+
+  const ledger = page.getByTestId('ledger-list');
+  await expect(ledger).toContainText('1400 Receivables');
+  await expect(ledger).toContainText('8400 Revenue');
+  await expect(ledger).not.toContainText('Forderungen');
+});
+
 test('the dunning run asks first, and raises every overdue receivable a level', async ({
   page,
 }) => {

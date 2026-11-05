@@ -50,6 +50,7 @@ export const ticketsPlugin: Plugin = {
       arguments: [NUMBER_ARGUMENT],
       answers: 'tickets.open.answers',
       callable: true,
+      paletteHidden: true,
       run: (_context, args) => ticketDetail(ticketActions.open(String(args?.['number']))),
     });
 
@@ -63,6 +64,7 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.assign.answers',
       callable: true,
+      paletteHidden: true,
       run: (_context, args) => ticketActions.assign(String(args?.['number']), args?.['to'] as Assignee),
     });
 
@@ -76,6 +78,7 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.reply.answers',
       callable: true,
+      paletteHidden: true,
       agentConsent: 'ask',
       run: (_context, args) => ticketActions.reply(String(args?.['number']), String(args?.['text'])),
     });
@@ -90,6 +93,7 @@ export const ticketsPlugin: Plugin = {
       ],
       answers: 'tickets.status.answers',
       callable: true,
+      paletteHidden: true,
       run: (_context, args) =>
         ticketActions.setStatus(String(args?.['number']), args?.['status'] as TicketStatus),
     });

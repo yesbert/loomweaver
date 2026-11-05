@@ -34,10 +34,18 @@ export const inventoryActions = {
       initial: String(item.onHand),
       confirmLabel: 'inventory.count.confirm',
     });
-    const quantity = Number(counted?.trim());
-    if (counted === null || !Number.isInteger(quantity) || quantity < 0) {
+    const typed = counted?.trim();
+    if (!typed) {
       return null;
     }
+    if (!/^\d+$/.test(typed)) {
+      host.ui.toast({
+        message: 'inventory.count.notWholeNumber',
+        kind: 'warning',
+      });
+      return null;
+    }
+    const quantity = Number(typed);
     if (bookCount(item.id, quantity) === null) {
       host.ui.toast({
         message: 'inventory.count.unchanged',

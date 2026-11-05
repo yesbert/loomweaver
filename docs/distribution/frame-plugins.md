@@ -64,6 +64,7 @@ runs at one of two levels, and the composition chooses:
 | The frame                                | `<iframe sandbox="allow-scripts">`, no origin of its own | a plain `<iframe>`, it keeps its origin                                    |
 | Storage, cookies, the session they carry | none                                                     | whatever the browser grants that origin                                    |
 | Can reach the hosting document           | no                                                       | **yes** when served from the same origin; a sibling subdomain keeps it out |
+| Served offline by your service worker    | no, the frame fetches its files past the worker          | yes when served from the same origin                                       |
 | Written for                              | code you did not write                                   | your own teams, deploying separately                                       |
 
 ```ts

@@ -37,6 +37,7 @@
   function day(iso) {
     return new Intl.DateTimeFormat(LOCALES[state.locale] ?? LOCALES.en, {
       dateStyle: 'medium',
+      timeZone: 'UTC',
     }).format(new Date(iso));
   }
 

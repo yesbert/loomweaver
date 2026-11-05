@@ -17,11 +17,8 @@ export {
   totalsOf,
 } from './document';
 export {
-  type Article,
   type Customer,
-  type Supplier,
   SUPPLIERS,
-  ARTICLES,
   addCustomer,
   articleById,
   customerById,
@@ -36,7 +33,6 @@ export {
   daysSince,
   daysUntil,
   isoDaysFromToday,
-  localIsoDate,
   recentMonths,
   setReferenceDate,
   today,

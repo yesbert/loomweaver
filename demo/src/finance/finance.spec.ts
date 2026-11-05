@@ -16,6 +16,12 @@ import {
   startDunningRun,
   stateOf,
 } from './books';
+import de from './i18n/de.json';
+import en from './i18n/en.json';
+
+function accountNames(catalogue: object): Record<string, string> {
+  return (catalogue as { account?: Record<string, string> }).account ?? {};
+}
 
 describe('finance', () => {
   beforeEach(() => {
@@ -83,6 +89,18 @@ describe('finance', () => {
 
     expect(journal().length).toBeGreaterThan(0);
     expect(debit).toBe(credit);
+  });
+
+  it('names every ledger account by a key both languages carry', () => {
+    const keys = [...new Set(journal().map((line) => line.account))];
+
+    expect(keys).toHaveLength(4);
+    for (const catalogue of [en, de]) {
+      const names = accountNames(catalogue);
+      for (const key of keys) {
+        expect(names[key.replace('finance.account.', '')], key).toBeTruthy();
+      }
+    }
   });
 
   it('shows the newest booking first', () => {

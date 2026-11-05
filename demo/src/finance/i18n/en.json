@@ -17,6 +17,12 @@
   "level": "level {{level}}",
   "dunningDescription": "Sends a reminder for every overdue receivable and raises its dunning level.",
   "dunningAnswers": "How many receivables were reminded.",
+  "account": {
+    "receivables": "Receivables",
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "payables": "Payables"
+  },
   "column": {
     "number": "Number",
     "customer": "Customer",

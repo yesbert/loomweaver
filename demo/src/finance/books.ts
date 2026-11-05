@@ -27,6 +27,7 @@ export interface Payable {
 export interface JournalEntry {
   readonly id: string;
   readonly bookedOn: string;
+  readonly accountNumber: string;
   readonly account: string;
   readonly reference: string;
   readonly debit: Cents;
@@ -162,7 +163,8 @@ export const journal = computed<readonly JournalEntry[]>(() => {
     {
       id: `${entry.id}-r`,
       bookedOn: entry.issuedOn,
-      account: '1400 Forderungen',
+      accountNumber: '1400',
+      account: 'finance.account.receivables',
       reference: entry.number,
       debit: entry.gross,
       credit: 0,
@@ -170,7 +172,8 @@ export const journal = computed<readonly JournalEntry[]>(() => {
     {
       id: `${entry.id}-e`,
       bookedOn: entry.issuedOn,
-      account: '8400 Erlöse',
+      accountNumber: '8400',
+      account: 'finance.account.revenue',
       reference: entry.number,
       debit: 0,
       credit: entry.gross,
@@ -180,7 +183,8 @@ export const journal = computed<readonly JournalEntry[]>(() => {
     {
       id: `${entry.id}-a`,
       bookedOn: entry.issuedOn,
-      account: '6000 Aufwand',
+      accountNumber: '6000',
+      account: 'finance.account.expenses',
       reference: entry.number,
       debit: entry.gross,
       credit: 0,
@@ -188,7 +192,8 @@ export const journal = computed<readonly JournalEntry[]>(() => {
     {
       id: `${entry.id}-v`,
       bookedOn: entry.issuedOn,
-      account: '1600 Verbindlichkeiten',
+      accountNumber: '1600',
+      account: 'finance.account.payables',
       reference: entry.number,
       debit: 0,
       credit: entry.gross,

@@ -52,10 +52,12 @@ if (translations.length === 0) {
   );
 }
 
-const offline = ['/payments/view.html', '/frame-kit/lw-frame.css', '/api/open-items.json'];
-for (const url of offline) {
+const pluginStore = ['/api/plugins.json', '/payments/README.md'];
+for (const url of pluginStore) {
   if (!cached.includes(url)) {
-    problems.push(`the service worker does not cache ${url}, so the installed app loses the isolated plugin offline`);
+    problems.push(
+      `the service worker does not cache ${url}, which the page itself fetches for the plugin store`,
+    );
   }
 }
 

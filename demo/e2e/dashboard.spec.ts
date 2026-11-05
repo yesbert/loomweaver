@@ -46,6 +46,14 @@ test('both charts are drawn, and a change of colour scheme redraws them', async 
 
   const charts = page.locator('demo-insights-chart canvas');
   await expect(charts).toHaveCount(2);
+  const quoted = page.getByRole('img', { name: 'Quoted per month' });
+  const pipeline = page.getByRole('img', { name: 'Pipeline by status' });
+  await expect(quoted).toBeVisible();
+  await expect(pipeline).toBeVisible();
+  await expect(quoted).not.toHaveAttribute('aria-label');
+  await expect(quoted).toHaveAccessibleDescription(/(\w+ \d{4}: €[\d,.]+ ?){6}/);
+  await expect(pipeline).toHaveAccessibleDescription(/Accepted \d+/);
+  await expect(page.getByTestId('insights-quoted').getByRole('listitem')).toHaveCount(6);
 
   await chooseScheme(page, 'Dark');
   await expect(page.locator('html')).toHaveClass(/dark/);

@@ -4,11 +4,13 @@ import {
   computed,
   type ElementRef,
   effect,
+  inject,
   signal,
   viewChild,
 } from '@angular/core';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { contentToText, EventType, type AGUIEvent, type Tool, type ToolMessage } from '@ag-ui/core';
+import type { CommandTools } from '@loomweaver/ag-ui';
 import { createAgent, MODEL } from './assistant-agent';
 import { assistantTools } from './assistant-connection';
 import { openRouterKey } from './openrouter-key';
@@ -42,7 +44,9 @@ export class AssistantAgentPanel {
 
   protected readonly busy = signal(false);
 
-  private readonly agent = createAgent();
+  private readonly transloco = inject(TranslocoService);
+
+  private readonly agent = createAgent((key, params) => this.transloco.translate(key, params));
 
   private readonly transcript = viewChild<ElementRef<HTMLElement>>('transcript');
 
@@ -74,20 +78,31 @@ export class AssistantAgentPanel {
   protected submit(event: Event): void {
     event.preventDefault();
     const prompt = this.draft().trim();
-    if (!prompt) {
+    const tools = assistantTools();
+    const key = this.key();
+    if (!prompt || !tools || !key || this.busy()) {
       return;
     }
     this.draft.set('');
-    void this.send(prompt);
+    void this.send(tools, prompt, key);
   }
 
-  private async send(prompt: string): Promise<void> {
-    const tools = assistantTools();
-    const key = this.key();
-    if (!tools || this.busy() || !key) {
-      return;
-    }
+  private async send(tools: CommandTools, prompt: string, key: string): Promise<void> {
     this.busy.set(true);
+    try {
+      await this.run(tools, prompt, key);
+    } catch (failure) {
+      this.push({
+        kind: 'result',
+        text: failure instanceof Error ? failure.message : String(failure),
+        failed: true,
+      });
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  private async run(tools: CommandTools, prompt: string, key: string): Promise<void> {
     try {
       const offered = tools.list();
       this.offered.set(offered);
@@ -101,11 +116,11 @@ export class AssistantAgentPanel {
           this.agent.answer(answer);
         }
       }
+    } finally {
       for (let left = await tools.flush(); left; left = await tools.flush()) {
         this.showAnswer(left);
+        this.agent.answer(left);
       }
-    } finally {
-      this.busy.set(false);
     }
   }
 

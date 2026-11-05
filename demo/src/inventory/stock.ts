@@ -85,7 +85,7 @@ export function itemByNumber(number: string): StockItem | undefined {
   return stockItems().find((item) => item.number.toUpperCase() === wanted);
 }
 
-export function itemById(id: string): StockItem | undefined {
+function itemById(id: string): StockItem | undefined {
   return stockItems().find((item) => item.id === id);
 }
 

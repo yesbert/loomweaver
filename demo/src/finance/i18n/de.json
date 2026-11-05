@@ -17,6 +17,12 @@
   "level": "Stufe {{level}}",
   "dunningDescription": "Sendet für jede überfällige Forderung eine Mahnung und erhöht ihre Mahnstufe.",
   "dunningAnswers": "Wie viele Forderungen gemahnt wurden.",
+  "account": {
+    "receivables": "Forderungen",
+    "revenue": "Erlöse",
+    "expenses": "Aufwand",
+    "payables": "Verbindlichkeiten"
+  },
   "column": {
     "number": "Nummer",
     "customer": "Kunde",
