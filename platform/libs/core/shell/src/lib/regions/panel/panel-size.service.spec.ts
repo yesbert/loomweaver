@@ -67,17 +67,42 @@ describe('PanelSizeService', () => {
     expect(size.width('primary')).toBe(301);
   });
 
-  it('ignores a width that is not a finite number and keeps the one it had', () => {
+  it('ignores a width that is not a number and keeps the one it had', () => {
     const size = TestBed.inject(PanelSizeService);
     size.setWidth('primary', 320);
 
     size.setWidth('primary', NaN);
-    size.setWidth('primary', Infinity);
-    size.setWidth('primary', -Infinity);
     size.commit();
 
     expect(size.width('primary')).toBe(320);
     expect(localStorage.getItem(STORAGE_KEY)).toBe('{"primary":320}');
+  });
+
+  it('brings a width of plus or minus infinity into the usable range', () => {
+    const size = TestBed.inject(PanelSizeService);
+
+    size.setWidth('primary', Infinity);
+    expect(size.width('primary')).toBe(MAX_PANEL_WIDTH);
+
+    size.setWidth('primary', -Infinity);
+    expect(size.width('primary')).toBe(MIN_PANEL_WIDTH);
+  });
+
+  it('writes nothing when a commit changes no width', () => {
+    const size = TestBed.inject(PanelSizeService);
+    size.setWidth('primary', 320);
+    size.commit();
+    localStorage.removeItem(STORAGE_KEY);
+
+    size.commit();
+    size.setWidth('primary', 320);
+    size.commit();
+    size.setWidth('primary', NaN);
+    size.commit();
+    size.beginResize();
+    size.endResize();
+
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
   it('does not persist mid-drag, but commit/endResize does', () => {

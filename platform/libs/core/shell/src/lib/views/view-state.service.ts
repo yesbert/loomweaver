@@ -82,48 +82,30 @@ export class ViewStateService {
   private entryOn(key: string): Entry {
     const value = signal<unknown>(parseStored(this.store.peek?.(key)));
     let answered = this.store.peek !== undefined;
-    let writtenEarly = false;
-    const hold = () => {
+    const cancelPendingSave = () => {
+      answered = true;
+      this.heldWrites.cancel(key);
+    };
+    hydrateAsync(this.store, key, (raw) => {
+      const stored = parseStored(raw);
+      if (!answered && stored !== undefined) {
+        cancelPendingSave();
+        value.set(stored);
+      }
+      answered = true;
+    });
+    const save = () => {
       const current = value();
       if (current === undefined) {
-        this.heldWrites.cancel(key);
+        cancelPendingSave();
         void this.store.delete(key);
         return;
       }
       this.heldWrites.hold(key, JSON.stringify(current), (held) => {
+        answered = true;
         void this.store.set(key, held);
       });
     };
-    const adopt = (raw: string | undefined) => {
-      if (answered) {
-        return;
-      }
-      answered = true;
-      const stored = parseStored(raw);
-      if (stored !== undefined) {
-        value.set(stored);
-      } else if (writtenEarly) {
-        hold();
-      }
-    };
-    hydrateAsync(this.store, key, adopt, (loaded) => {
-      if (!loaded) {
-        adopt(undefined);
-      }
-    });
-    return {
-      value,
-      save: () => {
-        if (answered) {
-          hold();
-        } else {
-          writtenEarly = true;
-        }
-      },
-      cancelPendingSave: () => {
-        answered = true;
-        this.heldWrites.cancel(key);
-      },
-    };
+    return { value, save, cancelPendingSave };
   }
 }

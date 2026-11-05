@@ -34,6 +34,14 @@ belongs to the pane's body.
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the
 measurement, not growth, and the pull request says both numbers.
 
+**A change made before the store answered follows the shape of what is stored.** A view's state is
+one value, which a surface often writes at start-up before it has read, so a stored value wins over
+an early write; the early write is held like any other and only goes out if the store has not
+answered by then. Sidebar state, widths and the user's order are records of independent keys, so an
+early change is replayed on top of what the store held. Such a record is not written before the
+store answered the read, because writing it unread would drop every other key, which means a change
+made before a store that never answers is not stored.
+
 ## Risks
 
 - A fix in the pane tree or the address handling changes a path the end-to-end suite exercises and

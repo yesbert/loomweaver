@@ -15,6 +15,7 @@ import { WorkspaceService } from '../../workspace/workspace.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
 import { RailItemsService } from '../rail/rail-items.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { PanelState } from '../panel/panel-state';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -310,6 +311,24 @@ describe('CurationDialog (with a capability switched off)', () => {
     fixture.detectChanges();
 
     expect(placesOf(fixture, 'p.help')).toEqual(['activity']);
+  });
+
+  it('leaves a collapsed sidebar collapsed when a view is placed in it while collapsing is switched off', () => {
+    const { fixture } = render(VIEWS, [
+      provideShellFeatures({ sidebar: { collapse: false } }),
+    ]);
+    const panels = TestBed.inject(PanelState);
+    panels.toggle('secondary');
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-curation-row="nav"] [data-curation-place="secondary"]',
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(rows(fixture)).toContainEqual({ id: 'nav', place: 'secondary' });
+    expect(panels.isCollapsed('secondary')).toBe(true);
   });
 
   it('withdraws an offer when its switch goes off while the list is open', () => {

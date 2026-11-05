@@ -1,4 +1,8 @@
-import { overlayMenuIn } from '../elements/menu/overlay-menu';
+import {
+  focusReturnOf,
+  overlayMenuIn,
+  returnFocusTo,
+} from '../elements/menu/overlay-menu';
 
 const FOCUSABLE =
   'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])';
@@ -12,7 +16,29 @@ export function focusInto(root: HTMLElement, document: Document): void {
   if (root.contains(active) || overlayMenuIn(document)?.contains(active)) {
     return;
   }
-  (root.querySelector<HTMLElement>('[data-lw-autofocus]') ?? root).focus();
+  entryPointOf(root).focus();
+}
+
+export function takeFocusAfterOpenMenu(
+  root: HTMLElement,
+  document: Document,
+): void {
+  const menu = overlayMenuIn(document);
+  if (
+    menu?.contains(document.activeElement) &&
+    !root.contains(focusReturnOf(menu) ?? null)
+  ) {
+    returnFocusTo(menu, entryPointOf(root));
+  }
+}
+
+function entryPointOf(root: HTMLElement): HTMLElement {
+  return root.querySelector<HTMLElement>('[data-lw-autofocus]') ?? root;
+}
+
+export function focusIsLost(document: Document): boolean {
+  const active = document.activeElement;
+  return active === null || active === document.body;
 }
 
 export function pullFocusBackInto(

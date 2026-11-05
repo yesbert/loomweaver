@@ -37,6 +37,10 @@ import { focusMovedEntry } from '../reorder/focus-moved-entry';
 
 export type SidebarHeaderContext = 'edge' | 'drawer' | 'floating';
 
+export function sidebarStripId(regionId: string): string {
+  return `panel-views-${regionId}`;
+}
+
 @Component({
   selector: 'lw-shell-sidebar-header',
   imports: [TranslocoPipe, PaneTabStrip, MenuTriggerDirective],
@@ -84,7 +88,7 @@ export class ShellSidebarHeader {
 
   protected readonly panelId = computed(() => panelIdIn(this.stripId()));
 
-  protected readonly hostId = computed(() => `panel-views-${this.region().id}`);
+  protected readonly hostId = computed(() => sidebarStripId(this.region().id));
 
   protected readonly stripTabs = computed<StripTab[]>(() =>
     this.panelGroup
@@ -162,7 +166,7 @@ export class ShellSidebarHeader {
     }
     event.preventDefault();
     this.moveToPanel(path, target.id);
-    const strip = CSS.escape(`panel-views-${target.id}`);
+    const strip = CSS.escape(sidebarStripId(target.id));
     focusMovedEntry(
       `#${strip} [data-tab-path="${CSS.escape(path)}"]`,
       this.injector,

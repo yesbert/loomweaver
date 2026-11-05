@@ -72,7 +72,7 @@ export class PanelSizeService {
   }
 
   setWidth(regionId: string, px: number): void {
-    if (!Number.isFinite(px)) {
+    if (Number.isNaN(px)) {
       return;
     }
     const clamped = clampToPanelWidths(px, this.widthsOf(regionId));
@@ -82,7 +82,10 @@ export class PanelSizeService {
   commit(): void {
     const set = this.uncommitted();
     this.uncommitted.set({});
-    this.stored.update((state) => ({ ...state, ...set }));
+    const stored = this.stored.value();
+    if (Object.entries(set).some(([id, width]) => stored[id] !== width)) {
+      this.stored.update((state) => ({ ...state, ...set }));
+    }
   }
 
   reset(): void {

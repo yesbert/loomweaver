@@ -11,7 +11,10 @@ import {
 import { ShellBar } from './regions/bar/shell-bar';
 import { ShellEdge } from './shell-edge';
 import { ShellPanel } from './regions/panel/shell-panel';
-import { ShellSidebarHeader } from './regions/panel/shell-sidebar-header';
+import {
+  ShellSidebarHeader,
+  sidebarStripId,
+} from './regions/panel/shell-sidebar-header';
 import { ContentGrid } from './regions/content/content-grid';
 import { ToastOutlet } from './notifications/toast-outlet';
 import { DRAW_TOASTS } from './notifications/toast-options';
@@ -86,6 +89,11 @@ export class Shell {
     this.document
       .querySelector<HTMLElement>('#lw-main-content')
       ?.focus({ preventScroll: true });
+  }
+
+  protected activeTabOf(regionId: string): string {
+    const strip = CSS.escape(sidebarStripId(regionId));
+    return `lw-shell-edge #${strip} [role="tab"][aria-selected="true"]`;
   }
 
   protected isOverlayOpen(regionId: string): boolean {

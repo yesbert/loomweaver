@@ -31,18 +31,19 @@ export class ViewVisibilityService {
     });
   }
 
-  reveal(viewId: string, region?: string): void {
+  reveal(viewId: string, region?: string): string | undefined {
     this.hiddenViews.show(viewId);
     const target = region ?? this.regionOf(viewId);
     if (target === undefined) {
-      return;
+      return undefined;
     }
     const path = viewPanePath(viewId);
     if (this.regionOf(viewId) === target && !this.paneTree.hasTab(path)) {
       this.panelGroup.seed(target);
-      return;
+      return undefined;
     }
     this.moves.move(viewId, target);
+    return target;
   }
 
   private regionOf(viewId: string): string | undefined {

@@ -101,6 +101,7 @@
 <ng-template #drawer let-panel let-side="side">
   <aside
     [lwModalSurface]="isOverlayOpen(panel.id)"
+    [whereFocusGoesWithoutOpener]="activeTabOf(panel.id)"
     (dismissed)="closeOverlay()"
     class="absolute inset-y-0 z-50 flex flex-col overflow-hidden shadow-xl transition duration-300 ease-out will-change-transform"
     [class.left-0]="side === 'left'"

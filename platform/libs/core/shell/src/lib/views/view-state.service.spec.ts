@@ -7,6 +7,7 @@ const KEY = 'lw.shell.view-state:v1';
 
 class HandAnsweredStore implements KeyValueStore {
   readonly written = new Map<string, string>();
+  readonly deleted: string[] = [];
   private readonly waiting: ((raw: string | undefined) => void)[] = [];
 
   get(): Promise<string | undefined> {
@@ -22,6 +23,7 @@ class HandAnsweredStore implements KeyValueStore {
 
   delete(key: string): Promise<void> {
     this.written.delete(key);
+    this.deleted.push(key);
     return Promise.resolve();
   }
 
@@ -219,12 +221,60 @@ describe('ViewStateService on a store that answers later', () => {
     const handle = handleOn(store);
 
     handle.set({ sort: 'default' });
+    vi.advanceTimersByTime(300);
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
     vi.advanceTimersByTime(2000);
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(handle.value()).toEqual({ sort: 'alpha' });
     expect(store.written.has(KEY)).toBe(false);
+  });
+
+  it('sends a write made before the store answered when the page goes away', () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set({ sort: 'recent' });
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+  });
+
+  it('sends a write made before the store answered after the quiet time, and keeps it when the answer comes later', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set({ sort: 'recent' });
+    vi.advanceTimersByTime(400);
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
+
+    expect(handle.value()).toEqual({ sort: 'recent' });
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+  });
+
+  it('sends the latest of writes that keep coming before the store answered within two seconds', () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    for (let step = 0; step < 7; step += 1) {
+      handle.set({ step });
+      vi.advanceTimersByTime(300);
+    }
+
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ step: 6 }));
+  });
+
+  it('stays cleared when the state is cleared before the store answered with what it held', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set(undefined);
     await store.answer(JSON.stringify({ sort: 'alpha' }));
     vi.advanceTimersByTime(2000);
 
-    expect(handle.value()).toEqual({ sort: 'alpha' });
+    expect(handle.value()).toBeUndefined();
+    expect(store.deleted).toEqual([KEY]);
     expect(store.written.has(KEY)).toBe(false);
   });
 

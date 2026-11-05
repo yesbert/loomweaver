@@ -10,6 +10,8 @@ import { PanelSizeService } from './panel-size.service';
 import { MAX_PANEL_WIDTH, MIN_PANEL_WIDTH } from '../../layout/panel-widths';
 import { PanelState } from './panel-state';
 import { SidebarService } from './sidebar.service';
+import { PanelGroupService } from './panel-group.service';
+import { PaneTreeService } from '../pane/tree/pane-tree.service';
 
 @Component({ selector: 'lw-sidebar-stub', template: '' })
 class Stub {}
@@ -128,6 +130,26 @@ describe('SidebarService actions', () => {
     );
   });
 
+  it('a width from code that is not a number changes nothing and writes nothing', () => {
+    const { sidebars } = setUp();
+    const before = sidebars.width('primary');
+
+    sidebars.setWidth('primary', NaN);
+
+    expect(sidebars.width('primary')).toBe(before);
+    expect(localStorage.getItem('lw.shell.panel-sizes')).toBeNull();
+  });
+
+  it('an infinite width from code is brought into the usable range', () => {
+    const { sidebars } = setUp();
+
+    sidebars.setWidth('primary', Infinity);
+    expect(sidebars.width('primary')).toBe(MAX_PANEL_WIDTH);
+
+    sidebars.setWidth('primary', -Infinity);
+    expect(sidebars.width('primary')).toBe(MIN_PANEL_WIDTH);
+  });
+
   it('an unknown region does nothing', () => {
     const { sidebars, panels } = setUp();
     const before = JSON.stringify(sidebars.regions());
@@ -180,5 +202,30 @@ describe('SidebarService and the rules of the surface', () => {
     expect(panels.isCollapsed('primary')).toBe(true);
     expect(sidebars.width('secondary')).toBe(400);
     expect(sidebars.hiddenViews()).toEqual(['outline']);
+  });
+
+  it('shows a view in another sidebar and expands that one, also while collapsing is switched off', () => {
+    const { sidebars, panels } = setUp();
+    TestBed.inject(PanelGroupService).seed('primary');
+    sidebars.collapse('secondary');
+    TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+
+    sidebars.showView('outline', 'secondary');
+
+    expect(TestBed.inject(PaneTreeService).sourceOf('view:outline')?.dock).toBe(
+      'secondary',
+    );
+    expect(panels.isCollapsed('secondary')).toBe(false);
+  });
+
+  it('shows a view in the sidebar it was declared for without expanding it, as before', () => {
+    const { sidebars, panels } = setUp();
+    sidebars.hideView('outline');
+    sidebars.collapse('primary');
+
+    sidebars.showView('outline');
+
+    expect(sidebars.hiddenViews()).toEqual([]);
+    expect(panels.isCollapsed('primary')).toBe(true);
   });
 });

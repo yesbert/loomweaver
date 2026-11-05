@@ -1,4 +1,4 @@
-import { Component, Provider, signal } from '@angular/core';
+import { Component, Provider, signal, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -17,6 +17,10 @@ import { PanelGroupService } from './regions/panel/panel-group.service';
 import { PanelState } from './regions/panel/panel-state';
 import { ViewportService } from './layout/viewport.service';
 import { DialogService } from './dialog/dialog.service';
+import { MenuService } from './menu/menu.service';
+import { defineLwMenu, LW_MENU_TAG } from './elements/menu/lw-menu.element';
+
+defineLwMenu();
 
 function translocoTesting(options: TranslocoTestingOptions = {}) {
   return TranslocoTestingModule.forRoot({
@@ -218,10 +222,26 @@ describe('Shell with a collapsed sidebar', () => {
 @Component({ selector: 'lw-test-drawer-view', template: '<button>inside</button>' })
 class DrawerView {}
 
+@Component({
+  selector: 'lw-test-frame-view',
+  template: '<iframe title="frame"></iframe>',
+})
+class FrameView {}
+
+function refuseFocusAsBehindTheDrawer(element: HTMLElement | null): void {
+  if (element?.closest('[inert]')) {
+    element.focus = () => undefined;
+  }
+}
+
+function settle(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 describe('Shell compact drawer', () => {
   beforeEach(() => localStorage.clear());
 
-  async function openDrawer() {
+  async function openDrawer(view: Type<unknown> = DrawerView) {
     const compact = signal(true);
     await TestBed.configureTestingModule({
       imports: [Shell, translocoTesting()],
@@ -243,7 +263,7 @@ describe('Shell compact drawer', () => {
       title: 'nav',
       icon: 'navigator',
       order: 0,
-      component: DrawerView,
+      component: view,
     });
     TestBed.inject(PanelGroupService).seed('primary');
     const fixture = TestBed.createComponent(Shell);
@@ -276,23 +296,30 @@ describe('Shell compact drawer', () => {
     expect(drawer?.contains(document.activeElement)).toBe(true);
   });
 
-  it('leaves the focus with a menu that is open while it opens', async () => {
-    const { fixture, drawer } = await openDrawer();
+  it('leaves the focus with a menu that is open while it opens, and holds it once the menu has closed', async () => {
+    const { fixture, opener, drawer } = await openDrawer();
     TestBed.inject(PanelState).closeOverlay();
     await fixture.whenStable();
-    const menu = document.createElement('lw-menu');
-    const entry = document.createElement('button');
-    menu.append(entry);
-    document.body.append(menu);
-    entry.focus();
+    const menus = TestBed.inject(MenuService);
+    opener?.focus();
+    menus.openList(
+      [{ key: 'one', label: 'One' }],
+      { x: 0, y: 0 },
+      () => undefined,
+      opener ?? undefined,
+    );
+    await settle();
+    const menu = document.body.querySelector<HTMLElement>(LW_MENU_TAG);
+    expect(menu?.contains(document.activeElement)).toBe(true);
 
     TestBed.inject(PanelState).openOverlay('primary');
     await fixture.whenStable();
-    const held = document.activeElement;
-    menu.remove();
+    expect(menu?.contains(document.activeElement)).toBe(true);
 
-    expect(held).toBe(entry);
-    expect(drawer?.contains(held)).toBe(false);
+    refuseFocusAsBehindTheDrawer(opener);
+    menus.close();
+
+    expect(drawer?.contains(document.activeElement)).toBe(true);
   });
 
   it('makes what is behind it inert and lifts that when it closes', async () => {
@@ -319,23 +346,63 @@ describe('Shell compact drawer', () => {
     expect(root.querySelector('[inert]')).toBeNull();
   });
 
-  it('keeps the focus inside when the person tabs past its last or before its first control', async () => {
-    const { drawer } = await openDrawer();
+  it('leaves Tab past its last control to the browser, so the keyboard reaches a view drawn in a frame', async () => {
+    const { drawer } = await openDrawer(FrameView);
     const controls = [
       ...(drawer?.querySelectorAll<HTMLElement>(
         'button:not(:disabled), [tabindex]:not([tabindex="-1"])',
       ) ?? []),
     ];
-    const first = controls[0];
-    const last = controls.at(-1);
+    expect(drawer?.querySelector('iframe')).not.toBeNull();
     expect(controls.length).toBeGreaterThan(1);
 
-    last?.focus();
-    expect(press('Tab').defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(first);
+    controls.at(-1)?.focus();
+    expect(press('Tab').defaultPrevented).toBe(false);
 
-    expect(press('Tab', true).defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(last);
+    controls[0]?.focus();
+    expect(press('Tab', true).defaultPrevented).toBe(false);
+  });
+
+  it('keeps the focus when it moves into the frame of a view', async () => {
+    const { drawer } = await openDrawer(FrameView);
+    const frame = drawer?.querySelector('iframe');
+
+    frame?.focus();
+
+    expect(document.activeElement).toBe(frame);
+  });
+
+  it('gives the focus to the sidebar when the window becomes wide and the control that opened it is gone', async () => {
+    const { fixture, root, opener, compact } = await openDrawer();
+
+    compact.set(false);
+    await fixture.whenStable();
+
+    expect(opener?.isConnected).toBe(false);
+    expect(
+      root
+        .querySelector('lw-shell-edge #panel-views-primary')
+        ?.contains(document.activeElement),
+    ).toBe(true);
+  });
+
+  it('gives the focus back to the control that opened it when the window becomes wide and that control is still there', async () => {
+    const { fixture, compact } = await openDrawer();
+    TestBed.inject(PanelState).closeOverlay();
+    await fixture.whenStable();
+    const outside = document.createElement('button');
+    document.body.append(outside);
+    outside.focus();
+    TestBed.inject(PanelState).openOverlay('primary');
+    await fixture.whenStable();
+    expect(document.activeElement).not.toBe(outside);
+
+    compact.set(false);
+    await fixture.whenStable();
+    const held = document.activeElement;
+    outside.remove();
+
+    expect(held).toBe(outside);
   });
 
   it('takes the focus back from anything behind it', async () => {
