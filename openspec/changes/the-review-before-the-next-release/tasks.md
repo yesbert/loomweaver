@@ -279,6 +279,18 @@ What review 12.3 found. Paths are under `platform/libs/core/`.
 - [x] 14.19 A second `stateWatch` for a key the frame already watches is answered with the current value again, so a handle created later for a key the surface first watched by a raw call does not stay unloaded until the next change (`shell/src/lib/plugin/plugin-state-bridge.ts`)
 - [x] 14.20 The frame's warning says what happened: a call that could not be completed is not reported as refused (`shell/src/lib/surface-kit/surface-host-call.ts`); and the spec of the kit's elements also pins what may be assigned, `null` included, and checks `lw-progress-ring` against its real class
 
+## 15. Updates, styles and the tour
+
+What reviews 12.4 and 12.5 found. Paths are under `platform/libs/core/shell/src/lib/` unless they start with `platform/`.
+
+- [ ] 15.1 Applying an update asks about unsaved work before it activates anything, and declining leaves the application as it was (`update/update.service.ts`)
+- [ ] 15.2 The pressed item of a segmented control shows the focus under the keyboard (`styles/theme/controls.css`)
+- [ ] 15.3 The tour recording finds the rail by the name it carries and fails on a step it cannot do (`platform/tools/media/record-tour.mjs`)
+- [ ] 15.4 A check for updates made in the background does not record "current" while an update has failed (`update/update.service.ts`, `silentCheck`)
+- [ ] 15.5 A link in rendered text has the contrast of text in the light theme (`styles/theme/lw-markdown.css`)
+- [ ] 15.6 A switch that is off can be told from its background (`styles/theme/controls.css`, `.lw-switch`)
+- [ ] 15.7 The tokens the guide calls verified for text meet 4.5:1 on every surface they are used on, or the guide says where they may be used (`styles/theme/tokens.css`, `docs/reference/design-tokens.md`)
+
 ## 13. Hand-over
 
 - [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged
