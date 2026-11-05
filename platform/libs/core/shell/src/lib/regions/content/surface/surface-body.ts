@@ -331,13 +331,10 @@ export class SurfaceBody {
   }
 
   private mountFor(route: RegisteredContentRoute) {
-    const key = this.surfaceKey();
     return this.mounts.mountFor(
       route,
-      key,
+      this.surfaceKey(),
       untracked(this.address),
-      this.stash.injectorAt(key),
-      (injector) => this.stash.builtOn(injector),
     );
   }
 

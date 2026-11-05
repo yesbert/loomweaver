@@ -1,24 +1,20 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { pathOwnedBy } from '../../../plugin/context/plugin-surface-ownership';
+import { normalizePath, tabRootOf } from '../../content/content-path';
+import { isViewPanePath } from '../tree/pane-address';
+import { DockTrees, tabsLeavingTheirPane } from '../retention/open-tabs';
 import { RetainedViewStash } from '../retention/retained-view-stash';
-import {
-  DockTrees,
-  TreeRetention,
-  tabDepartures,
-} from '../retention/tree-retention';
 import { instanceDirty } from './dirty-surface';
 import {
   containerChildInstances,
   pathOfRetentionKey,
-  retainedAddressesOf,
 } from '../retention/retention-keys';
 
 @Service()
 export class UnsavedWork {
   private readonly stash = inject(RetainedViewStash);
   private readonly registry = inject(ContributionRegistry);
-  private readonly retention = inject(TreeRetention);
 
   instancesAt(scope: string, path: string): unknown[] {
     this.stash.version();
@@ -37,11 +33,12 @@ export class UnsavedWork {
   }
 
   lostBy(before: DockTrees, after: DockTrees): unknown[] {
-    const closed = tabDepartures(before, after)
-      .filter((tab) => tab.to === null)
-      .flatMap((tab) => this.instancesAt(tab.from, tab.path));
     return [
-      ...new Set([...closed, ...this.retention.uncarriedBy(before, after)]),
+      ...new Set(
+        tabsLeavingTheirPane(before, after).flatMap((tab) =>
+          this.instancesAt(tab.scope, tab.path),
+        ),
+      ),
     ];
   }
 
@@ -87,6 +84,11 @@ export class UnsavedWork {
   }
 
   private addressesOf(path: string): string[] {
-    return retainedAddressesOf(this.registry.contentRoutes(), path);
+    if (isViewPanePath(path)) {
+      return [path];
+    }
+    const normalized = normalizePath(path);
+    const root = tabRootOf(this.registry.contentRoutes(), normalized);
+    return root === normalized ? [normalized] : [normalized, root];
   }
 }

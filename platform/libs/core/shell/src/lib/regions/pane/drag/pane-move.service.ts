@@ -150,20 +150,30 @@ export class PaneMoveService {
     }
     const workspace = this.workspace.id();
     const arrangement = this.paneTree.arrangement();
-    const asked = new Set(this.lostBy(first));
-    this.closeGuard.guarded([...asked], () => {
+    const lost = this.lostBy(first);
+    const asked = new Set(this.needingAnAnswer(lost));
+    this.closeGuard.guarded(lost, () => {
       const unchanged =
         this.workspace.id() === workspace &&
         this.paneTree.arrangement() === arrangement;
       const move = unchanged ? plan() : null;
-      if (!move || this.lostBy(move).some((lost) => !asked.has(lost))) {
+      if (
+        !move ||
+        this.needingAnAnswer(this.lostBy(move)).some((one) => !asked.has(one))
+      ) {
         return;
       }
       const follow = this.urlFollowup(move.source, move.tab);
-      this.paneTree.commitTogether(move.edits);
+      for (const [dock, tree] of Object.entries(move.edits)) {
+        this.paneTree.commit(dock, tree);
+      }
       this.collapseEmptiedPrimary(move.source.dock);
       this.afterArrival(move.arrival, move.moved, follow);
     });
+  }
+
+  private needingAnAnswer(instances: readonly unknown[]): unknown[] {
+    return instances.filter((instance) => this.closeGuard.mustAsk([instance]));
   }
 
   private lostBy(move: PlannedMove): unknown[] {

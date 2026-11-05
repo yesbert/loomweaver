@@ -2,7 +2,6 @@ import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   inject,
-  Injector,
   OnDestroy,
   Service,
   signal,
@@ -11,6 +10,7 @@ import {
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { supportsAtomicMove } from './atomic-move';
 import { SurfaceRetentionMode } from './retention-policy';
+import { instanceDirty } from '../unsaved-work/dirty-surface';
 import {
   ParkedEntry,
   RetainedSlot,
@@ -20,30 +20,23 @@ import {
 } from './retained-view-model';
 import {
   adoptHeld,
-  evacuable,
+  elementsOf,
   endHoldsIn,
   heldInUseElsewhere,
-  hideNodes,
   instancesAt,
   instancesOf,
   isHeld,
   keyedInstancesOf,
   lastHolder,
   liveRootNodes,
-  newEntry,
+  orphaned,
   parkedEntriesOf,
   parkedInPlaceAt,
-  pullNodes,
-  reclaimable,
   parkedInstancesIn,
-  rekeyEntries,
-  showNodes,
-  spent,
-  uncarried,
   StashEntry,
 } from './stash-entries';
 import { SurfaceHoldState } from './surface-hold';
-import { HoldingArea } from './holding-area';
+import { HoldingArea, hideElements, revealElements } from './holding-area';
 
 @Service()
 export class RetainedViewStash implements OnDestroy {
@@ -69,7 +62,7 @@ export class RetainedViewStash implements OnDestroy {
       adoptHeld(this.entries, key, hold) ??
       this.createEntry(key, source, create);
     const attached = entry.inPlace && parkedInPlaceAt(entry, parent);
-    showNodes(entry);
+    this.showNodes(entry);
     const token = {};
     entry.owner = token;
     entry.workspace = this.workspace.id();
@@ -105,46 +98,25 @@ export class RetainedViewStash implements OnDestroy {
     return instancesAt(this.entries.values(), scope, path);
   }
 
-  uncarriedBy(rename: (key: string) => string): unknown[] {
-    const here = this.workspace.id();
-    return uncarried(this.entries, here, rename, this.atomicMove);
-  }
-
-  injectorAt(key: string): Injector | null {
-    return this.entries.get(key)?.injector ?? null;
-  }
-
-  builtOn(injector: Injector): boolean {
-    return [...this.entries.values()].some(
-      (entry) => entry.injector === injector,
-    );
-  }
-
   evacuate(matches: (key: string) => boolean): void {
     if (!this.atomicMove) {
       return;
     }
     let moved = false;
     for (const entry of this.entries.values()) {
-      if (!evacuable(entry) || !matches(entry.key)) {
+      if (
+        !(entry.inUse || entry.inPlace) ||
+        !(entry.retains || instanceDirty(entry.instance)) ||
+        entry.mode !== 'in-place' ||
+        isHeld(entry) ||
+        !matches(entry.key)
+      ) {
         continue;
       }
       this.holdingArea.moveInto(liveRootNodes(entry));
       moved = true;
     }
     if (moved) {
-      this.bump();
-    }
-  }
-
-  rekey(rename: (key: string) => string): void {
-    const moved = rekeyEntries(this.entries, this.workspace.id(), rename);
-    for (const entry of moved) {
-      if (this.atomicMove && entry.mode === 'in-place' && !isHeld(entry)) {
-        this.holdingArea.moveInto(liveRootNodes(entry));
-      }
-    }
-    if (moved.length > 0) {
       this.bump();
     }
   }
@@ -182,6 +154,7 @@ export class RetainedViewStash implements OnDestroy {
     token: object,
     attached: boolean,
   ): RetainedSlot {
+    const key = entry.key;
     const owns = () => entry.owner === token;
     return {
       attached,
@@ -189,7 +162,7 @@ export class RetainedViewStash implements OnDestroy {
         return liveRootNodes(entry);
       },
       stale: () =>
-        entry.tracked && (!owns() || this.entries.get(entry.key) !== entry),
+        entry.tracked && (!owns() || this.entries.get(key) !== entry),
       held: () => isHeld(entry),
       describe: (mode: SurfaceRetentionMode, retains: boolean) => {
         if (!owns()) {
@@ -228,7 +201,13 @@ export class RetainedViewStash implements OnDestroy {
     if (entry.inUse) {
       return entry.source === source && !entry.view.destroyed ? entry : null;
     }
-    if (!reclaimable(entry, source, parent, this.atomicMove)) {
+    const reclaimable =
+      entry.source === source &&
+      !entry.view.destroyed &&
+      (!entry.inPlace ||
+        parkedInPlaceAt(entry, parent) ||
+        this.relocatable(entry));
+    if (!reclaimable) {
       this.destroyEntry(entry);
       return null;
     }
@@ -241,13 +220,27 @@ export class RetainedViewStash implements OnDestroy {
     create: () => RetainedViewHandle,
   ): StashEntry {
     const occupied = this.entries.get(key)?.inUse === true;
-    const built = create();
-    this.appRef.attachView(built.view);
-    const entry = newEntry(key, source, built, this.workspace.id(), !occupied);
-    if (entry.hold) {
-      entry.unlisten = entry.hold.onRelease(() =>
-        this.applyDeferredPlacement(entry),
-      );
+    const { view, instance, hold = null } = create();
+    this.appRef.attachView(view);
+    const entry: StashEntry = {
+      key,
+      source,
+      view,
+      instance,
+      tracked: !occupied,
+      hold,
+      workspace: this.workspace.id(),
+      owner: null,
+      inUse: false,
+      retains: false,
+      inPlace: false,
+      mode: 'move',
+      hidden: [],
+      deferred: null,
+      unlisten: () => undefined,
+    };
+    if (hold) {
+      entry.unlisten = hold.onRelease(() => this.applyDeferredPlacement(entry));
     }
     if (entry.tracked) {
       this.entries.set(key, entry);
@@ -262,7 +255,7 @@ export class RetainedViewStash implements OnDestroy {
     if (isHeld(entry)) {
       entry.deferred = 'detach';
     } else {
-      pullNodes(entry);
+      this.pullNodes(entry);
     }
     this.letGoOf(entry, retains);
   }
@@ -276,9 +269,22 @@ export class RetainedViewStash implements OnDestroy {
       entry.deferred = 'hideInPlace';
       entry.inPlace = false;
     } else {
-      hideNodes(entry, this.holding());
+      this.hideNodes(entry);
     }
     this.letGoOf(entry, retains);
+  }
+
+  private hideNodes(entry: StashEntry): void {
+    if (entry.retains && this.atomicMove) {
+      this.holdingArea.moveInto(liveRootNodes(entry));
+    }
+    entry.hidden = hideElements(elementsOf(entry));
+    entry.inPlace = true;
+  }
+
+  private showNodes(entry: StashEntry): void {
+    revealElements(entry.hidden);
+    entry.hidden = [];
   }
 
   private applyDeferredPlacement(entry: StashEntry): void {
@@ -286,9 +292,9 @@ export class RetainedViewStash implements OnDestroy {
     entry.deferred = null;
     if (!entry.inUse && deferred !== null) {
       if (deferred === 'detach') {
-        pullNodes(entry);
+        this.pullNodes(entry);
       } else {
-        hideNodes(entry, this.holding());
+        this.hideNodes(entry);
       }
       this.queueSweep();
     }
@@ -307,15 +313,27 @@ export class RetainedViewStash implements OnDestroy {
     this.queueSweep();
   }
 
+  private relocatable(entry: StashEntry): boolean {
+    return (
+      this.atomicMove && liveRootNodes(entry).every((node) => node.isConnected)
+    );
+  }
+
   private discard(entry: StashEntry): void {
     entry.inUse = false;
     entry.owner = null;
     this.destroyEntry(entry);
   }
 
+  private pullNodes(entry: StashEntry): void {
+    for (const node of liveRootNodes(entry)) {
+      (node as ChildNode).remove();
+    }
+  }
+
   private destroyEntry(entry: StashEntry): void {
     entry.unlisten();
-    pullNodes(entry);
+    this.pullNodes(entry);
     if (this.entries.get(entry.key) === entry) {
       this.entries.delete(entry.key);
     }
@@ -327,10 +345,6 @@ export class RetainedViewStash implements OnDestroy {
       entry.view.destroy();
     }
     this.bump();
-  }
-
-  private holding(): HoldingArea | null {
-    return this.atomicMove ? this.holdingArea : null;
   }
 
   private bump(): void {
@@ -346,7 +360,13 @@ export class RetainedViewStash implements OnDestroy {
       this.sweepQueued = false;
       const snapshot = [...this.entries.values()];
       for (const entry of snapshot) {
-        if (spent(entry)) {
+        if (entry.inUse || isHeld(entry)) {
+          continue;
+        }
+        if (
+          orphaned(entry) ||
+          (!entry.retains && !instanceDirty(entry.instance))
+        ) {
           this.destroyEntry(entry);
         }
       }

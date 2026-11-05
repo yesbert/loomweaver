@@ -268,7 +268,7 @@ describe('PaneService actions', () => {
     expect(guard.captured).toHaveLength(0);
   });
 
-  it('closing a sibling hands its unclosable tab to the neighbour and asks only about the rest', () => {
+  it('closing a sibling hands its unclosable tab to the neighbour and asks about it too, since it is built anew there', () => {
     const { panes, paneTree, guard } = setUp();
     const stash = TestBed.inject(RetainedViewStash);
     vi.spyOn(stash, 'instancesFor').mockImplementation((_scope, path) => [
@@ -278,7 +278,10 @@ describe('PaneService actions', () => {
 
     panes.closePane('other' as PaneHandle);
 
-    expect(guard.captured.at(-1)).toEqual(['instance of doc/ordinary']);
+    expect(guard.captured.at(-1)).toEqual([
+      'instance of dashboard/overview',
+      'instance of doc/ordinary',
+    ]);
     expect(tabPaths(paneTree)).toEqual(['search', 'dashboard/overview']);
   });
 

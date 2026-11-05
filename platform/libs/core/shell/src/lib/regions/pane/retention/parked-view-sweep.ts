@@ -5,8 +5,8 @@ import { ActiveWorkspaceService } from '../../../workspace/active-workspace.serv
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { tabRootOf } from '../../content/content-path';
 import { PaneTreeService } from '../tree/pane-tree.service';
+import { openPathsByScope } from './open-tabs';
 import { RetainedViewStash } from './retained-view-stash';
-import { openPathsByScope } from './tree-retention';
 import { resolvableSurfacePath } from './retention-policy';
 import { instanceDirty } from '../unsaved-work/dirty-surface';
 import { SaveOnHide } from '../unsaved-work/save-on-hide';

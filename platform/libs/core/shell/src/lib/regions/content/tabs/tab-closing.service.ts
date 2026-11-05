@@ -116,15 +116,10 @@ export class TabClosingService {
       this.paneTree.primaryId(CONTENT_DOCK),
       keeps,
     );
-    const candidates = [
-      ...this.paneTree
-        .primaryTabs(CONTENT_DOCK)
-        .flatMap((tab) => (keeps(tab) ? [] : this.urlPaneCandidates(tab.path))),
-      ...this.unsavedWork.lostBy(before, {
-        ...before,
-        [CONTENT_DOCK]: closed ?? PRIMARY_LEAF,
-      }),
-    ];
+    const candidates = this.unsavedWork.lostBy(before, {
+      ...before,
+      [CONTENT_DOCK]: closed ?? PRIMARY_LEAF,
+    });
     this.closeGuard.guarded(candidates, () => {
       const promoted = this.paneTree.collapsePrimary(CONTENT_DOCK, keeps);
       if (promoted !== null) {

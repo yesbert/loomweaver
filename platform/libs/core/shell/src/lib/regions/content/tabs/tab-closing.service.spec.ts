@@ -237,7 +237,7 @@ describe('TabClosingService close guarding', () => {
     expect(paneTree.isSplit('content')).toBe(false);
   });
 
-  it('closePrimaryPane asks about a tab it keeps where the pane taking over already holds it', async () => {
+  it('closePrimaryPane asks about a tab it hands to the pane taking over, since it is built anew there', async () => {
     const { guard, harness } = await setup();
     await harness.navigateByUrl('/doc/b');
     const paneTree = TestBed.inject(PaneTreeService);

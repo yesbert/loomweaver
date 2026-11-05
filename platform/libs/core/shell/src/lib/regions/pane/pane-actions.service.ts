@@ -6,7 +6,6 @@ import { SurfaceCloseGuard } from './unsaved-work/surface-close-guard';
 import { UnsavedWork } from './unsaved-work/unsaved-work';
 import { PaneAdmission } from '../content/pane-admission';
 import { PaneMoveService } from './drag/pane-move.service';
-import { paneRetentionScope } from './retention/retention-keys';
 import { isContentSideDock } from './container/container-children';
 import { LeftOutChildren } from './container/left-out-children';
 import { CONTENT_DOCK, isSamePane } from './tree/pane-address';
@@ -18,7 +17,7 @@ import {
 } from './tree/pane-handover';
 import { sparedByBulkClose } from './tree/pane-tabs';
 import { PRIMARY_LEAF, PaneLeaf, PaneNode, leafPath } from './tree/pane-node';
-import { findLeaf, leavesOf } from './tree/pane-queries';
+import { findLeaf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
 
 @Service()
@@ -60,11 +59,7 @@ export class PaneActions {
     }
     const keeps = this.keepsOnClose(dock);
     const closed = closedWithHandover(this.paneTree.tree(dock), paneId, keeps);
-    const candidates = new Set([
-      ...this.candidatesOf(dock, leaf, keeps),
-      ...this.lostBy(dock, closed),
-    ]);
-    this.closeGuard.guarded([...candidates], () => {
+    this.closeGuard.guarded(this.lostBy(dock, closed), () => {
       if (primary) {
         this.paneTree.collapsePrimary(dock, keeps);
         return;
@@ -79,14 +74,12 @@ export class PaneActions {
     }
     const primary = this.paneTree.primaryId(dock);
     const keeps = this.keepsOnClose(dock);
-    const tree = this.paneTree.tree(dock);
-    const candidates = new Set([
-      ...leavesOf(tree)
-        .filter((leaf) => leaf.id !== primary)
-        .flatMap((leaf) => this.candidatesOf(dock, leaf, keeps)),
-      ...this.lostBy(dock, unsplitWithHandover(tree, primary, keeps)),
-    ]);
-    this.closeGuard.guarded([...candidates], () =>
+    const undone = unsplitWithHandover(
+      this.paneTree.tree(dock),
+      primary,
+      keeps,
+    );
+    this.closeGuard.guarded(this.lostBy(dock, undone), () =>
       this.paneTree.unsplit(dock, keeps),
     );
   }
@@ -170,16 +163,5 @@ export class PaneActions {
       ...before,
       [dock]: next ?? PRIMARY_LEAF,
     });
-  }
-
-  private candidatesOf(
-    dock: string,
-    leaf: PaneLeaf,
-    keeps: TabKeep,
-  ): unknown[] {
-    const scope = paneRetentionScope(dock, leaf.id);
-    return leaf.tabs.flatMap((tab) =>
-      keeps(tab) ? [] : this.unsavedWork.instancesAt(scope, tab.path),
-    );
   }
 }
