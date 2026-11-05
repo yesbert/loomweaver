@@ -92,7 +92,22 @@ describe('a container whose arrangement is replaced while it is open', () => {
     expect(drawn && activeTab(drawn)?.path).toBe('box/b');
   });
 
-  it('lays out its children again once the last one has been moved out of a pane that was promoted', async () => {
+  it('lays out its children again once the last one has been moved to another dock', async () => {
+    const paneMove = TestBed.inject(PaneMoveService);
+    const only = paneId();
+
+    for (const child of ['box/a', 'box/b']) {
+      paneMove.moveToStrip({ dock: DOCK, paneId: only }, child, {
+        dock: 'left',
+        paneId: 'main',
+      });
+    }
+    await settle();
+
+    expect(leaf()?.tabs.map((tab) => tab.path)).toEqual(['box/a', 'box/b']);
+  });
+
+  it('does the same where the pane emptied last is one that was promoted, rather than staying an empty pane', async () => {
     const paneMove = TestBed.inject(PaneMoveService);
     const first = paneId();
     paneMove.moveToEdge(

@@ -40,10 +40,9 @@ export class UnsavedWork {
     const closed = tabDepartures(before, after)
       .filter((tab) => tab.to === null)
       .flatMap((tab) => this.instancesAt(tab.from, tab.path));
-    const uncarried = this.retention
-      .uncarriedBy(before, after)
-      .filter((instance) => instanceDirty(instance));
-    return [...new Set([...closed, ...uncarried])];
+    return [
+      ...new Set([...closed, ...this.retention.uncarriedBy(before, after)]),
+    ];
   }
 
   instancesEverywhere(): unknown[] {
@@ -53,7 +52,7 @@ export class UnsavedWork {
   instancesOfPlugin(pluginId: string): unknown[] {
     const owns = pathOwnedBy(this.registry, pluginId);
     return this.stash
-      .keyedInstancesEverywhere()
+      .keyedInstances()
       .filter((entry) => owns(pathOfRetentionKey(entry.key)))
       .map((entry) => entry.instance);
   }

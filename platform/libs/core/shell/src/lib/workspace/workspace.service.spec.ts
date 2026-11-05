@@ -1,4 +1,4 @@
-import { Component, Injector, Type, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { WorkspaceService } from './workspace.service';
@@ -10,30 +10,9 @@ import { paneSegments } from '../regions/pane/tree/pane-queries';
 import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
-import { RetainedComponent } from '../regions/pane/retention/retained-component';
-import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 
 @Component({ selector: 'lw-test-view', template: '' })
 class TestView {}
-
-@Component({
-  imports: [RetainedComponent],
-  template: `
-    @if (shown()) {
-      <ng-container
-        [lwRetainedComponent]="view"
-        [componentInjector]="injector"
-        retentionKey="left:main|view:kept|"
-        [retain]="true"
-      />
-    }
-  `,
-})
-class KeptPane {
-  readonly view: Type<unknown> = TestView;
-  readonly injector = inject(Injector);
-  readonly shown = signal(true);
-}
 
 const KEY = 'lw.shell.workspaces';
 
@@ -125,23 +104,6 @@ describe('WorkspaceService', () => {
 
     await ws.switchTo(id);
     expect(paneTree.isSplit(CONTENT_DOCK)).toBe(true);
-  });
-
-  it('removing the workspace in use parks nothing under the id that is gone', async () => {
-    const ws = TestBed.inject(WorkspaceService);
-    await ws.saveCurrent('doomed');
-    const doomed = ws.activeId();
-    const fixture = TestBed.createComponent(KeptPane);
-    fixture.detectChanges();
-
-    await ws.remove(doomed);
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
-    fixture.componentInstance.shown.set(false);
-    fixture.detectChanges();
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
-
-    expect(ws.activeId()).toBe(BUILT_IN_WORKSPACE_ID);
-    expect(TestBed.inject(RetainedViewStash).parked()).toEqual([]);
   });
 
   it('reset discards the working state and applies the active workspace’s baseline', async () => {

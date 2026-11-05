@@ -1,9 +1,12 @@
 import {
   Component,
+  EmbeddedViewRef,
+  EnvironmentInjector,
   Injector,
   OnDestroy,
   Type,
   computed,
+  createComponent,
   inject,
   signal,
 } from '@angular/core';
@@ -509,6 +512,19 @@ describe('a pane change that cannot keep an instance asks first, as closing it w
       expect(tabsOf('b')).toEqual(['notes']);
     });
 
+    it('is abandoned when the arrangement was replaced by the time of the answer, though it is the same workspace', async () => {
+      const fixture = await drawn();
+      await typedAt(fixture, 'left:main');
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      paneTree.hydrate(paneTree.serialize());
+      answer('discard');
+      await settled(fixture);
+
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+    });
+
     it('is abandoned when the tab is no longer where it was by the time of the answer', async () => {
       const fixture = await drawn();
       await typedAt(fixture, 'left:main');
@@ -615,6 +631,44 @@ describe('a pane change that cannot keep an instance asks first, as closing it w
       await settled(fixture);
 
       expect(questions()).toBe(1);
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+    });
+
+    it('is asked whether it may close even where it holds no unsaved work, and its refusal leaves it where it was', async () => {
+      const fixture = await drawn('in-place');
+      const [refusing] = stash.instancesFor(
+        'left:main',
+        'notes',
+      ) as DraftView[];
+      refusing.refusesToClose = true;
+
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+
+      expect(questions()).toBe(0);
+      expect(tabsOf('main')).toEqual(['notes', 'other']);
+      expect(refusing.destroyed).toBe(false);
+    });
+
+    it('is left where it is when the move would by then lose work that was not asked about', async () => {
+      const fixture = await drawn('in-place');
+      await typedAt(fixture, 'left:main');
+      TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+      await settled(fixture);
+      expect(questions()).toBe(1);
+
+      const child = createComponent(DraftView, {
+        environmentInjector: TestBed.inject(EnvironmentInjector),
+      });
+      child.instance.draft.set('typed in a child');
+      stash.acquire('container@notes:main|view:child|', DraftView, () => ({
+        view: child.hostView as EmbeddedViewRef<unknown>,
+        instance: child.instance,
+      }));
+      paneTree.insertTab('left', 'b', 'notes');
+      answer('discard');
+      await settled(fixture);
+
       expect(tabsOf('main')).toEqual(['notes', 'other']);
     });
 

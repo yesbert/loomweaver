@@ -7,7 +7,7 @@ import {
 } from './retained-view-model';
 import { SurfaceHoldState } from './surface-hold';
 import { instanceDirty } from '../unsaved-work/dirty-surface';
-import { isKeyForSurface, isPrimaryRetentionKey } from './retention-keys';
+import { isKeyForSurface } from './retention-keys';
 import {
   HiddenNode,
   HoldingArea,
@@ -16,8 +16,6 @@ import {
 } from './holding-area';
 
 export type DeferredPlacement = 'detach' | 'hideInPlace';
-
-const SLOT_SEPARATOR = '\n';
 
 export interface StashEntry {
   key: string;
@@ -63,52 +61,6 @@ export function newEntry(
     deferred: null,
     unlisten: () => undefined,
   };
-}
-
-export function slotOf(workspaceId: string, key: string): string {
-  return isPrimaryRetentionKey(key)
-    ? key
-    : `${workspaceId}${SLOT_SEPARATOR}${key}`;
-}
-
-export function shownOrParkedIn(
-  entries: Iterable<StashEntry>,
-  workspaceId: string,
-): StashEntry[] {
-  return [...entries].filter(
-    (entry) => entry.inUse || entry.workspace === workspaceId,
-  );
-}
-
-export function adoptInUse(
-  entries: Map<string, StashEntry>,
-  workspaceId: string,
-): StashEntry[] {
-  const displaced: StashEntry[] = [];
-  const elsewhere = [...entries.values()].filter(
-    (entry) => entry.inUse && entry.workspace !== workspaceId,
-  );
-  for (const entry of elsewhere) {
-    const slot = slotOf(workspaceId, entry.key);
-    if (entries.has(slot) && entries.get(slot) !== entry) {
-      displaced.push(entry);
-      continue;
-    }
-    entries.delete(slotOf(entry.workspace, entry.key));
-    entry.workspace = workspaceId;
-    entries.set(slot, entry);
-  }
-  return displaced;
-}
-
-export function homeless(
-  entry: StashEntry,
-  gone: ReadonlySet<string>,
-): boolean {
-  return (
-    !entry.tracked ||
-    (gone.has(entry.workspace) && !isPrimaryRetentionKey(entry.key))
-  );
 }
 
 export function evacuable(entry: StashEntry): boolean {
@@ -219,16 +171,14 @@ export function adoptHeld(
   entries: Map<string, StashEntry>,
   key: string,
   hold: SurfaceHoldState | null,
-  workspaceId: string,
 ): StashEntry | null {
   const holder = holderOf(entries.values(), hold);
   if (!holder || holder.inUse) {
     return null;
   }
-  entries.delete(slotOf(holder.workspace, holder.key));
+  entries.delete(holder.key);
   holder.key = key;
-  holder.workspace = workspaceId;
-  entries.set(slotOf(workspaceId, key), holder);
+  entries.set(key, holder);
   return holder;
 }
 
@@ -241,17 +191,16 @@ export function rekeyEntries(
   const snapshot = [...entries.values()];
   for (const entry of snapshot) {
     const key = rename(entry.key);
-    const slot = slotOf(workspaceId, key);
     if (
       entry.workspace !== workspaceId ||
       key === entry.key ||
-      entries.has(slot)
+      entries.has(key)
     ) {
       continue;
     }
-    entries.delete(slotOf(workspaceId, entry.key));
+    entries.delete(entry.key);
     entry.key = key;
-    entries.set(slot, entry);
+    entries.set(key, entry);
     moved.push(entry);
   }
   return moved;
@@ -316,7 +265,7 @@ export function uncarried(
       return (
         entry.workspace === workspaceId &&
         key !== entry.key &&
-        (entries.has(slotOf(workspaceId, key)) ||
+        (entries.has(key) ||
           (!atomicMove && entry.mode === 'in-place'))
       );
     }),

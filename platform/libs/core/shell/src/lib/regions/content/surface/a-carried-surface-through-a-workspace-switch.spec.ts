@@ -1,6 +1,6 @@
 import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { WORKING_STATE_STORE } from '../../../persistence/working-state-store';
@@ -24,6 +24,8 @@ let drafts: DraftView[] = [];
 })
 class DraftView implements OnDestroy, DirtySurface {
   readonly draft = signal('');
+  readonly instanceId: unknown =
+    inject(ActivatedRoute).snapshot.data['instanceId'];
   destroyed = false;
 
   constructor() {
@@ -112,6 +114,78 @@ function withoutPeek() {
     },
   };
 }
+
+function living(): DraftView[] {
+  return drafts.filter((draft) => !draft.destroyed);
+}
+
+describe('the route a surface is built with, once its tab was carried to another pane', () => {
+  async function arranged() {
+    localStorage.clear();
+    drafts = [];
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: '**', children: [] }]),
+        {
+          provide: ContentTabsService,
+          useValue: {
+            activeTabRoot: () => '',
+            neighbourOf: () => '',
+            navigateTo: vi.fn(),
+            activateViewTab: vi.fn(),
+          },
+        },
+      ],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const path of ['notes', 'other', 'third']) {
+      registry.addContentRoute({ path, component: DraftView });
+    }
+    const paneTree = TestBed.inject(PaneTreeService);
+    TestBed.inject(ParkedViewSweep).start();
+    paneTree.commit(
+      'left',
+      sideBySide(leaf('main', 'notes', 'other'), leaf('b', 'third')),
+    );
+    const fixture = TestBed.createComponent(DrawnPanes);
+    await settled(fixture);
+    const carried = drafts[0];
+    return { fixture, paneTree, carried };
+  }
+
+  it('belongs to that instance only: the next one in the pane it was carried to is built by that pane', async () => {
+    const { fixture, paneTree, carried } = await arranged();
+    TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+    await settled(fixture);
+    expect(carried.destroyed).toBe(false);
+
+    paneTree.setActiveTab('left', 'b', 'third');
+    await settled(fixture);
+    paneTree.setActiveTab('left', 'b', 'notes');
+    await settled(fixture);
+    paneTree.insertTab('left', 'main', 'notes');
+    await settled(fixture);
+
+    expect(carried.destroyed).toBe(true);
+    const ids = living().map((draft) => draft.instanceId);
+    expect(ids).toContain('left:b|notes');
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('is not handed to a new surface in the pane it left while the carried one lives', async () => {
+    const { fixture, paneTree, carried } = await arranged();
+    carried.draft.set('typed');
+    TestBed.inject(PaneActions).moveTab('notes', 'left', 'b');
+    await settled(fixture);
+
+    paneTree.insertTab('left', 'main', 'notes');
+    await settled(fixture);
+
+    expect(carried.destroyed).toBe(false);
+    const ids = living().map((draft) => draft.instanceId);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
 
 describe('a tab carried to another pane, through a workspace switch', () => {
   async function carried(

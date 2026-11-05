@@ -149,11 +149,14 @@ export class PaneMoveService {
       return;
     }
     const workspace = this.workspace.id();
-    const before = this.paneTree.dockTrees();
-    const lost = this.unsavedWork.lostBy(before, { ...before, ...first.edits });
-    this.closeGuard.guarded(lost, () => {
-      const move = this.workspace.id() === workspace ? plan() : null;
-      if (!move) {
+    const arrangement = this.paneTree.arrangement();
+    const asked = new Set(this.lostBy(first));
+    this.closeGuard.guarded([...asked], () => {
+      const unchanged =
+        this.workspace.id() === workspace &&
+        this.paneTree.arrangement() === arrangement;
+      const move = unchanged ? plan() : null;
+      if (!move || this.lostBy(move).some((lost) => !asked.has(lost))) {
         return;
       }
       const follow = this.urlFollowup(move.source, move.tab);
@@ -161,6 +164,11 @@ export class PaneMoveService {
       this.collapseEmptiedPrimary(move.source.dock);
       this.afterArrival(move.arrival, move.moved, follow);
     });
+  }
+
+  private lostBy(move: PlannedMove): unknown[] {
+    const before = this.paneTree.dockTrees();
+    return this.unsavedWork.lostBy(before, { ...before, ...move.edits });
   }
 
   private planned(

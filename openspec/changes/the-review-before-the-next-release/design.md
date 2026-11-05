@@ -39,3 +39,11 @@ measurement, not growth, and the pull request says both numbers.
   routing have merged, and before the hand-over.
 - The release workflow cannot be exercised without publishing. Its changes are kept to a skip and a
   comparison, each tried with `--dry-run` or against an existing version.
+
+## Open for the owner
+
+On `main` a surface parked by one workspace is claimed by another workspace that shows the same
+address in a pane of the same id, taking its unsaved edits along. Separating them per workspace was
+built and taken out again, because it raised questions only the owner can settle: which workspace
+owns a surface that stays on screen across a switch, what happens to in-use surfaces when the active
+workspace is deleted, and when an arrangement counts as arrived while the address is still settling.

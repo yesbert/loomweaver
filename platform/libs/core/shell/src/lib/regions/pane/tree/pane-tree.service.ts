@@ -331,7 +331,6 @@ export class PaneTreeService {
       );
     }
     this.docks.set(next);
-    this.stash.arrangementReplaced();
     this.replacements.update((count) => count + 1);
     this.persist();
   }

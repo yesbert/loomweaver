@@ -1,6 +1,5 @@
 import { DOCUMENT } from '@angular/common';
 import {
-  afterNextRender,
   ApplicationRef,
   inject,
   Injector,
@@ -21,11 +20,9 @@ import {
 } from './retained-view-model';
 import {
   adoptHeld,
-  adoptInUse,
   evacuable,
   endHoldsIn,
   heldInUseElsewhere,
-  homeless,
   hideNodes,
   instancesAt,
   instancesOf,
@@ -41,8 +38,6 @@ import {
   parkedInstancesIn,
   rekeyEntries,
   showNodes,
-  shownOrParkedIn,
-  slotOf,
   spent,
   uncarried,
   StashEntry,
@@ -55,8 +50,6 @@ export class RetainedViewStash implements OnDestroy {
   private readonly appRef = inject(ApplicationRef);
   private readonly document = inject(DOCUMENT);
   private readonly workspace = inject(ActiveWorkspaceService);
-  private readonly injector = inject(Injector);
-  private readonly gone = new Set<string>();
   private readonly atomicMove = supportsAtomicMove(this.document);
   private readonly entries = new Map<string, StashEntry>();
   private readonly changes = signal(0);
@@ -73,7 +66,7 @@ export class RetainedViewStash implements OnDestroy {
   ): RetainedSlot {
     const entry =
       this.claimableEntry(key, source, parent) ??
-      adoptHeld(this.entries, key, hold, this.workspace.id()) ??
+      adoptHeld(this.entries, key, hold) ??
       this.createEntry(key, source, create);
     const attached = entry.inPlace && parkedInPlaceAt(entry, parent);
     showNodes(entry);
@@ -105,15 +98,11 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   keyedInstances(): { key: string; instance: unknown }[] {
-    return keyedInstancesOf(this.here());
-  }
-
-  keyedInstancesEverywhere(): { key: string; instance: unknown }[] {
     return keyedInstancesOf(this.entries.values());
   }
 
   instancesFor(scope: string, path: string): unknown[] {
-    return instancesAt(this.here(), scope, path);
+    return instancesAt(this.entries.values(), scope, path);
   }
 
   uncarriedBy(rename: (key: string) => string): unknown[] {
@@ -122,7 +111,13 @@ export class RetainedViewStash implements OnDestroy {
   }
 
   injectorAt(key: string): Injector | null {
-    return this.entries.get(this.slot(key))?.injector ?? null;
+    return this.entries.get(key)?.injector ?? null;
+  }
+
+  builtOn(injector: Injector): boolean {
+    return [...this.entries.values()].some(
+      (entry) => entry.injector === injector,
+    );
   }
 
   evacuate(matches: (key: string) => boolean): void {
@@ -154,26 +149,20 @@ export class RetainedViewStash implements OnDestroy {
     }
   }
 
-  evictParked(key: string, workspaceId = this.workspace.id()): void {
-    const entry = this.entries.get(slotOf(workspaceId, key));
+  evictParked(key: string): void {
+    const entry = this.entries.get(key);
     if (entry && !entry.inUse) {
       this.destroyEntry(entry);
     }
   }
 
   evictWorkspace(workspaceId: string): void {
-    this.gone.add(workspaceId);
     const snapshot = [...this.entries.values()];
     for (const entry of snapshot) {
       if (!entry.inUse && entry.workspace === workspaceId) {
         this.destroyEntry(entry);
       }
     }
-  }
-
-  arrangementReplaced(): void {
-    this.gone.delete(this.workspace.id());
-    afterNextRender(() => this.adoptInUse(), { injector: this.injector });
   }
 
   endHolds(workspaceId: string): void {
@@ -199,7 +188,8 @@ export class RetainedViewStash implements OnDestroy {
       get rootNodes(): readonly Node[] {
         return liveRootNodes(entry);
       },
-      stale: () => entry.tracked && (!owns() || this.slotted(entry) !== entry),
+      stale: () =>
+        entry.tracked && (!owns() || this.entries.get(entry.key) !== entry),
       held: () => isHeld(entry),
       describe: (mode: SurfaceRetentionMode, retains: boolean) => {
         if (!owns()) {
@@ -231,7 +221,7 @@ export class RetainedViewStash implements OnDestroy {
     source: RetainedViewSource,
     parent: Node | null,
   ): StashEntry | null {
-    const entry = this.entries.get(this.slot(key));
+    const entry = this.entries.get(key);
     if (!entry) {
       return null;
     }
@@ -250,7 +240,7 @@ export class RetainedViewStash implements OnDestroy {
     source: RetainedViewSource,
     create: () => RetainedViewHandle,
   ): StashEntry {
-    const occupied = this.entries.get(this.slot(key))?.inUse === true;
+    const occupied = this.entries.get(key)?.inUse === true;
     const built = create();
     this.appRef.attachView(built.view);
     const entry = newEntry(key, source, built, this.workspace.id(), !occupied);
@@ -260,7 +250,7 @@ export class RetainedViewStash implements OnDestroy {
       );
     }
     if (entry.tracked) {
-      this.entries.set(this.slot(key), entry);
+      this.entries.set(key, entry);
     }
     return entry;
   }
@@ -308,26 +298,13 @@ export class RetainedViewStash implements OnDestroy {
   private letGoOf(entry: StashEntry, retains: boolean): void {
     entry.inUse = false;
     entry.owner = null;
-    if (homeless(entry, this.gone)) {
+    if (!entry.tracked) {
       this.destroyEntry(entry);
       return;
     }
     entry.retains = retains;
     this.bump();
     this.queueSweep();
-  }
-
-  private adoptInUse(): void {
-    for (const entry of adoptInUse(this.entries, this.workspace.id())) {
-      if (entry.mode === 'move') {
-        this.detachEntry(entry, entry.retains);
-      } else if (entry.mode === 'in-place') {
-        this.parkInPlace(entry, entry.retains);
-      } else {
-        this.discard(entry);
-      }
-    }
-    this.bump();
   }
 
   private discard(entry: StashEntry): void {
@@ -339,8 +316,8 @@ export class RetainedViewStash implements OnDestroy {
   private destroyEntry(entry: StashEntry): void {
     entry.unlisten();
     pullNodes(entry);
-    if (this.slotted(entry) === entry) {
-      this.entries.delete(slotOf(entry.workspace, entry.key));
+    if (this.entries.get(entry.key) === entry) {
+      this.entries.delete(entry.key);
     }
     if (lastHolder(entry, this.entries.values())) {
       entry.hold?.end();
@@ -352,20 +329,8 @@ export class RetainedViewStash implements OnDestroy {
     this.bump();
   }
 
-  private slot(key: string): string {
-    return slotOf(this.workspace.id(), key);
-  }
-
-  private slotted(entry: StashEntry): StashEntry | undefined {
-    return this.entries.get(slotOf(entry.workspace, entry.key));
-  }
-
   private holding(): HoldingArea | null {
     return this.atomicMove ? this.holdingArea : null;
-  }
-
-  private here(): StashEntry[] {
-    return shownOrParkedIn(this.entries.values(), this.workspace.id());
   }
 
   private bump(): void {

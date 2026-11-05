@@ -336,7 +336,8 @@ export class SurfaceBody {
       route,
       key,
       untracked(this.address),
-      untracked(() => this.stash.injectorAt(key)),
+      this.stash.injectorAt(key),
+      (injector) => this.stash.builtOn(injector),
     );
   }
 

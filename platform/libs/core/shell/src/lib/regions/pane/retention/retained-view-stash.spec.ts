@@ -11,12 +11,10 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
-import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { moveNode, supportsAtomicMove } from './atomic-move';
 import { RetainedComponent } from './retained-component';
 import { RetainedTemplate } from './retained-template';
 import { RetainedViewStash } from './retained-view-stash';
-import { PaneTreeService } from '../tree/pane-tree.service';
 import { isKeyOfPane } from './retention-keys';
 
 let instances: ProbeView[] = [];
@@ -199,164 +197,6 @@ describe('surface retention', () => {
       );
 
       expect(throwaway.stale()).toBe(false);
-    });
-  });
-
-  describe('what one workspace parked, seen from another', () => {
-    function hidden(fixture: { componentInstance: InPlaceHost }): void {
-      fixture.componentInstance.mountAlive.set(false);
-    }
-
-    function shown(fixture: { componentInstance: InPlaceHost }): void {
-      fixture.componentInstance.mountAlive.set(true);
-    }
-
-    it('is not handed to a pane of the same id showing the same address there, and is still there on return', async () => {
-      const workspace = TestBed.inject(ActiveWorkspaceService);
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-      const [first] = instances;
-      first.draft.set('typed here');
-      hidden(fixture);
-      fixture.detectChanges();
-      await afterSweep();
-
-      workspace.set('elsewhere');
-      shown(fixture);
-      fixture.detectChanges();
-
-      expect(instances).toHaveLength(2);
-      expect(destroyed).toBe(0);
-      expect(
-        TestBed.inject(RetainedViewStash).instancesFor('content:main', 'frame'),
-      ).toEqual([instances[1]]);
-
-      hidden(fixture);
-      fixture.detectChanges();
-      await afterSweep();
-      workspace.set('default');
-      shown(fixture);
-      fixture.detectChanges();
-
-      expect(instances).toHaveLength(2);
-      expect(fixture.nativeElement.textContent).toContain('typed here');
-    });
-
-    it('is not evicted by the other workspace letting go of its own at the same key', async () => {
-      const workspace = TestBed.inject(ActiveWorkspaceService);
-      const stash = TestBed.inject(RetainedViewStash);
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-      hidden(fixture);
-      fixture.detectChanges();
-      workspace.set('elsewhere');
-      shown(fixture);
-      fixture.detectChanges();
-      hidden(fixture);
-      fixture.detectChanges();
-      await afterSweep();
-
-      stash.evictParked('content:main|frame', 'elsewhere');
-
-      expect(destroyed).toBe(1);
-      expect(stash.parked().map((entry) => entry.workspace)).toEqual([
-        'default',
-      ]);
-    });
-  });
-
-  describe('what is still in use once another workspace is drawn', () => {
-    function switchedTo(id: string): void {
-      TestBed.inject(ActiveWorkspaceService).set(id);
-      TestBed.inject(PaneTreeService).hydrate(undefined);
-    }
-
-    function parkedFor(): string[] {
-      return TestBed.inject(RetainedViewStash)
-        .parked()
-        .map((entry) => entry.workspace);
-    }
-
-    it('belongs to the workspace now shown, and is parked for that one when it is hidden later', async () => {
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-
-      switchedTo('elsewhere');
-      fixture.detectChanges();
-      fixture.componentInstance.mountAlive.set(false);
-      fixture.detectChanges();
-      await afterSweep();
-
-      expect(parkedFor()).toEqual(['elsewhere']);
-    });
-
-    it('stays with the workspace left when the switch itself takes its pane down', async () => {
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-
-      switchedTo('elsewhere');
-      fixture.componentInstance.mountAlive.set(false);
-      fixture.detectChanges();
-      await afterSweep();
-
-      expect(parkedFor()).toEqual(['default']);
-    });
-
-    it('makes way for what the workspace now shown had parked at the same place, and waits for its own', async () => {
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-      const [theirs] = instances;
-      fixture.componentInstance.mountAlive.set(false);
-      fixture.detectChanges();
-      switchedTo('elsewhere');
-      fixture.componentInstance.mountAlive.set(true);
-      fixture.detectChanges();
-      const mine = instances[1];
-      mine.draft.set('typed elsewhere');
-
-      switchedTo('default');
-      fixture.detectChanges();
-      await afterSweep();
-      fixture.detectChanges();
-
-      expect(destroyed).toBe(0);
-      expect(parkedFor()).toEqual(['elsewhere']);
-      expect(
-        TestBed.inject(RetainedViewStash).instancesFor('content:main', 'frame'),
-      ).toEqual([theirs]);
-    });
-
-    it('is destroyed rather than parked when the workspace it was built in has been deleted', async () => {
-      const stash = TestBed.inject(RetainedViewStash);
-      TestBed.inject(ActiveWorkspaceService).set('doomed');
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-
-      stash.evictWorkspace('doomed');
-      switchedTo('default');
-      fixture.componentInstance.mountAlive.set(false);
-      fixture.detectChanges();
-      await afterSweep();
-
-      expect(destroyed).toBe(1);
-      expect(parkedFor()).toEqual([]);
-    });
-
-    it('is taken over by the workspace now shown when the one it was built in has been deleted', async () => {
-      const stash = TestBed.inject(RetainedViewStash);
-      TestBed.inject(ActiveWorkspaceService).set('doomed');
-      const fixture = TestBed.createComponent(InPlaceHost);
-      fixture.detectChanges();
-
-      stash.evictWorkspace('doomed');
-      switchedTo('default');
-      fixture.detectChanges();
-      fixture.componentInstance.mountAlive.set(false);
-      fixture.detectChanges();
-      await afterSweep();
-
-      expect(destroyed).toBe(0);
-      expect(parkedFor()).toEqual(['default']);
     });
   });
 

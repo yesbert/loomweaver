@@ -19,12 +19,15 @@ export interface SurfaceMount {
 
 const SURFACE_MOUNT = new InjectionToken<SurfaceMount>('SURFACE_MOUNT');
 
+const SECOND_INSTANCE = '|';
+
 export interface SurfaceMounts {
   mountFor(
     route: RegisteredContentRoute,
     key: string,
     address: SurfaceAddress,
     built?: Injector | null,
+    carriedAway?: (injector: Injector) => boolean,
   ): SurfaceMount;
   releaseUnless(kept: (key: string) => boolean): void;
 }
@@ -35,18 +38,23 @@ export function surfaceMounts(
 ): SurfaceMounts {
   const cache = new Map<RegisteredContentRoute, Map<string, SurfaceMount>>();
   return {
-    mountFor: (route, key, address, built) => {
+    mountFor: (route, key, address, built, carriedAway) => {
+      const carried = built?.get(SURFACE_MOUNT, null);
+      if (carried?.route === route) {
+        return carried;
+      }
       let byKey = cache.get(route);
       if (!byKey) {
         byKey = new Map();
         cache.set(route, byKey);
       }
-      const carried = built?.get(SURFACE_MOUNT, null);
-      const mount =
-        carried?.route === route
-          ? carried
-          : (byKey.get(key) ??
-            newMount(route, key, address, parent, environmentInjector));
+      const cached = byKey.get(key);
+      const taken = cached !== undefined && carriedAway?.(cached.injector);
+      if (cached && !taken) {
+        return cached;
+      }
+      const id = taken ? `${key}${SECOND_INSTANCE}${crypto.randomUUID()}` : key;
+      const mount = newMount(route, id, address, parent, environmentInjector);
       byKey.set(key, mount);
       return mount;
     },
@@ -64,12 +72,12 @@ export function surfaceMounts(
 
 function newMount(
   route: RegisteredContentRoute,
-  key: string,
+  instanceId: string,
   address: SurfaceAddress,
   parent: Injector,
   environmentInjector: EnvironmentInjector,
 ): SurfaceMount {
-  const live = liveSurfaceRoute(route, address, key);
+  const live = liveSurfaceRoute(route, address, instanceId);
   const mount: SurfaceMount = {
     route,
     live,

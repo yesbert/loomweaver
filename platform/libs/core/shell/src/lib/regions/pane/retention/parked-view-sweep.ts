@@ -18,7 +18,6 @@ import {
 
 interface ParkedInstance {
   readonly key: string;
-  readonly workspace: string;
   readonly instance?: unknown;
   readonly retains: boolean;
   readonly held: boolean;
@@ -67,7 +66,6 @@ export class ParkedViewSweep {
   ): ParkedInstance[] {
     return this.stash.parked().map((entry) => ({
       key: entry.key,
-      workspace: entry.workspace,
       instance: entry.instance,
       retains: entry.retains,
       held: entry.held,
@@ -91,7 +89,7 @@ export class ParkedViewSweep {
     );
     for (const entry of parked) {
       if (!entry.tabLive && !entry.parkedElsewhere) {
-        this.stash.evictParked(entry.key, entry.workspace);
+        this.stash.evictParked(entry.key);
         continue;
       }
       if (entry.dirty) {
@@ -99,7 +97,7 @@ export class ParkedViewSweep {
         continue;
       }
       if (!entry.retains && !entry.held) {
-        this.stash.evictParked(entry.key, entry.workspace);
+        this.stash.evictParked(entry.key);
       }
     }
   }
