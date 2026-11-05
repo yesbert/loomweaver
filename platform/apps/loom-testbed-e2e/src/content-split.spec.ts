@@ -19,13 +19,14 @@ test.describe('Content split', () => {
       page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toBeVisible();
 
+    const before = (await divider.getAttribute('aria-valuenow')) ?? '';
     await divider.focus();
     await page.keyboard.press('ArrowRight');
+    await expect(divider).not.toHaveAttribute('aria-valuenow', before);
+    const resized = (await divider.getAttribute('aria-valuenow')) ?? '';
 
     await page.reload();
-    await expect(
-      page.getByRole('separator', { name: 'Resize split' }),
-    ).toBeVisible();
+    await expect(divider).toHaveAttribute('aria-valuenow', resized);
     await expect(
       page.locator('lw-pane-view:not([data-address-pane]) lw-surface-body'),
     ).toBeVisible();

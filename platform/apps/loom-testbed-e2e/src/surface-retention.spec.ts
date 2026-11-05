@@ -198,6 +198,9 @@ test.describe('Surface retention (hidden and clean means destroyed)', () => {
   }) => {
     await page.setViewportSize({ width: 600, height: 800 });
     await page.goto('/');
+    await expect(
+      page.getByRole('button', { name: 'Open panel' }).first(),
+    ).toBeVisible();
     await expect(page.locator('lw-shell-panel')).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Open panel' }).first().click();

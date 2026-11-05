@@ -2,15 +2,22 @@ import { Locator, Page, expect, test } from '@playwright/test';
 import {
   dragTo,
   openEntry,
+  openTwoEntries,
   rail,
   railRight,
   useFeatures,
+  watchFor,
 } from './support/helpers';
 
 const SPLIT_HANDLE = 'lw-content-grid lw-pane-split-handle';
 
-function settle(page: Page): Promise<void> {
-  return page.waitForTimeout(500);
+async function settle(page: Page): Promise<void> {
+  await expect(page.locator('.cdk-drag-preview')).toHaveCount(0);
+  const palette = page.getByRole('combobox', { name: 'Command palette' });
+  await page.getByTestId('command-palette-entry').click();
+  await expect(palette).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(palette).toHaveCount(0);
 }
 
 test.describe('Switching a capability off takes the gesture too (K1b)', () => {
@@ -18,8 +25,12 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
     page,
   }) => {
     await useFeatures(page, 'split');
-    await page.goto('/entry/e-01');
+    await page.goto('/');
+    await openTwoEntries(page);
 
+    await expect(
+      page.locator('lw-address-pane-header').getByTestId('pane-add-tab'),
+    ).toBeVisible();
     await expect(
       page.locator(
         'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
@@ -27,8 +38,12 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
     ).toHaveCount(0);
 
     await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Split right' }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole('menuitem', { name: 'Split down' }),
     ).toHaveCount(0);
     await page.keyboard.press('Escape');
 
@@ -38,6 +53,9 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
       '#panel-views-left-panel [role="tab"][aria-label="Outline"]',
       { x: content.x + content.width - 12, y: content.y + content.height / 2 },
     );
+    await settle(page);
+    await expect(page.locator(SPLIT_HANDLE)).toHaveCount(0);
+
     await page.keyboard.press('Control+\\');
     await page.keyboard.press('Meta+\\');
     await settle(page);
@@ -74,6 +92,7 @@ test.describe('Switching a capability off takes the gesture too (K1b)', () => {
     await expect(tab).toBeVisible();
 
     await tab.click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Close', exact: true }),
     ).toHaveCount(0);
@@ -163,12 +182,15 @@ test.describe('Sidebar and rail capabilities (K1c)', () => {
   }) => {
     await useFeatures(page, 'sidebar-curate');
     await page.goto('/');
+    await expect(page.locator(left).getByRole('tab', outline)).toBeVisible();
+    const menuShown = await watchFor(page, '[role="menu"]');
+
     await page
       .locator(left)
       .click({ button: 'right', position: { x: 5, y: 44 } });
 
     await settle(page);
-    await expect(page.getByRole('menu')).toHaveCount(0);
+    expect(await menuShown()).toBe(false);
   });
 
   test('sidebar.moveViews off: no menu entry and no Alt+Shift+Arrow', async ({
@@ -179,6 +201,7 @@ test.describe('Sidebar and rail capabilities (K1c)', () => {
 
     const tab = page.locator(left).getByRole('tab', outline);
     await tab.click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Move to other sidebar' }),
     ).toHaveCount(0);
@@ -199,6 +222,7 @@ test.describe('Sidebar and rail capabilities (K1c)', () => {
 
     const tab = page.locator(left).getByRole('tab', outline);
     await tab.click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Stack below' }),
     ).toHaveCount(0);
@@ -224,6 +248,7 @@ test.describe('Sidebar and rail capabilities (K1c)', () => {
 
     const item = rail(page).getByRole('button').first();
     await item.click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Move to other activity bar' }),
     ).toHaveCount(0);
@@ -347,16 +372,19 @@ test.describe('Workspaces, windows and commands (K1d)', () => {
   }) => {
     await useFeatures(page, 'shortcuts');
     await page.goto('/');
+    const entry = page.getByTestId('command-palette-entry');
+    await expect(entry).toBeVisible();
+    const paletteShown = await watchFor(page, 'lw-command-palette');
 
     await page.keyboard.press('Control+k');
     await page.keyboard.press('Meta+k');
-    await settle(page);
-    await expect(
-      page.getByRole('combobox', { name: 'Command palette' }),
-    ).toHaveCount(0);
+    const outline = page
+      .locator('#panel-views-left-panel')
+      .getByRole('tab', { name: 'Outline' });
+    await outline.dispatchEvent('click');
+    await expect(outline).toHaveAttribute('aria-selected', 'true');
+    expect(await paletteShown()).toBe(false);
 
-    const entry = page.getByTestId('command-palette-entry');
-    await expect(entry).toBeVisible();
     await expect(entry.locator('kbd')).toHaveCount(0);
 
     await entry.click();
@@ -375,15 +403,18 @@ test.describe('Workspaces, windows and commands (K1d)', () => {
     await openEntry(page, 'E-01');
 
     await page.getByRole('tab', { name: 'E-01' }).click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Open in new window' }),
     ).toHaveCount(0);
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toHaveCount(0);
 
     await page
       .locator('#panel-views-left-panel')
       .getByRole('tab', { name: 'Outline' })
       .click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Open in new window' }),
     ).toHaveCount(0);
@@ -392,9 +423,27 @@ test.describe('Workspaces, windows and commands (K1d)', () => {
   test('workspaces off: no commands, no rail entry, no dangling button', async ({
     page,
   }) => {
-    await useFeatures(page, 'workspaces');
     await page.goto('/');
+    await page.getByRole('button', { name: 'Workspaces' }).click();
+    await page.getByPlaceholder('Workspace name').fill('Quarter close');
+    await page.getByTestId('workspace-save').click();
+    await page.keyboard.press('Escape');
+    await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
+    await page.getByRole('menuitem', { name: 'Choose the entries' }).click();
+    await page.getByRole('button', { name: 'Quarter close: Left' }).click();
+    await page.keyboard.press('Escape');
+    const saved = rail(page).locator('[data-rail-item^="shell.workspace:"]');
+    await expect(saved).toHaveCount(1);
 
+    await page.evaluate(() =>
+      localStorage.setItem('lw.testbed.features', 'workspaces'),
+    );
+    await page.reload();
+
+    await expect(
+      rail(page).locator('[data-rail-item="testbed.rail.container"]'),
+    ).toBeVisible();
+    await expect(saved).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Workspaces' })).toHaveCount(
       0,
     );
@@ -420,6 +469,7 @@ test.describe('Workspaces, windows and commands (K1d)', () => {
     await expect(tab).toBeVisible();
 
     await tab.click({ button: 'right' });
+    await expect(page.getByRole('menu')).toBeVisible();
     await expect(
       page.getByRole('menuitem', { name: 'Close', exact: true }),
     ).toHaveCount(0);

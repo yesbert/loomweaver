@@ -33,8 +33,8 @@ test.describe('Following tabs — facets of one selection (§8)', () => {
   }) => {
     await page.goto('/dashboard/overview');
 
-    await expect(page.getByRole('tab', { name: 'Profile' })).toHaveCount(0);
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Profile' })).toHaveCount(0);
 
     await page.goto('/owner/U1/queue');
     await expect(page.getByRole('tab', { name: 'Profile' })).toBeVisible();

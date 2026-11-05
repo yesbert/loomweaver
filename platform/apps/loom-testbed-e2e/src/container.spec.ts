@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { dragTo, rail } from './support/helpers';
+import { dragTo, rail, watchFor } from './support/helpers';
 
 test.describe('Container surface', () => {
   test('a container tab hosts a nested pane tree of child surfaces scoped to its :id', async ({
@@ -139,8 +139,14 @@ test.describe('Container surface', () => {
   }) => {
     await page.goto('/container/alpha');
     const host = page.locator('lw-container-pane-host');
+    await expect(host.getByRole('tab', { name: 'Canvas' })).toBeVisible();
+    const menuShown = await watchFor(page, 'lw-menu');
+
     await host.getByRole('tab', { name: 'Canvas' }).click({ button: 'right' });
-    await expect(page.locator('lw-menu')).toHaveCount(0);
+    const details = host.getByRole('tab', { name: 'Details' });
+    await details.dispatchEvent('click');
+    await expect(details).toHaveAttribute('aria-selected', 'true');
+    expect(await menuShown()).toBe(false);
   });
 
   test('a container tab dragged into a sidebar keeps its sub-tabs, because the tree travels with the tab', async ({
@@ -202,11 +208,18 @@ test.describe('Container surface', () => {
     page,
   }) => {
     await page.goto('/container/alpha');
-    await expect(page.locator('lw-container-pane-host')).toBeVisible();
-
     await expect(
-      page.getByRole('navigation').getByRole('tab', { name: 'Canvas' }),
-    ).toHaveCount(0);
+      page.locator('lw-container-pane-host').getByRole('tab', {
+        name: 'Canvas',
+      }),
+    ).toBeVisible();
+
+    const sidebars = page.locator(
+      '#panel-views-left-panel, #panel-views-right-panel',
+    );
+    await expect(sidebars.getByRole('tab', { name: 'Outline' })).toBeVisible();
+    await expect(sidebars.getByRole('tab', { name: 'Info' })).toBeVisible();
+    await expect(sidebars.getByRole('tab', { name: 'Canvas' })).toHaveCount(0);
   });
 });
 

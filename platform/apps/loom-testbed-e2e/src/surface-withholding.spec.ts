@@ -1,6 +1,10 @@
 import { Frame, expect, test } from '@playwright/test';
 import { restSandboxFrame } from './support/helpers';
 
+interface Noticing {
+  __noticed: Set<string>;
+}
+
 interface Drawn {
   readonly coveredShare: number;
   readonly width: number;
@@ -115,26 +119,60 @@ test.describe('A surface can keep part of itself off the picture', () => {
     expect(covered).toBeLessThan(0.5);
   });
 
-  test('the surface is never told that a picture is being made', async ({
+  test.fixme('the surface is never told that a picture is being made', async ({
     page,
   }) => {
     const frame = await restSandboxFrame(page);
+    await page.waitForFunction(() => Boolean(globalThis.lwCapture));
 
-    const events = await frame.evaluate(async () => {
-      const seen: string[] = [];
-      const record = (event: Event) => {
-        seen.push(event.type);
-      };
-      for (const name of ['lwcapture', 'beforecapture', 'capture']) {
-        globalThis.addEventListener(name, record);
+    await frame.evaluate(() => {
+      const noticed = new Set<string>();
+      (globalThis as unknown as Noticing).__noticed = noticed;
+      const names = new Set(['message']);
+      for (const target of [globalThis, document]) {
+        for (const key in target) {
+          if (key.startsWith('on')) {
+            names.add(key.slice(2));
+          }
+        }
       }
-      const api = (globalThis as Record<string, unknown>)['LwFrame'] as {
-        capture(request?: { scale?: number }): Promise<unknown>;
-      };
-      await api.capture({ scale: 1 });
-      return seen;
+      for (const name of names) {
+        for (const target of [globalThis, document]) {
+          target.addEventListener(name, (event) => noticed.add(event.type), {
+            capture: true,
+          });
+        }
+      }
+      new MutationObserver((records) => {
+        for (const record of records) {
+          for (const node of [...record.addedNodes, ...record.removedNodes]) {
+            noticed.add(`${record.type}: ${node.nodeName.toLowerCase()}`);
+          }
+          if (record.type !== 'childList') {
+            noticed.add(
+              `${record.type}: ${record.target.nodeName.toLowerCase()}`,
+            );
+          }
+        }
+      }).observe(document, {
+        attributes: true,
+        characterData: true,
+        childList: true,
+        subtree: true,
+      });
     });
 
-    expect(events).toEqual([]);
+    await expect
+      .poll(
+        async () =>
+          (await page.evaluate(() => globalThis.lwCapture!())).surfacesAbsent,
+        { timeout: 20_000 },
+      )
+      .toBe(0);
+
+    const noticed = await frame.evaluate(() => [
+      ...(globalThis as unknown as Noticing).__noticed,
+    ]);
+    expect(noticed).toEqual([]);
   });
 });

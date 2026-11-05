@@ -45,6 +45,10 @@ test.describe('A workspace claims the content that belongs to it', () => {
     await page.goto('/entry/e-02');
 
     await expect(page).toHaveURL(/\/entry\/e-02/);
+    await expect(page.getByRole('tab', { name: 'E-02' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     await expect(page.getByRole('tab', { name: 'Search' })).toHaveCount(0);
     await expect(page.getByRole('tab', { name: 'Notes' })).toHaveCount(0);
   });

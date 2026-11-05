@@ -309,21 +309,28 @@ test.describe('Workspaces are self-remembering', () => {
   }) => {
     await page.goto('/');
     const navigator = page.locator('#panel-views-left-panel');
-    await expect(navigator).toHaveCount(1);
-
-    await page.getByRole('button', { name: 'Collapse panel' }).first().click();
-    await expect(navigator).toHaveCount(0);
+    const outline = navigator.getByRole('tab', { name: 'Outline' });
+    await expect(outline).toBeVisible();
 
     await rail(page)
       .getByRole('button', { name: 'Review', exact: true })
       .click();
     await expect(page).toHaveURL(/entry\/e-01/);
+    await expect(outline).toHaveCount(0);
+    await expect(navigator.getByRole('tab', { name: 'Navigator' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Collapse panel' }).first().click();
     await expect(navigator).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
     await page.getByTestId('workspace-tab-mine').click();
     await page.getByTestId('workspace-default').click();
+    await expect.poll(() => new URL(page.url()).pathname).toBe('/');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(navigator).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Expand panel' }).click();
+    await expect(outline).toBeVisible();
   });
 
   test('a workspace that lists a sidebar empty empties it without taking it away', async ({

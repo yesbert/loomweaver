@@ -17,6 +17,9 @@ test.describe('Rail entries the user curates', () => {
     await expect(notes).toHaveCount(0);
 
     await page.reload();
+    await expect(
+      rail(page).getByRole('button', { name: 'Home', exact: true }),
+    ).toBeVisible();
     await expect(notes).toHaveCount(0);
 
     await rail(page).click({ button: 'right', position: { x: 20, y: 480 } });
@@ -47,10 +50,10 @@ test.describe('Rail entries the user curates', () => {
     ).toBeFocused();
 
     await page.reload();
-    await expect(notes).toHaveCount(0);
     await expect(
       right.getByRole('button', { name: 'Notes', exact: true }),
     ).toHaveCount(1);
+    await expect(notes).toHaveCount(0);
   });
 
   test('the entry menu offers the other rail', async ({ page }) => {

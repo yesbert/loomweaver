@@ -159,6 +159,16 @@ function notesInPanesLeftToRight(page: Page): Promise<PaneSnapshot[]> {
   });
 }
 
+function addressPaneLeftToRight(page: Page): Promise<boolean[]> {
+  return page.evaluate(() =>
+    [...document.querySelectorAll('lw-content-grid lw-pane-view')]
+      .toSorted(
+        (a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x,
+      )
+      .map((pane) => pane.hasAttribute('data-address-pane')),
+  );
+}
+
 async function splitAndStamp(page: Page): Promise<void> {
   await splitNotes(page);
   await page.evaluate(() => {
@@ -176,8 +186,10 @@ test('a surface instance stays in its pane when the URL role moves', async ({
   page,
 }) => {
   await splitAndStamp(page);
+  await expect.poll(() => addressPaneLeftToRight(page)).toEqual([true, false]);
 
   await clickTabInPane(page, 'right', 'Notes');
+  await expect.poll(() => addressPaneLeftToRight(page)).toEqual([false, true]);
 
   await expect
     .poll(() => notesInPanesLeftToRight(page))

@@ -38,10 +38,21 @@ test.describe('View state travels with a moved view tab', () => {
     await expect(pane.locator('ol li').first()).toContainText('Row A');
 
     await page.reload();
-    await expect(
-      page
-        .locator('lw-surface-body lw-testbed-outline-view')
-        .getByTestId('outline-sort'),
-    ).toHaveText(/A–Z/);
+    await expect(pane.getByTestId('outline-sort')).toHaveText(/A–Z/);
+
+    const strip = (await page
+      .locator('#panel-views-left-panel [role="tablist"]')
+      .boundingBox())!;
+    await dragTo(
+      page,
+      'lw-pane-view:not([data-address-pane]) [role="tab"][aria-label="Outline"]',
+      { x: strip.x + strip.width - 24, y: strip.y + strip.height / 2 },
+    );
+
+    const docked = page.locator('lw-shell-panel lw-testbed-outline-view');
+    await expect(docked).toBeVisible();
+    await expect(pane).toHaveCount(0);
+    await expect(docked.getByTestId('outline-sort')).toHaveText(/A–Z/);
+    await expect(docked.locator('ol li').first()).toContainText('Row A');
   });
 });

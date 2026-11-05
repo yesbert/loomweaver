@@ -85,6 +85,7 @@ test.describe('Hidden sidebar views', () => {
     ).toBeVisible();
 
     await page.getByRole('button', { name: 'Workspaces' }).click();
+    await expect(page.getByTestId('workspace-reset')).toBeDisabled();
     await expect(page.getByTestId('workspace-changed')).toHaveCount(0);
     await page.keyboard.press('Escape');
 
@@ -106,6 +107,7 @@ test.describe('Hidden sidebar views', () => {
       page.locator(left).getByRole('tab', { name: 'Outline' }),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Workspaces' }).click();
+    await expect(page.getByTestId('workspace-reset')).toBeDisabled();
     await expect(page.getByTestId('workspace-changed')).toHaveCount(0);
   });
 });

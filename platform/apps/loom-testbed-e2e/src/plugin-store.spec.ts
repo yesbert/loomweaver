@@ -155,10 +155,13 @@ test.describe('Plugin store (Obsidian-style browse dialog)', () => {
     await expect(
       page.getByRole('button', { name: 'Store plugin (full)', exact: true }),
     ).toHaveCount(0);
-    await page.keyboard.press('Escape');
-    await expect(
-      page.getByRole('tab', { name: 'Store plugin (full)' }),
-    ).toHaveCount(0);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => localStorage.getItem('lw.shell.installed-plugins') ?? '',
+        ),
+      )
+      .not.toContain('store-full');
   });
 
   test('an older installed version offers an update and re-asks for grown permissions', async ({
@@ -258,14 +261,17 @@ test.describe('Plugin store (Obsidian-style browse dialog)', () => {
       .filter({ hasText: 'Install Store plugin (minimal)?' });
     await consent.getByRole('button', { name: 'Cancel', exact: true }).click();
 
+    await expect(consent).toHaveCount(0);
     await expect(
       dialog.getByTestId('store-install-store-minimal'),
     ).toBeVisible();
-    await page.keyboard.press('Escape');
-    await page.keyboard.press('Escape');
-    await page.goto('/dashboard/overview');
+
+    await page.goto('/store-minimal');
     await expect(
-      page.getByRole('tab', { name: 'Store plugin (minimal)' }),
+      page.getByRole('heading', { name: 'View not available' }),
+    ).toBeVisible();
+    await expect(
+      page.locator('iframe[src*="/store-minimal/view.html"]'),
     ).toHaveCount(0);
   });
 });
