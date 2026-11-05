@@ -7,6 +7,7 @@ import { ContributionRegistry } from '../../contributions/contribution-registry'
 import { PanelState } from './panel-state';
 import { regionOnOtherSide } from '../../layout/layout-queries';
 import { MoveAnnouncer, MoveWording } from '../reorder/move-announcer';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 const VIEW_MOVE_WORDING: MoveWording = {
   announce: 'panel.viewMove.announce',
@@ -29,6 +30,7 @@ export class ViewMoveService {
   private readonly paneMove = inject(PaneMoveService);
   private readonly registry = inject(ContributionRegistry);
   private readonly announcer = inject(MoveAnnouncer);
+  private readonly collapsing = inject(FeatureSwitches).sidebar.collapse;
 
   move(viewId: string, targetRegion: string, index?: number): void {
     const path = viewPanePath(viewId);
@@ -49,7 +51,9 @@ export class ViewMoveService {
         index,
       );
     }
-    this.panels.expand(targetRegion);
+    if (this.collapsing()) {
+      this.panels.expand(targetRegion);
+    }
     const view = this.registry.views().find((one) => one.id === viewId);
     this.announcer.announce(
       VIEW_MOVE_WORDING,
@@ -63,7 +67,9 @@ export class ViewMoveService {
       dock: targetRegion,
       paneId: this.paneTree.primaryId(targetRegion),
     });
-    this.panels.expand(targetRegion);
+    if (this.collapsing()) {
+      this.panels.expand(targetRegion);
+    }
     this.announcer.announce(
       VIEW_MOVE_WORDING,
       { id: tab.path, title: tab.title, literalTitle: tab.literalTitle },

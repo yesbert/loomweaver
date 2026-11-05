@@ -11,8 +11,12 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LwButton } from '../elements/button/lw-button';
-import { overlayMenuIn } from '../elements/menu/overlay-menu';
 import { DIALOG_CLOSE_GUARD } from './dialog-close-guard';
+import {
+  focusInto,
+  pullFocusBackInto,
+  wrapFocusWithin,
+} from './modal-focus';
 import {
   DialogButtonView,
   DialogInstance,
@@ -96,11 +100,9 @@ export class DialogOutlet {
         return;
       }
       const top = panels.at(-1)?.nativeElement;
-      const active = this.document.activeElement;
-      if (!top || top.contains(active) || overlayMenuIn(this.document)?.contains(active)) {
-        return;
+      if (top) {
+        focusInto(top, this.document);
       }
-      (top.querySelector<HTMLElement>('[data-lw-autofocus]') ?? top).focus();
     });
   }
 
@@ -120,32 +122,14 @@ export class DialogOutlet {
 
   protected onFocusIn(event: FocusEvent): void {
     const top = this.topPanel();
-    const target = event.target as Node | null;
-    if (!top || !target || top.contains(target)) {
-      return;
-    }
-    if (!overlayMenuIn(this.document)?.contains(target)) {
-      (this.focusable(top)[0] ?? top).focus();
+    if (top) {
+      pullFocusBackInto(top, event.target as Node | null, this.document);
     }
   }
 
   protected onTab(event: Event, backward: boolean): void {
     const top = this.topPanel();
-    if (!top) {
-      return;
-    }
-    const focusables = this.focusable(top);
-    if (!focusables.length) {
-      return;
-    }
-    const first = focusables[0];
-    const last = focusables.at(-1);
-    const active = this.document.activeElement;
-    if (backward && active === first) {
-      last?.focus();
-      event.preventDefault();
-    } else if (!backward && active === last) {
-      first.focus();
+    if (top && wrapFocusWithin(top, this.document.activeElement, backward)) {
       event.preventDefault();
     }
   }
@@ -275,12 +259,6 @@ export class DialogOutlet {
   private topPanel(): HTMLElement | undefined {
     const panels = this.panels();
     return panels.at(-1)?.nativeElement;
-  }
-
-  private focusable(root: HTMLElement): HTMLElement[] {
-    const selector =
-      'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])';
-    return [...root.querySelectorAll<HTMLElement>(selector)];
   }
 
   private top(): DialogInstance | undefined {

@@ -1,7 +1,5 @@
-import { inject, Service, signal } from '@angular/core';
-import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
-import { hydrateAsync, readStoredValue } from '../../persistence/stored-values/hydrate';
-import { StateSyncService } from '../../persistence/cross-tab/state-sync.service';
+import { Service } from '@angular/core';
+import { persistedWorkingState } from '../../persistence/stored-values/persisted-setting';
 import { parseStored } from '../../persistence/stored-values/parse-stored';
 import { recordOf } from '../../persistence/stored-values/persisted-record';
 
@@ -19,20 +17,11 @@ function parseOrders(
 
 @Service()
 export class UserOrderService {
-  private readonly store = inject(WORKING_STATE_STORE);
-  private readonly sync = inject(StateSyncService);
-  private readonly orders = signal<Record<string, readonly string[]>>(
-    parseOrders(this.store.peek?.(STORAGE_KEY)),
-  );
-
-  constructor() {
-    const apply = (raw: string | undefined) =>
-      this.orders.set(parseOrders(raw));
-    hydrateAsync(this.store, STORAGE_KEY, apply);
-    this.sync.onNamespaceAdopted(async () =>
-      apply(await readStoredValue(this.store, STORAGE_KEY)),
-    );
-  }
+  private readonly stored = persistedWorkingState(STORAGE_KEY, {
+    parse: parseOrders,
+    serialize: (orders) => JSON.stringify(orders),
+  });
+  private readonly orders = this.stored.value;
 
   applyOrder<T>(
     containerId: string,
@@ -56,12 +45,10 @@ export class UserOrderService {
   }
 
   setOrder(containerId: string, ids: readonly string[]): void {
-    this.orders.update((state) => ({ ...state, [containerId]: [...ids] }));
-    void this.store.set(STORAGE_KEY, JSON.stringify(this.orders()));
+    this.stored.update((state) => ({ ...state, [containerId]: [...ids] }));
   }
 
   reset(): void {
-    this.orders.set({});
-    void this.store.delete(STORAGE_KEY);
+    this.stored.clear();
   }
 }

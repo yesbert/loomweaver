@@ -1,14 +1,22 @@
 import { TestBed } from '@angular/core/testing';
+import { provideLayout } from '../../layout/layout';
 import {
   RailItemsService,
   isWorkspaceRailItem,
   workspaceRailItemId,
 } from './rail-items.service';
 
+const twoRails = provideLayout({
+  regions: [
+    { id: 'activity', type: 'rail', dock: 'left' },
+    { id: 'activity-right', type: 'rail', dock: 'right' },
+  ],
+});
+
 describe('RailItemsService', () => {
   beforeEach(() => {
     localStorage.clear();
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: [twoRails] });
   });
 
   it('shows a registered entry until it is hidden, and a workspace entry only once it is placed', () => {
@@ -60,7 +68,44 @@ describe('RailItemsService', () => {
     TestBed.inject(RailItemsService).place('auth', 'activity-right');
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: [twoRails] });
+
+    expect(TestBed.inject(RailItemsService).regionOf('auth', 'activity')).toBe(
+      'activity-right',
+    );
+  });
+
+  it('draws an entry stored on a rail that is no longer declared on the rail it was declared for', () => {
+    TestBed.inject(RailItemsService).place('auth', 'activity-right');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideLayout({
+          regions: [{ id: 'activity', type: 'rail', dock: 'left' }],
+        }),
+      ],
+    });
+    const rail = TestBed.inject(RailItemsService);
+
+    expect(rail.regionOf('auth', 'activity')).toBe('activity');
+    expect(rail.isVisible('auth')).toBe(true);
+  });
+
+  it('puts the entry back where the person had it once that rail is declared again', () => {
+    TestBed.inject(RailItemsService).place('auth', 'activity-right');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideLayout({
+          regions: [{ id: 'activity', type: 'rail', dock: 'left' }],
+        }),
+      ],
+    });
+    TestBed.inject(RailItemsService).regionOf('auth', 'activity');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [twoRails] });
 
     expect(TestBed.inject(RailItemsService).regionOf('auth', 'activity')).toBe(
       'activity-right',

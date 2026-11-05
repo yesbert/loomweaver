@@ -14,6 +14,8 @@ import { View } from '../../views/view';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
 import { RailItemsService } from '../rail/rail-items.service';
+import { FeatureSwitches } from '../../features/feature-switches.service';
+import { PanelState } from '../panel/panel-state';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -254,5 +256,88 @@ describe('CurationDialog (offering saved workspaces for the rail)', () => {
         .map((row) => row.id)
         .join(' '),
     ).not.toContain('shell.workspace:');
+  });
+});
+
+describe('CurationDialog (with a capability switched off)', () => {
+  function placesOf(
+    fixture: { nativeElement: HTMLElement },
+    rowId: string,
+  ): (string | null)[] {
+    return [
+      ...fixture.nativeElement.querySelectorAll(
+        `[data-curation-row="${CSS.escape(rowId)}"] [data-curation-place]`,
+      ),
+    ].map((option) => option.getAttribute('data-curation-place'));
+  }
+
+  it('offers no hiding where hiding a view is switched off, and still brings a hidden view back', () => {
+    const { fixture } = render(VIEWS, [
+      provideShellFeatures({ sidebar: { hideViews: false } }),
+    ]);
+    TestBed.inject(ViewVisibilityService).hide('outline');
+    fixture.detectChanges();
+
+    expect(placesOf(fixture, 'nav')).toEqual(['primary', 'secondary']);
+    expect(placesOf(fixture, 'outline')).toEqual([
+      'hidden',
+      'primary',
+      'secondary',
+    ]);
+  });
+
+  it('offers no other sidebar where moving a view is switched off, and brings a hidden view back to its own side only', () => {
+    const { fixture } = render(VIEWS, [
+      provideShellFeatures({ sidebar: { moveViews: false } }),
+    ]);
+    TestBed.inject(ViewVisibilityService).hide('outline');
+    fixture.detectChanges();
+
+    expect(placesOf(fixture, 'nav')).toEqual(['hidden', 'primary']);
+    expect(placesOf(fixture, 'outline')).toEqual(['hidden', 'primary']);
+  });
+
+  it('offers no hiding of a launcher entry where hiding an item is switched off', () => {
+    const { fixture } = render({ kind: 'rail' }, [
+      provideShellFeatures({ rail: { hideItems: false } }),
+    ]);
+    TestBed.inject(ContributionRegistry).addRailItem({
+      id: 'p.help',
+      rail: 'activity',
+      title: 'Help',
+      icon: 'info',
+      run: () => undefined,
+    });
+    fixture.detectChanges();
+
+    expect(placesOf(fixture, 'p.help')).toEqual(['activity']);
+  });
+
+  it('leaves a collapsed sidebar collapsed when a view is placed in it while collapsing is switched off', () => {
+    const { fixture } = render(VIEWS, [
+      provideShellFeatures({ sidebar: { collapse: false } }),
+    ]);
+    const panels = TestBed.inject(PanelState);
+    panels.toggle('secondary');
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-curation-row="nav"] [data-curation-place="secondary"]',
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(rows(fixture)).toContainEqual({ id: 'nav', place: 'secondary' });
+    expect(panels.isCollapsed('secondary')).toBe(true);
+  });
+
+  it('withdraws an offer when its switch goes off while the list is open', () => {
+    const { fixture } = render();
+    expect(placesOf(fixture, 'nav')).toContain('hidden');
+
+    TestBed.inject(FeatureSwitches).update({ sidebar: { hideViews: false } });
+    fixture.detectChanges();
+
+    expect(placesOf(fixture, 'nav')).not.toContain('hidden');
   });
 });

@@ -74,22 +74,38 @@ export class ViewStateService {
     if (existing) {
       return existing;
     }
-    const key = STORAGE_PREFIX + instanceId;
+    const entry = this.entryOn(STORAGE_PREFIX + instanceId);
+    this.entries.set(instanceId, entry);
+    return entry;
+  }
+
+  private entryOn(key: string): Entry {
     const value = signal<unknown>(parseStored(this.store.peek?.(key)));
-    hydrateAsync(this.store, key, (raw) => value.set(parseStored(raw)));
-    const cancelPendingSave = () => this.heldWrites.cancel(key);
+    let answered = this.store.peek !== undefined;
+    const cancelPendingSave = () => {
+      answered = true;
+      this.heldWrites.cancel(key);
+    };
+    hydrateAsync(this.store, key, (raw) => {
+      const stored = parseStored(raw);
+      if (!answered && stored !== undefined) {
+        cancelPendingSave();
+        value.set(stored);
+      }
+      answered = true;
+    });
     const save = () => {
       const current = value();
       if (current === undefined) {
         cancelPendingSave();
+        void this.store.delete(key);
         return;
       }
       this.heldWrites.hold(key, JSON.stringify(current), (held) => {
+        answered = true;
         void this.store.set(key, held);
       });
     };
-    const entry: Entry = { value, save, cancelPendingSave };
-    this.entries.set(instanceId, entry);
-    return entry;
+    return { value, save, cancelPendingSave };
   }
 }

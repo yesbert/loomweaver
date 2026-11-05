@@ -394,6 +394,36 @@ describe('ShellRail', () => {
       expect(initials(fixture)?.textContent).toBe('AL');
     });
 
+    it('tries the picture again when the entry is given another address', () => {
+      const fixture = renderRail([withPicture()]);
+      picture(fixture)?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      TestBed.inject(ContributionRegistry).addRailItem(
+        withPicture({ image: 'https://example.test/grace.png' }),
+      );
+      fixture.detectChanges();
+
+      expect(picture(fixture)?.getAttribute('src')).toBe(
+        'https://example.test/grace.png',
+      );
+      expect(initials(fixture)).toBeNull();
+    });
+
+    it('does not try an address again that already failed', () => {
+      const fixture = renderRail([withPicture()]);
+      picture(fixture)?.dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      TestBed.inject(ContributionRegistry).addRailItem(
+        withPicture({ title: 'cmd.other' }),
+      );
+      fixture.detectChanges();
+
+      expect(picture(fixture)).toBeNull();
+      expect(initials(fixture)?.textContent).toBe('AL');
+    });
+
     it('gives way to the icon where the entry has no mark', () => {
       const fixture = renderRail([withPicture({ initials: undefined })]);
 

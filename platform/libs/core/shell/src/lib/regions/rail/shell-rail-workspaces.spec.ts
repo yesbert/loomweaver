@@ -10,6 +10,7 @@ import { WorkspaceService } from '../../workspace/workspace.service';
 import { RailItem } from '../../foundation/rail-item';
 import { RailItemsService, workspaceRailItemId } from './rail-items.service';
 import { provideShellFeatures } from '../../foundation/shell-features';
+import { provideLayout } from '../../layout/layout';
 
 function buttonsOf(fixture: ComponentFixture<ShellRail>) {
   return fixture.nativeElement.querySelectorAll(
@@ -138,6 +139,16 @@ describe('ShellRail workspace entries', () => {
   });
 
   it('takes an item out of this rail once it is placed in another one', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideLayout({
+          regions: [
+            { id: 'activity', type: 'rail', dock: 'left' },
+            { id: 'activity-right', type: 'rail', dock: 'right' },
+          ],
+        }),
+      ],
+    });
     const fixture = setupWorkspaces('alpha', entry('a', 'alpha'));
     TestBed.inject(RailItemsService).place('a', 'activity-right');
     fixture.detectChanges();

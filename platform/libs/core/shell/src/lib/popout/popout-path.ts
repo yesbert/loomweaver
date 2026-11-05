@@ -5,6 +5,14 @@ import { viewIdOfPanePath, viewPanePath } from '../regions/pane/tree/pane-addres
 export const POPOUT_PREFIX = 'popout';
 
 const VIEW_SEGMENT = 'view/';
+const CONTENT_SEGMENT = '-/';
+
+function readsAsSomethingElse(contentPath: string): boolean {
+  return (
+    contentPath.startsWith(VIEW_SEGMENT) ||
+    contentPath.startsWith(CONTENT_SEGMENT)
+  );
+}
 
 function bare(url: string): string {
   return withoutTrailingSlashes(normalizePath(url));
@@ -20,6 +28,9 @@ export function popoutTargetFromUrl(url: string): string | null {
     return null;
   }
   const rest = bare(url).slice(POPOUT_PREFIX.length).replace(/^\/+/, '');
+  if (rest.startsWith(CONTENT_SEGMENT)) {
+    return rest.slice(CONTENT_SEGMENT.length);
+  }
   if (rest.startsWith(VIEW_SEGMENT)) {
     return viewPanePath(rest.slice(VIEW_SEGMENT.length));
   }
@@ -32,7 +43,10 @@ export function popoutUrlFor(paneTarget: string): string {
     return `/${POPOUT_PREFIX}/${VIEW_SEGMENT}${viewId}`;
   }
   const path = paneTarget.replace(/^\/+/, '');
-  return path === ''
-    ? `/${POPOUT_PREFIX}`
+  if (path === '') {
+    return `/${POPOUT_PREFIX}`;
+  }
+  return readsAsSomethingElse(path)
+    ? `/${POPOUT_PREFIX}/${CONTENT_SEGMENT}${path}`
     : `/${POPOUT_PREFIX}/${path}`;
 }

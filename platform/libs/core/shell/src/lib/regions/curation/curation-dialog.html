@@ -46,16 +46,18 @@
         <span class="min-w-0 flex-1 truncate text-sm">{{ row.label }}</span>
         <div class="lw-segmented shrink-0">
           @for (option of places(); track option.id) {
-            <button
-              type="button"
-              class="lw-segmented-item w-auto px-3 text-sm"
-              [attr.data-curation-place]="option.id"
-              [attr.aria-label]="row.label + ': ' + option.label"
-              [attr.aria-pressed]="row.place === option.id"
-              (click)="place(row, option.id)"
-            >
-              {{ option.label }}
-            </button>
+            @if (offered(row, option.id)) {
+              <button
+                type="button"
+                class="lw-segmented-item w-auto px-3 text-sm"
+                [attr.data-curation-place]="option.id"
+                [attr.aria-label]="row.label + ': ' + option.label"
+                [attr.aria-pressed]="row.place === option.id"
+                (click)="place(row, option.id)"
+              >
+                {{ option.label }}
+              </button>
+            }
           }
         </div>
       </li>

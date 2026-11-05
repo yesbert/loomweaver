@@ -10,6 +10,7 @@ import { PanelGroupService } from './panel-group.service';
 import { View } from '../../views/view';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
+import { FeatureSwitches } from '../../features/feature-switches.service';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -149,5 +150,54 @@ describe('ShellSidebarHeader moving a view with the keyboard', () => {
       'secondary',
     );
     expect(announce).toHaveBeenCalledTimes(1);
+  });
+
+  function moveRight(fixture: { nativeElement: HTMLElement }, path: string) {
+    fixture.nativeElement
+      .querySelector(`[data-tab-path="${CSS.escape(path)}"]`)
+      ?.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'ArrowRight',
+          altKey: true,
+          shiftKey: true,
+          bubbles: true,
+        }),
+      );
+  }
+
+  function renderWithParkedTab() {
+    const { fixture } = render();
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.insertTab('primary', paneTree.primaryId('primary'), 'doc/a');
+    fixture.detectChanges();
+    vi.spyOn(TestBed.inject(LiveAnnouncer), 'announce').mockResolvedValue();
+    return { fixture, paneTree };
+  }
+
+  it('leaves a parked tab where it is while parking a tab in a sidebar is switched off', () => {
+    const { fixture, paneTree } = renderWithParkedTab();
+    TestBed.inject(FeatureSwitches).update({ sidebar: { acceptTabs: false } });
+
+    moveRight(fixture, 'doc/a');
+
+    expect(paneTree.sourceOf('doc/a')?.dock).toBe('primary');
+  });
+
+  it('moves a parked tab to the other sidebar although moving a view is switched off', () => {
+    const { fixture, paneTree } = renderWithParkedTab();
+    TestBed.inject(FeatureSwitches).update({ sidebar: { moveViews: false } });
+
+    moveRight(fixture, 'doc/a');
+
+    expect(paneTree.sourceOf('doc/a')?.dock).toBe('secondary');
+  });
+
+  it('leaves a view where it is while moving a view is switched off', () => {
+    const { fixture, paneTree } = renderWithParkedTab();
+    TestBed.inject(FeatureSwitches).update({ sidebar: { moveViews: false } });
+
+    moveRight(fixture, 'view:nav');
+
+    expect(paneTree.sourceOf('view:nav')?.dock).toBe('primary');
   });
 });

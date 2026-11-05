@@ -11,14 +11,19 @@ import {
 import { ShellBar } from './regions/bar/shell-bar';
 import { ShellEdge } from './shell-edge';
 import { ShellPanel } from './regions/panel/shell-panel';
-import { ShellSidebarHeader } from './regions/panel/shell-sidebar-header';
+import {
+  ShellSidebarHeader,
+  sidebarStripId,
+} from './regions/panel/shell-sidebar-header';
 import { ContentGrid } from './regions/content/content-grid';
 import { ToastOutlet } from './notifications/toast-outlet';
 import { DRAW_TOASTS } from './notifications/toast-options';
 import { DialogOutlet } from './dialog/dialog-outlet';
+import { ModalSurfaceDirective } from './dialog/modal-surface.directive';
 import { ViewportService } from './layout/viewport.service';
 import { PanelState } from './regions/panel/panel-state';
 import { PopoutService } from './popout/popout.service';
+import { FeatureSwitches } from './features/feature-switches.service';
 import { hasContentRegion, regionsAt } from './layout/layout-queries';
 
 /** Layout host: renders the declared regions into the border topology. */
@@ -33,6 +38,7 @@ import { hasContentRegion, regionsAt } from './layout/layout-queries';
     ContentGrid,
     ToastOutlet,
     DialogOutlet,
+    ModalSurfaceDirective,
     TranslocoPipe,
     RouterOutlet,
   ],
@@ -46,6 +52,7 @@ export class Shell {
   protected readonly viewport = inject(ViewportService);
   protected readonly drawsToasts = inject(DRAW_TOASTS);
   protected readonly popout = inject(PopoutService);
+  private readonly features = inject(FeatureSwitches);
 
   protected readonly topBars = this.regionsAt('top', 'bar');
   protected readonly bottomBars = this.regionsAt('bottom', 'bar');
@@ -73,11 +80,20 @@ export class Shell {
       (this.leftFloating().length > 0 || this.rightFloating().length > 0),
   );
 
+  protected readonly behindDrawer = computed(() =>
+    this.viewport.compact() && this.panels.anyOverlayOpen() ? '' : null,
+  );
+
   protected skipToContent(event: Event): void {
     event.preventDefault();
     this.document
       .querySelector<HTMLElement>('#lw-main-content')
       ?.focus({ preventScroll: true });
+  }
+
+  protected activeTabOf(regionId: string): string {
+    const strip = CSS.escape(sidebarStripId(regionId));
+    return `lw-shell-edge #${strip} [role="tab"][aria-selected="true"]`;
   }
 
   protected isOverlayOpen(regionId: string): boolean {
@@ -93,7 +109,7 @@ export class Shell {
   }
 
   private floating(panels: LayoutRegion[]): LayoutRegion[] {
-    if (this.viewport.compact()) {
+    if (this.viewport.compact() || !this.features.sidebar.collapse()) {
       return [];
     }
     return panels.filter((panel) => this.panels.isCollapsed(panel.id));

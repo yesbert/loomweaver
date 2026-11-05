@@ -21,7 +21,11 @@ import {
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
 import { PanelState } from '../regions/panel/panel-state';
-import { ShellSidebarHeader } from '../regions/panel/shell-sidebar-header';
+import {
+  ShellSidebarHeader,
+  SidebarHeaderContext,
+} from '../regions/panel/shell-sidebar-header';
+import { SidebarService } from '../regions/panel/sidebar.service';
 import { FeatureSwitches } from './feature-switches.service';
 
 @Component({ selector: 'lw-stub', template: '' })
@@ -50,7 +54,7 @@ class CapturingCloseGuard {
   }
 }
 
-function renderSidebarHeader() {
+function renderSidebarHeader(context?: SidebarHeaderContext) {
   TestBed.configureTestingModule({
     imports: [
       ShellSidebarHeader,
@@ -80,6 +84,9 @@ function renderSidebarHeader() {
     type: 'panel',
     dock: 'left',
   });
+  if (context) {
+    fixture.componentRef.setInput('context', context);
+  }
   fixture.detectChanges();
   return fixture;
 }
@@ -118,6 +125,25 @@ describe('Switching off acts forward, not backward', () => {
     TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: true } });
     TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
     expect(panels.isCollapsed('primary')).toBe(true);
+  });
+
+  it('a collapsed sidebar offers no control to expand it, and the distribution still expands it from its own code', () => {
+    const fixture = renderSidebarHeader('floating');
+    const expand = () => {
+      fixture.detectChanges();
+      return fixture.nativeElement.querySelector('[aria-label="Expand"]');
+    };
+    TestBed.inject(SidebarService).collapse('primary');
+    expect(expand()).not.toBeNull();
+
+    TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
+
+    expect(expand()).toBeNull();
+    expect(TestBed.inject(PanelState).isCollapsed('primary')).toBe(true);
+
+    TestBed.inject(SidebarService).expand('primary');
+
+    expect(TestBed.inject(PanelState).isCollapsed('primary')).toBe(false);
   });
 });
 

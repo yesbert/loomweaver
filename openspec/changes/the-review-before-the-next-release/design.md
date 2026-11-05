@@ -34,6 +34,14 @@ belongs to the pane's body.
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the
 measurement, not growth, and the pull request says both numbers.
 
+**A change made before the store answered follows the shape of what is stored.** A view's state is
+one value, which a surface often writes at start-up before it has read, so a stored value wins over
+an early write; the early write is held like any other and only goes out if the store has not
+answered by then. Sidebar state, widths and the user's order are records of independent keys, so an
+early change is replayed on top of what the store held. Such a record is not written before the
+store answered the read, because writing it unread would drop every other key, which means a change
+made before a store that never answers is not stored.
+
 ## Risks
 
 - A fix in the pane tree or the address handling changes a path the end-to-end suite exercises and
@@ -61,3 +69,10 @@ removes an element there, so a mutation observer in the plugin's own script is c
 picture. No message reaches the frame. The drawing works by copying the frame's page inside the
 frame, so closing this means drawing a surface another way, or saying in the capability what a
 plugin can notice. The test is kept as a skipped test that states the guarantee.
+
+**A bar entry that shortens itself is measured at its shortened width.** An entry that shortens
+itself, the brand, is measured at the width it was shortened to, so the bar cuts the product's name
+before it folds a button. Shell-layout's folding requirement, read literally, asks for folding
+first, so that every entry left in the bar is shown at its natural width. Measuring at the natural
+width would fold buttons where the name is cut today, and could fold the brand itself as the last
+entry.

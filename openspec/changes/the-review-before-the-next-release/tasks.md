@@ -86,7 +86,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [ ] 4.6 A contributed translation bundle named like one of the shell's own groups does not replace that group; reported (`i18n/transloco-loader.ts`)
 - [ ] 4.7 A stored choice superseded by a declared start opens that workspace from its baseline at any address (`workspace/opening/workbench-opening.ts`)
 - [ ] 4.8 A stored active workspace nothing lists any more gives way to the starting one (`workspace/opening/workbench-opening.ts`)
-- [ ] 4.9 Sidebar state, widths, the user's order and view state survive a write made before an asynchronous store answered (`regions/panel/panel-state.ts`, `panel-size.service.ts`, `regions/reorder/user-order.service.ts`, `views/view-state.service.ts`)
+- [x] 4.9 Sidebar state, widths, the user's order and view state survive a write made before an asynchronous store answered (`regions/panel/panel-state.ts`, `panel-size.service.ts`, `regions/reorder/user-order.service.ts`, `views/view-state.service.ts`)
 - [ ] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs
 
 ## 5. Commands, menus, dialogs and the UI kit
@@ -116,14 +116,25 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 6. Bars, rails, sidebars and pop-outs
 
-- [ ] 6.1 A component in a bar is not rebuilt when a command, a bar entry or the session changes (`regions/bar/shell-bar.ts`, `shell-bar-item.ts`)
-- [ ] 6.2 With collapsing switched off, a collapsed sidebar offers no control to expand it (`regions/panel/shell-sidebar-header.ts`, `features/switching-off-acts-forward.spec.ts`)
-- [ ] 6.3 A content address beginning with `view` round-trips through a pop-out (`popout/popout-path.ts`)
-- [ ] 6.4 The compact drawer takes the focus, keeps it, closes on Escape and gives it back (`shell.ts`, `shell.html`)
-- [ ] 6.5 A rail entry stored on a rail that is no longer declared is drawn on a declared one (`regions/rail/rail-items.service.ts`)
-- [ ] 6.6 A width that is not a finite number is ignored (`regions/panel/panel-size.service.ts`)
-- [ ] 6.7 An entry's picture is tried again when its address changes (`regions/rail/shell-rail.ts`, `regions/bar/shell-bar-item.ts`)
-- [ ] 6.8 Leads, each verified first: a self-shortening bar entry measured at its shortened width; a bar button without label or tooltip named by nothing; a splitter drag started by any button and never ended; the curation list offering what is switched off; the keyboard move of a parked tab gated by the wrong switch
+- [x] 6.1 A component in a bar is not rebuilt when a command, a bar entry or the session changes (`regions/bar/shell-bar.ts`, `shell-bar-item.ts`)
+- [x] 6.2 With collapsing switched off, a collapsed sidebar offers no control to expand it (`regions/panel/shell-sidebar-header.ts`, `features/switching-off-acts-forward.spec.ts`)
+- [x] 6.3 A content address beginning with `view` round-trips through a pop-out (`popout/popout-path.ts`)
+- [x] 6.4 The compact drawer takes the focus, keeps it, closes on Escape and gives it back (`shell.ts`, `shell.html`)
+- [x] 6.5 A rail entry stored on a rail that is no longer declared is drawn on a declared one (`regions/rail/rail-items.service.ts`)
+- [x] 6.6 A width that is not a finite number is ignored (`regions/panel/panel-size.service.ts`)
+- [x] 6.7 An entry's picture is tried again when its address changes (`regions/rail/shell-rail.ts`, `regions/bar/shell-bar-item.ts`)
+- [x] 6.8 Leads, each verified first: a self-shortening bar entry measured at its shortened width (reproduced in a browser, not fixed: measuring at the natural width folds buttons where the product's name is cut today and would fold the name itself as the last entry, which is the owner's decision); a bar button without label or tooltip named by nothing (fixed: named by the command it runs); a splitter drag started by any button and never ended (fixed); the curation list offering what is switched off (fixed); the keyboard move of a parked tab gated by the wrong switch (fixed) The self-shortening entry measured at its shortened width is handed to the owner as a decision (see design.md).
+- [x] 6.9 A drawer that was open when the window became wide does not reopen by itself when the window narrows again (`regions/panel/panel-state.ts`)
+- [x] 6.10 Lead, verified first against gesture-configuration ("Switching off acts forward, not backward", the scenario of a collapsed sidebar staying collapsed) and the requirement on what the distribution's code may still do: with collapsing switched off, moving or revealing a view in a collapsed sidebar by a user's gesture does not expand it; the distribution's own call still does (`regions/panel/view-move.service.ts`, `regions/reveal/surface-reveal.service.ts`). Moving: fixed, a move or a view brought back into a collapsed sidebar leaves it collapsed while collapsing is switched off, and the sidebar service still expands it. Revealing: struck, the surfaces capability requires it ("a collapsed side panel SHALL be expanded" where a plugin brings a docked surface to the front), and a test pins that it holds with collapsing switched off
+- [x] 6.11 Clearing a view's state removes the stored value, so the old state does not return on reload (`views/view-state.service.ts`, `set(undefined)`)
+- [x] 6.12 An icon-only bar button that runs a command and has no tooltip of its own shows the command's title as its tooltip, the same source its name now comes from (`regions/bar/shell-bar-item.html`)
+- [x] 6.13 The keyboard reaches an isolated view in the compact drawer: Tab from the last control the drawer's header draws is left to the browser, since everything behind the drawer is inert (`dialog/modal-surface.directive.ts`)
+- [x] 6.14 A view's state written before an asynchronous store answered is held like any other held write: sent on leaving the page and within the bound, and cancelled only when the store answers first with a value, which then wins (`views/view-state.service.ts`)
+- [x] 6.15 Clearing a view's state before the store answered still clears it: the stored value does not come back when the answer arrives (`views/view-state.service.ts`)
+- [x] 6.16 The rule for a change made before a store answered is written down as a decision (`design.md`)
+- [x] 6.17 A width given as plus or minus infinity is brought into the usable range, only a value that is not a number is ignored, and an unchanged width writes nothing (`regions/panel/panel-size.service.ts`, `regions/panel/sidebar.service.ts`)
+- [x] 6.18 The distribution's own call to show a view in another sidebar expands a collapsed one also while collapsing is switched off; only a user's gesture leaves it collapsed (`regions/panel/sidebar.service.ts`, `regions/panel/view-visibility.service.ts`)
+- [x] 6.19 The drawer keeps or returns the focus in two more cases: opened while a menu holds the focus, the focus ends inside the drawer once the menu has closed; and when the window becomes wide while it is open, the focus goes back to the control that opened it or, if that is gone, to the sidebar (`dialog/modal-surface.directive.ts`, `dialog/modal-focus.ts`)
 
 ## 7. The agent connection
 

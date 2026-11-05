@@ -89,7 +89,10 @@ export class SidebarService {
     }
   }
 
-  /** Sets the panel's width, brought into the usable range and remembered like a released drag. */
+  /**
+   * Sets the panel's width, brought into the usable range and remembered like a released drag. A
+   * value that is not a number is ignored.
+   */
   setWidth(regionId: string, px: number): void {
     if (!this.declared(regionId)) {
       return;
@@ -103,12 +106,18 @@ export class SidebarService {
     this.visibility.hide(viewId);
   }
 
-  /** Shows a hidden view again, in the sidebar it was declared for or in the one named. */
+  /**
+   * Shows a hidden view again, in the sidebar it was declared for or in the one named. A view that
+   * is moved into a sidebar by this expands that sidebar where it is collapsed.
+   */
   showView(viewId: string, regionId?: string): void {
     if (regionId !== undefined && !this.declared(regionId)) {
       return;
     }
-    this.visibility.reveal(viewId, regionId);
+    const movedInto = this.visibility.reveal(viewId, regionId);
+    if (movedInto !== undefined && this.panels.isCollapsed(movedInto)) {
+      this.panels.expand(movedInto);
+    }
   }
 
   private declared(regionId: string): boolean {

@@ -5,6 +5,37 @@ import { provideWorkingStateStore } from '../persistence/working-state-store';
 
 const KEY = 'lw.shell.view-state:v1';
 
+class HandAnsweredStore implements KeyValueStore {
+  readonly written = new Map<string, string>();
+  readonly deleted: string[] = [];
+  private readonly waiting: ((raw: string | undefined) => void)[] = [];
+
+  get(): Promise<string | undefined> {
+    return new Promise((resolve) => {
+      this.waiting.push(resolve);
+    });
+  }
+
+  set(key: string, value: string): Promise<void> {
+    this.written.set(key, value);
+    return Promise.resolve();
+  }
+
+  delete(key: string): Promise<void> {
+    this.written.delete(key);
+    this.deleted.push(key);
+    return Promise.resolve();
+  }
+
+  async answer(raw: string | undefined): Promise<void> {
+    for (const resolve of this.waiting.splice(0)) {
+      resolve(raw);
+    }
+    await Promise.resolve();
+    await Promise.resolve();
+  }
+}
+
 describe('ViewStateService', () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.useRealTimers());
@@ -67,6 +98,33 @@ describe('ViewStateService', () => {
     handle.set({ sort: 'alpha' });
     service.reset('v1');
     globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
+  it('removes the stored value when the state is cleared, so the old state does not return on reload', () => {
+    vi.useFakeTimers();
+    const handle = TestBed.inject(ViewStateService).handle('v1');
+    handle.set({ sort: 'alpha' });
+    vi.advanceTimersByTime(400);
+    expect(localStorage.getItem(KEY)).not.toBeNull();
+
+    handle.set(undefined);
+
+    expect(localStorage.getItem(KEY)).toBeNull();
+    TestBed.resetTestingModule();
+    expect(
+      TestBed.inject(ViewStateService).handle('v1').value(),
+    ).toBeUndefined();
+  });
+
+  it('stores nothing when the state is cleared before a held write went out', () => {
+    vi.useFakeTimers();
+    const handle = TestBed.inject(ViewStateService).handle('v1');
+
+    handle.set({ sort: 'alpha' });
+    handle.set(undefined);
+    vi.advanceTimersByTime(2000);
 
     expect(localStorage.getItem(KEY)).toBeNull();
   });
@@ -144,5 +202,113 @@ describe('ViewStateService', () => {
 
     await Promise.resolve();
     expect(handle.value()).toEqual({ sort: 'alpha' });
+  });
+});
+
+describe('ViewStateService on a store that answers later', () => {
+  afterEach(() => vi.useRealTimers());
+
+  function handleOn(store: HandAnsweredStore) {
+    vi.useFakeTimers();
+    TestBed.configureTestingModule({
+      providers: [provideWorkingStateStore(store)],
+    });
+    return TestBed.inject(ViewStateService).handle('v1');
+  }
+
+  it('shows what the store held and never overwrites it with a write made before it answered', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set({ sort: 'default' });
+    vi.advanceTimersByTime(300);
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
+    vi.advanceTimersByTime(2000);
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(handle.value()).toEqual({ sort: 'alpha' });
+    expect(store.written.has(KEY)).toBe(false);
+  });
+
+  it('sends a write made before the store answered when the page goes away', () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set({ sort: 'recent' });
+    globalThis.dispatchEvent(new Event('pagehide'));
+
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+  });
+
+  it('sends a write made before the store answered after the quiet time, and keeps it when the answer comes later', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set({ sort: 'recent' });
+    vi.advanceTimersByTime(400);
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
+
+    expect(handle.value()).toEqual({ sort: 'recent' });
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+  });
+
+  it('sends the latest of writes that keep coming before the store answered within two seconds', () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    for (let step = 0; step < 7; step += 1) {
+      handle.set({ step });
+      vi.advanceTimersByTime(300);
+    }
+
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ step: 6 }));
+  });
+
+  it('stays cleared when the state is cleared before the store answered with what it held', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set(undefined);
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
+    vi.advanceTimersByTime(2000);
+
+    expect(handle.value()).toBeUndefined();
+    expect(store.deleted).toEqual([KEY]);
+    expect(store.written.has(KEY)).toBe(false);
+  });
+
+  it('keeps and stores a write made before the store answered that it held nothing', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    handle.set({ sort: 'default' });
+    await store.answer(undefined);
+    vi.advanceTimersByTime(400);
+
+    expect(handle.value()).toEqual({ sort: 'default' });
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'default' }));
+  });
+
+  it('stores a write made after the store answered, over what it held', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
+
+    handle.set({ sort: 'recent' });
+    vi.advanceTimersByTime(400);
+
+    expect(handle.value()).toEqual({ sort: 'recent' });
+    expect(store.written.get(KEY)).toBe(JSON.stringify({ sort: 'recent' }));
+  });
+
+  it('stays reset when the store answers afterwards with what it held before', async () => {
+    const store = new HandAnsweredStore();
+    const handle = handleOn(store);
+
+    TestBed.inject(ViewStateService).reset('v1');
+    await store.answer(JSON.stringify({ sort: 'alpha' }));
+
+    expect(handle.value()).toBeUndefined();
   });
 });

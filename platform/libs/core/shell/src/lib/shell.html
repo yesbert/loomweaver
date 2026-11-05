@@ -9,6 +9,7 @@
     @if (hasContent) {
       <a
         href="#lw-main-content"
+        [attr.inert]="behindDrawer()"
         (click)="skipToContent($event)"
         class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:rounded-md focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-content focus:shadow-lg focus:outline focus:outline-2 focus:outline-brand"
       >
@@ -17,10 +18,13 @@
     }
     <div class="relative flex flex-1 overflow-hidden">
       @if (leftRails.length || leftPanels.length) {
-        <lw-shell-edge side="left" />
+        <lw-shell-edge side="left" [attr.inert]="behindDrawer()" />
       }
 
-      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div
+        class="flex min-w-0 flex-1 flex-col overflow-hidden"
+        [attr.inert]="behindDrawer()"
+      >
         <div
           class="flex"
           [attr.role]="hasTopRow() ? 'banner' : null"
@@ -49,7 +53,7 @@
       </div>
 
       @if (rightRails.length || rightPanels.length) {
-        <lw-shell-edge side="right" />
+        <lw-shell-edge side="right" [attr.inert]="behindDrawer()" />
       }
 
       @if (viewport.compact()) {
@@ -60,7 +64,7 @@
           [class.opacity-0]="!anyOverlayOpen()"
           [attr.aria-hidden]="!anyOverlayOpen()"
           [attr.aria-label]="'panel.close' | transloco"
-          [attr.tabindex]="anyOverlayOpen() ? 0 : -1"
+          tabindex="-1"
           (click)="closeOverlay()"
         ></button>
 
@@ -78,7 +82,10 @@
     </div>
 
     @if (bottomBars.length) {
-      <footer [attr.aria-label]="'landmark.statusBar' | transloco">
+      <footer
+        [attr.aria-label]="'landmark.statusBar' | transloco"
+        [attr.inert]="behindDrawer()"
+      >
         @for (region of bottomBars; track region.id) {
           <lw-shell-bar [region]="region" />
         }
@@ -93,6 +100,9 @@
 
 <ng-template #drawer let-panel let-side="side">
   <aside
+    [lwModalSurface]="isOverlayOpen(panel.id)"
+    [whereFocusGoesWithoutOpener]="activeTabOf(panel.id)"
+    (dismissed)="closeOverlay()"
     class="absolute inset-y-0 z-50 flex flex-col overflow-hidden shadow-xl transition duration-300 ease-out will-change-transform"
     [class.left-0]="side === 'left'"
     [class.right-0]="side === 'right'"

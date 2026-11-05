@@ -68,15 +68,21 @@ export interface SidebarFeatures {
   readonly resize: boolean;
   /** Reordering view tabs **within** one panel, by drag or `Alt+Arrow`. */
   readonly reorderViews: boolean;
-  /** Moving a view to the other sidebar: the menu entry, the drag and `Alt+Shift+Arrow`. */
+  /**
+   * Moving a view to the other sidebar: the menu entry, the drag, `Alt+Shift+Arrow` and the other
+   * side in the checklist.
+   */
   readonly moveViews: boolean;
-  /** Hiding a view from this workspace (menu entry). */
+  /** Hiding a view from this workspace: the menu entry and the checklist's hidden place. */
   readonly hideViews: boolean;
   /** The checklist on the icon strip that says which views live here. */
   readonly curate: boolean;
   /** Stacking a second view below the first: the menu entry and the drop edges of a panel. */
   readonly stackViews: boolean;
-  /** Parking a foreign tab in a sidebar, by dragging it onto the strip or a drop edge. */
+  /**
+   * Parking a foreign tab in a sidebar, by dragging it onto the strip or a drop edge, and moving a
+   * parked tab to the other sidebar with `Alt+Shift+Arrow`.
+   */
   readonly acceptTabs: boolean;
   /** Opening a docked view in the content area (menu entry). */
   readonly openViewInContent: boolean;
@@ -90,9 +96,12 @@ export interface SidebarFeatures {
 export interface RailFeatures {
   /** Reordering rail items **within** their band, by drag or `Alt+Arrow`. */
   readonly reorder: boolean;
-  /** Moving an item to the other rail: the menu entry, the drag and `Alt+Shift+Arrow`. */
+  /**
+   * Moving an item to the other rail: the menu entry, the drag, `Alt+Shift+Arrow` and the other
+   * side in the checklist.
+   */
   readonly moveItems: boolean;
-  /** Hiding a rail item (menu entry). */
+  /** Hiding a rail item: the menu entry and the checklist's hidden place. */
   readonly hideItems: boolean;
   /** The checklist on empty rail space that says which items live here. */
   readonly curate: boolean;

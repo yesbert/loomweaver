@@ -135,7 +135,9 @@ export class ShellRail {
     return [...top, ...bottom];
   });
 
-  private readonly brokenPictures = signal<ReadonlySet<string>>(new Set());
+  private readonly brokenPictures = signal<ReadonlyMap<string, string>>(
+    new Map(),
+  );
 
   protected readonly enterPredicate = (
     _drag: CdkDrag<string>,
@@ -146,7 +148,9 @@ export class ShellRail {
       : this.features.moveItems();
 
   protected pictureOf(item: RailItem): string | undefined {
-    return this.brokenPictures().has(item.id) ? undefined : item.image;
+    return this.brokenPictures().get(item.id) === item.image
+      ? undefined
+      : item.image;
   }
 
   protected nameOf(item: RailItem, title: string): string {
@@ -154,7 +158,12 @@ export class ShellRail {
   }
 
   protected onPictureError(item: RailItem): void {
-    this.brokenPictures.update((broken) => new Set(broken).add(item.id));
+    const address = item.image;
+    if (address) {
+      this.brokenPictures.update((broken) =>
+        new Map(broken).set(item.id, address),
+      );
+    }
   }
 
   protected isDisabled(item: RailItem): boolean {

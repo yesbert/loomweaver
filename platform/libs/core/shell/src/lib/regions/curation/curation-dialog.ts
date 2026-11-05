@@ -7,7 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { CurationRow, CurationSource, HIDDEN } from './curation-source';
+import {
+  CurationRow,
+  CurationSource,
+  HIDDEN,
+  placeOffered,
+} from './curation-source';
 import { RailCuration } from './rail-curation';
 import { ViewCuration } from './view-curation';
 
@@ -85,8 +90,12 @@ export class CurationDialog {
       : all;
   });
 
+  protected offered(row: CurationRow, place: string): boolean {
+    return placeOffered(this.source, row, place);
+  }
+
   protected place(row: CurationRow, place: string): void {
-    if (place !== row.place) {
+    if (place !== row.place && this.offered(row, place)) {
       this.source.place(row, place);
     }
   }

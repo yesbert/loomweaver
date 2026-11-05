@@ -44,14 +44,17 @@ describe('PanelSplitter', () => {
 
   function pointer(
     type: string,
-    props: { clientX?: number; pointerId?: number },
+    props: { clientX?: number; pointerId?: number; button?: number },
   ): Event {
     const handle = fixture.nativeElement.querySelector(
       '[role="separator"]',
     ) as HTMLElement;
     handle.setPointerCapture = () => undefined;
     handle.releasePointerCapture = () => undefined;
-    const event = Object.assign(new Event(type, { bubbles: true }), props);
+    const event = Object.assign(new Event(type, { bubbles: true }), {
+      button: 0,
+      ...props,
+    });
     handle.dispatchEvent(event);
     return event;
   }
@@ -166,6 +169,31 @@ describe('PanelSplitter', () => {
     fixture.destroy();
 
     expect(size.isResizing()).toBe(false);
+    expect(localStorage.getItem('lw.shell.panel-sizes')).toContain(
+      String(DEFAULT_PANEL_WIDTH + 40),
+    );
+  });
+
+  it('starts no drag from a button other than the main one', () => {
+    render('left');
+
+    pointer('pointerdown', { clientX: 100, pointerId: 1, button: 2 });
+    pointer('pointermove', { clientX: 140, pointerId: 1 });
+
+    expect(size.isResizing()).toBe(false);
+    expect(size.width('primary')).toBe(DEFAULT_PANEL_WIDTH);
+  });
+
+  it('ends a drag whose pointer is taken away without a release, and keeps the width reached', () => {
+    render('left');
+    pointer('pointerdown', { clientX: 100, pointerId: 1 });
+    pointer('pointermove', { clientX: 140, pointerId: 1 });
+
+    pointer('lostpointercapture', { pointerId: 1 });
+    pointer('pointermove', { clientX: 300, pointerId: 1 });
+
+    expect(size.isResizing()).toBe(false);
+    expect(size.width('primary')).toBe(DEFAULT_PANEL_WIDTH + 40);
     expect(localStorage.getItem('lw.shell.panel-sizes')).toContain(
       String(DEFAULT_PANEL_WIDTH + 40),
     );
