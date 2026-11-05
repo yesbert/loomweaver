@@ -127,6 +127,15 @@ and `stateWatch` / `stateSet` / `stateClear` / `stateUnwatch` for [plugin state]
 Every call runs through the same default-deny
 capability broker as a trusted plugin. An ungranted capability rejects, so `.catch` and degrade.
 
+**A sandboxed plugin replaces only its own contributions.** Registering a surface, a menu entry or a
+settings section again under an id you registered before replaces your earlier one. An id or a route
+address another owner holds is refused, and the console names both plugins. Prefix your ids with your
+plugin id and the question never comes up.
+
+**The entry document has 30 seconds to connect.** A frame that has not connected by then is removed,
+and the console reports the failure. The workbench tries it again when its catalogue entry changes or
+when the user switches the plugin off and on.
+
 **A sandboxed plugin's toasts are bounded.** A toast always leaves by itself, after 15 seconds at the
 latest: `timeoutMs: 0`, a longer lifetime and an `error` without one are all shortened to that. The
 plugin holds at most three toasts at once, shown and waiting together, and a further `toast` call

@@ -958,6 +958,55 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     expect(document.querySelector('iframe')).toBeNull();
   });
 
+  it('a frame plugin whose connection failed is started again only when its entry changes or it is switched on again', async () => {
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const { runtime } = setup();
+    runtime.activateAll();
+    connectMock.mockImplementation(() =>
+      connectionFor(Promise.reject(new Error('bad entry'))),
+    );
+    const install = TestBed.inject(PluginInstallService);
+    const enablement = TestBed.inject(PluginEnablementService);
+    const failing = {
+      id: 'p2',
+      name: 'Failing',
+      entryUrl: '/p2/plugin.html',
+      capabilities: ['contributions'] as const,
+    };
+    const settle = async () => {
+      TestBed.tick();
+      await Promise.resolve();
+      await Promise.resolve();
+    };
+    install.install({ ...failing, version: '1.0.0' });
+    await settle();
+    expect(connectMock).toHaveBeenCalledTimes(2);
+
+    install.install({
+      id: 'p3',
+      name: 'Another',
+      entryUrl: '/p3/plugin.html',
+    });
+    await settle();
+    expect(connectMock).toHaveBeenCalledTimes(3);
+    expect(
+      error.mock.calls.filter(([said]) => String(said).includes('"p2"')),
+    ).toHaveLength(1);
+
+    enablement.setEnabled('p2', false);
+    await settle();
+    enablement.setEnabled('p2', true);
+    await settle();
+    expect(connectMock).toHaveBeenCalledTimes(4);
+
+    install.update({ ...failing, version: '1.1.0' });
+    await settle();
+    expect(connectMock).toHaveBeenCalledTimes(5);
+    error.mockRestore();
+  });
+
   it('reports and cleans up a failed handshake', async () => {
     const error = vi
       .spyOn(console, 'error')

@@ -61,7 +61,8 @@ The host's menu on a rail entry, and the same slot for an entry that declares a 
 the host's _Hide_ is added to it rather than replacing it.
 
 A menu item may carry its own optional `id`: re-registering that id **replaces** the entry (last-in wins),
-the same rule as every other contribution. The built-in entries use `menu:<commandId>` ids
+the same rule as every other contribution. A sandboxed plugin replaces only its own entries: an `id`
+another owner holds is refused and reported. The built-in entries use `menu:<commandId>` ids
 (e.g. `menu:shell.tab.closeAll`), so a distribution can hide or swap a standard entry.
 [Building a distribution](../building-a-distribution.md) shows how. Without an `id` your item is
 purely additive.

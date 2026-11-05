@@ -6,6 +6,8 @@ import {
 } from '../../contributions/contribution-registry';
 import { ownerName } from '../../contributions/toolbar-registry';
 import { segmentsOf } from '../../regions/content/content-path';
+import { SettingsSection } from '../../settings-dialog/settings-model';
+import { SettingsRegistry } from '../../settings-dialog/settings-registry';
 import { collidingParam } from '../../regions/content/tabs/tab-address';
 
 export function followConflictMessage(
@@ -84,6 +86,21 @@ export function menuItemHolderMessage(
   return held
     ? replacingRefused(`Menu entry "${item.id}"`, held.ownerId, pluginId)
     : null;
+}
+
+export function settingsSectionHolderMessage(
+  registry: SettingsRegistry,
+  pluginId: string,
+  section: SettingsSection,
+): string | null {
+  const holderId = untracked(() =>
+    registry.registered().some((held) => held.id === section.id)
+      ? registry.ownerOf(section.id)
+      : pluginId,
+  );
+  return holderId === pluginId
+    ? null
+    : replacingRefused(`Settings section "${section.id}"`, holderId, pluginId);
 }
 
 function addressOf(path: string): string {

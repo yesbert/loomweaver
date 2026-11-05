@@ -14,6 +14,10 @@ distribution can:
 - **Hide** a default: `provideShell({ omit: ['shell.language'] })`.
 - **Move** a default: re-register it with the same id at the new spot.
 
+Replacing is open to your own code, which is the distribution and the plugins it runs in the page. A
+frame plugin replaces only what it registered itself, as
+[Contribution ids and collisions](../plugins.md#contribution-ids-and-collisions) describes.
+
 Replace and move use the same mechanism, and a distribution does it **without a plugin**: the
 `provideViews` / `provideRailItems` / `provideBarItems` providers register chrome directly (see
 [Contributing chrome without a plugin](../distribution-api/composition.md#do-it)). A product that

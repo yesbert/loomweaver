@@ -107,6 +107,8 @@ export class FramePluginRuntime {
 
   private readonly listed = new Set<string>();
 
+  private readonly failed = new Map<string, string>();
+
   private started = false;
 
   activateAll(): void {
@@ -177,8 +179,13 @@ export class FramePluginRuntime {
     for (const plugin of runnable) {
       const enabled = !disabled.has(plugin.id);
       const running = this.instances.get(plugin.id);
+      if (!enabled) {
+        this.failed.delete(plugin.id);
+      }
       if (enabled && !running) {
-        this.activate(plugin);
+        if (this.failed.get(plugin.id) !== signatureOf(plugin)) {
+          this.activate(plugin);
+        }
       } else if (!enabled && running) {
         this.deactivate(plugin.id);
       } else if (enabled && running?.signature !== signatureOf(plugin)) {
@@ -198,6 +205,7 @@ export class FramePluginRuntime {
       this.deactivate(id);
       this.enablement.unregister(id);
       this.isolation.unregister(id);
+      this.failed.delete(id);
       this.listed.delete(id);
     }
   }
@@ -217,6 +225,7 @@ export class FramePluginRuntime {
   }
 
   private activate(plugin: RunnableFramePlugin): void {
+    this.failed.delete(plugin.id);
     this.grants.register(plugin.id, plugin.capabilities, plugin.granted);
     const ctx = this.factory.create(
       plugin.id,
@@ -246,6 +255,7 @@ export class FramePluginRuntime {
       }
 
       console.error(`Sandbox plugin "${plugin.id}" failed to connect`, error);
+      this.failed.set(plugin.id, instance.signature);
       this.deactivate(plugin.id);
     });
   }

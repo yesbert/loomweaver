@@ -8,7 +8,10 @@ import { VIEW_PANE_PREFIX } from '../../regions/pane/tree/pane-address';
 import { ALL, DummyComponent, makeContext } from './host-context-harness';
 import { resolveIcon } from '../../elements/icon/icon-registry';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { surfaceBadge } from '../../regions/pane/chrome/tab-label';
+import {
+  paneLabelOf,
+  surfaceBadge,
+} from '../../regions/pane/chrome/tab-label';
 
 function shareAnIdWithAnotherPlugin(
   ctx: HostPluginContext,
@@ -194,6 +197,25 @@ describe('HostPluginContext', () => {
       expect(view.title).toBe('nav.second');
       expect(view.icon).toBe('navigator');
       expect(registry.views()).toHaveLength(1);
+    });
+
+    it('changes the title the route and the tab of a routable surface show', () => {
+      const { ctx, registry } = makeContext();
+      ctx.registerSurface({
+        id: 'reports',
+        title: 'reports.first',
+        routable: { path: 'reports' },
+        component: DummyComponent,
+      });
+      const before = registry.contentRoutes()[0];
+
+      ctx.retitleSurface('reports', 'reports.second');
+
+      const route = registry.contentRoutes()[0];
+      expect(route.title).toBe('reports.second');
+      expect(paneLabelOf(registry, 'reports').title).toBe('reports.second');
+      expect(route.component).toBe(before.component);
+      expect(registry.contentRoutes()).toHaveLength(1);
     });
 
     it('leaves an id nothing was registered under alone', () => {

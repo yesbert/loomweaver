@@ -112,9 +112,10 @@ export function contentRouteToEntry(
 ): RegisteredSurface {
   return {
     id: route.id,
+    title: route.title,
     actions: route.actions,
     ...commonSurfaceFields(route),
-    routable: routableFields(route),
+    routable: { ...routableFields(route), title: undefined },
     pluginId,
     ...presentationOf(route),
   } as RegisteredSurface;

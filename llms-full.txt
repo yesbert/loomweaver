@@ -33,6 +33,10 @@
   user-local (the settings store) and take effect at once; a revocation throws `CapabilityError` on the plugin's
   next call (surfaced as a warning toast, not a silent failure). The user can only narrow, never widen; the
   settings surface stays reachable via `shell.openSettings` so revoking never locks the user out.
+  A plugin the operator DEPLOYED gets no switches, and a disabling or a revocation stored while the same id was
+  the user's own is not honoured for it. With a settings store that answers only asynchronously (no `peek`), the
+  plugins a user can switch off start once it has answered (a rejected read counts as an answer), so one the user
+  turned off is never started first; `provideRequiredPlugins` plugins and deployed plugins start at once.
 - **Packages**: npm `@loomweaver/plugin-sdk`, `@loomweaver/shell`, `@loomweaver/mcp` (AI-scaffolding MCP server), `@loomweaver/cli` (scaffolding CLI), `@loomweaver/devkit` (Nx generator collection), `@loomweaver/frame-kit` (static UI assets for sandboxed plugins), `@loomweaver/ag-ui` (AG-UI adapter: the workbench's own commands offered to an agent as tools, headless — no transport/UI/agent; its stability follows AG-UI, not the platform) — seven npm packages, one shared version. The platform ships **no server package**; the backend is the product's.
 
 ## The plugin contract (`@loomweaver/plugin-sdk`) — complete
@@ -643,6 +647,10 @@ type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; ab
 // OVERRIDE (re-registering to replace, last-in wins) keys by `id` for every kind EXCEPT content routes,
 // which key by `path` (contribution-registry: addContentRoute matches on route.path). So re-registering a
 // surface with an existing route *id* does NOT override — it adds a second route; use the same `path`.
+// Replacing is for the application's OWN code (the distribution and the plugins it runs in the page). A FRAME plugin
+// (composed, deployed or installed) replaces only what it registered itself: its surface under an id or a route
+// address another owner holds, its menu entry or its settings section under an id another owner holds is REFUSED
+// and reported in the console, naming the plugin that asked and the owner that holds it.
 // CONTENT ROUTES need the `route:` PREFIX + the SURFACE ID: 'route:<surfaceId>' drops a routable
 // surface's route — gone from the tab strip, the pane target picker and the deep-link auto-open; its URL
 // renders the host's neutral "not available" placeholder instead of falling back to home (the placeholder
@@ -726,8 +734,12 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // the user's consent replaces the provideCapabilityGrants map (which keeps governing composed plugins). Installed
 // plugins appear in the Permissions settings (same revoke switches + on/off toggle); install spawns live, uninstall
 // unloads live; the installed set persists through the settings store (user-local by default, product-backable). An
-// installed id can NEVER shadow a composed plugin. Curation happens BEFORE the frontend: not in the catalogue = does
-// not exist; per-tenant curation = the product backend answers the catalogue request tenant-dependently.
+// installed id can NEVER shadow a composed plugin, trusted or frame. Curation happens BEFORE the frontend: not in the
+// catalogue = does not exist; per-tenant curation = the product backend answers the catalogue request
+// tenant-dependently. A custom PluginCatalog's answer is read as defensively as the JSON document. Uninstalling drops
+// the plugin's switch-off and its capability revocations, so a reinstall starts enabled and holds what its consent
+// shows. A frame that does not connect within 30 seconds is removed and reported; it is tried again when its entry
+// changes or the user switches it off and on.
 // UPDATES ride on the catalogue `version`: a STRICTLY newer version (compared segment-wise, numerically) shows an
 // "Update available" badge + an "Update to vX.Y.Z" button; pressing it swaps the persisted entry and RESPAWNS the
 // plugin live. A version declaring capabilities the user never consented to re-asks consent listing only the ADDED

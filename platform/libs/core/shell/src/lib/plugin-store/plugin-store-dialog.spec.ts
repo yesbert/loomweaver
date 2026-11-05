@@ -9,6 +9,7 @@ import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { DialogService } from '../dialog/dialog.service';
 import { SettingsService } from '../settings-dialog/settings.service';
+import { SettingsRegistry } from '../settings-dialog/settings-registry';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
@@ -144,12 +145,15 @@ describe('PluginStoreDialog', () => {
     const installs = TestBed.inject(PluginInstallService);
     const enablement = TestBed.inject(PluginEnablementService);
     installs.install(DEMO);
-    TestBed.inject(SettingsService).register({
-      id: 'store-full.prefs',
-      title: 'Store demo',
-      group: 'settings.group.community',
-      rows: [],
-    });
+    TestBed.inject(SettingsRegistry).register(
+      {
+        id: 'store-full.prefs',
+        title: 'Store demo',
+        group: 'settings.group.community',
+        rows: [],
+      },
+      'store-full',
+    );
     const openSettings = vi
       .spyOn(TestBed.inject(SettingsService), 'open')
       .mockReturnValue(new DialogRef());
@@ -227,12 +231,15 @@ describe('PluginStoreDialog', () => {
     TestBed.inject(PluginDeploymentService).adopt([
       { ...DEMO, deployed: true },
     ]);
-    TestBed.inject(SettingsService).register({
-      id: 'store-full.prefs',
-      title: 'Store demo',
-      group: 'settings.group.plugins',
-      rows: [],
-    });
+    TestBed.inject(SettingsRegistry).register(
+      {
+        id: 'store-full.prefs',
+        title: 'Store demo',
+        group: 'settings.group.plugins',
+        rows: [],
+      },
+      'store-full',
+    );
     const openSettings = vi
       .spyOn(TestBed.inject(SettingsService), 'open')
       .mockReturnValue(new DialogRef());

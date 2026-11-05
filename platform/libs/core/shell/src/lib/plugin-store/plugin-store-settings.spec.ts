@@ -6,6 +6,7 @@ import { PluginInstallService } from './lifecycle/plugin-install.service';
 import { PluginDeploymentService } from './lifecycle/plugin-deployment.service';
 import { PluginStoreService } from './plugin-store.service';
 import { DialogService } from '../dialog/dialog.service';
+import { SettingsRegistry } from '../settings-dialog/settings-registry';
 
 function transloco() {
   return TranslocoTestingModule.forRoot({
@@ -102,6 +103,36 @@ describe('PluginStoreSettings', () => {
       host.querySelector('[data-testid="store-installed-store.sample"]'),
     ).toBeNull();
     expect(host.textContent).toContain('No plugins match');
+  });
+
+  it("offers the way to a plugin's settings only for the plugin that contributed them", async () => {
+    const { fixture, host } = render();
+    const installs = TestBed.inject(PluginInstallService);
+    installs.install({ id: 'acme', name: 'Acme', entryUrl: '/acme/plugin.html' });
+    installs.install({
+      id: 'acme.tools',
+      name: 'Acme tools',
+      entryUrl: '/acme-tools/plugin.html',
+    });
+    TestBed.inject(SettingsRegistry).register(
+      {
+        id: 'acme.tools.general',
+        title: 'General',
+        group: 'settings.group.community',
+        rows: [],
+      },
+      'acme.tools',
+    );
+    fixture.detectChanges();
+    await settle();
+    fixture.detectChanges();
+
+    expect(
+      host.querySelector('[data-testid="store-settings-acme"]'),
+    ).toBeNull();
+    expect(
+      host.querySelector('[data-testid="store-settings-acme.tools"]'),
+    ).not.toBeNull();
   });
 
   it('lists a deployed plugin as provided, without a way to turn it off or remove it', async () => {

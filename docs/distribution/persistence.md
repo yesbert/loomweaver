@@ -70,6 +70,12 @@ as "no value" everywhere it reads: the setting falls back to its default instead
 rejection. The user silently loses that setting, so a store that answers `undefined` on an expected miss
 and rejects only on real faults still gives you the better signal.
 
+**Switchable plugins wait for the settings store.** With a `peek`-less store the list of plugins the
+user turned off loads asynchronously. Every plugin a user can switch off therefore starts once that
+read has answered, and a rejected read counts as an answer. A plugin named in
+`provideRequiredPlugins` and a plugin the operator deployed start at once, so declare what your first
+paint needs as required.
+
 **The boot never overwrites your saved layout.** With a `peek`-less store the pane tree
 (`lw.shell.pane-trees:<workspaceId>`) loads asynchronously, so the shell holds back every layout write until that load
 resolves. A tab auto-opened by the boot navigation cannot persist a half-empty tree over the real

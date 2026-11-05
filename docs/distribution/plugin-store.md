@@ -160,7 +160,21 @@ copy its files into your own origin_. That copy is the integrity boundary. Entri
 defensively (junk shapes, foreign-origin URLs and unknown capability names are dropped), an installed
 id can never shadow a composed plugin, and the persisted install set is re-validated on every load.
 Per-tenant curation = your backend answering the catalogue request tenant-dependently; for a non-JSON
-source, provide your own `PluginCatalog` implementation instead of a URL.
+source, provide your own `PluginCatalog` implementation instead of a URL. What your implementation
+answers is read exactly as defensively as the JSON document.
+
+A plugin from the catalogue runs in a frame, so it replaces only what it registered itself. A route
+address, a view, a menu entry or a settings section another owner holds stays with that owner
+([Contribution ids and collisions](../plugins.md#contribution-ids-and-collisions)).
+
+A deployed plugin runs with exactly what its entry names. A disabling or a capability revocation the
+user stored while the same id was their own is not honoured for it.
+
+A frame that does not connect within 30 seconds is removed and reported in the console. It is tried
+again when its entry changes or when the user switches it off and on, and not before.
+
+With a settings store that answers only asynchronously, installed plugins start once it has answered,
+because only then is it known which of them the user turned off. Deployed plugins do not wait.
 
 ## Where next
 

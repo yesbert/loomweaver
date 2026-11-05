@@ -15,11 +15,16 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 1.7 Retitling a surface, updating its action or its badge reaches only the caller's own surface of that id (`plugin/context/plugin-surface-ownership.ts`, `contributions/contribution-registry.ts`)
 - [x] 1.8 A switched-off or failed frame plugin is described at the rung it runs at, not as trusted (`plugin-isolation/plugin-isolation-level.service.ts`, `plugin/enablement/permissions-settings.spec.ts`)
 - [x] 1.9 A menu heading's picture address from a frame is held to the same schemes as every other address from a frame (`plugin/frame/rpc/sanitize-inputs.ts`)
-- [ ] 1.10 A frame settings section's id cannot collide across plugin ids that contain dots, and the store's settings link matches the plugin exactly (`plugin/frame/frame-settings-section.ts`, `plugin-store/installed-plugin-list.ts`)
+- [x] 1.10 A frame settings section's id cannot collide across plugin ids that contain dots, and the store's settings link matches the plugin exactly (`plugin/frame/frame-settings-section.ts`, `plugin-store/installed-plugin-list.ts`)
 - [x] 1.11 Uninstalling a plugin removes its stored switched-off flag, so a reinstall starts enabled (`plugin-store/lifecycle/`)
 - [x] 1.12 A facade a plugin kept (`host`, `session`, `activeContent`) refuses after its capability is revoked (`plugin/context/host-plugin-context.ts`)
 - [x] 1.13 With a settings store that answers only asynchronously, a plugin the user switched off is not activated before the answer (`plugin/enablement/`)
 - [x] 1.14 A catalogue entry's name and description are shown as plain text in the consent, not rendered (`plugin-store/lifecycle/plugin-store-consent.ts`)
+- [x] 1.15 Retitling a routable surface registered through the context changes the title its tab and route show (`contributions/surface-normalize.ts`)
+- [x] 1.16 Where two owners hold a surface of the same id, the toolbar reads the actions and the owner of the surface it is drawn for, not of the first match (`contributions/contribution-registry.ts`, `regions/toolbar/toolbar-slots.service.ts`)
+- [x] 1.17 Uninstalling a plugin removes its stored capability revocations, so a reinstall holds what its consent showed (`plugin-store/lifecycle/plugin-install.service.ts`)
+- [x] 1.18 A frame plugin whose connection failed is not started again on every later reconcile: it is retried when its entry changes or the user switches it on again, and stays reported until then (`plugin/frame/frame-plugin-runtime.ts`)
+- [x] 1.19 The guides say what the code now does: replacing by re-registering an id names the limit for a plugin outside the application's own code; the pages on the plugin store and permissions state the deployed plugin's stored revocation, the connection time limit and the start after an asynchronous settings store has answered (`docs/`, `llms-full.txt`, `skills/`)
 
 ## 2. Unsaved work and panes
 

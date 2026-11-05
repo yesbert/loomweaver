@@ -37,7 +37,7 @@ import {
 import { LeftOutChildren } from '../../regions/pane/container/left-out-children';
 import { normalizePath } from '../../regions/content/content-path';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
-import { SettingsService } from '../../settings-dialog/settings.service';
+import { SettingsRegistry } from '../../settings-dialog/settings-registry';
 import { SettingsSection } from '../../settings-dialog/settings-model';
 import { PluginIconContributions } from '../../elements/icon/plugin-icon-contributions';
 import { ThemeRegistry } from '../../theme/theme-registry';
@@ -63,6 +63,7 @@ import {
   broadPrefixReason,
   followConflictMessage,
   menuItemHolderMessage,
+  settingsSectionHolderMessage,
   surfaceHolderMessage,
 } from './surface-admission';
 
@@ -73,7 +74,7 @@ export class HostPluginContext implements PluginContext {
 
   private readonly toolbars = inject(ToolbarRegistry);
 
-  private readonly settings = inject(SettingsService);
+  private readonly settings = inject(SettingsRegistry);
 
   private readonly tabs = inject(ContentTabsService);
 
@@ -248,7 +249,14 @@ export class HostPluginContext implements PluginContext {
 
   registerSettingsSection(section: SettingsSection): Disposable {
     this.require('contributions');
-    return this.track(this.settings.register(section));
+    if (
+      this.refusesReplacing(() =>
+        settingsSectionHolderMessage(this.settings, this.pluginId, section),
+      )
+    ) {
+      return NOTHING_REGISTERED;
+    }
+    return this.track(this.settings.register(section, this.pluginId));
   }
 
   registerMenuItem(item: MenuItem): Disposable {

@@ -149,4 +149,17 @@ export class CapabilityGrantService {
       toggledIdSet(revoked, revocationKey(pluginId, capability), !granted),
     );
   }
+
+  /**
+   * Drops every revocation stored for a plugin. Removing an installed plugin calls it, so that
+   * installing it again grants what the consent shows rather than what was withdrawn before.
+   */
+  restoreAll(pluginId: string): void {
+    this.revocations.update(
+      (revoked) =>
+        new Set(
+          [...revoked].filter((key) => pluginOfRevocation(key) !== pluginId),
+        ),
+    );
+  }
 }

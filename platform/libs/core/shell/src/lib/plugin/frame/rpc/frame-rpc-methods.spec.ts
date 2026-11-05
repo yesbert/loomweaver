@@ -9,6 +9,8 @@ import { KeyValueStore } from '../../../persistence/key-value-store';
 import { StateSyncService } from '../../../persistence/cross-tab/state-sync.service';
 import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-install.service';
 import { FrameSession } from '../frame-session';
+import { LocalStorageStore } from '../../../persistence/key-value-store';
+import { SettingsService } from '../../../settings-dialog/settings.service';
 import { frameRpcMethods } from './frame-rpc-methods';
 
 function methodsFor(ctx: Partial<HostPluginContext>, session = {}) {
@@ -170,6 +172,81 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     expect(warn).toHaveBeenCalledWith(
       expect.stringMatching(/the workbench.*plugin "framed"/),
     );
+  });
+
+  function framedSections(pluginId: string) {
+    const ctx = TestBed.inject(HostContextFactory).create(
+      pluginId,
+      () => true,
+      'isolated',
+    );
+    return frameRpcMethods({
+      pluginId,
+      ctx,
+      origins: undefined,
+      session: {
+        notify: () => undefined,
+        addCleanup: () => undefined,
+      } as unknown as FrameSession,
+      install: { isInstalled: () => true } as unknown as PluginInstallService,
+      store: new LocalStorageStore(),
+      sync: { register: () => () => undefined } as unknown as StateSyncService,
+      reportRefusal: () => undefined,
+    });
+  }
+
+  function sectionTitled(title: string, id: string) {
+    return {
+      id,
+      title,
+      rows: [
+        {
+          id: 'loud',
+          label: 'Loud',
+          control: { kind: 'toggle' as const, value: false },
+        },
+      ],
+    };
+  }
+
+  it('a frame settings section cannot take the place of one another plugin holds, dotted ids included', () => {
+    const { warn } = composition();
+    const settings = TestBed.inject(SettingsService);
+
+    framedSections('acme').registerSettingsSection(
+      sectionTitled('First', 'tools.general'),
+    );
+    framedSections('acme.tools').registerSettingsSection(
+      sectionTitled('Second', 'general'),
+    );
+
+    expect(
+      settings
+        .all()
+        .filter((section) => section.id === 'acme.tools.general')
+        .map((section) => section.title),
+    ).toEqual(['First']);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/plugin "acme".*plugin "acme\.tools"/),
+    );
+    localStorage.clear();
+  });
+
+  it('a frame plugin registers its own settings section again', () => {
+    const { warn } = composition();
+    const methods = framedSections('acme');
+
+    methods.registerSettingsSection(sectionTitled('First', 'prefs'));
+    methods.registerSettingsSection(sectionTitled('Second', 'prefs'));
+
+    expect(
+      TestBed.inject(SettingsService)
+        .all()
+        .filter((section) => section.id === 'acme.prefs')
+        .map((section) => section.title),
+    ).toEqual(['Second']);
+    expect(warn).not.toHaveBeenCalled();
+    localStorage.clear();
   });
 
   it('a frame plugin replaces what it registered itself', () => {

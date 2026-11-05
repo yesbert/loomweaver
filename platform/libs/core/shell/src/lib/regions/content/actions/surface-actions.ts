@@ -9,7 +9,10 @@ import {
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
-import { surfaceActionsSlot } from '../../../contributions/toolbar-registry';
+import {
+  SURFACE_OWNER,
+  surfaceActionsSlot,
+} from '../../../contributions/toolbar-registry';
 import { ToolbarHost } from '../../toolbar/toolbar-host.service';
 import { surfaceForPanePath } from '../../pane/pane-surface';
 import { paneLabelOf } from '../../pane/chrome/tab-label';
@@ -59,5 +62,6 @@ export class SurfaceActions {
     targetKind: 'view-action',
     region: this.region(),
     surface: this.surface()?.id ?? '',
+    [SURFACE_OWNER]: this.surface()?.pluginId ?? '',
   }));
 }

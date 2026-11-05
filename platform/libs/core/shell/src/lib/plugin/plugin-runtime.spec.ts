@@ -344,6 +344,7 @@ describe('PluginRuntime with a settings store that answers only asynchronously',
     const asked = firstValueFrom(answered);
     return {
       answer: () => answered.next(),
+      fail: () => answered.error(new Error('401')),
       store: {
         get: (key: string) => asked.then(() => stored[key]),
         set: () => Promise.resolve(),
@@ -353,7 +354,7 @@ describe('PluginRuntime with a settings store that answers only asynchronously',
   }
 
   function compose(ids: readonly string[], required: readonly string[]) {
-    const { store, answer } = slowStore({
+    const { store, answer, fail } = slowStore({
       'lw.shell.disabled-plugins': JSON.stringify(['off', 'core']),
     });
     const activated: string[] = [];
@@ -374,7 +375,7 @@ describe('PluginRuntime with a settings store that answers only asynchronously',
       ],
     });
     TestBed.inject(PluginRuntime).activateAll();
-    return { activated, answer };
+    return { activated, answer, fail };
   }
 
   it('does not activate a plugin the user switched off before the store answers, nor after', async () => {
@@ -390,5 +391,19 @@ describe('PluginRuntime with a settings store that answers only asynchronously',
     TestBed.tick();
 
     expect(activated).toEqual(['core', 'on']);
+  });
+
+  it('starts the plugins that can be switched off once the read is rejected, which counts as an answer', async () => {
+    const { activated, fail } = compose(['off', 'on', 'core'], ['core']);
+    TestBed.tick();
+    expect(activated).toEqual(['core']);
+
+    fail();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    expect(activated).toEqual(['core', 'off', 'on']);
   });
 });

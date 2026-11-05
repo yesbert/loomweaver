@@ -11,6 +11,7 @@ export class SettingsRegistry {
   private readonly replacements = signal<ReadonlyMap<string, SettingRow>>(
     new Map(),
   );
+  private readonly owners = new WeakMap<SettingsSection, string>();
 
   readonly requestedSection = this.requested.asReadonly();
 
@@ -27,7 +28,10 @@ export class SettingsRegistry {
       .toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0));
   });
 
-  register(section: SettingsSection): Disposable {
+  register(section: SettingsSection, ownerId?: string): Disposable {
+    if (ownerId !== undefined) {
+      this.owners.set(section, ownerId);
+    }
     this.sections.update((list) => upsertById(list, section));
     return {
       dispose: () =>
@@ -35,6 +39,11 @@ export class SettingsRegistry {
           list.filter((entry) => entry !== section),
         ),
     };
+  }
+
+  ownerOf(sectionId: string): string | undefined {
+    const section = this.sections().find((entry) => entry.id === sectionId);
+    return section && this.owners.get(section);
   }
 
   omit(ids: readonly string[]): void {

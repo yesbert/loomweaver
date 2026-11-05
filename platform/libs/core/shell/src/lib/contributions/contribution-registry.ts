@@ -320,17 +320,10 @@ export class ContributionRegistry {
     }));
   }
 
-  ownerOfSurface(id: string): string | undefined {
-    return this.surfacesSignal().find((entry) => entry.id === id)?.pluginId;
-  }
-
-  actionsOf(id: string | undefined): readonly ViewAction[] {
-    if (id === undefined) {
-      return [];
-    }
-    return (
-      this.surfacesSignal().find((entry) => entry.id === id)?.actions ?? []
-    );
+  surfacesOf(id: string): readonly (RegisteredView | RegisteredContentRoute)[] {
+    return this.surfacesSignal()
+      .filter((entry) => entry.id === id)
+      .map((entry) => (entry.routable ? entryToContentRoute(entry) : entryToView(entry)));
   }
 
   private addSurface(entry: RegisteredSurface): Disposable {

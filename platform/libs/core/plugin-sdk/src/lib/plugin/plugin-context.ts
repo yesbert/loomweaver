@@ -111,6 +111,9 @@ export interface PluginContext {
   /**
    * Contributes a section to the host settings surface.
    *
+   * A sandboxed plugin replaces only what it registered itself: a section whose id another owner
+   * already holds is refused and reported.
+   *
    * Needs the `contributions` capability.
    */
   registerSettingsSection(section: SettingsSection): Disposable;

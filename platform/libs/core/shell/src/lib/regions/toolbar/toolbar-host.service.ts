@@ -13,7 +13,10 @@ import {
 } from '@angular/core';
 import { MenuContext, TOOLBAR_CONTEXT, ToolbarCell } from '@loomweaver/plugin-sdk';
 import { AuthContext } from '../../auth/auth-context';
-import { ToolbarRegistry } from '../../contributions/toolbar-registry';
+import {
+  ToolbarRegistry,
+  withoutSurfaceOwner,
+} from '../../contributions/toolbar-registry';
 import {
   LW_TOOLBAR_CONTEXT,
   LW_TOOLBAR_SELECT,
@@ -128,7 +131,7 @@ export class ToolbarHost implements LwToolbarHost {
     toolbar.moreLabel = view.moreLabel;
     toolbar.accessibleName = view.label;
     toolbar.openKey = this.openKeyOf(toolbar, view.resolved);
-    this.drawCells(toolbar, attachment, slot, context);
+    this.drawCells(toolbar, attachment, slot, withoutSurfaceOwner(context));
   }
 
   private openKeyOf(

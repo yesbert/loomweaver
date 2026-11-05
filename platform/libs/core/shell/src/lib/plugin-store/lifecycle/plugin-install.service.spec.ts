@@ -5,6 +5,7 @@ import { InstalledPlugin } from './installed-plugin';
 import { PluginDeploymentService } from './plugin-deployment.service';
 import { PluginInstallService } from './plugin-install.service';
 import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
+import { CapabilityGrantService } from '../../permissions/capability-grant.service';
 
 const KEY = 'lw.shell.installed-plugins';
 
@@ -134,6 +135,23 @@ describe('PluginInstallService', () => {
 
     expect(enablement.isEnabled('store.sample')).toBe(true);
     expect(enablement.isEnabled('store.other')).toBe(false);
+  });
+
+  it('a plugin removed with a capability withdrawn holds what its consent shows when it is installed again', () => {
+    const service = make();
+    const grants = TestBed.inject(CapabilityGrantService);
+    service.install(entry());
+    service.install(entry({ id: 'store.other', name: 'Other' }));
+    grants.setGranted('store.sample', 'ui', false);
+    grants.setGranted('store.other', 'ui', false);
+
+    service.uninstall('store.sample');
+    service.install(entry());
+    grants.register('store.sample', ['contributions', 'ui'], ['contributions', 'ui']);
+    grants.register('store.other', ['contributions', 'ui'], ['contributions', 'ui']);
+
+    expect(grants.isGranted('store.sample', 'ui')).toBe(true);
+    expect(grants.isGranted('store.other', 'ui')).toBe(false);
   });
 
   it('updates an installed entry in place and persists the new declaration', () => {
