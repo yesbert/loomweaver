@@ -6,20 +6,20 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 1. The plugin trust boundary
 
-- [ ] 1.1 A catalogue entry cannot take the id of a plugin composed into the application as its own code: such ids are claimed like composed frame plugins (`plugin/frame/frame-plugin-runtime.ts`, `runnable-frame-plugins.ts`, `plugin-store/lifecycle/plugin-install.service.ts`)
-- [ ] 1.2 A connection that fails late does not deactivate the newer instance of the same plugin (`plugin/frame/frame-plugin-runtime.ts`; the test's `destroy` rejects the pending connection)
-- [ ] 1.3 A plugin outside the application's own code cannot replace a route, view or menu entry another owner holds; refused and reported (delta; `plugin/frame/rpc/frame-rpc-methods.spec.ts`)
-- [ ] 1.4 Entries from a product's own catalogue port are read as defensively as those from an address (`plugin-store/catalog/plugin-catalog-entries.ts`)
-- [ ] 1.5 A frame that never connects is cleaned up and reported after a time limit (`plugin/frame/frame-plugin-runtime.ts`)
-- [ ] 1.6 A stored revocation is not honoured for a deployed plugin (`permissions/capability-grant.service.ts`)
-- [ ] 1.7 Retitling a surface, updating its action or its badge reaches only the caller's own surface of that id (`plugin/context/plugin-surface-ownership.ts`, `contributions/contribution-registry.ts`)
-- [ ] 1.8 A switched-off or failed frame plugin is described at the rung it runs at, not as trusted (`plugin-isolation/plugin-isolation-level.service.ts`, `plugin/enablement/permissions-settings.spec.ts`)
-- [ ] 1.9 A menu heading's picture address from a frame is held to the same schemes as every other address from a frame (`plugin/frame/rpc/sanitize-inputs.ts`)
+- [x] 1.1 A catalogue entry cannot take the id of a plugin composed into the application as its own code: such ids are claimed like composed frame plugins (`plugin/frame/frame-plugin-runtime.ts`, `runnable-frame-plugins.ts`, `plugin-store/lifecycle/plugin-install.service.ts`)
+- [x] 1.2 A connection that fails late does not deactivate the newer instance of the same plugin (`plugin/frame/frame-plugin-runtime.ts`; the test's `destroy` rejects the pending connection)
+- [x] 1.3 A plugin outside the application's own code cannot replace a route, view or menu entry another owner holds; refused and reported (delta; `plugin/frame/rpc/frame-rpc-methods.spec.ts`)
+- [x] 1.4 Entries from a product's own catalogue port are read as defensively as those from an address (`plugin-store/catalog/plugin-catalog-entries.ts`)
+- [x] 1.5 A frame that never connects is cleaned up and reported after a time limit (`plugin/frame/frame-plugin-runtime.ts`)
+- [x] 1.6 A stored revocation is not honoured for a deployed plugin (`permissions/capability-grant.service.ts`)
+- [x] 1.7 Retitling a surface, updating its action or its badge reaches only the caller's own surface of that id (`plugin/context/plugin-surface-ownership.ts`, `contributions/contribution-registry.ts`)
+- [x] 1.8 A switched-off or failed frame plugin is described at the rung it runs at, not as trusted (`plugin-isolation/plugin-isolation-level.service.ts`, `plugin/enablement/permissions-settings.spec.ts`)
+- [x] 1.9 A menu heading's picture address from a frame is held to the same schemes as every other address from a frame (`plugin/frame/rpc/sanitize-inputs.ts`)
 - [ ] 1.10 A frame settings section's id cannot collide across plugin ids that contain dots, and the store's settings link matches the plugin exactly (`plugin/frame/frame-settings-section.ts`, `plugin-store/installed-plugin-list.ts`)
-- [ ] 1.11 Uninstalling a plugin removes its stored switched-off flag, so a reinstall starts enabled (`plugin-store/lifecycle/`)
-- [ ] 1.12 A facade a plugin kept (`host`, `session`, `activeContent`) refuses after its capability is revoked (`plugin/context/host-plugin-context.ts`)
-- [ ] 1.13 With a settings store that answers only asynchronously, a plugin the user switched off is not activated before the answer (`plugin/enablement/`)
-- [ ] 1.14 A catalogue entry's name and description are shown as plain text in the consent, not rendered (`plugin-store/lifecycle/plugin-store-consent.ts`)
+- [x] 1.11 Uninstalling a plugin removes its stored switched-off flag, so a reinstall starts enabled (`plugin-store/lifecycle/`)
+- [x] 1.12 A facade a plugin kept (`host`, `session`, `activeContent`) refuses after its capability is revoked (`plugin/context/host-plugin-context.ts`)
+- [x] 1.13 With a settings store that answers only asynchronously, a plugin the user switched off is not activated before the answer (`plugin/enablement/`)
+- [x] 1.14 A catalogue entry's name and description are shown as plain text in the consent, not rendered (`plugin-store/lifecycle/plugin-store-consent.ts`)
 
 ## 2. Unsaved work and panes
 

@@ -63,9 +63,12 @@ export function surfaceBadge(
   registry: ContributionRegistry,
   path: string,
 ): TabBadge | undefined {
-  return registry.badgeOf(
-    surfaceForPanePath(registry.contentRoutes(), registry.views(), path)?.id,
+  const surface = surfaceForPanePath(
+    registry.contentRoutes(),
+    registry.views(),
+    path,
   );
+  return registry.badgeOf(surface?.id, surface?.pluginId);
 }
 
 export function surfaceClosable(

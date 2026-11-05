@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { connect } from 'penpal';
+import { firstValueFrom, Subject } from 'rxjs';
 import { OpenTabInput } from '@loomweaver/plugin-sdk';
 import {
   provideFramePlugins,
@@ -20,6 +21,8 @@ import { MenuService } from '../../menu/menu.service';
 import { NotificationService } from '../../notifications/notification.service';
 import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
+import { PLUGIN } from '../plugin';
+import { SETTINGS_STORE } from '../../persistence/settings-store';
 import type { Mock } from 'vitest';
 
 vi.mock('penpal', () => ({
@@ -78,6 +81,7 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
   }
 
   afterEach(() => {
+    vi.useRealTimers();
     for (const frame of document.querySelectorAll('iframe')) {
       frame.remove();
     }
@@ -788,6 +792,172 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     );
   });
 
+  function composeInPagePlugin(id: string): void {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: PLUGIN,
+          useValue: { manifest: { id }, activate: () => undefined },
+          multi: true,
+        },
+      ],
+    });
+  }
+
+  it("a catalogue entry cannot be installed under the id of a plugin composed as the application's own code", () => {
+    composeInPagePlugin('product');
+    const { runtime } = setup();
+    runtime.activateAll();
+
+    expect(() =>
+      TestBed.inject(PluginInstallService).install({
+        id: 'product',
+        name: 'Impostor',
+        entryUrl: '/impostor/plugin.html',
+        capabilities: ['contributions'],
+      }),
+    ).toThrow(/already part of this distribution/);
+  });
+
+  it("a stored install or a deployed entry never runs under the id of a plugin composed as the application's own code", () => {
+    localStorage.setItem(
+      'lw.shell.installed-plugins',
+      JSON.stringify([
+        { id: 'product', name: 'Impostor', entryUrl: '/impostor/plugin.html' },
+      ]),
+    );
+    composeInPagePlugin('product');
+    composeInPagePlugin('product-two');
+    const { runtime } = setup();
+    runtime.activateAll();
+
+    TestBed.inject(PluginDeploymentService).adopt([
+      {
+        id: 'product-two',
+        name: 'Impostor',
+        entryUrl: '/impostor-two/plugin.html',
+        capabilities: ['contributions'],
+        deployed: true,
+      },
+    ]);
+    TestBed.tick();
+
+    const sources = [...document.querySelectorAll('iframe')].map((frame) =>
+      frame.getAttribute('src'),
+    );
+    expect(sources).toHaveLength(1);
+    expect(sources[0]).toContain('/p1/plugin.html');
+  });
+
+  it('a connection that fails late leaves the newer instance of the same plugin running', async () => {
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const { runtime } = setup();
+    connectMock.mockImplementation(() => {
+      const pending = new Subject<unknown>();
+      return {
+        promise: firstValueFrom(pending),
+        destroy: vi.fn(() => pending.error(new Error('destroyed'))),
+      };
+    });
+    runtime.activateAll();
+    const install = TestBed.inject(PluginInstallService);
+    const entry = {
+      id: 'p2',
+      name: 'Store plugin',
+      entryUrl: '/p2/plugin.html',
+      capabilities: ['contributions'] as const,
+    };
+    install.install({ ...entry, version: '1.0.0' });
+    TestBed.tick();
+
+    install.update({ ...entry, version: '1.1.0' });
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const sources = [...document.querySelectorAll('iframe')].map((frame) =>
+      frame.getAttribute('src'),
+    );
+    expect(sources).toHaveLength(2);
+    expect(
+      TestBed.inject(CapabilityGrantService).isGranted('p2', 'contributions'),
+    ).toBe(true);
+    error.mockRestore();
+  });
+
+  it('a frame that never connects is cleaned up and reported after a time limit', async () => {
+    vi.useFakeTimers();
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const { runtime } = setup();
+    runtime.activateAll();
+    connectMock.mockImplementation(({ timeout }: { timeout?: number }) => ({
+      promise: new Promise((_resolve, reject) => {
+        if (timeout !== undefined) {
+          setTimeout(() => reject(new Error('timed out')), timeout);
+        }
+      }),
+      destroy: vi.fn(),
+    }));
+    TestBed.inject(PluginInstallService).install({
+      id: 'p2',
+      name: 'Store plugin',
+      entryUrl: '/p2/plugin.html',
+      capabilities: ['contributions'],
+    });
+    TestBed.tick();
+    expect(document.querySelectorAll('iframe')).toHaveLength(2);
+
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(document.querySelectorAll('iframe')).toHaveLength(1);
+    expect(error).toHaveBeenCalledWith(
+      'Sandbox plugin "p2" failed to connect',
+      expect.any(Error),
+    );
+    expect(
+      TestBed.inject(CapabilityGrantService).isGranted('p2', 'contributions'),
+    ).toBe(false);
+    error.mockRestore();
+  });
+
+  it('does not start a frame plugin the user switched off before an asynchronous settings store answers', async () => {
+    const answered = new Subject<void>();
+    const asked = firstValueFrom(answered);
+    const stored: Record<string, string> = {
+      'lw.shell.disabled-plugins': JSON.stringify(['p1']),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: SETTINGS_STORE,
+          useValue: {
+            get: (key: string) => asked.then(() => stored[key]),
+            set: () => Promise.resolve(),
+            delete: () => Promise.resolve(),
+          },
+        },
+      ],
+    });
+    const { runtime } = setup();
+    runtime.activateAll();
+    TestBed.tick();
+
+    expect(connectMock).not.toHaveBeenCalled();
+
+    answered.next();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    expect(connectMock).not.toHaveBeenCalled();
+    expect(document.querySelector('iframe')).toBeNull();
+  });
+
   it('reports and cleans up a failed handshake', async () => {
     const error = vi
       .spyOn(console, 'error')
@@ -868,7 +1038,7 @@ describe('FramePluginRuntime command invocation', () => {
       path: 'a/b',
     });
     const inProcess = await TestBed.inject(HostContextFactory)
-      .create('p1', () => true)
+      .create('p1', () => true, 'trusted')
       .invokeCommand('other.open', { path: 'a/b' });
 
     expect(overRpc).toEqual({ outcome: 'answered', value: 'a/b' });

@@ -5,6 +5,7 @@ import { StateSyncService } from '../cross-tab/state-sync.service';
 
 export interface PersistedSetting<T> {
   readonly value: Signal<T>;
+  readonly loaded: Signal<boolean>;
   set(next: T): void;
   update(change: (current: T) => T): void;
   clear(): void;
@@ -24,6 +25,7 @@ export function persistedSetting<T>(
   const store = inject(SETTINGS_STORE);
   const state = signal(codec.parse(store.peek?.(key)));
   let hydrated = store.peek !== undefined;
+  const loaded = signal(hydrated);
   let early: Change<T>[] = [];
 
   const write = (next: Change<T>): void => {
@@ -41,6 +43,7 @@ export function persistedSetting<T>(
     const changes = early;
     early = [];
     hydrated = true;
+    loaded.set(true);
     state.set(codec.parse(raw));
     for (const change of changes) {
       write(change);
@@ -72,6 +75,7 @@ export function persistedSetting<T>(
   inject(StateSyncService).register('settings', key, apply);
   return {
     value: state.asReadonly(),
+    loaded: loaded.asReadonly(),
     set: (next) => change({ clear: false, change: () => next }),
     update: (next) => change({ clear: false, change: next }),
     clear: () => change({ clear: true }),

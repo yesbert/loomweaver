@@ -13,6 +13,7 @@ import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { isButtonVariant } from '../../../elements/button/lw-button-classes';
 import { menuContextOf } from '../../../foundation/wire/menu-context-of';
 import {
+  fetchedUrl,
   isWireObject,
   onlyTrue,
   optionalNumber,
@@ -165,10 +166,21 @@ function sanitizeMenuHeader(value: unknown): MenuHeader | undefined {
     title: value['title'],
     detail: optionalText(value['detail']),
     icon: optionalText(value['icon']),
-    image: optionalText(value['image']),
+    image: sanitizeHeaderImage(value['image']),
     initials: optionalText(value['initials']),
     command: optionalText(value['command']),
   };
+}
+
+function sanitizeHeaderImage(value: unknown): string | undefined {
+  if (typeof value !== 'string' || fetchedUrl(value) !== null) {
+    return optionalText(value);
+  }
+  console.warn(
+    "Sandbox plugin: registerMenuItem takes 'menuHeader.image' as an http or https address; " +
+      'the heading is kept without it.',
+  );
+  return undefined;
 }
 
 function isNotificationKind(value: unknown): value is NotificationKind {

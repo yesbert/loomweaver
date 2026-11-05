@@ -7,7 +7,8 @@ import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
  * The distribution's plugin catalog port: the operator-curated list of community plugins a
  * user may install. The platform only defines the port — what is not in the catalog does not exist
  * for the shell; per-tenant curation is the product backend answering the catalog request
- * tenant-dependently.
+ * tenant-dependently. Whatever an implementation answers is read as defensively as a fetched
+ * document: junk shapes, foreign-origin `entryUrl`s and unknown capability names are dropped.
  */
 export interface PluginCatalog {
   load(): Promise<readonly PluginCatalogEntry[]>;

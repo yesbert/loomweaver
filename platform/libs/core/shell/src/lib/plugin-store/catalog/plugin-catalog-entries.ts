@@ -1,6 +1,6 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { PLUGIN_CATALOG } from './plugin-catalog';
-import { PluginCatalogEntry } from './catalog-entry';
+import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
 
 type CatalogState =
   | { readonly status: 'loading' }
@@ -39,7 +39,7 @@ export class PluginCatalogEntries {
     this.requested = true;
     this.state.set({ status: 'loading' });
     try {
-      const entries = await this.catalog.load();
+      const entries = parseCatalogList(await this.catalog.load());
       this.state.set({ status: 'loaded', entries });
       return entries;
     } catch (error) {

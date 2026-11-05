@@ -4,6 +4,7 @@ import { KeyValueStore } from '../../persistence/key-value-store';
 import { InstalledPlugin } from './installed-plugin';
 import { PluginDeploymentService } from './plugin-deployment.service';
 import { PluginInstallService } from './plugin-install.service';
+import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
 
 const KEY = 'lw.shell.installed-plugins';
 
@@ -118,6 +119,21 @@ describe('PluginInstallService', () => {
     expect(service.isInstalled('store.sample')).toBe(false);
     expect(JSON.parse(localStorage.getItem(KEY) ?? 'null')).toEqual([]);
     expect(() => service.uninstall('store.sample')).not.toThrow();
+  });
+
+  it('a plugin removed while switched off starts enabled when it is installed again', () => {
+    const service = make();
+    const enablement = TestBed.inject(PluginEnablementService);
+    service.install(entry());
+    service.install(entry({ id: 'store.other', name: 'Other' }));
+    enablement.setEnabled('store.sample', false);
+    enablement.setEnabled('store.other', false);
+
+    service.uninstall('store.sample');
+    service.install(entry());
+
+    expect(enablement.isEnabled('store.sample')).toBe(true);
+    expect(enablement.isEnabled('store.other')).toBe(false);
   });
 
   it('updates an installed entry in place and persists the new declaration', () => {

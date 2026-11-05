@@ -8,6 +8,15 @@ import { PluginInstallService } from './plugin-install.service';
 import { addedCapabilities, raisedLevel } from './plugin-update';
 import { DEFAULT_ISOLATION_LEVEL } from '../../foundation/plugin-isolation-level';
 
+const MARKDOWN_PUNCTUATION = /[!-/:-@[-`{-~]/g;
+
+function asPlainText(text: string): string {
+  return text
+    .replaceAll(/\s+/g, ' ')
+    .trim()
+    .replaceAll(MARKDOWN_PUNCTUATION, String.raw`\$&`);
+}
+
 @Service()
 export class PluginStoreConsent {
   private readonly dialogs = inject(DialogService);
@@ -60,7 +69,7 @@ export class PluginStoreConsent {
     const accepted = await this.dialogs.confirm({
       title: this.transloco.translate('settings.storeUninstallTitle', { name }),
       message: this.transloco.translate('settings.storeUninstallConfirm', {
-        name,
+        name: asPlainText(name),
       }),
       confirmLabel: this.transloco.translate('settings.storeUninstall'),
       tone: 'danger',
@@ -74,20 +83,22 @@ export class PluginStoreConsent {
   private installMessage(entry: PluginCatalogEntry): string {
     const paragraphs: string[] = [];
     if (entry.description) {
-      paragraphs.push(entry.description, '');
+      paragraphs.push(asPlainText(entry.description), '');
     }
     paragraphs.push(this.levelLine(entry), '');
     const capabilities = entry.capabilities ?? [];
     if (capabilities.length === 0) {
       paragraphs.push(
         this.transloco.translate('settings.storeConsentNone', {
-          name: entry.name,
+          name: asPlainText(entry.name),
         }),
       );
       return paragraphs.join('\n');
     }
     paragraphs.push(
-      this.transloco.translate('settings.storeConsent', { name: entry.name }),
+      this.transloco.translate('settings.storeConsent', {
+        name: asPlainText(entry.name),
+      }),
       '',
       ...this.permissionLines(capabilities),
     );
@@ -101,8 +112,8 @@ export class PluginStoreConsent {
   ): string {
     return [
       this.transloco.translate('settings.storeUpdateConsent', {
-        name: entry.name,
-        version: entry.version ?? '',
+        name: asPlainText(entry.name),
+        version: asPlainText(entry.version ?? ''),
       }),
       '',
       ...(raised ? [this.levelLine(entry), ''] : []),

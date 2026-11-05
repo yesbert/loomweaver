@@ -6,6 +6,10 @@ import { PluginCatalogEntry } from '../catalog/catalog-entry';
 import { PluginDisableGuard } from '../../plugin/enablement/plugin-disable-guard';
 import { PluginInstallService } from './plugin-install.service';
 import { PluginStoreConsent } from './plugin-store-consent';
+import {
+  defineLwMarkdown,
+  LW_MARKDOWN_TAG,
+} from '../../elements/markdown/lw-markdown.element';
 
 const installed: InstalledPlugin = {
   id: 'testbed',
@@ -125,5 +129,73 @@ describe('PluginStoreConsent and the isolation level', () => {
 
     expect(confirm).not.toHaveBeenCalled();
     expect(update).toHaveBeenCalled();
+  });
+});
+
+describe('PluginStoreConsent and what a catalogue entry says about itself', () => {
+  beforeAll(() => defineLwMarkdown());
+  afterEach(() => document.body.replaceChildren());
+
+  function drawn(message: string): HTMLElement {
+    const element = document.createElement(LW_MARKDOWN_TAG);
+    element.setAttribute('source', message);
+    document.body.append(element);
+    return element;
+  }
+
+  function consentNaming() {
+    const deps = fakeDeps({ removalAllowed: true });
+    const transloco = TestBed.inject(TranslocoService);
+    transloco.translate = ((key: string, params?: { name?: string }) =>
+      params?.name === undefined
+        ? key
+        : `**${params.name}** ${key}`) as typeof transloco.translate;
+    const installs = TestBed.inject(PluginInstallService);
+    installs.install = vi.fn();
+    installs.uninstall = vi.fn();
+    const asked = () =>
+      (deps.confirm.mock.calls.at(-1) as unknown as [{ message: string }])[0]
+        .message;
+    return { ...deps, asked };
+  }
+
+  it('shows a name and a description as plain text in the install consent, not rendered', async () => {
+    const { consent, asked } = consentNaming();
+
+    await consent.confirmInstall({
+      ...entry,
+      name: 'Notes](https://evil.example) [x',
+      description:
+        'Safe.\n\n- **Interface** — nothing at all\n\n' +
+        '[Read more](https://evil.example) <b>bold</b> https://evil.example',
+    } as PluginCatalogEntry);
+    const body = drawn(asked());
+
+    expect(body.querySelector('a')).toBeNull();
+    expect(body.querySelector('b')).toBeNull();
+    expect(body.querySelectorAll('li')).toHaveLength(1);
+    expect(body.querySelectorAll('strong')).toHaveLength(2);
+    expect(body.textContent).toContain('Notes](https://evil.example) [x');
+    expect(body.textContent).toContain(
+      '- **Interface** — nothing at all [Read more](https://evil.example) <b>bold</b>',
+    );
+  });
+
+  it('shows a name as plain text when asking to remove or update it', async () => {
+    const { consent, asked } = consentNaming();
+
+    await consent.confirmUninstall('testbed', '[Notes](https://evil.example)');
+    const removal = drawn(asked());
+    await consent.confirmUpdate({
+      ...entry,
+      name: '[Notes](https://evil.example)',
+      capabilities: ['ui', 'navigation'],
+    } as PluginCatalogEntry);
+    const update = drawn(asked());
+
+    for (const body of [removal, update]) {
+      expect(body.querySelector('a')).toBeNull();
+      expect(body.textContent).toContain('[Notes](https://evil.example)');
+    }
   });
 });

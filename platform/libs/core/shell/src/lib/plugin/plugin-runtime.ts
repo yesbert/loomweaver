@@ -133,10 +133,13 @@ export class PluginRuntime {
     const id = plugin.manifest.id;
     this.grants.register(id, plugin.manifest.capabilities);
     let activating = true;
-    const ctx = this.factory.create(id, (capability) =>
-      activating
-        ? this.grants.isBaseGranted(id, capability)
-        : this.grants.isGranted(id, capability),
+    const ctx = this.factory.create(
+      id,
+      (capability) =>
+        activating
+          ? this.grants.isBaseGranted(id, capability)
+          : this.grants.isGranted(id, capability),
+      'trusted',
     );
     this.active.set(id, ctx);
 

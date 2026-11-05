@@ -5,6 +5,8 @@ import {
   urlPluginCatalog,
 } from './plugin-catalog';
 import { providePluginCatalog } from './provide-plugin-catalog';
+import { PluginCatalogEntries } from './plugin-catalog-entries';
+import { PluginCatalogEntry } from './catalog-entry';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
@@ -157,6 +159,44 @@ describe('providePluginCatalog', () => {
       .find((section) => section.id === 'shell.pluginStore');
 
     expect(store?.title).toBe('product.marketplace');
+  });
+
+  it("entries from a product's own catalogue port are read as defensively as those from an address", async () => {
+    configure({
+      load: () =>
+        Promise.resolve([
+          { id: 'good', name: 'Good', entryUrl: '/good/plugin.html' },
+          {
+            id: 'foreign',
+            name: 'Foreign',
+            entryUrl: 'https://evil.example/plugin.html',
+            deployed: true,
+          },
+          { id: 'shell.fake', name: 'Fake', entryUrl: '/fake/plugin.html' },
+          {
+            id: 'caps',
+            name: 'Caps',
+            entryUrl: '/caps/plugin.html',
+            capabilities: ['contributions', 'root-access'],
+          },
+          'junk',
+        ] as unknown as PluginCatalogEntry[]),
+    });
+    const catalog = TestBed.inject(PluginCatalogEntries);
+
+    const entries = await catalog.load();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    expect(
+      [...document.querySelectorAll('iframe')].map((frame) =>
+        frame.getAttribute('src'),
+      ),
+    ).toEqual([]);
+    expect(entries.map((entry) => entry.id)).toEqual(['good', 'caps']);
+    expect(entries[1].capabilities).toEqual(['contributions']);
+    expect(catalog.entries()).toEqual(entries);
   });
 
   it('activates the sandbox runtime so a persisted install spawns without any composed plugin', () => {

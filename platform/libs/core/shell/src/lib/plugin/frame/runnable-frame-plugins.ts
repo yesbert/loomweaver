@@ -37,8 +37,12 @@ export function runnablePlugins(
   installed: readonly InstalledPlugin[],
   deployed: readonly InstalledPlugin[],
   catalogMaxLevel: PluginIsolationLevel,
+  inPageIds: readonly string[],
 ): FramePluginSelection {
-  const claimed = new Set(composed.map((plugin) => plugin.id));
+  const claimed = new Set([
+    ...composed.map((plugin) => plugin.id),
+    ...inPageIds,
+  ]);
   const fromCatalog: RunnableFramePlugin[] = [];
   const refused: RefusedFramePlugin[] = [];
   for (const plugin of [...deployed, ...installed]) {

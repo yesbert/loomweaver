@@ -1,6 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
 import { PluginStateService } from '../../plugin/plugin-state.service';
+import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
 import { PluginDeploymentService } from './plugin-deployment.service';
 import {
   INSTALLED_LIST_CODEC,
@@ -23,6 +24,7 @@ const STORAGE_KEY = 'lw.shell.installed-plugins';
 export class PluginInstallService {
   private readonly pluginState = inject(PluginStateService);
   private readonly deployment = inject(PluginDeploymentService);
+  private readonly enablement = inject(PluginEnablementService);
 
   private readonly stored = persistedSetting(STORAGE_KEY, INSTALLED_LIST_CODEC);
 
@@ -86,11 +88,11 @@ export class PluginInstallService {
     );
   }
 
-  /** Removes an installed plugin (idempotent); the runtime unloads it live. */
   /**
-   * Removes an installed plugin and **deletes its own store** — deliberately the
-   * opposite of its settings section, which survives so a reinstall finds its configuration. An
-   * abandoned draft of a plugin the user just removed is litter; a preference is not.
+   * Removes an installed plugin (idempotent; the runtime unloads it live) and **deletes its own
+   * store** — deliberately the opposite of its settings section, which survives so a reinstall finds
+   * its configuration. An abandoned draft of a plugin the user just removed is litter; a preference
+   * is not. A switch-off goes with the plugin too, so installing it again starts it.
    */
   uninstall(id: string): void {
     if (!this.isInstalled(id)) {
@@ -98,6 +100,7 @@ export class PluginInstallService {
     }
     this.stored.update((installed) => installed.filter((entry) => entry.id !== id));
     this.pluginState.removePlugin(id);
+    this.enablement.setEnabled(id, true);
   }
 
   private validEntry(plugin: InstalledPlugin): InstalledPlugin {

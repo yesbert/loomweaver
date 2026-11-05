@@ -44,6 +44,9 @@ export interface PluginContext {
    * the host places it (a routable surface into the content area, else into its home dock) and the user
    * re-arranges it from there.
    *
+   * A sandboxed plugin replaces only what it registered itself: a surface whose id or address another
+   * owner already holds is refused and reported.
+   *
    * Needs the `contributions` capability, and `navigation` as well for a `rest` route whose path has
    * fewer than two segments, since such a route claims most of the address space.
    */
@@ -115,6 +118,9 @@ export interface PluginContext {
    * Contributes an item to a named menu slot — e.g. add an action to the tab context menu
    * (`'content/tab/context'`) or a plugin's own slot. The item names a {@link Command} by id (invoked with
    * the menu's {@link MenuContext}) and may declare a coarse `when` filter. The host draws the menu.
+   *
+   * A sandboxed plugin replaces only what it registered itself: an entry whose `id` another owner
+   * already holds is refused and reported.
    *
    * Needs the `contributions` capability.
    */
@@ -317,13 +323,13 @@ export interface PluginContext {
   /**
    * Read-only host facts and the app's lifecycle (version, update).
    *
-   * Needs the `host` capability.
+   * Needs the `host` capability for every read and call.
    */
   readonly host: PluginHost;
   /**
    * Read-only session facts (login state and roles) for gating your own contributions.
    *
-   * Needs the `session` capability.
+   * Needs the `session` capability for every read and call.
    */
   readonly session: PluginSession;
   /**

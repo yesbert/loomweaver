@@ -30,13 +30,16 @@ export class PluginEnablementService {
    * The disabled plugin ids (reactive) — a runtime reconciles activation against this. A plugin the
    * distribution declared its application cannot run without never appears here, and neither does
    * one the operator deploys, whatever is stored, so the runtimes, the store and the permissions
-   * surface read one answer rather than several.
+   * surface read one answer rather than several. Until a settings store that answers only
+   * asynchronously has answered, every other registered plugin counts as disabled, so one the user
+   * switched off is not started ahead of the answer.
    */
   readonly disabled = computed<ReadonlySet<string>>(() => {
     const stored = this.storedDisabled.value();
+    const undecided = this.storedDisabled.loaded() ? [] : this.names().keys();
     const alwaysOn = (id: string) =>
       this.required.has(id) || this.deployment.isDeployed(id);
-    return new Set([...stored].filter((id) => !alwaysOn(id)));
+    return new Set([...stored, ...undecided].filter((id) => !alwaysOn(id)));
   });
 
   /** Every known plugin with its enabled state, for the permissions settings surface. */

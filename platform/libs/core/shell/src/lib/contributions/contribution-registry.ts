@@ -239,7 +239,7 @@ export class ContributionRegistry {
     this.surfacesSignal.update((entries) =>
       entries.filter((entry) => entry.routable !== undefined || entry.id !== id),
     );
-    this.forgetBadgeOfGone(id);
+    this.forgetBadgesOfGone();
   }
 
   removeBarItemById(id: string): void {
@@ -288,46 +288,36 @@ export class ContributionRegistry {
   }
 
   /**
-   * Replaces the title of a registered surface in place, leaving everything else it declared alone.
-   * A rename is not a re-registration: the entry keeps its identity, so nothing mounted from it is
-   * rebuilt. An id nothing was registered under is a no-op.
+   * Replaces the title of the surface `pluginId` registered under `id` in place, leaving everything
+   * else it declared alone. A rename is not a re-registration: the entry keeps its identity, so
+   * nothing mounted from it is rebuilt. An id that owner registered nothing under is a no-op.
    */
-  retitleSurface(id: string, title: string): void {
-    this.surfacesSignal.update((entries) =>
-      entries.map((entry) =>
-        entry.id === id && entry.title !== title ? { ...entry, title } : entry,
-      ),
+  retitleSurface(id: string, title: string, pluginId?: string): void {
+    this.changeOwned(id, pluginId, (entry) =>
+      entry.title === title ? entry : { ...entry, title },
     );
   }
 
   updateSurfaceBadge(id: string, badge: TabBadge | null, pluginId?: string): void {
-    const owned = untracked(() =>
-      this.surfacesSignal().some(
-        (entry) => entry.id === id && (pluginId === undefined || entry.pluginId === pluginId),
-      ),
-    );
-    if (owned) {
-      this.badges.set(id, tabBadgeOf(badge));
+    if (untracked(() => this.holds(id, pluginId))) {
+      this.badges.set(id, pluginId, tabBadgeOf(badge));
     }
   }
 
-  badgeOf(id: string | undefined): TabBadge | undefined {
-    return this.badges.badgeOf(id);
+  badgeOf(id: string | undefined, pluginId?: string): TabBadge | undefined {
+    return this.badges.badgeOf(id, pluginId);
   }
 
   /**
-   * Replaces one action of a registered surface in place, by the action's id, leaving the entry's
-   * identity and everything else it declared alone. An action id the surface did not carry is added.
-   * A surface id nothing was registered under is a no-op.
+   * Replaces one action of the surface `pluginId` registered under `id` in place, by the action's
+   * id, leaving the entry's identity and everything else it declared alone. An action id the surface
+   * did not carry is added. An id that owner registered nothing under is a no-op.
    */
-  updateSurfaceAction(id: string, action: ViewAction): void {
-    this.surfacesSignal.update((entries) =>
-      entries.map((entry) =>
-        entry.id === id
-          ? { ...entry, actions: upsertById(entry.actions ?? [], action) }
-          : entry,
-      ),
-    );
+  updateSurfaceAction(id: string, action: ViewAction, pluginId?: string): void {
+    this.changeOwned(id, pluginId, (entry) => ({
+      ...entry,
+      actions: upsertById(entry.actions ?? [], action),
+    }));
   }
 
   ownerOfSurface(id: string): string | undefined {
@@ -352,18 +342,31 @@ export class ContributionRegistry {
         this.surfacesSignal.update((entries) =>
           entries.filter((existing) => existing !== entry),
         );
-        this.forgetBadgeOfGone(entry.id);
+        this.forgetBadgesOfGone();
       },
     };
   }
 
-  private forgetBadgeOfGone(id: string | undefined): void {
-    if (
-      id !== undefined &&
-      untracked(() => this.surfacesSignal().every((entry) => entry.id !== id))
-    ) {
-      this.badges.set(id, undefined);
-    }
+  private changeOwned(
+    id: string,
+    pluginId: string | undefined,
+    change: (entry: RegisteredSurface) => RegisteredSurface,
+  ): void {
+    this.surfacesSignal.update((entries) =>
+      entries.map((entry) =>
+        entry.id === id && entry.pluginId === pluginId ? change(entry) : entry,
+      ),
+    );
+  }
+
+  private holds(id: string, pluginId: string | undefined): boolean {
+    return this.surfacesSignal().some(
+      (entry) => entry.id === id && entry.pluginId === pluginId,
+    );
+  }
+
+  private forgetBadgesOfGone(): void {
+    untracked(() => this.badges.forgetUnless((id, owner) => this.holds(id, owner)));
   }
 
   private visible<T extends { readonly id?: string }>(

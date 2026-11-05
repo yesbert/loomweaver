@@ -9,6 +9,7 @@ import { assertPlaceable } from '../../../contributions/surface-normalize';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import {
   WireRecord,
+  fetchedUrl,
   isWireObject,
   onlyTrue,
   optionalNumber,
@@ -189,15 +190,8 @@ function sanitizeRpcContainerTab(value: unknown): ContainerTabEntry[] {
   ];
 }
 
-const FETCHED_PROTOCOLS: ReadonlySet<string> = new Set(['http:', 'https:']);
-
 function surfaceOrigin(iframe: string): string | null {
-  try {
-    const url = new URL(iframe, document.baseURI);
-    return FETCHED_PROTOCOLS.has(url.protocol) ? url.origin : null;
-  } catch {
-    return null;
-  }
+  return fetchedUrl(iframe)?.origin ?? null;
 }
 
 function permittedOrigins(extra: readonly string[] | undefined): Set<string> {

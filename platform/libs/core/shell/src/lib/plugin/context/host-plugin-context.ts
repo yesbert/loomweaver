@@ -5,6 +5,7 @@ import {
 } from '../../contributions/contribution-registry';
 import { ToolbarRegistry } from '../../contributions/toolbar-registry';
 import { BarItem } from '../../foundation/bar-item';
+import { PluginRung } from '../../foundation/plugin-isolation-level';
 import { RailItem } from '../../foundation/rail-item';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { PluginContext, PluginHost, PluginSession, PluginUi } from '../plugin';
@@ -51,9 +52,21 @@ import {
   warnUnusableContainerLayout,
 } from './host-context-warnings';
 import { addressIsUnder } from '../../addressing/address-is-under';
-import { pathOwnedBy, surfaceOwnedBy } from './plugin-surface-ownership';
-import { pluginHost, pluginSession, pluginUi } from './plugin-facades';
-import { broadPrefixReason, followConflictMessage } from './surface-admission';
+import { pathOwnedBy } from './plugin-surface-ownership';
+import {
+  gated,
+  pluginHost,
+  pluginSession,
+  pluginUi,
+} from './plugin-facades';
+import {
+  broadPrefixReason,
+  followConflictMessage,
+  menuItemHolderMessage,
+  surfaceHolderMessage,
+} from './surface-admission';
+
+const NOTHING_REGISTERED: Disposable = { dispose: () => undefined };
 
 export class HostPluginContext implements PluginContext {
   private readonly registry = inject(ContributionRegistry);
@@ -76,9 +89,18 @@ export class HostPluginContext implements PluginContext {
 
   private readonly leftOut = inject(LeftOutChildren);
 
-  private readonly hostFacts: PluginHost = pluginHost();
+  private readonly hostFacts: PluginHost = pluginHost(() =>
+    this.require('host'),
+  );
 
-  private readonly sessionFacts: PluginSession = pluginSession();
+  private readonly sessionFacts: PluginSession = pluginSession(() =>
+    this.require('session'),
+  );
+
+  private readonly shownContent = gated(
+    () => this.require('navigation'),
+    () => this.tabs.activeContent(),
+  );
 
   private readonly disposables: Disposable[] = [];
 
@@ -89,6 +111,7 @@ export class HostPluginContext implements PluginContext {
   constructor(
     private readonly pluginId: string,
     private readonly isGranted: (capability: Capability) => boolean,
+    private readonly rung: PluginRung,
   ) {
     this.ui = pluginUi(pluginId, () => this.require('ui'));
     const store = inject(PluginStateService).forPlugin(pluginId);
@@ -109,7 +132,7 @@ export class HostPluginContext implements PluginContext {
 
   get activeContent(): () => ActiveContent | null {
     this.require('navigation');
-    return this.tabs.activeContent;
+    return this.shownContent;
   }
 
   isShowingUnder(path: string): boolean {
@@ -154,16 +177,12 @@ export class HostPluginContext implements PluginContext {
 
   retitleSurface(id: string, title: string): void {
     this.require('contributions');
-    if (surfaceOwnedBy(this.registry, this.pluginId, id)) {
-      this.registry.retitleSurface(id, title);
-    }
+    this.registry.retitleSurface(id, title, this.pluginId);
   }
 
   updateSurfaceAction(id: string, action: ViewAction): void {
     this.require('contributions');
-    if (surfaceOwnedBy(this.registry, this.pluginId, id)) {
-      this.registry.updateSurfaceAction(id, action);
-    }
+    this.registry.updateSurfaceAction(id, action, this.pluginId);
   }
 
   registerSurface(surface: Surface): Disposable {
@@ -175,6 +194,13 @@ export class HostPluginContext implements PluginContext {
     warnIgnoredRetention(this.pluginId, surface);
     warnUnusableContainerLayout(this.pluginId, surface);
 
+    if (
+      this.refusesReplacing(() =>
+        surfaceHolderMessage(this.registry, this.pluginId, surface),
+      )
+    ) {
+      return NOTHING_REGISTERED;
+    }
     const entry = surfaceToEntry(surface);
     if (isRoutableSurface(surface)) {
       const collision = followConflictMessage(
@@ -184,7 +210,7 @@ export class HostPluginContext implements PluginContext {
       );
       if (collision) {
         console.error(collision);
-        return { dispose: () => undefined };
+        return NOTHING_REGISTERED;
       }
       return this.trackWithBadge(
         surface,
@@ -227,6 +253,13 @@ export class HostPluginContext implements PluginContext {
 
   registerMenuItem(item: MenuItem): Disposable {
     this.require('contributions');
+    if (
+      this.refusesReplacing(() =>
+        menuItemHolderMessage(this.registry, this.pluginId, item),
+      )
+    ) {
+      return NOTHING_REGISTERED;
+    }
     return this.track(this.registry.addMenuItem(item, this.pluginId));
   }
 
@@ -306,6 +339,14 @@ export class HostPluginContext implements PluginContext {
       this.pluginId,
     );
     return this.track(registered);
+  }
+
+  private refusesReplacing(heldByAnother: () => string | null): boolean {
+    const refusal = this.rung === 'trusted' ? null : heldByAnother();
+    if (refusal !== null) {
+      console.warn(refusal);
+    }
+    return refusal !== null;
   }
 
   private require(capability: Capability, reason?: string): void {

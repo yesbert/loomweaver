@@ -27,6 +27,7 @@ import { PluginIsolationLevel } from '../../foundation/plugin-isolation-level';
 import { CATALOG_MAX_ISOLATION_LEVEL } from '../../plugin-store/catalog/catalog-level-cap';
 import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 import { PluginDeploymentService } from '../../plugin-store/lifecycle/plugin-deployment.service';
+import { PLUGIN, Plugin } from '../plugin';
 import { FRAME_PLUGIN, FramePlugin } from './frame-plugin';
 import {
   RefusedFramePlugin,
@@ -43,6 +44,8 @@ const ISOLATED_NOTIFICATION_LIMITS: RaiserLimits = {
   atOnce: 3,
   lifetimeMs: 15_000,
 };
+
+const CONNECT_TIME_LIMIT_MS = 30_000;
 
 interface FrameInstance {
   readonly ctx: HostPluginContext;
@@ -92,6 +95,10 @@ export class FramePluginRuntime {
   private readonly plugins =
     inject<readonly FramePlugin[]>(FRAME_PLUGIN, { optional: true }) ?? [];
 
+  private readonly inPageIds = (
+    inject<readonly Plugin[]>(PLUGIN, { optional: true }) ?? []
+  ).map((plugin) => plugin.manifest.id);
+
   private readonly settlement = inject(ActivationSettled);
 
   private readonly instances = new Map<string, FrameInstance>();
@@ -107,18 +114,17 @@ export class FramePluginRuntime {
       return;
     }
     this.started = true;
-    this.install.markComposed(this.plugins.map((plugin) => plugin.id));
-    this.reconcile(
-      this.enablement.disabled(),
-      this.install.installed(),
-      this.deployment.deployed(),
-    );
+    this.install.markComposed([
+      ...this.plugins.map((plugin) => plugin.id),
+      ...this.inPageIds,
+    ]);
+    this.reconcile(this.install.installed(), this.deployment.deployed());
     effect(
       () => {
-        const disabled = this.enablement.disabled();
+        this.enablement.disabled();
         const installed = this.install.installed();
         const deployed = this.deployment.deployed();
-        untracked(() => this.reconcile(disabled, installed, deployed));
+        untracked(() => this.reconcile(installed, deployed));
       },
       { injector: this.injector },
     );
@@ -140,7 +146,6 @@ export class FramePluginRuntime {
     instance.session.end();
     instance.ctx.disposeAll();
     this.grants.unregister(id);
-    this.isolation.unregister(id);
   }
 
   /** Tears down every sandboxed plugin (e.g. on teardown). */
@@ -152,7 +157,6 @@ export class FramePluginRuntime {
   }
 
   private reconcile(
-    disabled: ReadonlySet<string>,
     installed: readonly InstalledPlugin[],
     deployed: readonly InstalledPlugin[],
   ): void {
@@ -161,11 +165,16 @@ export class FramePluginRuntime {
       installed,
       deployed,
       this.catalogMaxLevel,
+      this.inPageIds,
     );
     this.reportRefused(refused);
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
+      this.isolation.register(plugin.id, levelOf(plugin));
       this.listed.add(plugin.id);
+    }
+    const disabled = this.enablement.disabled();
+    for (const plugin of runnable) {
       const enabled = !disabled.has(plugin.id);
       const running = this.instances.get(plugin.id);
       if (enabled && !running) {
@@ -188,6 +197,7 @@ export class FramePluginRuntime {
       }
       this.deactivate(id);
       this.enablement.unregister(id);
+      this.isolation.unregister(id);
       this.listed.delete(id);
     }
   }
@@ -208,9 +218,10 @@ export class FramePluginRuntime {
 
   private activate(plugin: RunnableFramePlugin): void {
     this.grants.register(plugin.id, plugin.capabilities, plugin.granted);
-    this.isolation.register(plugin.id, levelOf(plugin));
-    const ctx = this.factory.create(plugin.id, (capability) =>
-      this.grants.isGranted(plugin.id, capability),
+    const ctx = this.factory.create(
+      plugin.id,
+      (capability) => this.grants.isGranted(plugin.id, capability),
+      levelOf(plugin),
     );
     const session = new FrameSession(ctx.state, this.injector);
     session.addCleanup(
@@ -220,16 +231,17 @@ export class FramePluginRuntime {
     const connection = this.connect(plugin, ctx, session, frame);
     this.settlement.track(connection.promise);
     session.attach(connection.promise);
-    this.instances.set(plugin.id, {
+    const instance: FrameInstance = {
       ctx,
       session,
       connection,
       frame,
       signature: signatureOf(plugin),
-    });
+    };
+    this.instances.set(plugin.id, instance);
 
     connection.promise.catch((error: unknown) => {
-      if (!this.instances.has(plugin.id)) {
+      if (this.instances.get(plugin.id) !== instance) {
         return;
       }
 
@@ -249,6 +261,7 @@ export class FramePluginRuntime {
         remoteWindow: frame.contentWindow as Window,
         allowedOrigins: ['*'],
       }),
+      timeout: CONNECT_TIME_LIMIT_MS,
       methods: frameRpcMethods({
         pluginId: plugin.id,
         ctx,

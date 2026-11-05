@@ -56,25 +56,40 @@ export function pluginUi(pluginId: string, requireUi: () => void): PluginUi {
   };
 }
 
-export function pluginHost(): PluginHost {
+export function pluginHost(requireHost: () => void): PluginHost {
   const version = inject(VersionService);
   const update = inject(UpdateService);
   return {
-    version: version.version,
-    isPreview: version.isPreview,
-    updateAvailable: update.updateAvailable,
-    updatesEnabled: update.enabled,
-    checkForUpdate: () => update.checkForUpdate().then(() => undefined),
-    activateUpdate: () => update.activateUpdate(),
+    version: gated(requireHost, version.version),
+    isPreview: gated(requireHost, version.isPreview),
+    updateAvailable: gated(requireHost, update.updateAvailable),
+    get updatesEnabled() {
+      requireHost();
+      return update.enabled;
+    },
+    checkForUpdate: gated(requireHost, () =>
+      update.checkForUpdate().then(() => undefined),
+    ),
+    activateUpdate: gated(requireHost, () => update.activateUpdate()),
   };
 }
 
-export function pluginSession(): PluginSession {
+export function pluginSession(requireSession: () => void): PluginSession {
   const auth = inject(AuthContext);
   return {
-    authenticated: auth.authenticated,
-    roles: auth.roles,
-    hasRole: (role) => auth.hasRole(role),
+    authenticated: gated(requireSession, auth.authenticated),
+    roles: gated(requireSession, auth.roles),
+    hasRole: gated(requireSession, (role: string) => auth.hasRole(role)),
+  };
+}
+
+export function gated<A extends unknown[], T>(
+  require: () => void,
+  use: (...args: A) => T,
+): (...args: A) => T {
+  return (...args) => {
+    require();
+    return use(...args);
   };
 }
 

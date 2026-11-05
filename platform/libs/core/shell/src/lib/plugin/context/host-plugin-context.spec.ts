@@ -7,6 +7,29 @@ import { CONTAINER_CHILD_REGION } from '../../contributions/surface-normalize';
 import { VIEW_PANE_PREFIX } from '../../regions/pane/tree/pane-address';
 import { ALL, DummyComponent, makeContext } from './host-context-harness';
 import { resolveIcon } from '../../elements/icon/icon-registry';
+import { ContributionRegistry } from '../../contributions/contribution-registry';
+import { surfaceBadge } from '../../regions/pane/chrome/tab-label';
+
+function shareAnIdWithAnotherPlugin(
+  ctx: HostPluginContext,
+  registry: ContributionRegistry,
+): void {
+  registry.addView(
+    {
+      id: 'shared',
+      region: 'primary',
+      title: 't',
+      component: DummyComponent,
+    },
+    'another-plugin',
+  );
+  ctx.registerSurface({
+    id: 'shared',
+    title: 'mine.first',
+    routable: { path: 'shared' },
+    component: DummyComponent,
+  });
+}
 
 function contribute(ctx: HostPluginContext): void {
   ctx.registerCommand({ id: 'c', title: 't', run: () => undefined });
@@ -140,8 +163,12 @@ describe('HostPluginContext', () => {
     });
 
     it('exposes the host active-content read through ctx.activeContent', () => {
-      const { ctx, tabs } = makeContext();
-      expect(ctx.activeContent).toBe(tabs.activeContent);
+      const { ctx, shown } = makeContext();
+      expect(ctx.activeContent()).toBeNull();
+
+      shown.set({ path: 'doc/7' });
+
+      expect(ctx.activeContent()).toEqual({ path: 'doc/7' });
     });
 
     it('requires the "navigation" capability for ctx.activeContent', () => {
@@ -200,6 +227,15 @@ describe('HostPluginContext', () => {
       expect(registry.views()[0].title).toBe('t');
     });
 
+    it("reaches only its own surface where another plugin's carries the same id", () => {
+      const { ctx, registry } = makeContext();
+      shareAnIdWithAnotherPlugin(ctx, registry);
+
+      ctx.retitleSurface('shared', 'mine.second');
+
+      expect(registry.views()[0].title).toBe('t');
+    });
+
     it('needs the "contributions" capability', () => {
       const { ctx } = makeContext(['ui', 'host']);
 
@@ -224,7 +260,7 @@ describe('HostPluginContext', () => {
       const { ctx, registry } = makeContext();
       nav(ctx, BETA);
 
-      expect(registry.badgeOf('nav')).toEqual(BETA);
+      expect(registry.badgeOf('nav', 'test-plugin')).toEqual(BETA);
     });
 
     it('replaces it, takes it away, and leaves an unknown id alone', () => {
@@ -232,13 +268,13 @@ describe('HostPluginContext', () => {
       nav(ctx);
 
       ctx.updateSurfaceBadge('nav', BETA);
-      expect(registry.badgeOf('nav')).toEqual(BETA);
+      expect(registry.badgeOf('nav', 'test-plugin')).toEqual(BETA);
 
       ctx.updateSurfaceBadge('other', BETA);
-      expect(registry.badgeOf('other')).toBeUndefined();
+      expect(registry.badgeOf('other', 'test-plugin')).toBeUndefined();
 
       ctx.updateSurfaceBadge('nav', null);
-      expect(registry.badgeOf('nav')).toBeUndefined();
+      expect(registry.badgeOf('nav', 'test-plugin')).toBeUndefined();
     });
 
     it('does not rebuild the surface', () => {
@@ -255,12 +291,12 @@ describe('HostPluginContext', () => {
       const { ctx, registry } = makeContext();
       const first = nav(ctx, BETA);
       nav(ctx);
-      expect(registry.badgeOf('nav')).toBeUndefined();
+      expect(registry.badgeOf('nav', 'test-plugin')).toBeUndefined();
 
       ctx.updateSurfaceBadge('nav', BETA);
       first.dispose();
       nav(ctx, BETA).dispose();
-      expect(registry.badgeOf('nav')).toBeUndefined();
+      expect(registry.badgeOf('nav', 'test-plugin')).toBeUndefined();
     });
 
     it('needs the "contributions" capability', () => {
@@ -288,6 +324,16 @@ describe('HostPluginContext', () => {
       expect(registry.badgeOf('theirs')).toBeUndefined();
     });
 
+    it("reaches only its own surface where another plugin's carries the same id", () => {
+      const { ctx, registry } = makeContext();
+      shareAnIdWithAnotherPlugin(ctx, registry);
+
+      ctx.updateSurfaceBadge('shared', BETA);
+
+      expect(surfaceBadge(registry, `${VIEW_PANE_PREFIX}shared`)).toBeUndefined();
+      expect(surfaceBadge(registry, 'shared')).toEqual(BETA);
+    });
+
     it('can be changed from an effect without the effect running again on its own', () => {
       const { ctx, registry } = makeContext();
       nav(ctx);
@@ -303,7 +349,7 @@ describe('HostPluginContext', () => {
       flagged.set(true);
       TestBed.tick();
 
-      expect(registry.badgeOf('nav')).toEqual(BETA);
+      expect(registry.badgeOf('nav', 'test-plugin')).toEqual(BETA);
       expect(runs).toBe(2);
     });
 
@@ -313,7 +359,7 @@ describe('HostPluginContext', () => {
 
       registry.removeViewById('nav');
 
-      expect(registry.badgeOf('nav')).toBeUndefined();
+      expect(registry.badgeOf('nav', 'test-plugin')).toBeUndefined();
     });
   });
 
@@ -487,6 +533,16 @@ describe('HostPluginContext', () => {
       ctx.updateSurfaceAction('theirs', { ...first, run: () => undefined });
 
       expect(registry.views()[0].actions).toEqual([first]);
+    });
+
+    it("reaches only its own surface where another plugin's carries the same id", () => {
+      const { ctx, registry } = makeContext();
+      shareAnIdWithAnotherPlugin(ctx, registry);
+
+      ctx.updateSurfaceAction('shared', first);
+
+      expect(registry.views()[0].actions).toBeUndefined();
+      expect(registry.contentRoutes()[0].actions).toEqual([first]);
     });
 
     it('needs the "contributions" capability', () => {
@@ -678,6 +734,33 @@ describe('HostPluginContext command invocation', () => {
     const { ctx } = makeContext();
 
     expect(ctx.hasUnsavedWork('nowhere')).toBe(false);
+  });
+});
+
+describe('a facade the plugin kept', () => {
+  it('refuses on its next use once the capability behind it is revoked', () => {
+    const { ctx, grants } = makeContext();
+    const host = ctx.host;
+    const session = ctx.session;
+    const activeContent = ctx.activeContent;
+    expect(host.version()).toEqual(expect.any(String));
+    expect(session.authenticated()).toBe(false);
+    expect(activeContent()).toBeNull();
+
+    grants.delete('host');
+    grants.delete('session');
+    grants.delete('navigation');
+
+    expect(() => host.version()).toThrow(CapabilityError);
+    expect(() => host.isPreview()).toThrow(CapabilityError);
+    expect(() => host.updateAvailable()).toThrow(CapabilityError);
+    expect(() => host.updatesEnabled).toThrow(CapabilityError);
+    expect(() => host.checkForUpdate()).toThrow(CapabilityError);
+    expect(() => host.activateUpdate()).toThrow(CapabilityError);
+    expect(() => session.authenticated()).toThrow(CapabilityError);
+    expect(() => session.roles()).toThrow(CapabilityError);
+    expect(() => session.hasRole('admin')).toThrow(CapabilityError);
+    expect(() => activeContent()).toThrow(CapabilityError);
   });
 });
 

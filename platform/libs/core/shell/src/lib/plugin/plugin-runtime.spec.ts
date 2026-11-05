@@ -9,6 +9,8 @@ import { provideCapabilityGrants } from '../permissions/provide-capability-grant
 import { PluginEnablementService } from './enablement/plugin-enablement.service';
 import { MenuService } from '../menu/menu.service';
 import { CapabilityGrantService } from '../permissions/capability-grant.service';
+import { SETTINGS_STORE } from '../persistence/settings-store';
+import { provideRequiredPlugins } from '../foundation/required-plugins';
 
 class DummyComponent {}
 
@@ -333,5 +335,60 @@ describe('PluginRuntime', () => {
     expect(registry.commands()).toHaveLength(0);
     expect(commandsAtReport).toEqual([0]);
     error.mockRestore();
+  });
+});
+
+describe('PluginRuntime with a settings store that answers only asynchronously', () => {
+  function slowStore(stored: Record<string, string>) {
+    const answered = new Subject<void>();
+    const asked = firstValueFrom(answered);
+    return {
+      answer: () => answered.next(),
+      store: {
+        get: (key: string) => asked.then(() => stored[key]),
+        set: () => Promise.resolve(),
+        delete: () => Promise.resolve(),
+      },
+    };
+  }
+
+  function compose(ids: readonly string[], required: readonly string[]) {
+    const { store, answer } = slowStore({
+      'lw.shell.disabled-plugins': JSON.stringify(['off', 'core']),
+    });
+    const activated: string[] = [];
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        menuStub,
+        { provide: SETTINGS_STORE, useValue: store },
+        provideRequiredPlugins(...required),
+        ...ids.map((id) => ({
+          provide: PLUGIN,
+          useValue: {
+            manifest: { id },
+            activate: () => void activated.push(id),
+          } satisfies Plugin,
+          multi: true,
+        })),
+      ],
+    });
+    TestBed.inject(PluginRuntime).activateAll();
+    return { activated, answer };
+  }
+
+  it('does not activate a plugin the user switched off before the store answers, nor after', async () => {
+    const { activated, answer } = compose(['off', 'on', 'core'], ['core']);
+    TestBed.tick();
+
+    expect(activated).toEqual(['core']);
+
+    answer();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    expect(activated).toEqual(['core', 'on']);
   });
 });
