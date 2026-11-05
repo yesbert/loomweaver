@@ -116,26 +116,22 @@ export class ToolbarLayout {
     (stops[0] ?? tray).focus?.();
   }
 
-  holdsFocus(): boolean {
-    return this.trayOpen && this.tray()?.contains(document.activeElement) === true;
-  }
-
-  stepInTray(event: KeyboardEvent): void {
+  stepInTray(event: KeyboardEvent): boolean {
     const tray = this.tray();
-    if (!tray) {
-      return;
+    if (!this.trayOpen || !tray?.contains(document.activeElement)) {
+      return false;
     }
     const stops = focusStopsOf(tray.children);
     const current = stops.indexOf(document.activeElement as HTMLElement);
     const next =
       rovingStep(event.key, current, stops.length, 'vertical') ??
       rovingStep(event.key, current, stops.length, 'horizontal');
-    if (next === undefined) {
-      return;
+    if (next !== undefined) {
+      rovingTabIndex(stops, next);
+      focusAndReveal(stops[next]);
+      event.preventDefault();
     }
-    rovingTabIndex(stops, next);
-    focusAndReveal(stops[next]);
-    event.preventDefault();
+    return true;
   }
 
   closeAfterChoice(chosen: HTMLElement): void {

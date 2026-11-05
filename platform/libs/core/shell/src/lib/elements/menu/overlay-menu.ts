@@ -18,6 +18,12 @@ export function focusReturnOf(menu: HTMLElement): HTMLElement | undefined {
   return focusReturns.get(menu);
 }
 
+export function focusBehindMenu(root: Document): HTMLElement | null {
+  const active = root.activeElement as HTMLElement | null;
+  const menu = overlayMenuIn(root);
+  return menu?.contains(active) ? (focusReturns.get(menu) ?? null) : active;
+}
+
 export function inheritFocusReturn(root: Document, target: HTMLElement): boolean {
   const menu = overlayMenuIn(root);
   if (!menu?.contains(root.activeElement)) {

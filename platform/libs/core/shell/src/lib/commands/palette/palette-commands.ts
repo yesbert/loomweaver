@@ -7,14 +7,21 @@ import {
   QUICK_OPEN_COMMAND_ID,
 } from './command-palette';
 
+interface OpenSearch {
+  readonly ref: DialogRef;
+  readonly title: string;
+}
+
+const openSearches = new WeakMap<DialogService, OpenSearch>();
+
 function searchOpener(
   dialogs: DialogService,
   title: string,
   data?: { readonly mode: 'tabs' },
 ): () => void {
-  let open: DialogRef | undefined;
   return () => {
-    if (open) {
+    const open = openSearches.get(dialogs);
+    if (open?.title === title) {
       return;
     }
     const ref = dialogs.open(CommandPalette, {
@@ -24,10 +31,13 @@ function searchOpener(
       title,
       ...(data && { data }),
     });
-    open = ref;
+    openSearches.set(dialogs, { ref, title });
     void ref.closed.then(() => {
-      open = undefined;
+      if (openSearches.get(dialogs)?.ref === ref) {
+        openSearches.delete(dialogs);
+      }
     });
+    open?.ref.close();
   };
 }
 

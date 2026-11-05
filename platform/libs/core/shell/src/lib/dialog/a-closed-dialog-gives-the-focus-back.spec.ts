@@ -42,7 +42,15 @@ function setup() {
     fixture.detectChanges();
   }
 
-  return { host, opener, open, settled, fixture };
+  function openFromInside(): DialogRef {
+    const inside = [...host.querySelectorAll<HTMLButtonElement>('dialog button')].at(-1);
+    inside?.focus();
+    const ref = service.open(Body, { title: 'upper' });
+    fixture.detectChanges();
+    return ref;
+  }
+
+  return { host, opener, open, openFromInside, settled, fixture };
 }
 
 describe('a closed dialog gives the focus back', () => {
@@ -96,6 +104,34 @@ describe('a closed dialog gives the focus back', () => {
     await t.settled(ref);
 
     expect(document.activeElement).toBe(t.opener);
+  });
+
+  it('returns the focus to the first opener when a dialog opened from inside another outlives it', async () => {
+    const t = setup();
+    const lower = t.open();
+    const upper = t.openFromInside();
+
+    lower.close();
+    await t.settled(lower);
+    expect(t.host.querySelectorAll('dialog')).toHaveLength(1);
+    upper.close();
+    await t.settled(upper);
+
+    expect(document.activeElement).toBe(t.opener);
+  });
+
+  it('leaves the focus in the upper dialog while the lower one closes under it', async () => {
+    const t = setup();
+    const lower = t.open();
+    t.openFromInside();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const held = [...t.host.querySelectorAll('dialog')[1].querySelectorAll('button')].at(-1) as HTMLElement;
+    held.focus();
+
+    lower.close();
+    await t.settled(lower);
+
+    expect(document.activeElement).toBe(held);
   });
 
   it('leaves the focus alone when the opener has left the page', async () => {

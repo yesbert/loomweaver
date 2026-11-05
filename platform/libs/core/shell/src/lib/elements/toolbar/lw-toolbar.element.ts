@@ -16,6 +16,7 @@ import {
   parseContext,
   reflectExpanded,
   RowItem,
+  typesText,
 } from './toolbar-dom';
 import { LwToolbarEntry } from './toolbar-entry';
 import { ToolbarLayout } from './toolbar-layout';
@@ -254,8 +255,7 @@ export class LwToolbarElement extends HTMLElement {
       event.preventDefault();
       return;
     }
-    if (this.layout.holdsFocus()) {
-      this.layout.stepInTray(event);
+    if (typesText(event) || this.layout.stepInTray(event)) {
       return;
     }
     const stops = focusStopsOf(this.children);

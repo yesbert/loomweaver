@@ -53,7 +53,8 @@ const TONE_CIRCLE: Record<DialogTone, string> = {
  * already handled is left alone), focus into the newest dialog, and a lightweight focus trap, which
  * leaves the focus with a menu opened above the dialog.
  * `DialogService` returns the focus to the opener once the closed dialog has left the page, or
- * leaves that to a menu that holds the focus by then.
+ * leaves that to a menu that holds the focus by then; a dialog that closes under another hands its
+ * opener to the one above where that one's own opener is gone.
  */
 @Component({
   selector: 'lw-dialog-outlet',

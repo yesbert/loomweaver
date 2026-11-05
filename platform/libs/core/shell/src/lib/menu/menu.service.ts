@@ -1,10 +1,12 @@
 import {
   afterNextRender,
   DestroyRef,
+  effect,
   inject,
   Injector,
   Service,
   signal,
+  untracked,
 } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
@@ -17,6 +19,7 @@ import {
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { CommandService } from '../commands/command.service';
 import { AuthContext } from '../auth/auth-context';
+import { DialogService } from '../dialog/dialog.service';
 import { HEADING_KEY } from './menu-heading';
 import { followed, MenuAnchor, place } from './menu-placement';
 import { MenuLabel } from './menu-wording';
@@ -86,12 +89,23 @@ export class MenuService {
 
   private readonly trigger = signal<HTMLElement | null>(null);
 
+  private readonly dialogs = inject(DialogService).dialogs;
+
+  private dialogsOpen = 0;
+
   private current?: OpenMenu;
 
   readonly openTrigger = this.trigger.asReadonly();
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.close());
+    effect(() => {
+      const open = this.dialogs().length;
+      if (open > this.dialogsOpen) {
+        untracked(() => this.close());
+      }
+      this.dialogsOpen = open;
+    });
   }
 
   open(

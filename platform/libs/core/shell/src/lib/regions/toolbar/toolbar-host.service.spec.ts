@@ -4,7 +4,11 @@ import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { ANONYMOUS, AuthSnapshot, MenuContext, TOOLBAR_CONTEXT } from '@loomweaver/plugin-sdk';
 import { AUTH_SOURCE } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
-import { ToolbarRegistry } from '../../contributions/toolbar-registry';
+import {
+  SURFACE_OWNER_MARK,
+  surfaceActionsSlot,
+  ToolbarRegistry,
+} from '../../contributions/toolbar-registry';
 import { defineLwIcon } from '../../elements/icon/lw-icon.element';
 import {
   defineLwMenu,
@@ -250,6 +254,61 @@ describe('ToolbarHost', () => {
 
     expect(toolbar.getAttribute('aria-label')).toBe('Sources');
     expect(toolbar.getAttribute('label')).toBe('records.sources');
+  });
+
+  describe('placed by the name of a surface’s actions where two owners hold that id', () => {
+    const action = (id: string) => ({ id, icon: 'add', title: id, run: () => undefined });
+
+    function placedIn(parent: HTMLElement, context: MenuContext = {}): string[] {
+      registry.addView(
+        {
+          id: 'shared',
+          region: 'primary',
+          title: 'One',
+          component: class {},
+          actions: [action('one.act')],
+        } as unknown as Parameters<ContributionRegistry['addView']>[0],
+        'one',
+      );
+      registry.addContentRoute(
+        {
+          id: 'shared',
+          path: 'shared',
+          component: class {},
+          actions: [action('two.act')],
+        } as unknown as Parameters<ContributionRegistry['addContentRoute']>[0],
+        'two',
+      );
+      const toolbar = document.createElement(LW_TOOLBAR_TAG) as LwToolbarElement;
+      toolbar.setAttribute('menu', surfaceActionsSlot('shared'));
+      toolbar.context = context;
+      parent.append(toolbar);
+      document.body.append(parent.parentElement ?? parent);
+      TestBed.tick();
+      return [...toolbar.querySelectorAll('button[data-lw-entry]')].map(
+        (button) => button.getAttribute('data-lw-entry') ?? '',
+      );
+    }
+
+    function bodyOf(owner: string): HTMLElement {
+      const body = document.createElement('div');
+      body.setAttribute(SURFACE_OWNER_MARK, owner);
+      const inner = document.createElement('section');
+      body.append(inner);
+      return inner;
+    }
+
+    it('reads the actions of the surface it stands in', () => {
+      expect(placedIn(bodyOf('two'))).toEqual(['two.act']);
+    });
+
+    it('keeps the owner the workbench’s own actions row names over the surface around it', () => {
+      expect(placedIn(bodyOf('two'), { surfaceOwner: 'one' })).toEqual(['one.act']);
+    });
+
+    it('reads the first registered where it stands in no surface', () => {
+      expect(placedIn(document.createElement('div'))).toEqual(['one.act']);
+    });
   });
 
   it('words its name again when the language changes', () => {

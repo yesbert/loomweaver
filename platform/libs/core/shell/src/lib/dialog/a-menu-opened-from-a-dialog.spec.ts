@@ -62,6 +62,59 @@ async function setup() {
   return { host, more, menu, menus, fixture };
 }
 
+describe('a dialog that opens from code while a menu is open', () => {
+  afterEach(() => {
+    TestBed.inject(MenuService).close();
+    document.body.replaceChildren();
+  });
+
+  async function openedOverAMenu() {
+    TestBed.configureTestingModule({
+      imports: [
+        DialogOutlet,
+        TranslocoTestingModule.forRoot({
+          langs: { en: { dialog: { close: 'Close' } } },
+          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+          preloadLangs: true,
+        }),
+      ],
+    });
+    const dialogs = TestBed.inject(DialogService);
+    const menus = TestBed.inject(MenuService);
+    const fixture = TestBed.createComponent(DialogOutlet);
+    const opener = document.createElement('button');
+    document.body.append(opener, fixture.nativeElement as HTMLElement);
+    fixture.detectChanges();
+    opener.focus();
+    menus.openList([{ key: 'one', label: 'One' }], { x: 0, y: 0 }, () => undefined, opener);
+    await tick();
+    const ref = dialogs.open(Body, { title: 't' });
+    fixture.detectChanges();
+    await tick();
+    fixture.detectChanges();
+    return { ref, opener, fixture, host: fixture.nativeElement as HTMLElement };
+  }
+
+  it('closes the menu, which would otherwise be drawn above it', async () => {
+    const t = await openedOverAMenu();
+
+    expect(document.body.querySelector(LW_MENU_TAG)).toBeNull();
+    expect(t.host.querySelector('dialog')?.contains(document.activeElement)).toBe(true);
+  });
+
+  it('gives the focus back to what opened the menu once it closes', async () => {
+    const t = await openedOverAMenu();
+
+    t.ref.close();
+    await t.ref.closed;
+    t.fixture.detectChanges();
+    await tick();
+    t.fixture.detectChanges();
+
+    expect(document.activeElement).toBe(t.opener);
+  });
+});
+
 describe('a menu opened from inside a dialog', () => {
   afterEach(() => {
     TestBed.inject(MenuService).close();

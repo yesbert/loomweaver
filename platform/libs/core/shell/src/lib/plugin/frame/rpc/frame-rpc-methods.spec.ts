@@ -11,7 +11,7 @@ import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-ins
 import { FrameSession } from '../frame-session';
 import { LocalStorageStore } from '../../../persistence/key-value-store';
 import { SettingsService } from '../../../settings-dialog/settings.service';
-import { frameRpcMethods } from './frame-rpc-methods';
+import { FrameRpcDeps, frameRpcMethods } from './frame-rpc-methods';
 import { matchRoute } from '../../../regions/content/content-path';
 
 function methodsFor(ctx: Partial<HostPluginContext>, session = {}) {
@@ -227,6 +227,7 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     pluginId: string,
     stopSync: () => void = () => undefined,
     granted = true,
+    wired: Partial<FrameRpcDeps> = {},
   ) {
     const ctx = TestBed.inject(HostContextFactory).create(
       pluginId,
@@ -245,6 +246,7 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
       store: new LocalStorageStore(),
       sync: { register: () => stopSync } as unknown as StateSyncService,
       reportRefusal: () => undefined,
+      ...wired,
     });
   }
 
@@ -322,6 +324,25 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     );
 
     expect(stopSync).not.toHaveBeenCalled();
+    localStorage.clear();
+  });
+
+  it('a frame that registers its settings section again hears a change from another window once', async () => {
+    composition();
+    const told = vi.fn();
+    const sync = TestBed.inject(StateSyncService);
+    const methods = framedSections('acme', undefined, true, {
+      sync,
+      session: { notify: told, addCleanup: () => undefined } as unknown as FrameSession,
+    });
+    methods.registerSettingsSection(sectionTitled('First', 'prefs'));
+    methods.registerSettingsSection(sectionTitled('Second', 'prefs'));
+    told.mockClear();
+
+    sync.notifyRemoteChange('lw.plugin-settings:acme:prefs');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(told).toHaveBeenCalledTimes(1);
     localStorage.clear();
   });
 
