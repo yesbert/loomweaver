@@ -4,19 +4,30 @@ export function entryWidth(node: HTMLElement): number {
   return Math.max(node.getBoundingClientRect().width, node.scrollWidth);
 }
 
+export type OutsideReason = 'pointer' | 'window';
+
 export function closeOnOutsidePointer(
   document: Document,
   inside: (target: Node | null) => boolean,
-  close: () => void,
+  close: (reason: OutsideReason) => void,
 ): () => void {
   const onPointer = (event: PointerEvent): void => {
     if (!inside(event.target as Node | null)) {
-      close();
+      close('pointer');
+    }
+  };
+  const view = document.defaultView;
+  const onWindowBlur = (event: Event): void => {
+    if (event.target === event.currentTarget) {
+      close('window');
     }
   };
   document.addEventListener('pointerdown', onPointer, { capture: true });
-  return () =>
+  view?.addEventListener('blur', onWindowBlur);
+  return () => {
     document.removeEventListener('pointerdown', onPointer, { capture: true });
+    view?.removeEventListener('blur', onWindowBlur);
+  };
 }
 
 export interface FoldMeasure {

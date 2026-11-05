@@ -147,13 +147,15 @@ export class ShellBar {
     }
   }
 
-  protected closeTray(): void {
+  protected closeTray(restoreFocus = true): void {
     if (!this.trayOpen()) {
       return;
     }
     this.trayOpen.set(false);
     this.stopListeningOutside();
-    this.foldControl()?.nativeElement.focus();
+    if (restoreFocus) {
+      this.foldControl()?.nativeElement.focus();
+    }
   }
 
   private openTray(): void {
@@ -163,7 +165,7 @@ export class ShellBar {
       (target) =>
         this.tray()?.nativeElement.contains(target) === true ||
         this.foldControl()?.nativeElement.contains(target) === true,
-      () => this.closeTray(),
+      (reason) => this.closeTray(reason === 'pointer'),
     );
     this.document.addEventListener('keydown', this.onEscape);
   }

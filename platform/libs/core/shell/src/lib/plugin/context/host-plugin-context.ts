@@ -67,7 +67,7 @@ import {
   surfaceHolderMessage,
 } from './surface-admission';
 
-const NOTHING_REGISTERED: Disposable = { dispose: () => undefined };
+export const NOTHING_REGISTERED: Disposable = { dispose: () => undefined };
 
 export class HostPluginContext implements PluginContext {
   private readonly registry = inject(ContributionRegistry);

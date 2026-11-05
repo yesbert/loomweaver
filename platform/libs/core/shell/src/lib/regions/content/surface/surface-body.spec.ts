@@ -11,6 +11,7 @@ import {
   SURFACE_PADDING,
 } from '../../../foundation/surface-padding';
 import { SurfaceBody } from './surface-body';
+import { SURFACE_OWNER_MARK } from '../../../contributions/toolbar-registry';
 import { hostablePaneTargets, navigablePaneTargets } from '../pane-targets';
 import { liveSurfaceRoute } from './live-surface-route';
 import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
@@ -441,6 +442,48 @@ class RouteProbe {
     probedRoutes.push(inject(ActivatedRoute));
   }
 }
+
+describe('SurfaceBody says whose surface it shows', () => {
+  async function bodyShowing(path: string, owner?: string): Promise<HTMLElement> {
+    TestBed.configureTestingModule({
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [provideRouter([])],
+    });
+    TestBed.inject(ContributionRegistry).addContentRoute(
+      { path: 'doc', component: ParamView } as ContentRoute,
+      owner,
+    );
+    const fixture = TestBed.createComponent(SurfaceBody);
+    fixture.componentRef.setInput('path', path);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('is marked with the plugin that owns the surface', async () => {
+    const body = await bodyShowing('doc', 'acme');
+
+    expect(body.getAttribute(SURFACE_OWNER_MARK)).toBe('acme');
+  });
+
+  it('is marked as the workbench’s own where no plugin owns the surface', async () => {
+    const body = await bodyShowing('doc');
+
+    expect(body.getAttribute(SURFACE_OWNER_MARK)).toBe('');
+  });
+
+  it('carries no mark while it shows no surface', async () => {
+    const body = await bodyShowing('nowhere', 'acme');
+
+    expect(body.hasAttribute(SURFACE_OWNER_MARK)).toBe(false);
+  });
+});
 
 describe('SurfaceBody releasing what it no longer shows', () => {
   async function visit(paths: readonly string[], retain?: 'always') {

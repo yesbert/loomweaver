@@ -1,4 +1,4 @@
-import { Disposable } from '@loomweaver/plugin-sdk';
+import { DialogRef, Disposable } from '@loomweaver/plugin-sdk';
 import { DialogService } from '../../dialog/dialog.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import {
@@ -7,18 +7,38 @@ import {
   QUICK_OPEN_COMMAND_ID,
 } from './command-palette';
 
-function openPalette(
+interface OpenSearch {
+  readonly ref: DialogRef;
+  readonly title: string;
+}
+
+const openSearches = new WeakMap<DialogService, OpenSearch>();
+
+function searchOpener(
   dialogs: DialogService,
   title: string,
   data?: { readonly mode: 'tabs' },
-): void {
-  dialogs.open(CommandPalette, {
-    bare: true,
-    size: 'lg',
-    align: 'top',
-    title,
-    ...(data && { data }),
-  });
+): () => void {
+  return () => {
+    const open = openSearches.get(dialogs);
+    if (open?.title === title) {
+      return;
+    }
+    const ref = dialogs.open(CommandPalette, {
+      bare: true,
+      size: 'lg',
+      align: 'top',
+      title,
+      ...(data && { data }),
+    });
+    openSearches.set(dialogs, { ref, title });
+    void ref.closed.then(() => {
+      if (openSearches.get(dialogs)?.ref === ref) {
+        openSearches.delete(dialogs);
+      }
+    });
+    open?.ref.close();
+  };
 }
 
 export function registerPaletteCommand(
@@ -31,7 +51,7 @@ export function registerPaletteCommand(
     icon: 'search',
     shortcut: 'mod+k',
     popout: true,
-    run: () => openPalette(dialogs, 'palette.title'),
+    run: searchOpener(dialogs, 'palette.title'),
   });
 }
 
@@ -44,6 +64,6 @@ export function registerQuickOpenCommand(
     title: 'palette.quickOpenTitle',
     icon: 'openWork',
     shortcut: 'mod+p',
-    run: () => openPalette(dialogs, 'palette.quickOpenTitle', { mode: 'tabs' }),
+    run: searchOpener(dialogs, 'palette.quickOpenTitle', { mode: 'tabs' }),
   });
 }

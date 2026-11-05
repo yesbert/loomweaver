@@ -127,6 +127,143 @@ describe('KeybindingService', () => {
     input.remove();
   });
 
+  it('runs no command for a key something already handled', () => {
+    registry.addCommand({
+      id: 'do.save',
+      title: 't',
+      shortcut: 'mod+s',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const grid = document.createElement('div');
+    grid.addEventListener('keydown', (event) => event.preventDefault());
+    document.body.append(grid);
+
+    press(grid, { key: 's', ctrlKey: true });
+
+    expect(execute).not.toHaveBeenCalled();
+    grid.remove();
+  });
+
+  it('does not hijack a plain key typed in a field inside a shadow root', () => {
+    registry.addCommand({
+      id: 'do.a',
+      title: 't',
+      shortcut: 'a',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const host = document.createElement('div');
+    const field = document.createElement('input');
+    host.attachShadow({ mode: 'open' }).append(field);
+    document.body.append(host);
+
+    const prevented = press(field, { key: 'a', composed: true });
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+    host.remove();
+  });
+
+  it('runs no command for a key pressed while a character is being composed', () => {
+    registry.addCommand({
+      id: 'do.add',
+      title: 't',
+      shortcut: 'mod+enter',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const input = document.createElement('input');
+    document.body.append(input);
+
+    const prevented = press(input, { key: 'Enter', ctrlKey: true, isComposing: true });
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+    input.remove();
+  });
+
+  it('lets AltGr type its character in a field where the same keys are a chord', () => {
+    registry.addCommand({
+      id: 'do.export',
+      title: 't',
+      shortcut: 'ctrl+alt+e',
+      run: () => undefined,
+    });
+    keybindings.start();
+    const input = document.createElement('input');
+    document.body.append(input);
+
+    const prevented = press(input, {
+      key: '€',
+      code: 'KeyE',
+      ctrlKey: true,
+      altKey: true,
+      modifierAltGraph: true,
+    });
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+
+    press(input, { key: 'e', code: 'KeyE', ctrlKey: true, altKey: true });
+    expect(execute).toHaveBeenCalledWith('do.export');
+    input.remove();
+  });
+
+  describe('a key that types', () => {
+    function bound(shortcut: string): HTMLInputElement {
+      registry.addCommand({ id: 'do.it', title: 't', shortcut, run: () => undefined });
+      keybindings.start();
+      const input = document.createElement('input');
+      document.body.append(input);
+      return input;
+    }
+
+    afterEach(() => document.body.replaceChildren());
+
+    it('types "@" with Option+L on a German Mac and runs no chord', () => {
+      const input = bound('alt+l');
+
+      const prevented = press(input, { key: '@', code: 'KeyL', altKey: true });
+
+      expect(execute).not.toHaveBeenCalled();
+      expect(prevented).toBe(false);
+    });
+
+    it('types "@" with Ctrl+Alt+Q on German Windows and runs no chord', () => {
+      const input = bound('ctrl+alt+q');
+
+      const prevented = press(input, { key: '@', code: 'KeyQ', ctrlKey: true, altKey: true });
+
+      expect(execute).not.toHaveBeenCalled();
+      expect(prevented).toBe(false);
+    });
+
+    it('runs Ctrl+Alt+L on a US layout, where the key is its own base key', () => {
+      const input = bound('ctrl+alt+l');
+
+      press(input, { key: 'l', code: 'KeyL', ctrlKey: true, altKey: true });
+
+      expect(execute).toHaveBeenCalledWith('do.it');
+    });
+
+    it('runs a chord with Ctrl and Shift on a digit, which inserts nothing although the key reads "!"', () => {
+      const input = bound('ctrl+shift+1');
+
+      press(input, { key: '!', code: 'Digit1', ctrlKey: true, shiftKey: true });
+
+      expect(execute).toHaveBeenCalledWith('do.it');
+    });
+
+    it('leaves a chord outside a field untouched, whatever the layout made of the key', () => {
+      bound('alt+l');
+
+      press(document.body, { key: '@', code: 'KeyL', altKey: true });
+
+      expect(execute).toHaveBeenCalledWith('do.it');
+    });
+  });
+
   it('warns on a shortcut clash and lets the last command win', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     registry.addCommand({

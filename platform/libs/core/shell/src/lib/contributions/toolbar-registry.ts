@@ -16,6 +16,8 @@ const ACTIONS_SLOT_SUFFIX = '/actions';
 
 export const SURFACE_OWNER = 'surfaceOwner';
 
+export const SURFACE_OWNER_MARK = 'data-lw-surface-owner';
+
 export function withoutSurfaceOwner(context: MenuContext): MenuContext {
   return Object.fromEntries(
     Object.entries(context).filter(([key]) => key !== SURFACE_OWNER),

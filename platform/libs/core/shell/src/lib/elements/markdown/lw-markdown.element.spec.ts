@@ -31,6 +31,15 @@ describe('<lw-markdown> custom element', () => {
     expect(html).toContain('ok');
   });
 
+  it('renders a link that carries a script without its address', () => {
+    const written = render('[go](javascript:alert(1))');
+    const raw = render('<a href="javascript:alert(1)">go</a>');
+
+    expect(written).toContain('go');
+    expect(written).not.toContain('javascript:');
+    expect(raw).not.toContain('javascript:');
+  });
+
   it('re-renders when the source attribute changes', () => {
     const element = document.createElement(LW_MARKDOWN_TAG);
     element.setAttribute('source', '*one*');

@@ -92,6 +92,39 @@ describe('<lw-menu> custom element', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it('leaves a modified arrow, Home or End alone, so a command bound to it still runs', () => {
+    const menu = mount([
+      ['a', 'Open'],
+      ['b', 'Close'],
+    ]);
+    menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    const [first] = itemsOf(menu);
+    const press = (k: string, modifiers: KeyboardEventInit): boolean => {
+      const event = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true, ...modifiers });
+      first.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    const prevented = [
+      press('ArrowDown', { altKey: true }),
+      press('End', { ctrlKey: true }),
+      press('ArrowDown', { metaKey: true }),
+    ];
+
+    expect(document.activeElement).toBe(first);
+    expect(prevented).toEqual([false, false, false]);
+  });
+
+  it('still dismisses on Shift+Tab', () => {
+    const menu = mount([['a', 'Open']]);
+    const onDismiss = vi.fn();
+    menu.addEventListener(LW_MENU_DISMISS, onDismiss);
+
+    menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true }));
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
   it('emits lw-menu-dismiss on Escape', () => {
     const menu = mount([['a', 'Close']]);
     const onDismiss = vi.fn();
@@ -438,6 +471,17 @@ describe('<lw-menu> custom element', () => {
       expect(ownWords(move)).toBe('Verschieben');
     });
 
+    it('keeps the focus on its row when its words change', () => {
+      const { menu, holder, move } = mountNested();
+      press(menu, 'ArrowDown');
+      press(menu, 'ArrowDown');
+      expect(document.activeElement).toBe(move);
+
+      holder.setAttribute('label', 'Verschieben');
+
+      expect(document.activeElement).toBe(move);
+    });
+
     it('marks an entry whose submenu arrives after it was drawn', async () => {
       const menu = mount([['a', 'Resize']]);
       const entry = itemsOf(menu)[0];
@@ -600,6 +644,20 @@ describe('<lw-menu> custom element', () => {
         expect(submenu.hidden).toBe(false);
         vi.advanceTimersByTime(200);
         expect(submenu.hidden).toBe(true);
+      });
+
+      it('takes the focus back to its entry when it closes under the pointer while the keyboard is inside', () => {
+        const { menu, move, submenu, steps } = mountNested();
+        press(menu, 'ArrowDown');
+        press(menu, 'ArrowDown');
+        press(move, 'ArrowRight');
+        expect(document.activeElement).toBe(steps[0]);
+
+        hover(itemsOf(menu)[0]);
+        vi.advanceTimersByTime(200);
+
+        expect(submenu.hidden).toBe(true);
+        expect(document.activeElement).toBe(move);
       });
 
       it('stays open when the pointer moves on into it', () => {

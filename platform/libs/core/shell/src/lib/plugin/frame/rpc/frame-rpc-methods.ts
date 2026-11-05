@@ -4,9 +4,13 @@ import { asCommandArguments } from '../../../foundation/command-arguments';
 import { KeyValueStore } from '../../../persistence/key-value-store';
 import { StateSyncService } from '../../../persistence/cross-tab/state-sync.service';
 import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-install.service';
-import { HostPluginContext } from '../../context/host-plugin-context';
+import {
+  HostPluginContext,
+  NOTHING_REGISTERED,
+} from '../../context/host-plugin-context';
 import {
   buildFrameSection,
+  FrameSectionHandle,
   frameSettingsGroup,
 } from '../frame-settings-section';
 import { FrameSession } from '../frame-session';
@@ -66,8 +70,11 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
               remote.settingsChanged(sectionId, values),
             ),
         });
-        session.addCleanup(built.disposeSync);
-        ctx.registerSettingsSection(built.section);
+        if (registeredSection(ctx, built)) {
+          session.addCleanup(built.disposeSync);
+        } else {
+          built.disposeSync();
+        }
       },
       retitleSurface: (id, title) =>
         ctx.retitleSurface(
@@ -120,6 +127,18 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
     },
     deps.reportRefusal,
   );
+}
+
+function registeredSection(
+  ctx: HostPluginContext,
+  built: FrameSectionHandle,
+): boolean {
+  try {
+    return ctx.registerSettingsSection(built.section) !== NOTHING_REGISTERED;
+  } catch (error) {
+    built.disposeSync();
+    throw error;
+  }
 }
 
 function invokeRpcCommand(

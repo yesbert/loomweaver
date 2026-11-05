@@ -172,6 +172,34 @@ describe('ShellBar folding', () => {
   });
 });
 
+describe('ShellBar folding, when the window loses the focus', () => {
+  let restore: () => void = () => undefined;
+
+  afterEach(() => restore());
+
+  it('closes the tray and leaves the focus where the user went', async () => {
+    restore = stubLayout(250, { a: 100, b: 100, c: 100 });
+    const fixture = await mount(entry('a', 1), entry('b', 2), entry('c', 3));
+    const host = fixture.nativeElement as HTMLElement;
+    const frame = document.createElement('input');
+    document.body.append(frame);
+    host.querySelector<HTMLButtonElement>('[data-bar-fold]')?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    frame.focus();
+    globalThis.dispatchEvent(new Event('blur'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(
+      host.querySelector('[data-bar-fold]')?.getAttribute('aria-expanded'),
+    ).toBe('false');
+    expect(document.activeElement).toBe(frame);
+    frame.remove();
+  });
+});
+
 describe('ShellBar', () => {
   it('lets an entry shrink, so one that shortens itself can', () => {
     const [host] = renderHosts({

@@ -16,7 +16,7 @@ import {
   entryToView,
   viewToEntry,
 } from './surface-normalize';
-import { heldUnder, idsOf, sameSlotAs, withoutOmitted } from './registry-filters';
+import { carryRegistration, heldUnder, idsOf, sameRegistration, sameSlotAs, withoutOmitted } from './registry-filters';
 
 export type { Disposable } from '@loomweaver/plugin-sdk';
 export type {
@@ -338,7 +338,7 @@ export class ContributionRegistry {
     return {
       dispose: () => {
         this.surfacesSignal.update((entries) =>
-          entries.filter((existing) => existing !== entry),
+          entries.filter((existing) => !sameRegistration(existing, entry)),
         );
         this.forgetBadgesOfGone();
       },
@@ -351,7 +351,9 @@ export class ContributionRegistry {
     change: (entry: RegisteredSurface) => RegisteredSurface,
   ): void {
     this.surfacesSignal.update((entries) =>
-      entries.map((entry) => (heldUnder(id, pluginId)(entry) ? change(entry) : entry)),
+      entries.map((entry) =>
+        heldUnder(id, pluginId)(entry) ? carryRegistration(entry, change(entry)) : entry,
+      ),
     );
   }
 

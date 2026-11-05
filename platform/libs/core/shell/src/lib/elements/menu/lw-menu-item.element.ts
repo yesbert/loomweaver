@@ -117,7 +117,9 @@ export class LwMenuItemElement extends HTMLElement {
       this.removeAttribute(name);
     }
     this.setAttribute('role', 'none');
-    this.prepend(this.row);
+    if (this.firstChild !== this.row) {
+      this.prepend(this.row);
+    }
     return this.row;
   }
 

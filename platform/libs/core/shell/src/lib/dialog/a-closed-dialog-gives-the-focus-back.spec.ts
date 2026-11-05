@@ -42,7 +42,29 @@ function setup() {
     fixture.detectChanges();
   }
 
-  return { host, opener, open, settled, fixture };
+  function openFromInside(): DialogRef {
+    const inside = [...host.querySelectorAll<HTMLButtonElement>('dialog button')].at(-1);
+    inside?.focus();
+    const ref = service.open(Body, { title: 'upper' });
+    fixture.detectChanges();
+    return ref;
+  }
+
+  function confirmFromInside(): { inside: HTMLElement; answer: Promise<boolean> } {
+    const inside = [...host.querySelectorAll<HTMLButtonElement>('dialog button')].at(-1) as HTMLElement;
+    inside.focus();
+    const answer = service.confirm({ message: 'Sure?' });
+    fixture.detectChanges();
+    return { inside, answer };
+  }
+
+  async function settle(): Promise<void> {
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+  }
+
+  return { host, opener, open, openFromInside, confirmFromInside, settle, settled, fixture };
 }
 
 describe('a closed dialog gives the focus back', () => {
@@ -96,6 +118,51 @@ describe('a closed dialog gives the focus back', () => {
     await t.settled(ref);
 
     expect(document.activeElement).toBe(t.opener);
+  });
+
+  it('returns the focus to the first opener when a dialog opened from inside another outlives it', async () => {
+    const t = setup();
+    const lower = t.open();
+    const upper = t.openFromInside();
+
+    lower.close();
+    await t.settled(lower);
+    expect(t.host.querySelectorAll('dialog')).toHaveLength(1);
+    upper.close();
+    await t.settled(upper);
+
+    expect(document.activeElement).toBe(t.opener);
+  });
+
+  it('leaves the focus in the upper dialog while the lower one closes under it', async () => {
+    const t = setup();
+    const lower = t.open();
+    t.openFromInside();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const held = [...t.host.querySelectorAll('dialog')[1].querySelectorAll('button')].at(-1) as HTMLElement;
+    held.focus();
+
+    lower.close();
+    await t.settled(lower);
+
+    expect(document.activeElement).toBe(held);
+  });
+
+  it('returns the focus to the button in the dialog below when a confirm opened from it is cancelled', async () => {
+    const t = setup();
+    t.open();
+    const { inside, answer } = t.confirmFromInside();
+    await t.settle();
+    expect(t.host.querySelectorAll('dialog')).toHaveLength(2);
+
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+    );
+    expect(await answer).toBe(false);
+    await t.settle();
+
+    expect(t.host.querySelectorAll('dialog')).toHaveLength(1);
+    expect(document.activeElement).toBe(inside);
   });
 
   it('leaves the focus alone when the opener has left the page', async () => {

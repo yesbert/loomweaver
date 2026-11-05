@@ -11,6 +11,10 @@ import {
 import { LwButtonVariant } from '../elements/button/lw-button';
 import { LoomIconName } from '../elements/icon/loom-icons';
 import {
+  focusBehindMenu,
+  inheritFocusReturn,
+} from '../elements/menu/overlay-menu';
+import {
   AlertOptions,
   ConfirmOptions,
   DialogButton,
@@ -112,6 +116,7 @@ export class DialogService {
 
   private dismissal: ((dialog: DialogInstance) => Promise<boolean>) | undefined;
   private counter = 0;
+  private readonly openers = new Map<string, HTMLElement | null>();
 
   /** The currently open dialogs, oldest first (the last one is topmost). */
   readonly dialogs = this.items.asReadonly();
@@ -282,20 +287,36 @@ export class DialogService {
     ref: DialogRef,
   ): void {
     const id = `lw.dialog.${this.counter++}`;
-    const trigger = this.document.activeElement as HTMLElement | null;
+    this.openers.set(id, focusBehindMenu(this.document));
     this.items.update((list) => [...list, { ...spec, id, ref }]);
 
     void ref.closed.then(() => {
+      const wasTop = this.items().at(-1)?.id === id;
       this.items.update((list) => list.filter((dialog) => dialog.id !== id));
-      afterNextRender(() => this.giveFocusBack(trigger), {
+      afterNextRender(() => this.giveFocusBack(id, wasTop), {
         injector: this.injector,
       });
     });
   }
 
-  private giveFocusBack(trigger: HTMLElement | null): void {
-    if (trigger?.isConnected) {
-      trigger.focus();
+  private giveFocusBack(id: string, wasTop: boolean): void {
+    const opener = this.openers.get(id);
+    this.openers.delete(id);
+    if (!opener?.isConnected) {
+      return;
+    }
+    if (!wasTop) {
+      this.handDown(opener);
+    } else if (!inheritFocusReturn(this.document, opener)) {
+      opener.focus();
+    }
+  }
+
+  private handDown(opener: HTMLElement): void {
+    for (const [heir, held] of this.openers) {
+      if (!held?.isConnected) {
+        this.openers.set(heir, opener);
+      }
     }
   }
 }

@@ -54,6 +54,29 @@ describe('<lw-tooltip> and the Escape key', () => {
     expect(escape.defaultPrevented).toBe(true);
   });
 
+  it('hides on an Escape pressed in an open menu and leaves that Escape to the menu', () => {
+    shownOnFocus();
+    const menu = document.createElement('div');
+    menu.setAttribute('role', 'menu');
+    const entry = document.createElement('div');
+    entry.setAttribute('role', 'menuitem');
+    menu.append(entry);
+    document.body.append(menu);
+    const heard = vi.fn();
+    menu.addEventListener('keydown', heard);
+
+    const escape = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+    entry.dispatchEvent(escape);
+
+    expect(open.size).toBe(0);
+    expect(heard).toHaveBeenCalledTimes(1);
+    expect(escape.defaultPrevented).toBe(false);
+  });
+
   it('leaves an Escape alone while no tooltip is shown', () => {
     shownOnFocus();
     document.body.dispatchEvent(

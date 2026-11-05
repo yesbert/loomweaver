@@ -1,6 +1,6 @@
 @layer components {
   lw-menu {
-    @apply z-50 min-w-44 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
+    @apply z-[80] min-w-44 overflow-auto rounded-md border border-border bg-surface-overlay py-1 text-sm shadow-lg;
     position: fixed;
     max-height: 24rem;
     outline: none;

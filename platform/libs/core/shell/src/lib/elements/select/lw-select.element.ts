@@ -3,6 +3,7 @@ import {
   reflectAttribute,
   upgradeElementProperty,
 } from '../custom-elements';
+import { closeOnOutsidePointer } from '../row-fold';
 import { LW_OPTION_TAG, LwOptionElement } from './lw-option.element';
 import {
   Choice,
@@ -66,6 +67,8 @@ export class LwSelectElement extends HTMLElement {
 
   private observer?: MutationObserver;
 
+  private stopOutside?: () => void;
+
   get value(): string | null {
     return this.getAttribute('value');
   }
@@ -93,6 +96,7 @@ export class LwSelectElement extends HTMLElement {
   connectedCallback(): void {
     upgradeElementProperty(this, 'value');
     upgradeElementProperty(this, 'required');
+    upgradeElementProperty(this, 'compact');
     if (!this.trigger) {
       this.buildControl();
     }
@@ -104,7 +108,7 @@ export class LwSelectElement extends HTMLElement {
 
   disconnectedCallback(): void {
     this.observer?.disconnect();
-    document.removeEventListener('pointerdown', this.onOutsidePointer, true);
+    this.stopListeningOutside();
     this.typeahead.clear();
   }
 
@@ -118,12 +122,6 @@ export class LwSelectElement extends HTMLElement {
       this.dismiss();
     }
   }
-
-  private readonly onOutsidePointer = (event: PointerEvent) => {
-    if (!this.contains(event.target as Node)) {
-      this.dismiss();
-    }
-  };
 
   private observe(): void {
     this.observer?.observe(this, {
@@ -216,9 +214,11 @@ export class LwSelectElement extends HTMLElement {
     });
     this.setActive(start);
 
-    document.addEventListener('pointerdown', this.onOutsidePointer, {
-      capture: true,
-    });
+    this.stopOutside = closeOnOutsidePointer(
+      document,
+      (target) => this.contains(target),
+      () => this.dismiss(),
+    );
   }
 
   private close(): void {
@@ -244,8 +244,13 @@ export class LwSelectElement extends HTMLElement {
       trigger.setAttribute('aria-expanded', 'false');
       trigger.removeAttribute('aria-activedescendant');
     });
-    document.removeEventListener('pointerdown', this.onOutsidePointer, true);
+    this.stopListeningOutside();
     return true;
+  }
+
+  private stopListeningOutside(): void {
+    this.stopOutside?.();
+    this.stopOutside = undefined;
   }
 
   private renderOptions(): void {

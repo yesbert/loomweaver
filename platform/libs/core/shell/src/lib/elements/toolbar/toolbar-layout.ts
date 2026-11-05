@@ -1,6 +1,7 @@
 import { entryWidth, FOLD_CONTROL_PX, foldedIds, sameIds } from '../row-fold';
+import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
 import {
-  FOCUSABLE_SELECTOR,
+  focusStopsOf,
   FOLD_SELECTOR,
   FOLDED_ATTRIBUTE,
   foldControl,
@@ -26,8 +27,14 @@ export class ToolbarLayout {
     private readonly onTrayChange: (open: boolean) => void,
   ) {}
 
-  isTrayOpen(): boolean {
-    return this.trayOpen;
+  closeOnEscape(event: KeyboardEvent): boolean {
+    if (event.key !== 'Escape' || !this.trayOpen) {
+      return false;
+    }
+    this.closeTray();
+    this.foldControl()?.focus();
+    event.preventDefault();
+    return true;
   }
 
   foldControl(): HTMLButtonElement | null {
@@ -110,7 +117,35 @@ export class ToolbarLayout {
     tray.hidden = false;
     control.setAttribute('aria-expanded', 'true');
     this.onTrayChange(true);
-    (tray.querySelector<HTMLElement>(FOCUSABLE_SELECTOR) ?? tray).focus?.();
+    const stops = focusStopsOf(tray.children);
+    rovingTabIndex(stops, 0);
+    (stops[0] ?? tray).focus?.();
+  }
+
+  stepInTray(event: KeyboardEvent): boolean {
+    const tray = this.tray();
+    if (!this.trayOpen || !tray?.contains(document.activeElement)) {
+      return false;
+    }
+    const stops = focusStopsOf(tray.children);
+    const current = stops.indexOf(document.activeElement as HTMLElement);
+    const next =
+      rovingStep(event.key, current, stops.length, 'vertical') ??
+      rovingStep(event.key, current, stops.length, 'horizontal');
+    if (next !== undefined) {
+      rovingTabIndex(stops, next);
+      focusAndReveal(stops[next]);
+      event.preventDefault();
+    }
+    return true;
+  }
+
+  closeAfterChoice(chosen: HTMLElement): void {
+    if (!this.trayOpen || chosen.hasAttribute('aria-haspopup') || !this.tray()?.contains(chosen)) {
+      return;
+    }
+    this.closeTray();
+    this.foldControl()?.focus();
   }
 
   closeTray(): void {
@@ -142,9 +177,9 @@ export class ToolbarLayout {
     let control = this.foldControl();
     let trayElement = this.tray();
     if (away.length === 0) {
+      this.closeTray();
       control?.remove();
       trayElement?.remove();
-      this.trayOpen = false;
       return;
     }
     control ??= foldControl(moreLabel, this.anchorName);

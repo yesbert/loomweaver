@@ -258,6 +258,51 @@ describe('MenuService', () => {
     vi.useRealTimers();
   });
 
+  async function openAndListening(): Promise<void> {
+    registry.addCommand({
+      id: 'c.close',
+      title: 'cmd.close',
+      run: () => undefined,
+    });
+    registry.addMenuItem({ menu: 'm', command: 'c.close' });
+    service.open('m', context, { x: 0, y: 0 });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  it('closes when the pointer goes into a frame, which takes the focus from the window', async () => {
+    await openAndListening();
+
+    globalThis.dispatchEvent(new Event('blur'));
+
+    expect(menu()).toBeNull();
+  });
+
+  it('leaves the focus where the user went when the window lost it', async () => {
+    const opener = document.createElement('button');
+    const frame = document.createElement('input');
+    document.body.append(opener, frame);
+    opener.focus();
+    await openAndListening();
+
+    frame.focus();
+    globalThis.dispatchEvent(new Event('blur'));
+
+    expect(menu()).toBeNull();
+    expect(document.activeElement).toBe(frame);
+  });
+
+  it('stays open when the window loses a focus the menu never had, as after a press in a frame that opened it', async () => {
+    const focus = vi
+      .spyOn(HTMLElement.prototype, 'focus')
+      .mockImplementation(() => undefined);
+    await openAndListening();
+
+    globalThis.dispatchEvent(new Event('blur'));
+    focus.mockRestore();
+
+    expect(menu()).not.toBeNull();
+  });
+
   it('keeps the menu open on a pointerdown inside it', () => {
     vi.useFakeTimers();
     registry.addCommand({

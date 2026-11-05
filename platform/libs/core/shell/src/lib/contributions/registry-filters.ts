@@ -44,3 +44,26 @@ export function heldUnder(
   return (entry) =>
     entry.id === id && (pluginId === undefined || entry.pluginId === pluginId);
 }
+
+const registrations = new WeakMap<RegisteredSurface, RegisteredSurface>();
+
+export function carryRegistration(
+  from: RegisteredSurface,
+  to: RegisteredSurface,
+): RegisteredSurface {
+  if (to !== from) {
+    registrations.set(to, registrationOf(from));
+  }
+  return to;
+}
+
+export function sameRegistration(
+  left: RegisteredSurface,
+  right: RegisteredSurface,
+): boolean {
+  return registrationOf(left) === registrationOf(right);
+}
+
+function registrationOf(entry: RegisteredSurface): RegisteredSurface {
+  return registrations.get(entry) ?? entry;
+}

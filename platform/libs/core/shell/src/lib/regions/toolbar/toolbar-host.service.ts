@@ -14,6 +14,8 @@ import {
 import { MenuContext, TOOLBAR_CONTEXT, ToolbarCell } from '@loomweaver/plugin-sdk';
 import { AuthContext } from '../../auth/auth-context';
 import {
+  SURFACE_OWNER,
+  SURFACE_OWNER_MARK,
   ToolbarRegistry,
   withoutSurfaceOwner,
 } from '../../contributions/toolbar-registry';
@@ -124,7 +126,7 @@ export class ToolbarHost implements LwToolbarHost {
     if (!attachment || !slot) {
       return;
     }
-    const context = toolbar.context;
+    const context = contextWhereItStands(toolbar);
     const view = this.slots.view(slot, context, toolbar.getAttribute('label'));
     attachment.resolved = view.resolved;
     toolbar.entries = view.entries;
@@ -239,6 +241,23 @@ export class ToolbarHost implements LwToolbarHost {
       y: detail.y,
     });
   }
+}
+
+function contextWhereItStands(toolbar: LwToolbarElement): MenuContext {
+  const context = toolbar.context;
+  const owner = surfaceOwnerAround(toolbar);
+  return owner !== null && context[SURFACE_OWNER] === undefined
+    ? { ...context, [SURFACE_OWNER]: owner }
+    : context;
+}
+
+function surfaceOwnerAround(element: Element): string | null {
+  const marked = element.closest(`[${CSS.escape(SURFACE_OWNER_MARK)}]`);
+  if (marked) {
+    return marked.getAttribute(SURFACE_OWNER_MARK);
+  }
+  const root = element.getRootNode();
+  return root instanceof ShadowRoot ? surfaceOwnerAround(root.host) : null;
 }
 
 function sameContext(a: MenuContext, b: MenuContext): boolean {

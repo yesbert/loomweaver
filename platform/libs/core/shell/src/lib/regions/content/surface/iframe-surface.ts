@@ -109,6 +109,7 @@ export class IframeSurface implements DirtySurface {
     inject(ToolbarSlots),
     this.injector,
     (subscription, view) => this.pushSlot(subscription, view),
+    this.pluginId,
   );
 
   protected readonly isolated =

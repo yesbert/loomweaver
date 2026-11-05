@@ -1,6 +1,6 @@
 import { MenuContext } from '@loomweaver/plugin-sdk';
 import { defineElementOnce, reflectAttribute, upgradeElementProperty } from '../custom-elements';
-import { focusAndReveal, rovingStep, rovingTabIndex } from '../roving-focus';
+import { focusAndReveal, isModified, rovingStep, rovingTabIndex } from '../roving-focus';
 import { closeOnOutsidePointer } from '../row-fold';
 import {
   cellIdOf,
@@ -16,6 +16,7 @@ import {
   parseContext,
   reflectExpanded,
   RowItem,
+  keepsItsKeys,
 } from './toolbar-dom';
 import { LwToolbarEntry } from './toolbar-entry';
 import { ToolbarLayout } from './toolbar-layout';
@@ -219,6 +220,7 @@ export class LwToolbarElement extends HTMLElement {
     if (!button || button.disabled || !this.contains(button)) {
       return;
     }
+    this.layout.closeAfterChoice(button);
     this.dispatchEvent(
       new CustomEvent<LwToolbarSelectDetail>(LW_TOOLBAR_SELECT, {
         detail: { key: button.getAttribute(ENTRY_ATTRIBUTE) ?? '', trigger: button },
@@ -247,10 +249,13 @@ export class LwToolbarElement extends HTMLElement {
   };
 
   private readonly onKeydown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.layout.isTrayOpen()) {
-      this.layout.closeTray();
-      this.layout.foldControl()?.focus();
-      event.preventDefault();
+    if (
+      event.defaultPrevented ||
+      isModified(event) ||
+      this.layout.closeOnEscape(event) ||
+      keepsItsKeys(event) ||
+      this.layout.stepInTray(event)
+    ) {
       return;
     }
     const stops = focusStopsOf(this.children);

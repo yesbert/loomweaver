@@ -125,6 +125,53 @@ describe('PluginRuntime', () => {
     error.mockRestore();
   });
 
+  describe('a plugin whose activation failed', () => {
+    function failingBesideAnother() {
+      const activate = vi.fn(() => {
+        throw new Error('boom');
+      });
+      const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      TestBed.configureTestingModule({
+        providers: [
+          provideRouter([]),
+          menuStub,
+          { provide: PLUGIN, useValue: { manifest: { id: 'failing' }, activate }, multi: true },
+          { provide: PLUGIN, useValue: plugin, multi: true },
+          provideCapabilityGrants({ test: ['contributions'] }),
+        ],
+      });
+      TestBed.inject(PluginRuntime).activateAll();
+      const enablement = TestBed.inject(PluginEnablementService);
+      const switchTo = (id: string, enabled: boolean): void => {
+        enablement.setEnabled(id, enabled);
+        TestBed.tick();
+      };
+      return { activate, error, switchTo };
+    }
+
+    it('is not activated again when another plugin is switched off', () => {
+      const { activate, error, switchTo } = failingBesideAnother();
+      expect(activate).toHaveBeenCalledTimes(1);
+
+      switchTo('test', false);
+      switchTo('test', true);
+
+      expect(activate).toHaveBeenCalledTimes(1);
+      expect(error).toHaveBeenCalledTimes(1);
+      error.mockRestore();
+    });
+
+    it('is tried again once the user switches it off and on', () => {
+      const { activate, error, switchTo } = failingBesideAnother();
+
+      switchTo('failing', false);
+      switchTo('failing', true);
+
+      expect(activate).toHaveBeenCalledTimes(2);
+      error.mockRestore();
+    });
+  });
+
   it('does not activate a plugin the user has disabled', () => {
     const { runtime, registry } = setup();
     TestBed.inject(PluginEnablementService).setEnabled('test', false);

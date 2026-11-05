@@ -203,6 +203,24 @@ describe('<lw-select> custom element', () => {
     expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('closes when the pointer goes into a frame, which takes the focus from the window', () => {
+    const element = mount('en');
+    trigger(element).click();
+
+    globalThis.dispatchEvent(new Event('blur'));
+
+    expect(trigger(element).getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('stays open when the focus only moves within the window', () => {
+    const element = mount('en');
+    trigger(element).click();
+
+    trigger(element).dispatchEvent(new FocusEvent('blur'));
+
+    expect(trigger(element).getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('disables its trigger and does not open while the select is disabled', () => {
     const element = mount('en');
     element.setAttribute('disabled', '');
@@ -378,6 +396,20 @@ describe('<lw-select> custom element', () => {
       expect(element.hasAttribute('required')).toBe(true);
       expect(trigger(element).getAttribute('aria-required')).toBe('true');
     });
+  });
+
+  it('keeps a compact property set before the element was upgraded', () => {
+    const element = document.createElement('lw-select-late-compact') as HTMLElement & {
+      compact: boolean;
+    };
+    element.compact = true;
+    document.body.append(element);
+    class LateCompactSelect extends (customElements.get(LW_SELECT_TAG) as {
+      new (): HTMLElement;
+    }) {}
+    customElements.define('lw-select-late-compact', LateCompactSelect);
+
+    expect(element.hasAttribute('compact')).toBe(true);
   });
 
   describe('keyboard, with focus kept on the control', () => {

@@ -64,6 +64,18 @@ describe('PaneSplitHandle', () => {
     expect(stream[1]).toBeCloseTo(0.4);
   });
 
+  it('leaves an arrow with Alt, Ctrl or Meta alone, so a command bound to it still runs', () => {
+    create('row', 0.5);
+    const prevented = [{ altKey: true }, { ctrlKey: true }, { metaKey: true }].map((init) => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true, ...init });
+      host.dispatchEvent(event);
+      return event.defaultPrevented;
+    });
+
+    expect(stream).toEqual([]);
+    expect(prevented).toEqual([false, false, false]);
+  });
+
   it('ignores unrelated keys', () => {
     create('row');
     host.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));

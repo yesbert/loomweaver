@@ -1,4 +1,5 @@
 import { Component, ElementRef, computed, inject, input, output } from '@angular/core';
+import { hasCommandModifier } from '../../../elements/roving-focus';
 import { MAX_RATIO, MIN_RATIO } from '../tree/pane-ratio';
 
 const STEP = 0.02;
@@ -76,6 +77,9 @@ export class PaneSplitHandle {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    if (hasCommandModifier(event)) {
+      return;
+    }
     const step = event.shiftKey ? STEP_COARSE : STEP;
     const decrease = this.isRow() ? 'ArrowLeft' : 'ArrowUp';
     const increase = this.isRow() ? 'ArrowRight' : 'ArrowDown';

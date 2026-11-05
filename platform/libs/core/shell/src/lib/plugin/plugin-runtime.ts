@@ -41,6 +41,8 @@ export class PluginRuntime {
 
   private readonly active = new Map<string, HostPluginContext>();
 
+  private readonly failed = new Set<string>();
+
   private started = false;
 
   activateAll(): void {
@@ -121,8 +123,13 @@ export class PluginRuntime {
     for (const plugin of this.plugins) {
       const id = plugin.manifest.id;
       const enabled = !disabled.has(id);
+      if (!enabled) {
+        this.failed.delete(id);
+      }
       if (enabled && !this.active.has(id)) {
-        this.activate(plugin);
+        if (!this.failed.has(id)) {
+          this.activate(plugin);
+        }
       } else if (!enabled && this.active.has(id)) {
         this.deactivate(id);
       }
@@ -173,6 +180,7 @@ export class PluginRuntime {
     }
     ctx.disposeAll();
     this.active.delete(id);
+    this.failed.add(id);
     this.grants.unregister(id);
     console.error(`Plugin "${id}" activation failed`, error);
   }

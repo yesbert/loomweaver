@@ -11,7 +11,7 @@ import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-ins
 import { FrameSession } from '../frame-session';
 import { LocalStorageStore } from '../../../persistence/key-value-store';
 import { SettingsService } from '../../../settings-dialog/settings.service';
-import { frameRpcMethods } from './frame-rpc-methods';
+import { FrameRpcDeps, frameRpcMethods } from './frame-rpc-methods';
 import { matchRoute } from '../../../regions/content/content-path';
 
 function methodsFor(ctx: Partial<HostPluginContext>, session = {}) {
@@ -223,10 +223,15 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     );
   });
 
-  function framedSections(pluginId: string) {
+  function framedSections(
+    pluginId: string,
+    stopSync: () => void = () => undefined,
+    granted = true,
+    wired: Partial<FrameRpcDeps> = {},
+  ) {
     const ctx = TestBed.inject(HostContextFactory).create(
       pluginId,
-      () => true,
+      () => granted,
       'isolated',
     );
     return frameRpcMethods({
@@ -239,8 +244,9 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
       } as unknown as FrameSession,
       install: { isInstalled: () => true } as unknown as PluginInstallService,
       store: new LocalStorageStore(),
-      sync: { register: () => () => undefined } as unknown as StateSyncService,
+      sync: { register: () => stopSync } as unknown as StateSyncService,
       reportRefusal: () => undefined,
+      ...wired,
     });
   }
 
@@ -278,6 +284,65 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
     expect(warn).toHaveBeenCalledWith(
       expect.stringMatching(/plugin "acme".*plugin "acme\.tools"/),
     );
+    localStorage.clear();
+  });
+
+  it('a settings section refused for its holder stops following the other windows at once', () => {
+    composition();
+    const stopSync = vi.fn();
+    framedSections('acme').registerSettingsSection(
+      sectionTitled('First', 'tools.general'),
+    );
+
+    framedSections('acme.tools', stopSync).registerSettingsSection(
+      sectionTitled('Second', 'general'),
+    );
+
+    expect(stopSync).toHaveBeenCalledTimes(1);
+    localStorage.clear();
+  });
+
+  it('a settings section refused for want of a capability stops following the other windows at once', () => {
+    composition();
+    const stopSync = vi.fn();
+    const ungranted = framedSections('acme', stopSync, false);
+
+    expect(() =>
+      ungranted.registerSettingsSection(sectionTitled('First', 'prefs')),
+    ).toThrow();
+
+    expect(stopSync).toHaveBeenCalledTimes(1);
+    localStorage.clear();
+  });
+
+  it('a settings section that is registered keeps following the other windows', () => {
+    composition();
+    const stopSync = vi.fn();
+
+    framedSections('acme', stopSync).registerSettingsSection(
+      sectionTitled('First', 'prefs'),
+    );
+
+    expect(stopSync).not.toHaveBeenCalled();
+    localStorage.clear();
+  });
+
+  it('a frame that registers its settings section again hears a change from another window once', async () => {
+    composition();
+    const told = vi.fn();
+    const sync = TestBed.inject(StateSyncService);
+    const methods = framedSections('acme', undefined, true, {
+      sync,
+      session: { notify: told, addCleanup: () => undefined } as unknown as FrameSession,
+    });
+    methods.registerSettingsSection(sectionTitled('First', 'prefs'));
+    methods.registerSettingsSection(sectionTitled('Second', 'prefs'));
+    told.mockClear();
+
+    sync.notifyRemoteChange('lw.plugin-settings:acme:prefs');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(told).toHaveBeenCalledTimes(1);
     localStorage.clear();
   });
 

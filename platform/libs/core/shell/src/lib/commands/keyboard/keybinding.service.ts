@@ -14,7 +14,7 @@ import { CommandService } from '../command.service';
 import {
   chordClaims,
   eventSignature,
-  isEditableTarget,
+  isTypingInField,
   isMacPlatform,
 } from './chord';
 import { FeatureSwitches } from '../../features/feature-switches.service';
@@ -51,7 +51,8 @@ function bindChords(
  * Binds command shortcuts to the keyboard. Bindings are *derived* from the registered
  * commands' `shortcut` (no separate registration path) and rebuild reactively as commands come and
  * go. One global `keydown` listener resolves the pressed chord to a command id and fires it through
- * the {@link CommandService}, the same path a click takes.
+ * the {@link CommandService}, the same path a click takes. A key something already handled, a key
+ * pressed while a character is being composed and a key that types into a field run nothing.
  */
 @Service()
 export class KeybindingService {
@@ -94,11 +95,8 @@ export class KeybindingService {
   }
 
   private onKeydown(event: KeyboardEvent): void {
-    if (!this.enabled()) {
-      return;
-    }
-    const hasCommandModifier = event.ctrlKey || event.metaKey || event.altKey;
-    if (!hasCommandModifier && isEditableTarget(event.target)) {
+    const handledElsewhere = event.defaultPrevented || event.isComposing;
+    if (!this.enabled() || handledElsewhere || isTypingInField(event)) {
       return;
     }
     const commandId = this.bindings().get(eventSignature(event));

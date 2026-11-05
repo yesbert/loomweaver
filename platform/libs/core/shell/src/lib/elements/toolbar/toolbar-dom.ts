@@ -223,3 +223,25 @@ export function focusStopsOf(children: HTMLCollection): HTMLElement[] {
   }
   return stops;
 }
+
+const INPUTS_WITHOUT_ARROW_KEYS = new Set([
+  'button',
+  'checkbox',
+  'color',
+  'file',
+  'image',
+  'reset',
+  'submit',
+]);
+
+export function keepsItsKeys(event: KeyboardEvent): boolean {
+  const target = event.composedPath()[0] ?? event.target;
+  if (target instanceof HTMLInputElement) {
+    return !INPUTS_WITHOUT_ARROW_KEYS.has(target.type);
+  }
+  return (
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  );
+}

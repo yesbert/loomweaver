@@ -43,6 +43,29 @@ function cell(id: string, order: number, focusable = false): HTMLElement {
   return element;
 }
 
+function field(id: string, order: number): HTMLInputElement {
+  const element = document.createElement('input');
+  element.setAttribute('data-lw-cell', id);
+  element.setAttribute('order', String(order));
+  return element;
+}
+
+function control(tag: 'select' | 'input', id: string, order: number, type?: string): HTMLElement {
+  const element = document.createElement(tag);
+  if (type) {
+    element.setAttribute('type', type);
+  }
+  element.setAttribute('data-lw-cell', id);
+  element.setAttribute('order', String(order));
+  return element;
+}
+
+function pressIn(target: HTMLElement, key: string, modifiers: KeyboardEventInit = {}): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...modifiers });
+  target.dispatchEvent(event);
+  return event;
+}
+
 describe('<lw-toolbar>', () => {
   afterEach(() => {
     document.body.replaceChildren();
@@ -246,6 +269,43 @@ describe('<lw-toolbar>', () => {
     expect(stops.map((stop) => stop.tabIndex)).toEqual([0, -1, -1]);
   });
 
+  it('leaves the arrow keys to a text field placed as a cell, where they move the caret', () => {
+    const toolbar = mount(
+      [
+        { key: 'a', label: 'A', order: 0 },
+        { key: 'c', label: 'C', order: 2 },
+      ],
+      {},
+      [field('b', 1)],
+    );
+    const input = toolbar.querySelector('input') as HTMLInputElement;
+    input.focus();
+
+    const moves = ['ArrowRight', 'ArrowLeft', 'Home', 'End'].map((key) => pressIn(input, key));
+
+    expect(document.activeElement).toBe(input);
+    expect(moves.map((event) => event.defaultPrevented)).toEqual([false, false, false, false]);
+  });
+
+  it('leaves a modified arrow, Home or End alone, so a command bound to it still runs', () => {
+    const toolbar = mount([
+      { key: 'a', label: 'A', order: 0 },
+      { key: 'b', label: 'B', order: 1 },
+    ]);
+    const [first] = buttons(toolbar);
+    first.focus();
+
+    const pressed = [
+      pressIn(first, 'ArrowRight', { altKey: true }),
+      pressIn(first, 'End', { ctrlKey: true }),
+      pressIn(first, 'ArrowRight', { metaKey: true }),
+      pressIn(first, 'ArrowRight', { shiftKey: true }),
+    ];
+
+    expect(document.activeElement).toBe(first);
+    expect(pressed.map((event) => event.defaultPrevented)).toEqual([false, false, false, false]);
+  });
+
   it('hands itself to the installed host when it connects, tells it about changes, and lets go when it leaves', () => {
     const calls: string[] = [];
     const host: LwToolbarHost = {
@@ -363,6 +423,168 @@ describe('<lw-toolbar> folding', () => {
     toolbar.entries = [...toolbar.entries];
     expect(inRow()).toEqual(['a', 'b', 'c', 'd']);
     expect(toolbar.querySelector('[data-lw-fold]')).toBeNull();
+  });
+
+  function foldedToolbar(last: Partial<LwToolbarEntry> = {}) {
+    stubLayout(100, { a: 30, b: 30, c: 30, d: 30, e: 30 });
+    const toolbar = mount([
+      { key: 'a', label: 'A', order: 0 },
+      { key: 'b', label: 'B', order: 1 },
+      { key: 'c', label: 'C', order: 2 },
+      { key: 'd', label: 'D', order: 3 },
+      { key: 'e', label: 'E', order: 4, ...last },
+    ]);
+    const control = toolbar.querySelector<HTMLButtonElement>('[data-lw-fold]') as HTMLButtonElement;
+    const tray = toolbar.querySelector<HTMLElement>('.lw-toolbar-tray') as HTMLElement;
+    const press = (key: string) =>
+      (document.activeElement as HTMLElement).dispatchEvent(
+        new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }),
+      );
+    const focused = () => document.activeElement?.getAttribute('data-lw-entry');
+    return { toolbar, control, tray, press, focused };
+  }
+
+  it('reaches every folded entry from the keyboard once the tray is open', () => {
+    const t = foldedToolbar();
+    t.control.click();
+    expect(t.focused()).toBe('c');
+
+    t.press('ArrowDown');
+    expect(t.focused()).toBe('d');
+    t.press('ArrowDown');
+    expect(t.focused()).toBe('e');
+    t.press('ArrowDown');
+    expect(t.focused()).toBe('c');
+    t.press('ArrowUp');
+    expect(t.focused()).toBe('e');
+    t.press('Home');
+    expect(t.focused()).toBe('c');
+    expect(t.tray.hidden).toBe(false);
+  });
+
+  it('leaves the arrow keys to a text field folded into the tray, and still closes on Escape from it', () => {
+    stubLayout(100, { a: 30, b: 30, f: 30, d: 30 });
+    const toolbar = mount(
+      [
+        { key: 'a', label: 'A', order: 0 },
+        { key: 'b', label: 'B', order: 1 },
+        { key: 'd', label: 'D', order: 3 },
+      ],
+      {},
+      [field('f', 2)],
+    );
+    const tray = toolbar.querySelector<HTMLElement>('.lw-toolbar-tray') as HTMLElement;
+    toolbar.querySelector<HTMLButtonElement>('[data-lw-fold]')?.click();
+    const input = tray.querySelector('input') as HTMLInputElement;
+    expect(document.activeElement).toBe(input);
+
+    const down = pressIn(input, 'ArrowDown');
+
+    expect(document.activeElement).toBe(input);
+    expect(down.defaultPrevented).toBe(false);
+
+    pressIn(input, 'Escape');
+    expect(tray.hidden).toBe(true);
+  });
+
+  describe('with a control of its own folded into the tray', () => {
+    function trayHolding(cellNode: HTMLElement): { tray: HTMLElement; cellNode: HTMLElement } {
+      stubLayout(100, { a: 30, b: 30, f: 30, d: 30 });
+      const toolbar = mount(
+        [
+          { key: 'a', label: 'A', order: 0 },
+          { key: 'b', label: 'B', order: 1 },
+          { key: 'd', label: 'D', order: 3 },
+        ],
+        {},
+        [cellNode],
+      );
+      toolbar.querySelector<HTMLButtonElement>('[data-lw-fold]')?.click();
+      cellNode.focus();
+      return { tray: toolbar.querySelector<HTMLElement>('.lw-toolbar-tray') as HTMLElement, cellNode };
+    }
+
+    it.each([
+      ['a native select', () => control('select', 'f', 2)],
+      ['a range', () => control('input', 'f', 2, 'range')],
+      ['a radio button', () => control('input', 'f', 2, 'radio')],
+    ])('leaves the arrow keys to %s', (_name, make) => {
+      const { cellNode } = trayHolding(make());
+
+      const down = pressIn(cellNode, 'ArrowDown');
+      const right = pressIn(cellNode, 'ArrowRight');
+
+      expect(document.activeElement).toBe(cellNode);
+      expect([down.defaultPrevented, right.defaultPrevented]).toEqual([false, false]);
+    });
+
+    it('leaves a key alone that the control has handled, Escape included', () => {
+      const own = control('input', 'f', 2, 'button');
+      own.addEventListener('keydown', (event) => event.preventDefault());
+      const { tray, cellNode } = trayHolding(own);
+
+      pressIn(cellNode, 'ArrowDown');
+      pressIn(cellNode, 'Escape');
+
+      expect(document.activeElement).toBe(cellNode);
+      expect(tray.hidden).toBe(false);
+    });
+
+    it('still moves on from a button that uses no arrow keys', () => {
+      const { cellNode } = trayHolding(control('input', 'f', 2, 'button'));
+
+      pressIn(cellNode, 'ArrowDown');
+
+      expect(document.activeElement?.getAttribute('data-lw-entry')).toBe('d');
+    });
+  });
+
+  it('closes the tray after a choice and leaves the keyboard on the fold control', () => {
+    const t = foldedToolbar();
+    const chosen: string[] = [];
+    t.toolbar.addEventListener(LW_TOOLBAR_SELECT, (event) => {
+      chosen.push((event as CustomEvent<LwToolbarSelectDetail>).detail.key);
+    });
+    t.control.click();
+
+    t.tray.querySelector<HTMLButtonElement>('button[data-lw-entry="d"]')?.click();
+
+    expect(chosen).toEqual(['d']);
+    expect(t.tray.hidden).toBe(true);
+    expect(t.control.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(t.control);
+  });
+
+  it('keeps the tray open under a folded entry that opens a menu of its own', () => {
+    const t = foldedToolbar({ opensMenu: true });
+    t.control.click();
+
+    t.tray.querySelector<HTMLButtonElement>('button[data-lw-entry="e"]')?.click();
+
+    expect(t.tray.hidden).toBe(false);
+  });
+
+  it('stops listening for a press outside once a wider toolbar has no tray left', () => {
+    const t = foldedToolbar();
+    t.control.click();
+    const stopped = vi.spyOn(document, 'removeEventListener');
+
+    restore();
+    stubLayout(400, { a: 30, b: 30, c: 30, d: 30, e: 30 });
+    t.toolbar.entries = [...t.toolbar.entries];
+
+    expect(t.toolbar.querySelector('[data-lw-fold]')).toBeNull();
+    expect(stopped.mock.calls.map(([type]) => type)).toContain('pointerdown');
+    stopped.mockRestore();
+  });
+
+  it('closes the tray when the pointer goes into a frame, which takes the focus from the window', () => {
+    const t = foldedToolbar();
+    t.control.click();
+
+    globalThis.dispatchEvent(new Event('blur'));
+
+    expect(t.tray.hidden).toBe(true);
   });
 
   it('keeps an entry’s look when it folds into the tray', () => {

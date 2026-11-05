@@ -32,7 +32,8 @@ export const LW_TOOLTIP_TAG = 'lw-tooltip';
  * in JS (no CSS anchor positioning — shipping Safari does not support it): a **pointer** reveal anchors to
  * the **cursor** (native-`title`-like, so a wide trigger's tooltip appears where the mouse is, not at the
  * element's far edge); a **focus** reveal anchors to the trigger element per `position`. Reveal is off the
- * trigger's hover/focus (mouse only — touch never reveals). Its **look** lives in `theme.css`
+ * trigger's hover/focus (mouse only — touch never reveals). A press on the trigger hides it, and the
+ * focus that press gives does not bring it back. Its **look** lives in `theme.css`
  * (`.lw-tooltip-bubble`, tokened) like `.lw-btn`, and is a class contract of its own: on an element a
  * product places itself it carries the look without the placement. Place the element as the last child
  * of a positioned trigger:
@@ -55,6 +56,8 @@ export class LwTooltipElement extends HTMLElement {
   private trigger?: HTMLElement;
 
   private showTimer?: ReturnType<typeof setTimeout>;
+
+  private pressed = false;
 
   private pointer?: { x: number; y: number };
 
@@ -83,15 +86,22 @@ export class LwTooltipElement extends HTMLElement {
     this.trigger?.addEventListener('pointerenter', this.onEnter);
     this.trigger?.addEventListener('pointermove', this.onMove);
     this.trigger?.addEventListener('pointerleave', this.onLeave);
+    this.trigger?.addEventListener('pointerdown', this.onPress);
+    this.trigger?.addEventListener('pointerup', this.onRelease);
+    this.trigger?.addEventListener('pointercancel', this.onRelease);
     this.trigger?.addEventListener('focusin', this.onFocusIn);
     this.trigger?.addEventListener('focusout', this.onFocusOut);
   }
 
   disconnectedCallback(): void {
     this.hide();
+    this.pressed = false;
     this.trigger?.removeEventListener('pointerenter', this.onEnter);
     this.trigger?.removeEventListener('pointermove', this.onMove);
     this.trigger?.removeEventListener('pointerleave', this.onLeave);
+    this.trigger?.removeEventListener('pointerdown', this.onPress);
+    this.trigger?.removeEventListener('pointerup', this.onRelease);
+    this.trigger?.removeEventListener('pointercancel', this.onRelease);
     this.trigger?.removeEventListener('focusin', this.onFocusIn);
     this.trigger?.removeEventListener('focusout', this.onFocusOut);
     this.trigger = undefined;
@@ -111,9 +121,25 @@ export class LwTooltipElement extends HTMLElement {
     }
   };
 
-  private readonly onLeave = () => this.hide();
+  private readonly onLeave = () => {
+    this.pressed = false;
+    this.hide();
+  };
 
-  private readonly onFocusIn = () => this.scheduleShow();
+  private readonly onPress = () => {
+    this.pressed = true;
+    this.hide();
+  };
+
+  private readonly onRelease = () => {
+    this.pressed = false;
+  };
+
+  private readonly onFocusIn = () => {
+    if (!this.pressed) {
+      this.scheduleShow();
+    }
+  };
 
   private readonly onFocusOut = () => this.hide();
 
@@ -122,6 +148,9 @@ export class LwTooltipElement extends HTMLElement {
       return;
     }
     this.hide();
+    if ((event.target as Element | null)?.closest?.('[role="menu"]')) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
   };

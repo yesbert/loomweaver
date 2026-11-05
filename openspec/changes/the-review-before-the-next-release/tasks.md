@@ -25,9 +25,9 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 1.17 Uninstalling a plugin removes its stored capability revocations, so a reinstall holds what its consent showed (`plugin-store/lifecycle/plugin-install.service.ts`)
 - [x] 1.18 A frame plugin whose connection failed is not started again on every later reconcile: it is retried when its entry changes or the user switches it on again, and stays reported until then (`plugin/frame/frame-plugin-runtime.ts`)
 - [x] 1.19 The guides say what the code now does: replacing by re-registering an id names the limit for a plugin outside the application's own code; the pages on the plugin store and permissions state the deployed plugin's stored revocation, the connection time limit and the start after an asynchronous settings store has answered (`docs/`, `llms-full.txt`, `skills/`)
-- [ ] 1.20 Lead, verify first: a toolbar placed by slot name, and the frame slot bridge, read the surface they belong to where two owners hold the same id (`regions/toolbar/toolbar-slots.service.ts`)
-- [ ] 1.21 A plugin of the application's own code whose activation failed is not activated again on every later reconcile (`plugin/plugin-runtime.ts`)
-- [ ] 1.22 A settings section that is refused leaves nothing registered behind: its cross-tab applier is not kept until the frame's session ends (`plugin/frame/rpc/frame-rpc-methods.ts`)
+- [x] 1.20 Lead, verify first: a toolbar placed by slot name, and the frame slot bridge, read the surface they belong to where two owners hold the same id (`regions/toolbar/toolbar-slots.service.ts`)
+- [x] 1.21 A plugin of the application's own code whose activation failed is not activated again on every later reconcile (`plugin/plugin-runtime.ts`)
+- [x] 1.22 A settings section that is refused leaves nothing registered behind: its cross-tab applier is not kept until the frame's session ends (`plugin/frame/rpc/frame-rpc-methods.ts`)
 - [x] 1.23 The owner check and the registry agree on what an address is: a surface's address is stored in one normalised form, so `/orders`, `orders/` and `orders` are one slot whoever registers first, and two patterns that differ only in a parameter's name are the same address; a product registering after a frame plugin is the one shown (`plugin/context/surface-admission.ts`, `contributions/registry-filters.ts`, `plugin/frame/rpc/sanitize-surface.ts`)
 - [x] 1.24 The wait for an asynchronous settings store applies only to plugins outside the application's own code: in-page plugins start as before and are switched off when the store says so, a frame plugin the user may switch off waits for the answer or the rejection, and the composition report of undeclared slots is not raised early because of the wait (`plugin/enablement/`, `diagnostics/composition-report.ts`, `persistence/stored-values/persisted-setting.ts`)
 - [x] 1.25 A capability read a plugin kept, used in a template or a computed after the capability was revoked, tells the user once and does not repeat on every change-detection pass (`permissions/refusal-error-handler.ts`)
@@ -77,15 +77,28 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 5. Commands, menus, dialogs and the UI kit
 
-- [ ] 5.1 A surface whose title or action was updated is still removed with its plugin (`contributions/contribution-registry.ts`)
-- [ ] 5.2 A tab's actions opened from the search keep the keyboard (`commands/palette/command-palette.ts`, with the real dialog outlet and menu service)
-- [ ] 5.3 A menu opened from inside a dialog is drawn above it and keeps the focus; Escape closes the menu alone (`dialog/dialog-outlet.ts`, the menu stylesheet)
-- [ ] 5.4 A key something already handled runs no command, and typing in a field inside a shadow root is not hijacked (`commands/keyboard/keybinding.service.ts`, `chord.ts`)
-- [ ] 5.5 Every folded toolbar entry is reachable by keyboard, and the tray closes after a choice (`elements/toolbar/`)
-- [ ] 5.6 A menu, an open select list and a toolbar tray close when the pointer goes into a frame (`menu/menu.service.ts`, `elements/select/`, `elements/row-fold.ts`)
-- [ ] 5.7 Asking for the search while it is open does not stack a second one (`commands/palette/palette-commands.ts`)
-- [ ] 5.8 A menu entry with a submenu keeps the focus when its words change (`elements/menu/lw-menu-item.element.ts`)
-- [ ] 5.9 Leads, each verified first: a chord with AltGr on Windows typing a character; rendered Markdown keeping `style`, form controls and remote images; `compact` on a select set before the element is defined; the tray's outside listener surviving a layout; closing a submenu dropping the focus; the tooltip's Escape while a menu is open
+- [x] 5.1 A surface whose title or action was updated is still removed with its plugin (`contributions/contribution-registry.ts`)
+- [x] 5.2 A tab's actions opened from the search keep the keyboard (`commands/palette/command-palette.ts`, with the real dialog outlet and menu service)
+- [x] 5.3 A menu opened from inside a dialog is drawn above it and keeps the focus; Escape closes the menu alone (`dialog/dialog-outlet.ts`, the menu stylesheet)
+- [x] 5.4 A key something already handled runs no command, and typing in a field inside a shadow root is not hijacked (`commands/keyboard/keybinding.service.ts`, `chord.ts`)
+- [x] 5.5 Every folded toolbar entry is reachable by keyboard, and the tray closes after a choice (`elements/toolbar/`)
+- [x] 5.6 A menu, an open select list and a toolbar tray close when the pointer goes into a frame (`menu/menu.service.ts`, `elements/select/`, `elements/row-fold.ts`)
+- [x] 5.7 Asking for the search while it is open does not stack a second one (`commands/palette/palette-commands.ts`)
+- [x] 5.8 A menu entry with a submenu keeps the focus when its words change (`elements/menu/lw-menu-item.element.ts`)
+- [x] 5.9 Leads, each verified first: a chord with AltGr on Windows typing a character; rendered Markdown keeping `style`, form controls and remote images (struck: none of the three executes, and the scripts, event handlers and script-bearing links the capability names are removed; forbidding more is the owner's decision); `compact` on a select set before the element is defined; the tray's outside listener surviving a layout; closing a submenu dropping the focus; the tooltip's Escape while a menu is open
+- [x] 5.10 Asking for the other search while one is open replaces it instead of stacking a second dialog, and the keyboard goes back to where the first was opened from when the second closes (`commands/palette/palette-commands.ts`)
+- [x] 5.11 A dialog opened from inside another dialog gives the focus back to a place that still exists when the lower one closed first (`dialog/dialog.service.ts`, `giveFocusBack`)
+- [x] 5.12 A menu that is still open when a dialog opens from code is closed, since it is now drawn above the dialog (`menu/menu.service.ts`)
+- [x] 5.13 Not reproduced, no code changed: the sync service keeps one applier per key, and a test pins it. Was: A frame that registers its own settings section a second time leaves one cross-tab applier, not two (`plugin/frame/rpc/frame-rpc-methods.ts`). Not reproduced: the sync service keeps one applier per key, a later registration replaces the earlier one and the stale disposer does nothing; a test pins that a change from another window is told once
+- [x] 5.14 The arrow keys inside a text field placed as a toolbar cell move the caret, in the row and in the tray; they move the toolbar's focus only from a cell that is not a text field (`elements/toolbar/toolbar-dom.ts`, `lw-toolbar.element.ts`)
+- [x] 5.15 A tooltip hides when its trigger is pressed, so it does not stay drawn over the menu that press opened (`elements/tooltip/lw-tooltip.element.ts`)
+- [x] 5.16 A dialog that closes while it is the top one gives the focus back to what opened it, also when other dialogs are open below it; and a menu that holds the focus by then inherits that opener (`dialog/dialog.service.ts`)
+- [x] 5.17 A menu, tray or bar fold that closes because the window lost the focus does not take the focus back; closing for another reason restores it as before (`elements/row-fold.ts`, `menu/menu.service.ts`, `elements/toolbar/`, `regions/bar/`)
+- [x] 5.18 Roving in an open tray leaves a key alone that the control under the focus has handled or uses itself: a select, a range and a radio group keep their arrow keys (`elements/toolbar/toolbar-layout.ts`, `toolbar-dom.ts`)
+- [x] 5.19 The workbench's own arrow-key handlers act only on unmodified keys, so a product's command on a modified arrow, Home or End still runs while the focus is in a toolbar, a menu or on a splitter (`elements/toolbar/lw-toolbar.element.ts`, `elements/menu/lw-menu.element.ts`, `regions/panel/panel-splitter.ts`, the pane split handle)
+- [x] 5.20 Whether a key types is decided by what it would insert, the same on every platform and browser: in a field, a key the layout turned into a printable character other than the chord's own base key types and runs no chord (`commands/keyboard/chord.ts`)
+- [x] 5.21 A toolbar placed inside a surface that renders in a shadow root finds the mark of the surface it sits in (`regions/toolbar/toolbar-host.service.ts`)
+- [x] 5.22 A tooltip detached in the middle of a press shows again on keyboard focus when it is attached again (`elements/tooltip/lw-tooltip.element.ts`)
 
 ## 6. Bars, rails, sidebars and pop-outs
 

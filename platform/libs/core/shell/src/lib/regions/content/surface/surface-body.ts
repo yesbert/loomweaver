@@ -71,7 +71,10 @@ import {
     ViewInstanceSwitcher,
   ],
   templateUrl: './surface-body.html',
-  host: { '[class]': 'hostClass()' },
+  host: {
+    '[class]': 'hostClass()',
+    '[attr.data-lw-surface-owner]': 'shownOwner()',
+  },
 })
 export class SurfaceBody {
   readonly path = input.required<string>();
@@ -243,6 +246,11 @@ export class SurfaceBody {
     }
     const route = this.declaredRoute();
     return route && this.auth.meets(route.access) ? route : null;
+  });
+
+  protected readonly shownOwner = computed(() => {
+    const shown = this.view() ?? this.activeRoute();
+    return shown ? (shown.pluginId ?? '') : null;
   });
 
   protected readonly iframeSurface = computed<{

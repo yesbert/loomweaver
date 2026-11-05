@@ -32,7 +32,7 @@ function mountInTrigger(attributes: Record<string, string>): {
 }
 
 function pointer(
-  type: 'pointerenter' | 'pointerleave',
+  type: 'pointerenter' | 'pointerleave' | 'pointerdown' | 'pointerup',
   pointerType: 'mouse' | 'touch',
 ): Event {
   const event = new Event(type);
@@ -104,6 +104,47 @@ describe('<lw-tooltip> custom element', () => {
 
       trigger.dispatchEvent(pointer('pointerleave', 'mouse'));
       expect(hidePopover).toHaveBeenCalledTimes(1);
+    });
+
+    it('hides when its trigger is pressed and stays hidden through the focus that press gives', () => {
+      const { trigger, showPopover, hidePopover } = mountInTrigger({
+        text: 'Add',
+        'delay-ms': '600',
+      });
+      trigger.dispatchEvent(pointer('pointerenter', 'mouse'));
+      vi.advanceTimersByTime(600);
+      expect(showPopover).toHaveBeenCalledTimes(1);
+
+      trigger.dispatchEvent(pointer('pointerdown', 'mouse'));
+      trigger.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      vi.advanceTimersByTime(1000);
+
+      expect(hidePopover).toHaveBeenCalledTimes(1);
+      expect(showPopover).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows again for a focus the keyboard gives after the press is over', () => {
+      const { trigger, showPopover } = mountInTrigger({ text: 'Add', 'delay-ms': '600' });
+      trigger.dispatchEvent(pointer('pointerdown', 'mouse'));
+      trigger.dispatchEvent(pointer('pointerup', 'mouse'));
+
+      trigger.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      vi.advanceTimersByTime(600);
+
+      expect(showPopover).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows again on keyboard focus after it was detached in the middle of a press and attached again', () => {
+      const { trigger, showPopover } = mountInTrigger({ text: 'Add', 'delay-ms': '600' });
+      const tooltip = trigger.querySelector(LW_TOOLTIP_TAG) as HTMLElement;
+      trigger.dispatchEvent(pointer('pointerdown', 'mouse'));
+
+      tooltip.remove();
+      trigger.append(tooltip);
+      trigger.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      vi.advanceTimersByTime(600);
+
+      expect(showPopover).toHaveBeenCalledTimes(1);
     });
 
     it('flips above the cursor with only a small gap near the viewport foot', () => {

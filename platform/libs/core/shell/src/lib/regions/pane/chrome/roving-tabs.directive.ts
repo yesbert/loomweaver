@@ -1,6 +1,6 @@
 import { afterEveryRender, Directive, ElementRef, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { rovingStep, rovingTabIndex } from '../../../elements/roving-focus';
+import { isModified, rovingStep, rovingTabIndex } from '../../../elements/roving-focus';
 
 @Directive({
   selector: '[lwRovingTabs]',
@@ -19,7 +19,7 @@ export class RovingTabs {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    if (isModified(event)) {
       return;
     }
     const tabs = this.tabs();
