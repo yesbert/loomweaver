@@ -14,9 +14,9 @@ export class SurfaceBadges {
     id: string | undefined,
     ownerId: string | undefined,
   ): TabBadge | undefined {
-    return this.badges().find(
-      (held) => held.id === id && held.ownerId === ownerId,
-    )?.badge;
+    const ofId = this.badges().filter((held) => held.id === id);
+    const exact = ofId.find((held) => held.ownerId === ownerId);
+    return (exact ?? (ownerId === undefined ? ofId[0] : undefined))?.badge;
   }
 
   set(

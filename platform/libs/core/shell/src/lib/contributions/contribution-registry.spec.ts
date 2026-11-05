@@ -26,6 +26,62 @@ describe('ContributionRegistry', () => {
     registry = TestBed.inject(ContributionRegistry);
   });
 
+  it('holds one content route per address, whichever form of it is registered first', () => {
+    for (const path of ['/orders', 'orders/', 'orders']) {
+      registry.addContentRoute({ path, component: DummyComponent });
+    }
+    registry.addContentRoute({ path: 'orders/:id', component: DummyComponent });
+    registry.addContentRoute({
+      path: '/orders/:orderId',
+      component: DummyComponent,
+    });
+
+    expect(registry.contentRoutes().map((route) => route.path)).toEqual([
+      'orders',
+      'orders/:orderId',
+    ]);
+  });
+
+  describe('a surface id two owners hold', () => {
+    const BETA = { text: 'badges.beta' };
+    const flip = { id: 'flip', icon: 'add', title: 'Flip', run: () => undefined };
+
+    beforeEach(() => {
+      registry.addView({ ...view, id: 'shared' }, 'one');
+      registry.addContentRoute(
+        { id: 'shared', path: 'shared', title: 't', component: DummyComponent },
+        'two',
+      );
+    });
+
+    it('is reached at every owner by a retitle, an action update and a badge given without an owner', () => {
+      registry.retitleSurface('shared', 'renamed');
+      registry.updateSurfaceAction('shared', flip);
+      registry.updateSurfaceBadge('shared', BETA);
+
+      expect(registry.views()[0].title).toBe('renamed');
+      expect(registry.contentRoutes()[0].title).toBe('renamed');
+      expect(registry.views()[0].actions).toEqual([flip]);
+      expect(registry.contentRoutes()[0].actions).toEqual([flip]);
+      expect(registry.badgeOf('shared', 'one')).toEqual(BETA);
+      expect(registry.badgeOf('shared', 'two')).toEqual(BETA);
+      expect(registry.badgeOf('shared')).toEqual(BETA);
+    });
+
+    it('is reached only at the owner given', () => {
+      registry.retitleSurface('shared', 'renamed', 'two');
+      registry.updateSurfaceAction('shared', flip, 'two');
+      registry.updateSurfaceBadge('shared', BETA, 'two');
+
+      expect(registry.views()[0].title).toBe('t');
+      expect(registry.contentRoutes()[0].title).toBe('renamed');
+      expect(registry.views()[0].actions).toBeUndefined();
+      expect(registry.contentRoutes()[0].actions).toEqual([flip]);
+      expect(registry.badgeOf('shared', 'one')).toBeUndefined();
+      expect(registry.badgeOf('shared', 'two')).toEqual(BETA);
+    });
+  });
+
   it('starts empty', () => {
     expect(registry.commands()).toEqual([]);
     expect(registry.views()).toEqual([]);

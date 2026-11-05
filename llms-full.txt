@@ -34,9 +34,10 @@
   next call (surfaced as a warning toast, not a silent failure). The user can only narrow, never widen; the
   settings surface stays reachable via `shell.openSettings` so revoking never locks the user out.
   A plugin the operator DEPLOYED gets no switches, and a disabling or a revocation stored while the same id was
-  the user's own is not honoured for it. With a settings store that answers only asynchronously (no `peek`), the
-  plugins a user can switch off start once it has answered (a rejected read counts as an answer), so one the user
-  turned off is never started first; `provideRequiredPlugins` plugins and deployed plugins start at once.
+  the user's own is not honoured for it. With a settings store that answers only asynchronously (no `peek`), a FRAME
+  plugin the user can switch off starts once it has answered (a rejected read counts as an answer), so one the user
+  turned off is never started first; required and deployed frame plugins start at once. Plugins that run in the
+  page start at once as before, and one the user turned off is unloaded when the answer arrives.
 - **Packages**: npm `@loomweaver/plugin-sdk`, `@loomweaver/shell`, `@loomweaver/mcp` (AI-scaffolding MCP server), `@loomweaver/cli` (scaffolding CLI), `@loomweaver/devkit` (Nx generator collection), `@loomweaver/frame-kit` (static UI assets for sandboxed plugins), `@loomweaver/ag-ui` (AG-UI adapter: the workbench's own commands offered to an agent as tools, headless — no transport/UI/agent; its stability follows AG-UI, not the platform) — seven npm packages, one shared version. The platform ships **no server package**; the backend is the product's.
 
 ## The plugin contract (`@loomweaver/plugin-sdk`) — complete
@@ -647,6 +648,8 @@ type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; ab
 // OVERRIDE (re-registering to replace, last-in wins) keys by `id` for every kind EXCEPT content routes,
 // which key by `path` (contribution-registry: addContentRoute matches on route.path). So re-registering a
 // surface with an existing route *id* does NOT override — it adds a second route; use the same `path`.
+// A path is ONE address in any spelling: `/orders`, `orders/` and `orders` are the same slot (stored as `orders`),
+// and so are two patterns that differ only in a parameter's name (`orders/:id` and `orders/:orderId`).
 // Replacing is for the application's OWN code (the distribution and the plugins it runs in the page). A FRAME plugin
 // (composed, deployed or installed) replaces only what it registered itself: its surface under an id or a route
 // address another owner holds, its menu entry or its settings section under an id another owner holds is REFUSED
@@ -738,8 +741,10 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // catalogue = does not exist; per-tenant curation = the product backend answers the catalogue request
 // tenant-dependently. A custom PluginCatalog's answer is read as defensively as the JSON document. Uninstalling drops
 // the plugin's switch-off and its capability revocations, so a reinstall starts enabled and holds what its consent
-// shows. A frame that does not connect within 30 seconds is removed and reported; it is tried again when its entry
-// changes or the user switches it off and on.
+// shows. A frame that does not connect within 30 seconds is removed and reported; a plugin the user can switch off
+// is tried again when its entry changes or the user switches it off and on, a required or deployed one whenever the
+// installed, deployed or switched-off plugins next change. An entry dropped from either catalogue source is named
+// in the console once.
 // UPDATES ride on the catalogue `version`: a STRICTLY newer version (compared segment-wise, numerically) shows an
 // "Update available" badge + an "Update to vX.Y.Z" button; pressing it swaps the persisted entry and RESPAWNS the
 // plugin live. A version declaring capabilities the user never consented to re-asks consent listing only the ADDED

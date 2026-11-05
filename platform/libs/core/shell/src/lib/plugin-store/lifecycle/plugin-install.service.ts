@@ -93,7 +93,8 @@ export class PluginInstallService {
    * store** — deliberately the opposite of its settings section, which survives so a reinstall finds
    * its configuration. An abandoned draft of a plugin the user just removed is litter; a preference
    * is not. A switch-off and every withdrawn capability go with the plugin too, so installing it
-   * again starts it holding what its consent shows.
+   * again starts it holding what its consent shows. Where a composed or deployed plugin holds the
+   * id, those choices are that plugin's and stay.
    */
   uninstall(id: string): void {
     if (!this.isInstalled(id)) {
@@ -101,7 +102,9 @@ export class PluginInstallService {
     }
     this.stored.update((installed) => installed.filter((entry) => entry.id !== id));
     this.pluginState.removePlugin(id);
-    this.userChoices.forget(id);
+    if (!this.composedIds.has(id) && !this.deployment.isDeployed(id)) {
+      this.userChoices.forget(id);
+    }
   }
 
   private validEntry(plugin: InstalledPlugin): InstalledPlugin {

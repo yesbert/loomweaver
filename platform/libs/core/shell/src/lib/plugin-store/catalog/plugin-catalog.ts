@@ -1,6 +1,10 @@
 import { InjectionToken } from '@angular/core';
 import { isSameOriginUrl } from '../lifecycle/installed-plugin';
-import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
+import {
+  PluginCatalogEntry,
+  parseCatalogList,
+  reportingDroppedOnce,
+} from './catalog-entry';
 
 
 /**
@@ -8,7 +12,8 @@ import { PluginCatalogEntry, parseCatalogList } from './catalog-entry';
  * user may install. The platform only defines the port — what is not in the catalog does not exist
  * for the shell; per-tenant curation is the product backend answering the catalog request
  * tenant-dependently. Whatever an implementation answers is read as defensively as a fetched
- * document: junk shapes, foreign-origin `entryUrl`s and unknown capability names are dropped.
+ * document: junk shapes, foreign-origin `entryUrl`s and unknown capability names are dropped, and
+ * an entry that is dropped is named in the console once.
  */
 export interface PluginCatalog {
   load(): Promise<readonly PluginCatalogEntry[]>;
@@ -25,7 +30,8 @@ export const PLUGIN_CATALOG = new InjectionToken<PluginCatalog>(
 /**
  * A {@link PluginCatalog} that fetches a same-origin JSON document (an array of
  * {@link PluginCatalogEntry}). Entries are parsed defensively: junk shapes, foreign-origin
- * `entryUrl`s and unknown capability names are dropped. The catalog URL itself must be same-origin —
+ * `entryUrl`s and unknown capability names are dropped, and an entry that is dropped is named in the
+ * console once. The catalog URL itself must be same-origin —
  * the store is the distribution's own origin; a product that wants another source
  * implements the {@link PluginCatalog} port directly.
  */
@@ -33,6 +39,7 @@ export function urlPluginCatalog(url: string): PluginCatalog {
   if (!isSameOriginUrl(url)) {
     throw new Error(`Plugin catalog URL must be same-origin, got "${url}".`);
   }
+  const dropped = reportingDroppedOnce();
   return {
     async load() {
       const response = await fetch(url);
@@ -41,7 +48,7 @@ export function urlPluginCatalog(url: string): PluginCatalog {
           `Plugin catalog at "${url}" answered ${response.status}.`,
         );
       }
-      return parseCatalogList(await response.json());
+      return parseCatalogList(await response.json(), dropped);
     },
   };
 }

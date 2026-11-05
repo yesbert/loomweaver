@@ -290,7 +290,9 @@ headers is under
 
 Contributions are addressed by id, and registering an existing id **replaces** it. That is the
 mechanism behind distribution-level recomposition (override a default by re-registering it) and it
-applies to the plugins you run in the page too: a later contribution wins.
+applies to the plugins you run in the page too: a later contribution wins. A content route is
+replaced by its address rather than by its id. `/orders`, `orders/` and `orders` are one address, and
+so are two patterns that differ only in the name of a parameter.
 
 Replacing is limited by where a plugin runs. A frame plugin replaces only what it registered itself,
 whether you composed it, the operator deployed it or the user installed it. Its route at an address

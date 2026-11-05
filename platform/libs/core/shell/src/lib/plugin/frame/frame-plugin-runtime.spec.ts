@@ -23,6 +23,8 @@ import { NotificationBoard } from '../../notifications/notification-board';
 import { SettingsService } from '../../settings-dialog/settings.service';
 import { PLUGIN } from '../plugin';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
+import { provideRequiredPlugins } from '../../foundation/required-plugins';
+import { ActivationSettled } from '../activation-settled';
 import type { Mock } from 'vitest';
 
 vi.mock('penpal', () => ({
@@ -924,11 +926,11 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     error.mockRestore();
   });
 
-  it('does not start a frame plugin the user switched off before an asynchronous settings store answers', async () => {
+  function slowSettingsStore(switchedOff: readonly string[]) {
     const answered = new Subject<void>();
     const asked = firstValueFrom(answered);
     const stored: Record<string, string> = {
-      'lw.shell.disabled-plugins': JSON.stringify(['p1']),
+      'lw.shell.disabled-plugins': JSON.stringify(switchedOff),
     };
     TestBed.configureTestingModule({
       providers: [
@@ -942,20 +944,89 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
         },
       ],
     });
+    const settle = async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+      TestBed.tick();
+      await Promise.resolve();
+      await Promise.resolve();
+    };
+    return {
+      answer: async () => {
+        answered.next();
+        await settle();
+      },
+      reject: async () => {
+        answered.error(new Error('401'));
+        await settle();
+      },
+    };
+  }
+
+  it('does not start a frame plugin the user switched off before an asynchronous settings store answers', async () => {
+    const { answer } = slowSettingsStore(['p1']);
     const { runtime } = setup();
     runtime.activateAll();
     TestBed.tick();
 
     expect(connectMock).not.toHaveBeenCalled();
 
-    answered.next();
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-    TestBed.tick();
+    await answer();
 
     expect(connectMock).not.toHaveBeenCalled();
     expect(document.querySelector('iframe')).toBeNull();
+  });
+
+  it('starts a frame plugin the user may switch off once an asynchronous settings store has answered', async () => {
+    const { answer } = slowSettingsStore([]);
+    const { runtime } = setup();
+    runtime.activateAll();
+    TestBed.tick();
+    expect(connectMock).not.toHaveBeenCalled();
+
+    await answer();
+
+    expect(connectMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts a frame plugin the user may switch off once the read of the settings store is rejected', async () => {
+    const { reject } = slowSettingsStore(['p1']);
+    const { runtime } = setup();
+    runtime.activateAll();
+    TestBed.tick();
+    expect(connectMock).not.toHaveBeenCalled();
+
+    await reject();
+
+    expect(connectMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts a frame plugin the user cannot switch off without waiting for the settings store', () => {
+    slowSettingsStore(['p1']);
+    TestBed.configureTestingModule({
+      providers: [provideRequiredPlugins('p1')],
+    });
+    const { runtime } = setup();
+    runtime.activateAll();
+
+    expect(connectMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps activation unsettled while frame plugins wait for the settings store, so nothing is reported early', async () => {
+    const { answer } = slowSettingsStore([]);
+    const { runtime } = setup();
+    runtime.activateAll();
+    TestBed.tick();
+    const activation = TestBed.inject(ActivationSettled);
+
+    expect(activation.isPending()).toBe(true);
+
+    await answer();
+    await activation.settled();
+
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(activation.isPending()).toBe(false);
   });
 
   it('a frame plugin whose connection failed is started again only when its entry changes or it is switched on again', async () => {
@@ -1004,6 +1075,49 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
     install.update({ ...failing, version: '1.1.0' });
     await settle();
     expect(connectMock).toHaveBeenCalledTimes(5);
+    error.mockRestore();
+  });
+
+  it('a frame plugin the user cannot switch off whose connection failed is tried again on a later reconcile', async () => {
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    TestBed.configureTestingModule({
+      providers: [provideRequiredPlugins('p1')],
+    });
+    const { runtime } = setup(Promise.reject(new Error('bad entry')));
+    runtime.activateAll();
+    const settle = async () => {
+      TestBed.tick();
+      await Promise.resolve();
+      await Promise.resolve();
+    };
+    await settle();
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(document.querySelector('iframe')).toBeNull();
+
+    connectMock.mockImplementation(() =>
+      connectionFor(Promise.reject(new Error('bad entry'))),
+    );
+    TestBed.inject(PluginDeploymentService).adopt([
+      {
+        id: 'p2',
+        name: 'Deployed plugin',
+        entryUrl: '/p2/plugin.html',
+        deployed: true,
+      },
+    ]);
+    await settle();
+    expect(connectMock).toHaveBeenCalledTimes(3);
+
+    TestBed.inject(PluginInstallService).install({
+      id: 'p3',
+      name: 'Another',
+      entryUrl: '/p3/plugin.html',
+    });
+    await settle();
+
+    expect(connectMock).toHaveBeenCalledTimes(6);
     error.mockRestore();
   });
 

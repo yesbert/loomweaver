@@ -358,6 +358,7 @@ describe('PluginRuntime with a settings store that answers only asynchronously',
       'lw.shell.disabled-plugins': JSON.stringify(['off', 'core']),
     });
     const activated: string[] = [];
+    const deactivated: string[] = [];
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -369,41 +370,50 @@ describe('PluginRuntime with a settings store that answers only asynchronously',
           useValue: {
             manifest: { id },
             activate: () => void activated.push(id),
+            deactivate: () => void deactivated.push(id),
           } satisfies Plugin,
           multi: true,
         })),
       ],
     });
     TestBed.inject(PluginRuntime).activateAll();
-    return { activated, answer, fail };
+    return { activated, deactivated, answer, fail };
   }
 
-  it('does not activate a plugin the user switched off before the store answers, nor after', async () => {
-    const { activated, answer } = compose(['off', 'on', 'core'], ['core']);
+  async function settle(): Promise<void> {
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+  }
+
+  it('starts the in-page plugins at once in the order they were composed, and switches one off when the store says so', async () => {
+    const { activated, deactivated, answer } = compose(
+      ['off', 'on', 'core'],
+      ['core'],
+    );
     TestBed.tick();
 
-    expect(activated).toEqual(['core']);
+    expect(activated).toEqual(['off', 'on', 'core']);
+    expect(deactivated).toEqual([]);
 
     answer();
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-    TestBed.tick();
+    await settle();
 
-    expect(activated).toEqual(['core', 'on']);
+    expect(activated).toEqual(['off', 'on', 'core']);
+    expect(deactivated).toEqual(['off']);
   });
 
-  it('starts the plugins that can be switched off once the read is rejected, which counts as an answer', async () => {
-    const { activated, fail } = compose(['off', 'on', 'core'], ['core']);
-    TestBed.tick();
-    expect(activated).toEqual(['core']);
+  it('leaves every in-page plugin running when the read is rejected', async () => {
+    const { activated, deactivated, fail } = compose(
+      ['off', 'on', 'core'],
+      ['core'],
+    );
 
     fail();
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-    TestBed.tick();
+    await settle();
 
-    expect(activated).toEqual(['core', 'off', 'on']);
+    expect(activated).toEqual(['off', 'on', 'core']);
+    expect(deactivated).toEqual([]);
   });
 });

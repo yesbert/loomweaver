@@ -28,6 +28,13 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [ ] 1.20 Lead, verify first: a toolbar placed by slot name, and the frame slot bridge, read the surface they belong to where two owners hold the same id (`regions/toolbar/toolbar-slots.service.ts`)
 - [ ] 1.21 A plugin of the application's own code whose activation failed is not activated again on every later reconcile (`plugin/plugin-runtime.ts`)
 - [ ] 1.22 A settings section that is refused leaves nothing registered behind: its cross-tab applier is not kept until the frame's session ends (`plugin/frame/rpc/frame-rpc-methods.ts`)
+- [x] 1.23 The owner check and the registry agree on what an address is: a surface's address is stored in one normalised form, so `/orders`, `orders/` and `orders` are one slot whoever registers first, and two patterns that differ only in a parameter's name are the same address; a product registering after a frame plugin is the one shown (`plugin/context/surface-admission.ts`, `contributions/registry-filters.ts`, `plugin/frame/rpc/sanitize-surface.ts`)
+- [x] 1.24 The wait for an asynchronous settings store applies only to plugins outside the application's own code: in-page plugins start as before and are switched off when the store says so, a frame plugin the user may switch off waits for the answer or the rejection, and the composition report of undeclared slots is not raised early because of the wait (`plugin/enablement/`, `diagnostics/composition-report.ts`, `persistence/stored-values/persisted-setting.ts`)
+- [x] 1.25 A capability read a plugin kept, used in a template or a computed after the capability was revoked, tells the user once and does not repeat on every change-detection pass (`permissions/refusal-error-handler.ts`)
+- [x] 1.26 The registry's retitle, action update, badge update and badge read reach every owner's surface when called without an owner, and only the caller's own when an owner is given (`contributions/contribution-registry.ts`)
+- [x] 1.27 A frame plugin the user cannot switch (required or deployed) whose connection failed or timed out is tried again on a later reconcile; the rule of 1.18 applies to plugins that have a switch (`plugin/frame/frame-plugin-runtime.ts`)
+- [x] 1.28 Uninstalling a stored install whose id a composed or deployed plugin holds does not clear that plugin's stored switch-off or revocations (`plugin-store/lifecycle/plugin-install.service.ts`)
+- [x] 1.29 An entry a product's own catalogue port answers that is dropped is named in the console once per entry, the way the address catalogue reports what it drops (`plugin-store/catalog/`)
 
 ## 2. Unsaved work and panes
 

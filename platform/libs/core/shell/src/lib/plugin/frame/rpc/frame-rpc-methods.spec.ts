@@ -12,6 +12,7 @@ import { FrameSession } from '../frame-session';
 import { LocalStorageStore } from '../../../persistence/key-value-store';
 import { SettingsService } from '../../../settings-dialog/settings.service';
 import { frameRpcMethods } from './frame-rpc-methods';
+import { matchRoute } from '../../../regions/content/content-path';
 
 function methodsFor(ctx: Partial<HostPluginContext>, session = {}) {
   return frameRpcMethods({
@@ -115,6 +116,54 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
       title: 'Mine',
       routable: { path: '/home' },
       iframe: '/framed/home.html',
+    });
+
+    expect(registry.contentRoutes().map((route) => route.pluginId)).toEqual([
+      'test-plugin',
+    ]);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/plugin "test-plugin".*plugin "framed"/),
+    );
+  });
+
+  it('the product registering after a frame plugin took a form of its address is the one shown', () => {
+    const { product, registry, methods } = composition();
+    methods.registerSurface({
+      id: 'framed.orders',
+      title: 'Mine',
+      routable: { path: '/orders/' },
+      iframe: '/framed/orders.html',
+    });
+
+    product.registerSurface({
+      id: 'product.orders',
+      title: 'Orders',
+      routable: { path: 'orders' },
+      component: DummyComponent,
+    });
+
+    expect(registry.contentRoutes().map((route) => route.path)).toEqual([
+      'orders',
+    ]);
+    expect(matchRoute(registry.contentRoutes(), 'orders')?.pluginId).toBe(
+      'test-plugin',
+    );
+  });
+
+  it('a frame plugin is refused an address that differs from a held one only in a parameter name', () => {
+    const { product, registry, methods, warn } = composition();
+    product.registerSurface({
+      id: 'product.order',
+      title: 'Order',
+      routable: { path: 'orders/:id' },
+      component: DummyComponent,
+    });
+
+    methods.registerSurface({
+      id: 'framed.order',
+      title: 'Mine',
+      routable: { path: '/orders/:orderId/' },
+      iframe: '/framed/order.html',
     });
 
     expect(registry.contentRoutes().map((route) => route.pluginId)).toEqual([

@@ -8,7 +8,9 @@ import {
   provideEnvironmentInitializer,
   untracked,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Connection, WindowMessenger, connect } from 'penpal';
+import { filter, firstValueFrom } from 'rxjs';
 import { ActivationSettled } from '../activation-settled';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import {
@@ -120,10 +122,20 @@ export class FramePluginRuntime {
       ...this.plugins.map((plugin) => plugin.id),
       ...this.inPageIds,
     ]);
+    if (!this.enablement.answered()) {
+      this.settlement.track(
+        firstValueFrom(
+          toObservable(this.enablement.answered, {
+            injector: this.injector,
+          }).pipe(filter(Boolean)),
+        ),
+      );
+    }
     this.reconcile(this.install.installed(), this.deployment.deployed());
     effect(
       () => {
         this.enablement.disabled();
+        this.enablement.answered();
         const installed = this.install.installed();
         const deployed = this.deployment.deployed();
         untracked(() => this.reconcile(installed, deployed));
@@ -170,16 +182,16 @@ export class FramePluginRuntime {
       this.inPageIds,
     );
     this.reportRefused(refused);
+    const disabled = this.enablement.disabled();
+    const answered = this.enablement.answered();
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
       this.isolation.register(plugin.id, levelOf(plugin));
       this.listed.add(plugin.id);
-    }
-    const disabled = this.enablement.disabled();
-    for (const plugin of runnable) {
-      const enabled = !disabled.has(plugin.id);
+      const hasSwitch = this.enablement.hasSwitch(plugin.id);
+      const enabled = !disabled.has(plugin.id) && (answered || !hasSwitch);
       const running = this.instances.get(plugin.id);
-      if (!enabled) {
+      if (!enabled || !hasSwitch) {
         this.failed.delete(plugin.id);
       }
       if (enabled && !running) {

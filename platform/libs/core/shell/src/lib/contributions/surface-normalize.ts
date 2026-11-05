@@ -7,6 +7,7 @@ import {
   View,
   ViewAction,
 } from '@loomweaver/plugin-sdk';
+import { addressForm } from '../addressing/address-form';
 
 export const CONTAINER_CHILD_REGION = '__container-child';
 
@@ -148,7 +149,7 @@ function routableFields(
   source: NonNullable<Surface['routable']>,
 ): NonNullable<Surface['routable']> {
   return {
-    path: source.path,
+    path: addressForm(source.path),
     chromeless: source.chromeless,
     title: source.title,
     icon: source.icon,

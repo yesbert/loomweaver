@@ -6,6 +6,7 @@ import {
 } from '../../contributions/contribution-registry';
 import { ownerName } from '../../contributions/toolbar-registry';
 import { segmentsOf } from '../../regions/content/content-path';
+import { addressForm, addressSlot } from '../../addressing/address-form';
 import { SettingsSection } from '../../settings-dialog/settings-model';
 import { SettingsRegistry } from '../../settings-dialog/settings-registry';
 import { collidingParam } from '../../regions/content/tabs/tab-address';
@@ -53,7 +54,7 @@ export function surfaceHolderMessage(
   pluginId: string,
   surface: Surface,
 ): string | null {
-  const address = surface.routable && addressOf(surface.routable.path);
+  const slot = surface.routable && addressSlot(surface.routable.path);
   for (const held of untracked(() => [
     ...registry.views(),
     ...registry.contentRoutes(),
@@ -65,8 +66,12 @@ export function surfaceHolderMessage(
     if (held.id === surface.id) {
       return replacingRefused(`Surface "${surface.id}"`, held.pluginId, pluginId);
     }
-    if ('path' in held && addressOf(held.path) === address) {
-      return replacingRefused(`Address "${address}"`, held.pluginId, pluginId);
+    if ('path' in held && addressSlot(held.path) === slot) {
+      return replacingRefused(
+        `Address "${addressForm(held.path)}"`,
+        held.pluginId,
+        pluginId,
+      );
     }
   }
   return null;
@@ -101,10 +106,6 @@ export function settingsSectionHolderMessage(
   return holderId === pluginId
     ? null
     : replacingRefused(`Settings section "${section.id}"`, holderId, pluginId);
-}
-
-function addressOf(path: string): string {
-  return segmentsOf(path).join('/');
 }
 
 function replacingRefused(

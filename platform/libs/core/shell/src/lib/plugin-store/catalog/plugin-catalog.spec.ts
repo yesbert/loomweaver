@@ -104,6 +104,26 @@ describe('urlPluginCatalog', () => {
     expect(entry.downloads).toBeUndefined();
   });
 
+  it('names each entry it drops from the catalogue at an address in the console, once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          { id: 'good', name: 'Good', entryUrl: '/good/plugin.html' },
+          { id: 'evil', entryUrl: 'https://evil.example/plugin.html' },
+        ]),
+    }) as unknown as typeof fetch;
+    const catalog = urlPluginCatalog('/plugins/catalog.json');
+
+    await catalog.load();
+    await catalog.load();
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0][0])).toContain('"evil"');
+    warn.mockRestore();
+  });
+
   it('throws on a non-ok catalog response', async () => {
     globalThis.fetch = vi
       .fn()
@@ -197,6 +217,34 @@ describe('providePluginCatalog', () => {
     expect(entries.map((entry) => entry.id)).toEqual(['good', 'caps']);
     expect(entries[1].capabilities).toEqual(['contributions']);
     expect(catalog.entries()).toEqual(entries);
+  });
+
+  it("names each entry it drops from a product's own catalogue port in the console, once", async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    configure({
+      load: () =>
+        Promise.resolve([
+          { id: 'good', name: 'Good', entryUrl: '/good/plugin.html' },
+          {
+            id: 'foreign',
+            name: 'Foreign',
+            entryUrl: 'https://evil.example/plugin.html',
+          },
+          { id: 'shell.fake', name: 'Fake', entryUrl: '/fake/plugin.html' },
+          'junk',
+        ] as unknown as PluginCatalogEntry[]),
+    });
+    const catalog = TestBed.inject(PluginCatalogEntries);
+
+    await catalog.load();
+    await catalog.load();
+
+    const said = warn.mock.calls.map(([message]) => String(message));
+    expect(said).toHaveLength(3);
+    expect(said[0]).toContain('"foreign"');
+    expect(said[1]).toContain('"shell.fake"');
+    expect(said[2]).toContain('entry 4');
+    warn.mockRestore();
   });
 
   it('activates the sandbox runtime so a persisted install spawns without any composed plugin', () => {

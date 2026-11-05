@@ -154,6 +154,40 @@ describe('PluginInstallService', () => {
     expect(grants.isGranted('store.other', 'ui')).toBe(false);
   });
 
+  it('removing a stored install whose id a composed or deployed plugin holds leaves that plugin\'s switch-off and revocations alone', () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify([
+        entry({ id: 'composed' }),
+        entry({ id: 'deployed' }),
+      ]),
+    );
+    const service = make();
+    service.markComposed(['composed']);
+    TestBed.inject(PluginDeploymentService).adopt([
+      { ...entry({ id: 'deployed' }), deployed: true },
+    ]);
+    const enablement = TestBed.inject(PluginEnablementService);
+    const grants = TestBed.inject(CapabilityGrantService);
+    for (const id of ['composed', 'deployed']) {
+      enablement.setEnabled(id, false);
+      grants.setGranted(id, 'ui', false);
+    }
+
+    service.uninstall('composed');
+    service.uninstall('deployed');
+
+    expect(service.installed()).toEqual([]);
+    expect(
+      JSON.parse(localStorage.getItem('lw.shell.disabled-plugins') ?? '[]'),
+    ).toEqual(['composed', 'deployed']);
+    expect(
+      JSON.parse(
+        localStorage.getItem('lw.shell.capability-revocations') ?? '[]',
+      ),
+    ).toEqual(['composed:ui', 'deployed:ui']);
+  });
+
   it('updates an installed entry in place and persists the new declaration', () => {
     const service = make();
     service.install(entry({ version: '1.0.0' }));

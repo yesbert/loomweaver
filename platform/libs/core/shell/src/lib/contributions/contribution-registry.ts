@@ -16,7 +16,7 @@ import {
   entryToView,
   viewToEntry,
 } from './surface-normalize';
-import { idsOf, sameSlotAs, withoutOmitted } from './registry-filters';
+import { heldUnder, idsOf, sameSlotAs, withoutOmitted } from './registry-filters';
 
 export type { Disposable } from '@loomweaver/plugin-sdk';
 export type {
@@ -288,9 +288,10 @@ export class ContributionRegistry {
   }
 
   /**
-   * Replaces the title of the surface `pluginId` registered under `id` in place, leaving everything
-   * else it declared alone. A rename is not a re-registration: the entry keeps its identity, so
-   * nothing mounted from it is rebuilt. An id that owner registered nothing under is a no-op.
+   * Replaces the title of the surface registered under `id` in place, leaving everything else it
+   * declared alone: every owner's where no `pluginId` is given, only that plugin's where one is. A
+   * rename is not a re-registration: the entry keeps its identity, so nothing mounted from it is
+   * rebuilt. An id nothing was registered under is a no-op.
    */
   retitleSurface(id: string, title: string, pluginId?: string): void {
     this.changeOwned(id, pluginId, (entry) =>
@@ -299,8 +300,9 @@ export class ContributionRegistry {
   }
 
   updateSurfaceBadge(id: string, badge: TabBadge | null, pluginId?: string): void {
-    if (untracked(() => this.holds(id, pluginId))) {
-      this.badges.set(id, pluginId, tabBadgeOf(badge));
+    const held = untracked(() => this.surfacesSignal()).filter(heldUnder(id, pluginId));
+    for (const surface of held) {
+      this.badges.set(id, surface.pluginId, tabBadgeOf(badge));
     }
   }
 
@@ -309,9 +311,10 @@ export class ContributionRegistry {
   }
 
   /**
-   * Replaces one action of the surface `pluginId` registered under `id` in place, by the action's
-   * id, leaving the entry's identity and everything else it declared alone. An action id the surface
-   * did not carry is added. An id that owner registered nothing under is a no-op.
+   * Replaces one action of the surface registered under `id` in place, by the action's id, leaving
+   * the entry's identity and everything else it declared alone: every owner's where no `pluginId` is
+   * given, only that plugin's where one is. An action id the surface did not carry is added. An id
+   * nothing was registered under is a no-op.
    */
   updateSurfaceAction(id: string, action: ViewAction, pluginId?: string): void {
     this.changeOwned(id, pluginId, (entry) => ({
@@ -346,9 +349,7 @@ export class ContributionRegistry {
     change: (entry: RegisteredSurface) => RegisteredSurface,
   ): void {
     this.surfacesSignal.update((entries) =>
-      entries.map((entry) =>
-        entry.id === id && entry.pluginId === pluginId ? change(entry) : entry,
-      ),
+      entries.map((entry) => (heldUnder(id, pluginId)(entry) ? change(entry) : entry)),
     );
   }
 

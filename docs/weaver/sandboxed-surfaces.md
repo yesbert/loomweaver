@@ -134,7 +134,8 @@ plugin id and the question never comes up.
 
 **The entry document has 30 seconds to connect.** A frame that has not connected by then is removed,
 and the console reports the failure. The workbench tries it again when its catalogue entry changes or
-when the user switches the plugin off and on.
+when the user switches the plugin off and on. A plugin the user cannot switch off is tried again
+whenever the installed, deployed or switched-off plugins next change.
 
 **A sandboxed plugin's toasts are bounded.** A toast always leaves by itself, after 15 seconds at the
 latest: `timeoutMs: 0`, a longer lifetime and an `error` without one are all shortened to that. The
