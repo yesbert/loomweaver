@@ -155,6 +155,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 10.2 The surface inset test fails when no docked surface is found (`surface-inset.spec.ts`)
 - [x] 10.3 Clicking a tab in a pane fails when the tab is missing, and the stable-ids test asserts the address moved (`support/helpers.ts`, `stable-pane-ids.spec.ts`)
 - [x] 10.4 The testbed's reply field is named in each pane of a split, and the accessibility scan covers a split (`platform/libs/weavers/testbed-weaver/src/lib/entry-tabs/testbed-entry-view.html`, `a11y.spec.ts`)
+- [ ] 10.7 The test of a secondary pane as a tab group passes every time: it fails in about one run of seven on unchanged code (`platform/apps/loom-testbed-e2e/src/pane-tabs.spec.ts`, the close at its end)
 - [ ] 10.5 The end-to-end project type-checks clean, and its lint target holds that (`retained-url-pane.spec.ts`, `scrollbars.spec.ts`, the unused import in `content.spec.ts`)
 - [x] 10.6 The surface inset test polls for the inset instead of waiting a fixed time (`surface-inset.spec.ts`)
 
