@@ -2,7 +2,8 @@ globalThis.PaymentsMatching = (function () {
   function daysAgo(days) {
     const date = new Date();
     date.setDate(date.getDate() - days);
-    return date.toISOString().slice(0, 10);
+    const twoDigits = (part) => String(part).padStart(2, '0');
+    return [date.getFullYear(), twoDigits(date.getMonth() + 1), twoDigits(date.getDate())].join('-');
   }
 
   const STATEMENT = [

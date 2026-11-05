@@ -30,7 +30,7 @@ const CUSTOMER_SEEDS: readonly Customer[] = [
   { id: 'c-talbach', number: 'K-1006', name: 'Talbach Werkzeugbau GmbH', city: 'Villingen', vatId: 'DE198327440', paymentTermsDays: 45 },
 ];
 
-export const ARTICLES: readonly Article[] = [
+const ARTICLES: readonly Article[] = [
   { id: 'a-consulting', number: 'L-100', descriptionKey: 'accounting.article.consulting', unit: 'hour', unitPrice: 14500, costPrice: 6200, taxRate: 19 },
   { id: 'a-development', number: 'L-110', descriptionKey: 'accounting.article.development', unit: 'hour', unitPrice: 13500, costPrice: 7100, taxRate: 19 },
   { id: 'a-workshop', number: 'L-120', descriptionKey: 'accounting.article.workshop', unit: 'day', unitPrice: 145000, costPrice: 62000, taxRate: 19 },

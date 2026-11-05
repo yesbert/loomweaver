@@ -1,5 +1,7 @@
 import { EventType, type AGUIEvent, type ToolMessage } from '@ag-ui/core';
-import { createAgent } from './assistant-agent';
+import de from '../i18n/de.json';
+import en from '../i18n/en.json';
+import { createAgent, type Wording } from './assistant-agent';
 
 interface Sent {
   readonly messages: readonly Record<string, unknown>[];
@@ -19,17 +21,30 @@ function answering(turns: readonly unknown[]): { fetchLike: typeof fetch; sent: 
   return { fetchLike, sent };
 }
 
+function wordingOf(catalogue: object): Wording {
+  return (key, params = {}) => {
+    const sentence = key
+      .split('.')
+      .slice(1)
+      .reduce<unknown>((node, part) => (node as Record<string, unknown> | undefined)?.[part], catalogue);
+    return typeof sentence === 'string'
+      ? sentence.replace(/{{(\w+)}}/g, (_match, name: string) => String(params[name]))
+      : key;
+  };
+}
+
 async function run(
   fetchLike: typeof fetch,
   receive: (event: AGUIEvent) => ToolMessage | null,
+  { wording = wordingOf(en), key = 'k' }: { wording?: Wording; key?: string } = {},
 ): Promise<AGUIEvent[]> {
   const seen: AGUIEvent[] = [];
-  const agent = createAgent(fetchLike);
+  const agent = createAgent(wording, fetchLike);
   for await (const event of agent.ask({
     runId: 'r1',
     prompt: 'assign T-1041 to dana',
     tools: [{ name: 'tickets__assign', description: 'Assigns a ticket.', parameters: {} }],
-    key: 'k',
+    key,
   })) {
     seen.push(event);
     const answer = receive(event);
@@ -95,5 +110,51 @@ describe('createAgent', () => {
     expect(message).toContain('This model is unavailable for free.');
     expect(message).toContain('MODEL in assistant-agent.ts');
     expect(message).toContain('supported_parameters=tools');
+  });
+
+  it('says each of its own failures in the language of the catalogue it was given', async () => {
+    const answers = (body: string, status: number): typeof fetch => () =>
+      Promise.resolve(new Response(body, { status }));
+    const failures: { key: string; params?: Record<string, unknown>; fetchLike: typeof fetch; without?: boolean }[] = [
+      { key: 'assistant.error.noKey', fetchLike: answers('{}', 200), without: true },
+      { key: 'assistant.error.status', params: { status: 502 }, fetchLike: answers('{}', 502) },
+      { key: 'assistant.error.noMessage', fetchLike: answers('{"choices":[]}', 200) },
+      {
+        key: 'assistant.error.timeout',
+        params: { seconds: 60 },
+        fetchLike: () => Promise.reject(new DOMException('timed out', 'TimeoutError')),
+      },
+    ];
+
+    for (const catalogue of [en, de]) {
+      const wording = wordingOf(catalogue);
+      for (const failure of failures) {
+        const seen = await run(failure.fetchLike, () => null, { wording, key: failure.without ? '' : 'k' });
+        const message = seen[1].type === EventType.RUN_ERROR ? seen[1].message : '';
+
+        expect(message).toBe(wording(failure.key, failure.params));
+        expect(message).not.toContain(failure.key);
+        expect(message).not.toMatch(/{{|undefined/);
+      }
+    }
+    expect(wordingOf(de)('assistant.error.noKey')).not.toBe(wordingOf(en)('assistant.error.noKey'));
+  });
+
+  it('says where the model is set in the other language as well', async () => {
+    const fetchLike: typeof fetch = () =>
+      Promise.resolve(new Response(JSON.stringify({ error: { message: 'gone' } }), { status: 404 }));
+    const seen = await run(fetchLike, () => null, { wording: wordingOf(de) });
+    const message = seen[1].type === EventType.RUN_ERROR ? seen[1].message : '';
+
+    expect(message).toBe(
+      `gone ${wordingOf(de)('assistant.error.modelGone', { models: 'https://openrouter.ai/models?fmt=cards&supported_parameters=tools&max_price=0' })}`,
+    );
+    expect(message).not.toContain('Free models come and go');
+  });
+
+  it('carries no title beside the one its panel shows', () => {
+    for (const catalogue of [en, de]) {
+      expect(catalogue).not.toHaveProperty('title');
+    }
   });
 });

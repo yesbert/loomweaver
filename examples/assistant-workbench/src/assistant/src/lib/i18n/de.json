@@ -1,5 +1,4 @@
 {
-  "title": "Assistent",
   "agent": {
     "title": "Assistent",
     "confirm": {
@@ -21,5 +20,12 @@
     "send": "Senden",
     "working": "Arbeitet…",
     "keyProblem": "Das sieht nicht nach einem OpenRouter-Key aus. Er beginnt mit sk-or- und wird allein eingefügt, ohne Bearer und ohne Anführungszeichen."
+  },
+  "error": {
+    "noKey": "Es ist kein OpenRouter-Key gesetzt. Füge zuerst einen im Panel ein.",
+    "status": "OpenRouter hat mit Status {{status}} geantwortet.",
+    "noMessage": "OpenRouter hat ohne Nachricht geantwortet.",
+    "timeout": "OpenRouter hat nicht innerhalb von {{seconds}} Sekunden geantwortet. Freie Modelle werden geteilt; versuch es noch einmal.",
+    "modelGone": "Freie Modelle kommen und gehen. Trag in assistant-agent.ts bei MODEL einen anderen Slug ein; die freien, die Werkzeuge aufrufen können, stehen unter {{models}}."
   }
 }

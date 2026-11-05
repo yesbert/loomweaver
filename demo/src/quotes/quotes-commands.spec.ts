@@ -35,4 +35,12 @@ describe('the quote commands', () => {
       expect(numberChoices(commands, id)).toContain(created.number);
     }
   });
+
+  it('keep those that need a quote number out of the search, which cannot supply one', () => {
+    const hidden = registeredCommands()
+      .filter((command) => command.paletteHidden)
+      .map((command) => command.id);
+
+    expect(hidden).toEqual(['quotes.open', 'quotes.send', 'quotes.margin']);
+  });
 });

@@ -43,6 +43,20 @@ test('the status bar offers search with its shortcut, and it opens the palette',
   await expect(page.getByPlaceholder('Type a command…')).toBeVisible();
 });
 
+test('the search offers the quote command it can run, and none that needs a quote number', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Command palette' }).click();
+
+  await page.getByPlaceholder('Type a command…').fill('quote');
+
+  const offered = page.locator('#lw-palette-list');
+  await expect(offered).toContainText('New quote');
+  await expect(offered).not.toContainText('Send quote to customer');
+  await expect(offered).not.toContainText("Read a quote's margin");
+});
+
 test('signing out leaves the account entry standing, offering the way back in, and it survives a reload', async ({
   page,
 }) => {

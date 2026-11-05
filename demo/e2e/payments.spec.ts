@@ -225,3 +225,22 @@ test('the colour scheme repaints the surface, and the kit still draws its contro
     .poll(() => button.evaluate((node) => getComputedStyle(node).backgroundColor))
     .not.toBe(light);
 });
+
+test.describe('west of UTC', () => {
+  test.use({ timezoneId: 'America/Los_Angeles' });
+
+  for (const [when, now] of [
+    ['at noon', '2026-03-09T20:00:00Z'],
+    ['in the evening, when UTC is a day ahead', '2026-03-10T03:00:00Z'],
+  ]) {
+    test(`a payment booked yesterday shows yesterday's date ${when}`, async ({ page }) => {
+      await page.clock.setFixedTime(new Date(now));
+      await page.goto('/');
+      await openPayments(page);
+
+      await expect(surface(page).locator('[data-line="b-1"] .row-meta')).toContainText(
+        '8 Mar 2026',
+      );
+    });
+  }
+});

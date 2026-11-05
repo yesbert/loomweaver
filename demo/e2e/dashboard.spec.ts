@@ -46,6 +46,8 @@ test('both charts are drawn, and a change of colour scheme redraws them', async 
 
   const charts = page.locator('demo-insights-chart canvas');
   await expect(charts).toHaveCount(2);
+  await expect(page.getByRole('img', { name: 'Quoted per month' })).toBeVisible();
+  await expect(page.getByRole('img', { name: 'Pipeline by status' })).toBeVisible();
 
   await chooseScheme(page, 'Dark');
   await expect(page.locator('html')).toHaveClass(/dark/);

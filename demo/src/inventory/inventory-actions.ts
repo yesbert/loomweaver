@@ -34,8 +34,11 @@ export const inventoryActions = {
       initial: String(item.onHand),
       confirmLabel: 'inventory.count.confirm',
     });
-    const quantity = Number(counted?.trim());
-    if (counted === null || !Number.isInteger(quantity) || quantity < 0) {
+    if (!counted?.trim()) {
+      return null;
+    }
+    const quantity = Number(counted.trim());
+    if (!Number.isInteger(quantity) || quantity < 0) {
       return null;
     }
     if (bookCount(item.id, quantity) === null) {

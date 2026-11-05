@@ -138,16 +138,16 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 9. The demo and the example
 
-- [ ] 9.1 Commands that need arguments are not offered in the search (`demo/src/quotes/quotes-commands.ts`, `demo/src/app/looks/looks.plugin.ts`, `examples/assistant-workbench/src/tickets/src/lib/plugin/tickets.plugin.ts`)
-- [ ] 9.2 An empty stock count posts nothing (`demo/src/inventory/inventory-actions.ts`)
-- [ ] 9.3 Ledger account names come from the catalogue (`demo/src/finance/books.ts`)
-- [ ] 9.4 The assistant's error sentences come from the catalogue, and the unused key goes (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent.ts`)
-- [ ] 9.5 The dashboard charts carry a role and a name (`demo/src/insights/insights-chart.ts`)
-- [ ] 9.6 Bank statement dates are the same day in every time zone (`demo/public/payments/matching.js`, `view.js`)
-- [ ] 9.7 The assistant's prompt keeps the focus across a run (`assistant-agent-panel.html`)
-- [ ] 9.8 The example compiles with `strict` and `strictTemplates` (`examples/assistant-workbench/tsconfig.json`)
+- [x] 9.1 Commands that need arguments are not offered in the search (`demo/src/quotes/quotes-commands.ts`, `demo/src/app/looks/looks.plugin.ts`, `examples/assistant-workbench/src/tickets/src/lib/plugin/tickets.plugin.ts`)
+- [x] 9.2 An empty stock count posts nothing (`demo/src/inventory/inventory-actions.ts`)
+- [x] 9.3 Ledger account names come from the catalogue (`demo/src/finance/books.ts`)
+- [x] 9.4 The assistant's error sentences come from the catalogue, and the unused key goes (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent.ts`)
+- [x] 9.5 The dashboard charts carry a role and a name (`demo/src/insights/insights-chart.ts`)
+- [x] 9.6 Bank statement dates are the same day in every time zone (`demo/public/payments/matching.js`, `view.js`)
+- [x] 9.7 The assistant's prompt keeps the focus across a run (`assistant-agent-panel.html`)
+- [x] 9.8 The example compiles with `strict` and `strictTemplates` (`examples/assistant-workbench/tsconfig.json`)
 - [ ] 9.9 Leads, each verified first: the demo's service worker serving the sandboxed payments plugin offline; unused exports and files in `demo/src`
-- [ ] 9.10 The example's panel flushes in a `finally`, as the guide says (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
+- [x] 9.10 The example's panel flushes in a `finally`, as the guide says (`examples/assistant-workbench/src/assistant/src/lib/agent/assistant-agent-panel.ts`)
 
 ## 10. Tests that could not fail
 
