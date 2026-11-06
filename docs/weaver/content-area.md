@@ -183,7 +183,9 @@ like "Focus Library" works no matter where the view lives. Where the person open
 content area as well, the copy they had current most recently comes forward. Without that history,
 the copy in the pane carrying the address wins, and otherwise the first in reading order. It is a
 no-op for a view the person or the active workspace hid, and for an unknown id; container-only
-children (`docks: []`) stay inside their container. Routable surfaces are reached with `navigateContent` instead. Requires `navigation`.
+children (`docks: []`) stay inside their container. A minimised pane holding the view is restored,
+and another pane's maximise ends. Routable surfaces are reached with `navigateContent` instead.
+Requires `navigation`.
 
 A dynamic tab title is usually a runtime **literal** (a document name, an entity label). Set
 `titleIsLiteral: true` so the host renders it verbatim instead of treating it as a translation key.

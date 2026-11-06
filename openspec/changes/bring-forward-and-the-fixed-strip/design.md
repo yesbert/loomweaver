@@ -36,6 +36,12 @@ today's behaviour even when the hidden tab is one that cannot move, such as a pi
 reaches the sidebar strips too: with view reordering switched off, a hidden view tab that becomes
 current is scrolled into view, where before nothing answered the request to bring it forward.
 
+**The chosen copy is put in view, and a hidden copy is not current.** Bringing a copy forward in a
+content pane restores that pane when it is minimised and ends another pane's maximise, as the
+requirement on putting a surface in view asks. A copy in a minimised pane does not count as
+current. A copy's record goes when the copy closes, and every record goes when the arrangement is
+replaced, as on a workspace switch, so a pane id used again never inherits an old history.
+
 **The record starts with the shell.** It watches which copies are current from the first moment, so
 a plugin that asks late still gets the person's history, and a test that builds the reveal path
 alone does not start it.

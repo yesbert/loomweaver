@@ -96,5 +96,13 @@ test.describe('Reveal a docked surface (finding #29)', () => {
 
     await expect(contentCopy).toHaveAttribute('aria-selected', 'true');
     await expect(outline).toHaveAttribute('aria-selected', 'true');
+
+    await pane.getByTestId('pane-minimize').click();
+    await expect(page.getByTestId('pane-minimized-strip')).toHaveCount(1);
+    await runCommand(page, 'Focus the entry list');
+
+    await expect(page.getByTestId('pane-minimized-strip')).toHaveCount(0);
+    await expect(contentCopy).toHaveAttribute('aria-selected', 'true');
+    await expect(pane.locator('lw-surface-body')).toBeVisible();
   });
 });

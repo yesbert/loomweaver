@@ -11,6 +11,7 @@ import { SHELL_LAYOUT } from '../../layout/layout';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { SurfaceCopyRecency } from './surface-copy-recency';
 import { PaneRef } from '../pane/tree/pane-address';
+import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 
 describe('SurfaceRevealService', () => {
   afterEach(() => localStorage.clear());
@@ -20,6 +21,8 @@ describe('SurfaceRevealService', () => {
     readonly declared?: Record<string, string>;
     readonly seededPaths?: Record<string, string[]>;
     readonly recent?: (copies: readonly PaneRef[]) => readonly PaneRef[];
+    readonly minimized?: readonly string[];
+    readonly maximized?: string;
   }
 
   function setup(dockTrees: Record<string, unknown>, options: Options = {}) {
@@ -27,6 +30,8 @@ describe('SurfaceRevealService', () => {
     const activateViewTab = vi.fn();
     const expand = vi.fn();
     const openOverlay = vi.fn();
+    const toggleMinimize = vi.fn();
+    const endMaximize = vi.fn();
     const seed = vi.fn((region: string) => {
       dockTrees[region] = leafWith('main', options.seededPaths?.[region] ?? []);
     });
@@ -38,6 +43,19 @@ describe('SurfaceRevealService', () => {
             dockTrees: () => dockTrees,
             setActiveTab,
             primaryId: () => 'main',
+            carriesAddress: (pane: PaneRef) =>
+              pane.dock === CONTENT_DOCK && pane.paneId === 'main',
+          },
+        },
+        {
+          provide: PaneChromeService,
+          useValue: {
+            isMinimized: (dock: string, paneId: string) =>
+              options.minimized?.includes(`${dock}:${paneId}`) ?? false,
+            maximizedPaneIn: (dock: string) =>
+              dock === CONTENT_DOCK ? (options.maximized ?? null) : null,
+            toggleMinimize,
+            endMaximize,
           },
         },
         { provide: ContentTabsService, useValue: { activateViewTab } },
@@ -90,6 +108,8 @@ describe('SurfaceRevealService', () => {
       expand,
       openOverlay,
       seed,
+      toggleMinimize,
+      endMaximize,
     };
   }
 
@@ -174,6 +194,42 @@ describe('SurfaceRevealService', () => {
       expect(setActiveTab).toHaveBeenCalledTimes(1);
       expect(setActiveTab).toHaveBeenCalledWith('primary', 'main', library);
       expect(activateViewTab).not.toHaveBeenCalled();
+    });
+
+    it('restores the minimised pane the chosen copy stands in', () => {
+      const { service, setActiveTab, toggleMinimize, endMaximize } = setup(
+        {
+          [CONTENT_DOCK]: splitOf(
+            leafWith('main', ['doc/a']),
+            leafWith('aside', [library]),
+          ),
+        },
+        { minimized: [`${CONTENT_DOCK}:aside`] },
+      );
+
+      service.reveal('testbed.library');
+
+      expect(setActiveTab).toHaveBeenCalledWith(CONTENT_DOCK, 'aside', library);
+      expect(toggleMinimize).toHaveBeenCalledWith(CONTENT_DOCK, 'aside');
+      expect(endMaximize).not.toHaveBeenCalled();
+    });
+
+    it('ends the maximise of another pane, and keeps that of its own', () => {
+      const tree = {
+        [CONTENT_DOCK]: splitOf(
+          leafWith('main', ['doc/a']),
+          leafWith('aside', [library]),
+        ),
+      };
+      const other = setup(tree, { maximized: 'main' });
+      other.service.reveal('testbed.library');
+      expect(other.endMaximize).toHaveBeenCalledTimes(1);
+      expect(other.toggleMinimize).not.toHaveBeenCalled();
+
+      TestBed.resetTestingModule();
+      const own = setup(tree, { maximized: 'aside' });
+      own.service.reveal('testbed.library');
+      expect(own.endMaximize).not.toHaveBeenCalled();
     });
 
     it('reads the content area before a sidebar on the right', () => {

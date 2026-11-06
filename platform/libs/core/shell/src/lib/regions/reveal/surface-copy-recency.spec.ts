@@ -4,6 +4,7 @@ import { SurfaceCopyRecency } from './surface-copy-recency';
 import { CONTENT_DOCK, PaneRef } from '../pane/tree/pane-address';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ContentTabsService } from '../content/tabs/content-tabs.service';
+import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 
 const LIBRARY = 'view:testbed.library';
 const OUTLINE = 'view:testbed.outline';
@@ -15,6 +16,9 @@ describe('SurfaceCopyRecency', () => {
   function setup(sidebarActive: string, addressView: string | null) {
     const sidebar = signal(sidebarActive);
     const address = signal(addressView);
+    const contentTabs = signal([{ path: 'doc/a' }, { path: LIBRARY }]);
+    const minimized = signal<readonly string[]>([]);
+    const arrangement = signal(0);
     TestBed.configureTestingModule({
       providers: [
         {
@@ -30,7 +34,7 @@ describe('SurfaceCopyRecency', () => {
               [CONTENT_DOCK]: {
                 kind: 'leaf',
                 id: 'main',
-                tabs: [{ path: 'doc/a' }, { path: LIBRARY }],
+                tabs: contentTabs(),
               },
               'container@workspace/alpha': {
                 kind: 'leaf',
@@ -40,6 +44,14 @@ describe('SurfaceCopyRecency', () => {
             }),
             carriesAddress: (pane: PaneRef) =>
               pane.dock === CONTENT_DOCK && pane.paneId === 'main',
+            arrangement: arrangement.asReadonly(),
+          },
+        },
+        {
+          provide: PaneChromeService,
+          useValue: {
+            isMinimized: (dock: string, paneId: string) =>
+              minimized().includes(`${dock}:${paneId}`),
           },
         },
         {
@@ -55,7 +67,15 @@ describe('SurfaceCopyRecency', () => {
       change();
       TestBed.tick();
     };
-    return { recency, sidebar, address, step };
+    return {
+      recency,
+      sidebar,
+      address,
+      contentTabs,
+      minimized,
+      arrangement,
+      step,
+    };
   }
 
   it('names every copy when none was ever current', () => {
@@ -102,6 +122,34 @@ describe('SurfaceCopyRecency', () => {
 
   it('ties copies that were current from the start', () => {
     const { recency } = setup(LIBRARY, LIBRARY);
+
+    expect(recency.mostRecent(LIBRARY, COPIES)).toEqual(COPIES);
+  });
+
+  it('does not count a copy in a minimised pane as current', () => {
+    const { recency, address, minimized, step } = setup(LIBRARY, null);
+
+    step(() => address.set(LIBRARY));
+    step(() => minimized.set([`${CONTENT_DOCK}:main`]));
+
+    expect(recency.mostRecent(LIBRARY, COPIES)).toEqual([SIDEBAR]);
+  });
+
+  it('forgets a copy once it is closed, so a copy opened again starts without history', () => {
+    const { recency, address, contentTabs, step } = setup(OUTLINE, LIBRARY);
+
+    step(() => address.set(null));
+    step(() => contentTabs.set([{ path: 'doc/a' }]));
+    step(() => contentTabs.set([{ path: 'doc/a' }, { path: LIBRARY }]));
+
+    expect(recency.mostRecent(LIBRARY, COPIES)).toEqual(COPIES);
+  });
+
+  it('forgets every copy when the arrangement is replaced, as on a workspace switch', () => {
+    const { recency, address, arrangement, step } = setup(OUTLINE, LIBRARY);
+
+    step(() => address.set(null));
+    step(() => arrangement.set(1));
 
     expect(recency.mostRecent(LIBRARY, COPIES)).toEqual(COPIES);
   });

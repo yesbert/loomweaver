@@ -10,6 +10,7 @@ import { ViewportService } from '../../layout/viewport.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { regionIdsOfType } from '../../layout/layout-queries';
+import { PaneChromeService } from '../pane/chrome/pane-chrome.service';
 import { SurfaceCopyRecency } from './surface-copy-recency';
 import { inReadingOrder } from './reading-order';
 
@@ -22,6 +23,7 @@ export class SurfaceRevealService {
   private readonly viewport = inject(ViewportService);
   private readonly registry = inject(ContributionRegistry);
   private readonly recency = inject(SurfaceCopyRecency);
+  private readonly chrome = inject(PaneChromeService);
   private readonly layout = inject(SHELL_LAYOUT);
   private readonly panelRegions = regionIdsOfType(this.layout, 'panel');
 
@@ -51,7 +53,7 @@ export class SurfaceRevealService {
   ): PaneRef | undefined {
     const recent = this.recency.mostRecent(path, copies);
     return (
-      recent.find((copy) => this.carriesAddress(copy)) ??
+      recent.find((copy) => this.paneTree.carriesAddress(copy)) ??
       inReadingOrder(this.layout, recent)[0]
     );
   }
@@ -74,13 +76,15 @@ export class SurfaceRevealService {
     return this.copiesOf(path)[0];
   }
 
-  private activate({ dock, paneId }: PaneRef, path: string): void {
-    if (this.carriesAddress({ dock, paneId })) {
+  private activate(pane: PaneRef, path: string): void {
+    const { dock, paneId } = pane;
+    if (this.paneTree.carriesAddress(pane)) {
       this.tabs.activateViewTab(path);
-      return;
+    } else {
+      this.paneTree.setActiveTab(dock, paneId, path);
     }
-    this.paneTree.setActiveTab(dock, paneId, path);
     if (dock === CONTENT_DOCK) {
+      this.putPaneInView(pane);
       return;
     }
     this.panels.expand(dock);
@@ -89,10 +93,13 @@ export class SurfaceRevealService {
     }
   }
 
-  private carriesAddress(pane: PaneRef): boolean {
-    return (
-      pane.dock === CONTENT_DOCK &&
-      pane.paneId === this.paneTree.primaryId(CONTENT_DOCK)
-    );
+  private putPaneInView({ dock, paneId }: PaneRef): void {
+    if (this.chrome.isMinimized(dock, paneId)) {
+      this.chrome.toggleMinimize(dock, paneId);
+    }
+    const maximized = this.chrome.maximizedPaneIn(dock);
+    if (maximized !== null && maximized !== paneId) {
+      this.chrome.endMaximize();
+    }
   }
 }

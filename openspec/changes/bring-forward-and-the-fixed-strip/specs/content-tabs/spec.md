@@ -2,11 +2,10 @@
 
 ### Requirement: A strip too narrow to show everything stays usable
 
-Where a pane is too narrow, tabs SHALL shrink and then be clipped rather than the strip scrolling
-away from the user. Everything open SHALL remain reachable from a control that lists it, and
-choosing a clipped tab SHALL bring it into view. On a strip the user may reorder, that moves it to
-the front of its band. On one the user may not reorder, it keeps its place and the strip scrolls to
-show it.
+Where a pane is too narrow, tabs SHALL shrink and then be clipped; the user does not scroll the
+strip. Everything open SHALL remain reachable from a control that lists it, and choosing a clipped
+tab SHALL bring it into view. On a strip the user may reorder, that moves it to the front of its
+band. On one the user may not reorder, it keeps its place, and the strip scrolls only to show it.
 
 A strip SHALL NOT rearrange itself because of a click on a tab that is already fully visible.
 

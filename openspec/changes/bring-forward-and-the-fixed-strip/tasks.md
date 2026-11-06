@@ -31,6 +31,10 @@ is done when a test that failed before the change passes.
 - [x] 1.3 End to end: a view opened in the content area as well comes forward where it was current
   last, in either order (`platform/apps/loom-testbed-e2e/src/reveal-surface.spec.ts`)
 - [x] 1.4 Delta: surfaces
+- [x] 1.5 Red test: the chosen copy is put in view, its minimised pane restored and another pane's
+  maximise ended; a copy in a minimised pane does not count as current; a copy's record goes when
+  it closes and every record when the arrangement is replaced (`reveal/*.spec.ts`, and the end to
+  end test above)
 
 ## 2. A strip that may not be reordered keeps its order
 
@@ -39,7 +43,8 @@ is done when a test that failed before the change passes.
 - [x] 2.2 The overflow directive scrolls instead of asking for a reveal when the strip may not be
   reordered (`pane/chrome/strip-overflow.directive.ts`)
 - [x] 2.3 End to end: with reordering switched off, a hidden tab opened again from the entry list is
-  shown, the order stays as it was, and the list of open tabs marks it (`platform/apps/loom-testbed-e2e/src/content.spec.ts`)
+  shown, the order stays as it was, and the list of open tabs marks it
+  (`platform/apps/loom-testbed-e2e/src/content.spec.ts`)
 - [x] 2.4 Delta: content-tabs
 
 ## 3. The add-tab button moves the address
