@@ -136,9 +136,11 @@ Closing a pane and undoing a split are bulk closes too, whether the user asks fo
 pane's control or the distribution asks for them from its own code. They SHALL spare the same tabs,
 and a spared tab SHALL be handed to the pane that takes the closed pane's space exactly as dragging
 it there would move it, without changing which tab that pane shows or which pane carries the
-address. A spared tab SHALL NOT count as unsaved work that would make the close ask,
-because it is not closed. Where the distribution has switched closing off, every tab counts as one
-that cannot be closed, so closing a pane joins all of its tabs to that neighbour.
+address. A spared tab is built anew in the pane that takes it. Where it holds unsaved work, or its
+surface may refuse a close, the close SHALL ask about it as it asks about a tab that closes, and a
+refusal SHALL leave the pane and its tabs as they were. Where the distribution has switched closing
+off, every tab counts as one that cannot be closed, so closing a pane joins all of its tabs to that
+neighbour.
 
 #### Scenario: Closing the others keeps the target and the pinned ones
 
@@ -176,10 +178,18 @@ that cannot be closed, so closing a pane joins all of its tabs to that neighbour
 - **WHEN** the distribution has switched closing off and a pane of a split area is closed
 - **THEN** every tab it held is in the pane that takes its space
 
-#### Scenario: Only what really closes is asked about
+#### Scenario: A spared tab that would lose unsaved work is asked about
 
 - **WHEN** a pane is closed that holds unsaved work only in a tab declared unclosable
-- **THEN** no question about unsaved work is asked, and that tab keeps its work in the neighbour
+- **THEN** the question about unsaved work is asked before the pane goes
+- **AND** declining leaves the pane and its tabs as they were, and going ahead hands the tab to the
+  neighbour
+
+#### Scenario: Only what really closes is asked about
+
+- **WHEN** a pane is closed whose spared tabs hold no unsaved work and none of their surfaces may
+  refuse a close
+- **THEN** no question is asked and the tabs are in the neighbour afterwards
 
 ### Requirement: Closing runs the owner's teardown exactly once
 
