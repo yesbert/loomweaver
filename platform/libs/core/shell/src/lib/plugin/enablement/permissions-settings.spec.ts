@@ -11,14 +11,21 @@ import { provideFramePlugins } from '../frame/frame-plugin-runtime';
 import { CAPABILITY_GRANTS } from '../../permissions/provide-capability-grants';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
+import { FRAME_CONNECT } from '../frame/frame-session';
 
-vi.mock('penpal', () => ({
-  connect: vi.fn(() => ({
-    promise: new Promise(() => undefined),
-    destroy: vi.fn(),
-  })),
-  WindowMessenger: vi.fn(),
-}));
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [
+      {
+        provide: FRAME_CONNECT,
+        useValue: () => ({
+          promise: new Promise(() => undefined),
+          destroy: vi.fn(),
+        }),
+      },
+    ],
+  });
+});
 
 function transloco() {
   return TranslocoTestingModule.forRoot({

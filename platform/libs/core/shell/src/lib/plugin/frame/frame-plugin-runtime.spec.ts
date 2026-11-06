@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { connect } from 'penpal';
 import { firstValueFrom, Subject } from 'rxjs';
 import { OpenTabInput } from '@loomweaver/plugin-sdk';
 import {
@@ -26,14 +25,17 @@ import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { provideRequiredPlugins } from '../../foundation/required-plugins';
 import { ActivationSettled } from '../activation-settled';
 import type { Mock } from 'vitest';
+import { FRAME_CONNECT } from './frame-session';
 
-vi.mock('penpal', () => ({
-  connect: vi.fn(),
-  WindowMessenger: vi.fn(),
-}));
+const connectMock = vi.fn();
+
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [{ provide: FRAME_CONNECT, useValue: connectMock }],
+  });
+});
 
 describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
-  const connectMock = connect as Mock;
   let tabs: Record<string, Mock>;
 
   function connectionFor(promise: Promise<unknown>) {
@@ -1141,7 +1143,6 @@ describe('FramePluginRuntime (iframe + Penpal runtime)', () => {
 });
 
 describe('FramePluginRuntime command invocation', () => {
-  const connectMock = connect as Mock;
 
   function setup() {
     connectMock
