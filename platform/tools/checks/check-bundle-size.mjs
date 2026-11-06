@@ -7,15 +7,20 @@
 // years later, by which time the growth is a hundred small commits nobody can attribute.
 //
 // The initial bundle is what the browser fetches before it renders anything: the entry script, the
-// chunks index.html preloads, and the stylesheets it links. That set is read from the build output
-// rather than from the builder's log, because the log is a human-readable table whose shape belongs
-// to the builder. It means this check needs the build to have run, the way check-head does in the
-// website.
+// stylesheets index.html links, any chunk it preloads, and every file those scripts import
+// statically, followed transitively. index.html alone is not enough: the builder leaves out the
+// modulepreload links when a service worker is configured, and all four applications configure one,
+// so a shared chunk the entry script imports would go uncounted and growth landing in it would
+// escape the ratchet. A dynamic import() is a lazy chunk and is not followed. The set is read from
+// the build output rather than from the builder's log, because the log is a human-readable table
+// whose shape belongs to the builder. It means this check needs the build to have run, the way
+// check-head does in the website.
 //
 // Sizes are decimal kilobytes, a thousand bytes, because that is what the builder prints and the
 // two numbers have to be comparable by eye. The sum here is the same number the builder reports as
-// `Initial total`, and the two agreed for all four applications when this was written. A divergence
-// means index.html is no longer the right place to read the initial set from.
+// `Initial total`: summing the files the builder lists as initial chunks gave the same byte count
+// for all four applications when this was written. A divergence means the initial set is no longer
+// found the way the builder finds it.
 //
 // The recorded ceiling is the measurement rounded up to the next 5 kB. Byte-exact would be the
 // sharper ratchet and the wrong one: every commit that touches shell code moves the bundle by some
@@ -57,6 +62,16 @@ const INITIAL = [
   /<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g,
 ];
 
+// A static import or re-export of a relative file, minified or not: `import{a as b}from"./x.js"`,
+// `import x,{y}from'./x.js'`, `import * as x from "./x.js"`, `import"./x.js"`,
+// `export{a}from"./x.js"`, `export*from"./x.js"`. The clause before `from` may hold no quote, no
+// parenthesis and no semicolon, so a dynamic `import("./x.js")` matches neither pattern and a
+// match cannot run on into the next statement.
+const STATIC_IMPORTS = [
+  /(?<![\w$.])(?:import|export)(?![\w$])[^;"'()]*?from\s*["'](\.\.?\/[^"']+)["']/g,
+  /(?<![\w$.])import\s*["'](\.\.?\/[^"']+)["']/g,
+];
+
 const kb = (bytes) => bytes / BYTES_PER_KB;
 const ceiling = (bytes) => Math.ceil(kb(bytes) / STEP_KB) * STEP_KB;
 const fail = (...lines) => {
@@ -84,15 +99,32 @@ function measure(name) {
       '  The build output changed shape, and this checker would otherwise measure nothing.',
     );
   }
-  let bytes = 0;
-  for (const asset of assets) {
-    const file = path.join(dir, asset);
-    if (!existsSync(file)) {
-      fail(`check-bundle-size: ${APPS[name]}/index.html names ${asset}, which is not there.`);
+  const files = new Set();
+  const pending = [];
+  const visit = (file, namedBy) => {
+    if (files.has(file)) return;
+    if (!file.startsWith(dir + path.sep) || !existsSync(file)) {
+      fail(
+        `check-bundle-size: ${namedBy} names ${path.relative(repoRoot, file)}, which is not in ` +
+          `${APPS[name]}.`,
+      );
     }
-    bytes += statSync(file).size;
+    files.add(file);
+    if (file.endsWith('.js')) pending.push(file);
+  };
+  for (const asset of assets) visit(path.join(dir, asset), `${APPS[name]}/index.html`);
+  while (pending.length > 0) {
+    const script = pending.pop();
+    const code = readFileSync(script, 'utf8');
+    for (const pattern of STATIC_IMPORTS) {
+      for (const [, specifier] of code.matchAll(pattern)) {
+        visit(path.resolve(path.dirname(script), specifier), path.relative(repoRoot, script));
+      }
+    }
   }
-  return { name, bytes, assets: assets.size };
+  let bytes = 0;
+  for (const file of files) bytes += statSync(file).size;
+  return { name, bytes, assets: files.size };
 }
 
 const { values: options, positionals: names } = parseArgs({
