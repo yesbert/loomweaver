@@ -33,6 +33,8 @@ export class PluginInstallService {
   /** The installed plugins (reactive) — the sandbox runtime reconciles against this. */
   readonly installed = this.stored.value;
 
+  readonly answered = this.stored.answered;
+
   /** Records the composition-time plugin ids so an install can never shadow a composed plugin. */
   markComposed(ids: readonly string[]): void {
     this.composedIds = new Set([...this.composedIds, ...ids]);

@@ -662,8 +662,12 @@ type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; ab
 // and so are two patterns that differ only in a parameter's name (`orders/:id` and `orders/:orderId`).
 // Replacing is for the application's OWN code (the distribution and the plugins it runs in the page). A FRAME plugin
 // (composed, deployed or installed) replaces only what it registered itself: its surface under an id or a route
-// address another owner holds, its menu entry or its settings section under an id another owner holds is REFUSED
-// and reported in the console, naming the plugin that asked and the owner that holds it.
+// address another owner holds, its route at an address UNDER one another owner holds (`orders/:id` below the
+// product's `orders`; the home address '' counts as no one's), its menu entry or its settings section under an id
+// another owner holds is REFUSED and reported in the console, naming the plugin that asked and the owner that holds it
+// (and both addresses for one under another). Between frame plugins first come keeps it; the application's own code
+// wins whichever comes first (a frame address under one it registers later is WITHDRAWN with the same warning). An owner
+// of a top-level parameter address such as `:page` leaves a frame plugin no address of two or more segments.
 // CONTENT ROUTES need the `route:` PREFIX + the SURFACE ID: 'route:<surfaceId>' drops a routable
 // surface's route — gone from the tab strip, the pane target picker and the deep-link auto-open; its URL
 // renders the host's neutral "not available" placeholder instead of falling back to home (the placeholder
@@ -751,7 +755,8 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // HTMLElementTagNameMap itself drops its own entries.
 // LW_WITHHOLD_ATTRIBUTE ('data-lw-withhold'): mark an element and its content stays off every picture of the workbench;
 // the area says so instead. Read at the moment a picture is made, so setting or clearing it takes effect at once and the
-// surface is never told it is being pictured. Marking the surface's own root does nothing — a surface withholds parts of
+// surface is sent no message about a picture (its own script can still see its document change while it is pictured,
+// because the picture is drawn inside it; it learns nothing more). Marking the surface's own root does nothing — a surface withholds parts of
 // itself, never itself as a whole.
 // The kit shares the platform version line, so the paint always matches the shell the plugin runs in.
 // Plugin store: a curated, SAME-ORIGIN catalogue of sandboxed plugins the USER installs at RUNTIME —
@@ -768,7 +773,9 @@ function provideFramePlugins(...plugins: FramePlugin[]): (Provider | Environment
 // the plugin's switch-off and its capability revocations, so a reinstall starts enabled and holds what its consent
 // shows. A frame that does not connect within 30 seconds is removed and reported; a plugin the user can switch off
 // is tried again when its entry changes or the user switches it off and on, a required or deployed one whenever the
-// installed, deployed or switched-off plugins next change. An entry dropped from either catalogue source is named
+// installed, deployed or switched-off plugins next change. Meanwhile a view at an address (or view id) the plugin answered
+// in an earlier session shows "The plugin could not be loaded" with its name and Try again (loads that frame anew);
+// "does not exist" stays for addresses no plugin answered. An entry dropped from either catalogue source is named
 // in the console once.
 // UPDATES ride on the catalogue `version`: a STRICTLY newer version (compared segment-wise, numerically) shows an
 // "Update available" badge + an "Update to vX.Y.Z" button; pressing it swaps the persisted entry and RESPAWNS the
@@ -958,7 +965,8 @@ function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): P
 //   working state, identity, per-window: lw.shell.active-workspace ·
 //                  lw.shell.pane-trees:<workspaceId> (per-dock { tree, primary } — per-tab path + LITERAL title + icon + own badge + instance + tab order + the URL-pane pointer, clear text) ·
 //                  lw.shell.panels · lw.shell.panel-sizes (the sidebar FRAME is window state, never per workspace) ·
-//                  lw.shell.hidden-views:<workspaceId> (which views that workspace hides) · lw.shell.item-order
+//                  lw.shell.hidden-views:<workspaceId> (which views that workspace hides) · lw.shell.item-order ·
+//                  lw.shell.frame-plugin-addresses (addresses and view ids each frame plugin answered, to name it when it fails)
 //   working state, identity, synced:     lw.shell.view-instances:<viewId> · lw.shell.view-state:<instanceId> ·
 //                  lw.shell.command-mru (palette "Recently used") · lw.plugin-state:<pluginId>:<key> (ctx.state — so a plugin's
 //                  store is PER PERSON wherever the distribution scopes by identity: never clear it on sign-out, never key by a

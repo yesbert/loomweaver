@@ -66,15 +66,56 @@ export function surfaceHolderMessage(
     if (held.id === surface.id) {
       return replacingRefused(`Surface "${surface.id}"`, held.pluginId, pluginId);
     }
-    if ('path' in held && addressSlot(held.path) === slot) {
+    if (!('path' in held) || !surface.routable) {
+      continue;
+    }
+    if (addressSlot(held.path) === slot) {
       return replacingRefused(
         `Address "${addressForm(held.path)}"`,
         held.pluginId,
         pluginId,
       );
     }
+    if (liesUnder(surface.routable.path, held.path)) {
+      return nestingRefused(
+        surface.routable.path,
+        held.path,
+        held.pluginId,
+        pluginId,
+      );
+    }
   }
   return null;
+}
+
+export function liesUnder(path: string, held: string): boolean {
+  const outer = segmentsOf(held);
+  const inner = segmentsOf(path);
+  return (
+    outer.length > 0 &&
+    inner.length > outer.length &&
+    outer.every(
+      (part, index) =>
+        part === inner[index] ||
+        part.startsWith(':') ||
+        inner[index].startsWith(':'),
+    )
+  );
+}
+
+export function nestingRefused(
+  path: string,
+  held: string,
+  holderId: string | undefined,
+  pluginId: string,
+  outcome: 'refused' | 'withdrawn' = 'refused',
+): string {
+  return (
+    `Address "${addressForm(path)}" lies under "${addressForm(held)}", which ` +
+    `${ownerName(holderId)} holds; the registration from ${ownerName(pluginId)} is ${outcome}, ` +
+    `because a plugin that does not run as the application's own code cannot take an address ` +
+    `under another owner's.`
+  );
 }
 
 export function menuItemHolderMessage(

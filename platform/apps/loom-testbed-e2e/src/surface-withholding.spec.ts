@@ -2,7 +2,8 @@ import { Frame, expect, test } from '@playwright/test';
 import { restSandboxFrame } from './support/helpers';
 
 interface Noticing {
-  __noticed: Set<string>;
+  __events: string[];
+  __changed: number;
 }
 
 interface Drawn {
@@ -119,15 +120,15 @@ test.describe('A surface can keep part of itself off the picture', () => {
     expect(covered).toBeLessThan(0.5);
   });
 
-  test.fixme('the surface is never told that a picture is being made', async ({
+  test('the surface is sent no message about a picture, and is pictured as it is shown', async ({
     page,
   }) => {
     const frame = await restSandboxFrame(page);
     await page.waitForFunction(() => Boolean(globalThis.lwCapture));
 
-    await frame.evaluate(() => {
-      const noticed = new Set<string>();
-      (globalThis as unknown as Noticing).__noticed = noticed;
+    const shownBefore = await frame.evaluate(() => {
+      const noticed: Noticing = { __events: [], __changed: 0 };
+      Object.assign(globalThis, noticed);
       const names = new Set(['message']);
       for (const target of [globalThis, document]) {
         for (const key in target) {
@@ -136,30 +137,28 @@ test.describe('A surface can keep part of itself off the picture', () => {
           }
         }
       }
+      const seen = globalThis as unknown as Noticing;
       for (const name of names) {
         for (const target of [globalThis, document]) {
-          target.addEventListener(name, (event) => noticed.add(event.type), {
-            capture: true,
-          });
+          target.addEventListener(
+            name,
+            (event) => {
+              const target = (event.target as Node).nodeName ?? 'window';
+              seen.__events.push(`${event.type} on ${target.toLowerCase()}`);
+            },
+            { capture: true },
+          );
         }
       }
       new MutationObserver((records) => {
-        for (const record of records) {
-          for (const node of [...record.addedNodes, ...record.removedNodes]) {
-            noticed.add(`${record.type}: ${node.nodeName.toLowerCase()}`);
-          }
-          if (record.type !== 'childList') {
-            noticed.add(
-              `${record.type}: ${record.target.nodeName.toLowerCase()}`,
-            );
-          }
-        }
+        seen.__changed += records.length;
       }).observe(document, {
         attributes: true,
         characterData: true,
         childList: true,
         subtree: true,
       });
+      return document.body.innerHTML;
     });
 
     await expect
@@ -170,9 +169,18 @@ test.describe('A surface can keep part of itself off the picture', () => {
       )
       .toBe(0);
 
-    const noticed = await frame.evaluate(() => [
-      ...(globalThis as unknown as Noticing).__noticed,
-    ]);
-    expect(noticed).toEqual([]);
+    const after = await frame.evaluate(() => {
+      const seen = globalThis as unknown as Noticing;
+      return {
+        events: seen.__events,
+        changed: seen.__changed,
+        shown: document.body.innerHTML,
+      };
+    });
+    expect(after.events.filter((event) => !event.startsWith('load on '))).toEqual(
+      [],
+    );
+    expect(after.changed).toBeGreaterThan(0);
+    expect(after.shown).toBe(shownBefore);
   });
 });

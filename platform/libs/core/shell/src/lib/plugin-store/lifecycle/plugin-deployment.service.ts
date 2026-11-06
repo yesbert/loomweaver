@@ -23,6 +23,8 @@ export class PluginDeploymentService {
 
   readonly deployed = this.stored.value;
 
+  readonly answered = this.stored.answered;
+
   adopt(entries: readonly PluginCatalogEntry[]): void {
     this.stored.set(
       entries

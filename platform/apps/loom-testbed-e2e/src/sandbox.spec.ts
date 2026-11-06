@@ -154,3 +154,41 @@ test.describe('Sandbox stage — iframe plugin over Penpal', () => {
     ).toBeVisible();
   });
 });
+
+test.describe('A frame plugin that could not be loaded', () => {
+  test('its view names it and offers to try again, and trying again shows the view', async ({
+    page,
+  }) => {
+    await page.goto('/sandbox-rpc');
+    await expect(
+      page.frameLocator(claimedFrame).getByRole('tab', { name: 'Architecture' }),
+    ).toBeVisible();
+
+    const entry = '**/sandbox-rpc/plugin.html';
+    let blocked = false;
+    await page.route(entry, (route) => {
+      blocked = true;
+      return route.abort('blockedbyclient');
+    });
+    await page.clock.install();
+    await page.reload();
+    await expect.poll(() => blocked).toBe(true);
+
+    const placeholder = page.getByTestId('plugin-unloaded');
+    await expect(async () => {
+      await page.clock.fastForward(10_000);
+      await expect(placeholder).toBeVisible({ timeout: 500 });
+    }).toPass();
+    await expect(placeholder).toContainText('The plugin could not be loaded');
+    await expect(placeholder).toContainText('Sandbox (RPC)');
+    await expect(page.getByText(/does not exist/)).toHaveCount(0);
+
+    await page.unroute(entry);
+    await placeholder.getByRole('button', { name: 'Try again' }).click();
+
+    await expect(
+      page.frameLocator(claimedFrame).getByRole('tab', { name: 'Architecture' }),
+    ).toBeVisible();
+    await expect(placeholder).toHaveCount(0);
+  });
+});

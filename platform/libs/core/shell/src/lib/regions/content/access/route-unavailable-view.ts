@@ -19,6 +19,10 @@ export class RouteUnavailableView {
 
   private readonly failedContent = inject(FailedPluginContent);
 
+  protected readonly recovery = computed(() =>
+    this.failedContent.recoveryFor(this.path()),
+  );
+
   protected readonly messageKey = computed(() =>
     this.failedContent.holds(this.path())
       ? 'route.pluginFailedMessage'

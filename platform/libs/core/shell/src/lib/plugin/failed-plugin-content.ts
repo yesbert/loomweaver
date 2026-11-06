@@ -1,10 +1,17 @@
 import { inject, Service, signal, untracked } from '@angular/core';
 import { ContributionRegistry } from '../contributions/contribution-registry';
 import { declaringRoute } from '../regions/content/content-path';
+import { isViewPanePath } from '../regions/pane/tree/pane-address';
+
+export interface PluginRecovery {
+  readonly name: string;
+  readonly retry: () => void;
+}
 
 interface LostAddress {
   readonly pluginId: string;
   readonly path: string;
+  readonly recovery?: PluginRecovery;
 }
 
 @Service()
@@ -16,8 +23,16 @@ export class FailedPluginContent {
   rememberContentOf(pluginId: string): void {
     const paths = untracked(() => this.registry.contentRoutes())
       .filter((route) => route.pluginId === pluginId)
-      .map((route) => ({ pluginId, path: route.path }));
-    this.lost.update((lost) => [...withoutPlugin(lost, pluginId), ...paths]);
+      .map((route) => route.path);
+    this.remember(pluginId, paths);
+  }
+
+  rememberAddresses(
+    pluginId: string,
+    addresses: readonly string[],
+    recovery: PluginRecovery,
+  ): void {
+    this.remember(pluginId, addresses, recovery);
   }
 
   forget(pluginId: string): void {
@@ -25,7 +40,30 @@ export class FailedPluginContent {
   }
 
   holds(path: string): boolean {
-    return declaringRoute(this.lost(), path) !== undefined;
+    return this.lostAt(path) !== undefined;
+  }
+
+  recoveryFor(path: string): PluginRecovery | undefined {
+    return this.lostAt(path)?.recovery;
+  }
+
+  private remember(
+    pluginId: string,
+    paths: readonly string[],
+    recovery?: PluginRecovery,
+  ): void {
+    const addresses = paths.map((path) => ({ pluginId, path, recovery }));
+    this.lost.update((lost) => [...withoutPlugin(lost, pluginId), ...addresses]);
+  }
+
+  private lostAt(path: string): LostAddress | undefined {
+    const lost = this.lost();
+    return isViewPanePath(path)
+      ? lost.find((address) => address.path === path)
+      : declaringRoute(
+          lost.filter((address) => !isViewPanePath(address.path)),
+          path,
+        );
   }
 }
 

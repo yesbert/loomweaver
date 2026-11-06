@@ -24,6 +24,7 @@ function methodsFor(ctx: Partial<HostPluginContext>, session = {}) {
     store: {} as KeyValueStore,
     sync: {} as StateSyncService,
     reportRefusal: () => undefined,
+    answered: () => undefined,
   });
 }
 
@@ -246,6 +247,7 @@ describe('frameRpcMethods — replacing what another owner contributed', () => {
       store: new LocalStorageStore(),
       sync: { register: () => stopSync } as unknown as StateSyncService,
       reportRefusal: () => undefined,
+    answered: () => undefined,
       ...wired,
     });
   }

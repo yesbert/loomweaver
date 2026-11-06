@@ -1,12 +1,31 @@
-<div
-  class="flex h-full flex-col items-center justify-center gap-3 p-8 text-center"
-  role="status"
->
-  <lw-icon name="info" size="2rem" class="text-content-muted" />
-  <h2 class="text-lg font-semibold text-content">
-    {{ 'route.unavailableTitle' | transloco }}
-  </h2>
-  <p class="max-w-sm text-sm text-content-muted">
-    {{ messageKey() | transloco }}
-  </p>
-</div>
+@if (recovery(); as plugin) {
+  <div
+    class="flex h-full flex-col items-center justify-center gap-3 p-8 text-center"
+    role="status"
+    data-testid="plugin-unloaded"
+  >
+    <lw-icon name="info" size="2rem" class="text-content-muted" />
+    <h2 class="text-lg font-semibold text-content">
+      {{ 'route.pluginUnloadedTitle' | transloco }}
+    </h2>
+    <p class="max-w-sm text-sm text-content-muted">
+      {{ 'route.pluginUnloadedMessage' | transloco: { name: plugin.name } }}
+    </p>
+    <button type="button" class="lw-btn lw-btn--primary" (click)="plugin.retry()">
+      {{ 'route.tryAgain' | transloco }}
+    </button>
+  </div>
+} @else {
+  <div
+    class="flex h-full flex-col items-center justify-center gap-3 p-8 text-center"
+    role="status"
+  >
+    <lw-icon name="info" size="2rem" class="text-content-muted" />
+    <h2 class="text-lg font-semibold text-content">
+      {{ 'route.unavailableTitle' | transloco }}
+    </h2>
+    <p class="max-w-sm text-sm text-content-muted">
+      {{ messageKey() | transloco }}
+    </p>
+  </div>
+}
