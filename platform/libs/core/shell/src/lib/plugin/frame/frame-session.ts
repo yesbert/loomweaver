@@ -1,7 +1,13 @@
-import { Injector } from '@angular/core';
+import { InjectionToken, Injector } from '@angular/core';
+import { connect } from 'penpal';
 import { PluginState } from '@loomweaver/plugin-sdk';
 import { PluginStateBridge } from '../plugin-state-bridge';
 import { FrameRemote } from './rpc/frame-rpc-contract';
+
+export const FRAME_CONNECT = new InjectionToken<typeof connect>(
+  'lw.frame-connect',
+  { providedIn: 'root', factory: () => connect },
+);
 
 export class FrameSession {
   readonly state: PluginStateBridge;

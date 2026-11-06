@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Connection, WindowMessenger, connect } from 'penpal';
+import { Connection, WindowMessenger } from 'penpal';
 import { filter, firstValueFrom } from 'rxjs';
 import { ActivationSettled } from '../activation-settled';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
@@ -40,7 +40,7 @@ import {
 } from './runnable-frame-plugins';
 import { frameRpcMethods } from './rpc/frame-rpc-methods';
 import { FrameRemote } from './rpc/frame-rpc-contract';
-import { FrameSession } from './frame-session';
+import { FRAME_CONNECT, FrameSession } from './frame-session';
 import { FramePluginAddresses } from './frame-plugin-addresses';
 import { FrameAddressPrecedence } from './frame-address-precedence';
 import { FailedPluginContent } from '../failed-plugin-content';
@@ -105,6 +105,8 @@ export class FramePluginRuntime {
   ).map((plugin) => plugin.manifest.id);
 
   private readonly settlement = inject(ActivationSettled);
+
+  private readonly connectFrame = inject(FRAME_CONNECT);
 
   private readonly addresses = inject(FramePluginAddresses);
 
@@ -341,7 +343,7 @@ export class FramePluginRuntime {
     session: FrameSession,
     frame: HTMLIFrameElement,
   ): Connection<FrameRemote> {
-    return connect<FrameRemote>({
+    return this.connectFrame<FrameRemote>({
       messenger: new WindowMessenger({
         remoteWindow: frame.contentWindow as Window,
         allowedOrigins: ['*'],

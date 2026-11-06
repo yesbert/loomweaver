@@ -1,22 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { connect } from 'penpal';
-import type { Mock } from 'vitest';
 import { CAPABILITY_GRANTS } from '../../permissions/provide-capability-grants';
 import { ContentTabsService } from '../../regions/content/tabs/content-tabs.service';
 import { MenuService } from '../../menu/menu.service';
 import { FailedPluginContent } from '../failed-plugin-content';
 import { FramePluginRuntime, provideFramePlugins } from './frame-plugin-runtime';
 import { FRAME_PLUGIN_ADDRESSES_KEY } from './frame-plugin-addresses';
+import { FRAME_CONNECT } from './frame-session';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
 import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
 import { KeyValueStore } from '../../persistence/key-value-store';
 
-vi.mock('penpal', () => ({
-  connect: vi.fn(),
-  WindowMessenger: vi.fn(),
-}));
-
-const connectMock = connect as Mock;
+const connectMock = vi.fn();
 
 function connecting(promise: Promise<unknown>) {
   return { promise, destroy: vi.fn() };
@@ -53,6 +47,7 @@ function session(
   connectMock.mockReset().mockReturnValue(connecting(answer));
   TestBed.configureTestingModule({
     providers: [
+      { provide: FRAME_CONNECT, useValue: connectMock },
       { provide: SETTINGS_STORE, useValue: settings },
       { provide: WORKING_STATE_STORE, useValue: memoryStore(workingState) },
       { provide: ContentTabsService, useValue: {} },
@@ -81,13 +76,6 @@ function eventually(assertion: () => void): Promise<void> {
 }
 
 async function connectedMethods() {
-  TestBed.tick();
-  await Promise.resolve();
-  console.log('DIAG', JSON.stringify({
-    isMock: vi.isMockFunction(connect),
-    calls: connectMock.mock.calls.length,
-    frames: [...document.querySelectorAll('iframe')].map((f) => f.getAttribute('src')),
-  }));
   await eventually(() => expect(connectMock).toHaveBeenCalled());
   return connectMock.mock.calls.at(-1)?.[0].methods as Record<
     string,
