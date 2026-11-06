@@ -468,7 +468,10 @@ function in `@loomweaver/shell`: `defineLwIcon()`, `defineLwButton()`, `defineLw
 ## Rich text / Markdown
 
 - **`<lw-markdown source="…">`** is a **framework-agnostic custom element** (like `<lw-tooltip>`/`<lw-select>`/`<lw-menu>`): it renders Markdown as **sanitised** HTML (via `marked` +
-  **DOMPurify**) with Tailwind Typography styling. No formatting logic of your own. Usable in the
+  **DOMPurify**) with Tailwind Typography styling. Sanitising removes scripts, event handlers and
+  script-bearing links, every `style` attribute and every form control (`form`, `input`, `button`,
+  `select`, `textarea`, `option`, `label`, `fieldset`, and the `form`, `action`, `formaction` and
+  `method` attributes); headings, lists, links, code and images stay. No formatting logic of your own. Usable in the
   **weaver body** by tag as well (no `@loomweaver/shell` import; set `CUSTOM_ELEMENTS_SCHEMA`). Angular
   property binding `[source]` and plain HTML `source="…"` drive the same render. It uses the
   **`prose-lw`** utility (in `theme.css`), which maps the `--tw-prose-*` colours onto the `--lw-*`

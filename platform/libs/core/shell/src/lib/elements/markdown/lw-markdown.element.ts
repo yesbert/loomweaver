@@ -9,13 +9,16 @@ import {
 /** The custom-element tag. */
 export const LW_MARKDOWN_TAG = 'lw-markdown';
 
+const FORBIDDEN_TAGS = ['form', 'input', 'button', 'select', 'textarea', 'option', 'label', 'fieldset'];
+const FORBIDDEN_ATTRIBUTES = ['style', 'form', 'action', 'formaction', 'method'];
+
 /**
  * `<lw-markdown source="…">` — the host rich-text primitive as a framework-agnostic custom element
  * (like `<lw-tooltip>`/`<lw-select>`/`<lw-menu>`): a plain `HTMLElement`, **light DOM**, so the
  * `prose-lw` Tailwind-Typography classes + `--lw-*` tokens cascade in (auto dark-mode). It does
- * no formatting logic of its own — `marked` parses, **DOMPurify** sanitizes (scripts / `on*` / `javascript:`
- * stripped; the element renders raw `innerHTML`, so this is where sanitising happens, as in the icon
- * registry). Reusable anywhere rich text is needed (dialog bodies, About, plugin content), and usable
+ * no formatting logic of its own — `marked` parses, **DOMPurify** sanitizes (scripts / `on*` / `javascript:`,
+ * `style` attributes and form controls stripped; the element renders raw `innerHTML`, so this is where
+ * sanitising happens, as in the icon registry). Reusable anywhere rich text is needed (dialog bodies, About, plugin content), and usable
  * in a plugin's markup by tag, without importing `@loomweaver/shell`.
  *
  *   <lw-markdown [source]="'Delete **' + name + '**? This cannot be undone.'"></lw-markdown>
@@ -55,7 +58,10 @@ export class LwMarkdownElement extends HTMLElement {
       breaks: true,
     });
 
-    prose.innerHTML = DOMPurify.sanitize(html);
+    prose.innerHTML = DOMPurify.sanitize(html, {
+      FORBID_TAGS: FORBIDDEN_TAGS,
+      FORBID_ATTR: FORBIDDEN_ATTRIBUTES,
+    });
   }
 }
 
