@@ -33,6 +33,9 @@
 - [x] 4.5 workbench-capture: the scenario for every picture is kept, the isolated one added beside it
 - [x] 4.6 The guides say a top-level parameter address leaves a frame plugin no deeper address
 
+- [x] 4.7 Pruning waits until the installed and deployed lists and the remembered addresses have been read (unit tests with stores that answer later)
+- [x] 4.8 A withdrawal is warned only for an address the frame plugin still holds (unit test)
+
 ## 5. Verification
 
 - [x] 5.1 `openspec validate frame-plugin-addresses-and-load-failures --strict`, shell lint and tests, packaging, the frame-kit bundle, the docs and contract guards, the production build

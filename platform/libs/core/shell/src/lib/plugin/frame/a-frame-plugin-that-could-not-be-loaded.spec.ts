@@ -7,6 +7,7 @@ import { MenuService } from '../../menu/menu.service';
 import { FailedPluginContent } from '../failed-plugin-content';
 import { FramePluginRuntime, provideFramePlugins } from './frame-plugin-runtime';
 import { FRAME_PLUGIN_ADDRESSES_KEY } from './frame-plugin-addresses';
+import { SETTINGS_STORE } from '../../persistence/settings-store';
 
 vi.mock('penpal', () => ({
   connect: vi.fn(),
@@ -19,11 +20,12 @@ function connecting(promise: Promise<unknown>) {
   return { promise, destroy: vi.fn() };
 }
 
-function session(answer: Promise<unknown>) {
+function session(answer: Promise<unknown>, settings: unknown[] = []) {
   TestBed.resetTestingModule();
   connectMock.mockReset().mockReturnValue(connecting(answer));
   TestBed.configureTestingModule({
     providers: [
+      ...settings,
       { provide: ContentTabsService, useValue: {} },
       { provide: MenuService, useValue: { openList: () => undefined } },
       { provide: CAPABILITY_GRANTS, useValue: { 'team-docs': ['contributions'] } },
@@ -142,6 +144,42 @@ describe('a frame plugin that could not be loaded', () => {
         JSON.parse(localStorage.getItem(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
       ),
     ).toEqual(['team-docs']);
+  });
+
+  it('keeps what it remembers of an installed plugin until the installed list has been read', async () => {
+    localStorage.setItem(
+      FRAME_PLUGIN_ADDRESSES_KEY,
+      JSON.stringify({ gone: ['old/place'], installed: ['mine'] }),
+    );
+    let readInstalled: (raw: string) => void = () => undefined;
+    const store = {
+      get: (key: string) =>
+        key === 'lw.shell.installed-plugins'
+          ? new Promise<string>((resolve) => (readInstalled = resolve))
+          : Promise.resolve(undefined),
+      set: () => Promise.resolve(),
+      delete: () => Promise.resolve(),
+    };
+    const stored = () =>
+      Object.keys(
+        JSON.parse(localStorage.getItem(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
+      );
+
+    session(Promise.reject(new Error('offline')), [
+      { provide: SETTINGS_STORE, useValue: store },
+    ]);
+    await settled();
+    expect(stored()).toEqual(['gone', 'installed']);
+
+    readInstalled(
+      JSON.stringify([
+        { id: 'installed', name: 'Mine', entryUrl: '/installed/plugin.html' },
+      ]),
+    );
+    await settled();
+    await settled();
+
+    expect(stored()).toEqual(['installed']);
   });
 });
 

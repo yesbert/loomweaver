@@ -112,8 +112,6 @@ export class FramePluginRuntime {
 
   private readonly precedence = inject(FrameAddressPrecedence);
 
-  private pruned = false;
-
   private readonly instances = new Map<string, FrameInstance>();
 
   private readonly reportedRefusals = new Set<string>();
@@ -143,6 +141,7 @@ export class FramePluginRuntime {
       );
     }
     this.reconcile(this.install.installed(), this.deployment.deployed());
+    this.pruneAddressesOnceRead();
     effect(
       () => {
         this.enablement.disabled();
@@ -196,7 +195,6 @@ export class FramePluginRuntime {
     this.reportRefused(refused);
     const disabled = this.enablement.disabled();
     const answered = this.enablement.answered();
-    this.pruneAddresses(runnable, answered);
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
       this.isolation.register(plugin.id, levelOf(plugin));
@@ -238,15 +236,27 @@ export class FramePluginRuntime {
     }
   }
 
-  private pruneAddresses(
-    runnable: readonly RunnableFramePlugin[],
-    answered: boolean,
-  ): void {
-    if (this.pruned || !answered) {
-      return;
-    }
-    this.pruned = true;
-    this.addresses.keepOnly(runnable.map((plugin) => plugin.id));
+  private pruneAddressesOnceRead(): void {
+    const read = effect(
+      () => {
+        if (
+          !this.install.answered() ||
+          !this.deployment.answered() ||
+          !this.addresses.read()
+        ) {
+          return;
+        }
+        read.destroy();
+        untracked(() =>
+          this.addresses.keepOnly([
+            ...this.plugins.map((plugin) => plugin.id),
+            ...this.install.installed().map((plugin) => plugin.id),
+            ...this.deployment.deployed().map((plugin) => plugin.id),
+          ]),
+        );
+      },
+      { injector: this.injector },
+    );
   }
 
   private reportRefused(refused: readonly RefusedFramePlugin[]): void {

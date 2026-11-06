@@ -27,6 +27,8 @@ export class FramePluginAddresses {
     },
   );
 
+  readonly read = this.stored.answered;
+
   of(pluginId: string): readonly string[] {
     return this.stored.value()[pluginId] ?? [];
   }
@@ -48,7 +50,10 @@ export class FramePluginAddresses {
 
   keepOnly(pluginIds: readonly string[]): void {
     const kept = new Set(pluginIds);
-    if (Object.keys(this.stored.value()).every((id) => kept.has(id))) {
+    const unchanged = Object.keys(this.stored.value()).every((id) =>
+      kept.has(id),
+    );
+    if (unchanged && this.stored.answered()) {
       return;
     }
     this.stored.update((answered) =>

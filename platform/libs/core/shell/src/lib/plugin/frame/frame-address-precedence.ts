@@ -12,6 +12,7 @@ import {
 } from '../../contributions/contribution-registry';
 import { PluginIsolationLevelService } from '../../plugin-isolation/plugin-isolation-level.service';
 import { liesUnder, nestingRefused } from '../context/surface-admission';
+import { addressSlot } from '../../addressing/address-form';
 
 interface HeldAddress {
   readonly pluginId: string;
@@ -64,6 +65,13 @@ export class FrameAddressPrecedence {
   }
 
   private yieldUnder(routes: readonly RegisteredContentRoute[]): void {
+    this.held = this.held.filter((address) =>
+      routes.some(
+        (route) =>
+          route.pluginId === address.pluginId &&
+          addressSlot(route.path) === addressSlot(address.path),
+      ),
+    );
     for (const address of this.held) {
       const owner = routes.find(
         (route) =>

@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
 import {
   FRAME_PLUGIN_ADDRESSES_KEY,
   FramePluginAddresses,
@@ -35,4 +36,33 @@ describe('the addresses a frame plugin answered', () => {
       JSON.parse(localStorage.getItem(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
     ).toEqual({ docs: ['docs'] });
   });
+
+  it('are pruned once a store that answers later has answered', async () => {
+    let answer: (raw: string) => void = () => undefined;
+    const set = vi.fn(() => Promise.resolve());
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: WORKING_STATE_STORE,
+          useValue: {
+            get: () => new Promise<string>((resolve) => (answer = resolve)),
+            set,
+            delete: () => Promise.resolve(),
+          },
+        },
+      ],
+    });
+    const addresses = TestBed.inject(FramePluginAddresses);
+
+    addresses.keepOnly(['docs']);
+    answer(JSON.stringify({ docs: ['docs'], gone: ['gone'] }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(addresses.of('gone')).toEqual([]);
+    expect(set).toHaveBeenLastCalledWith(
+      FRAME_PLUGIN_ADDRESSES_KEY,
+      JSON.stringify({ docs: ['docs'] }),
+    );
+  });
 });
+

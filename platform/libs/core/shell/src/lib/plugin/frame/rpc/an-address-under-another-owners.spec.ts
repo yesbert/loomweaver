@@ -187,4 +187,30 @@ describe('a frame plugin aiming below an address another owner holds', () => {
     ]);
     expect(warn).not.toHaveBeenCalled();
   });
+
+  it('warns of no withdrawal for an address the plugin no longer holds', () => {
+    const { product, registry, warn } = composition();
+    framed('framed').registerSurface(routed('framed.order', 'orders/:id'));
+    product.registerSurface({
+      id: 'product.order',
+      title: 'Order',
+      routable: { path: 'orders/:id' },
+      component: DummyComponent,
+    });
+    TestBed.tick();
+
+    product.registerSurface({
+      id: 'product.orders',
+      title: 'Orders',
+      routable: { path: 'orders' },
+      component: DummyComponent,
+    });
+    TestBed.tick();
+
+    expect(owners(registry.contentRoutes())).toEqual([
+      'test-plugin orders/:id',
+      'test-plugin orders',
+    ]);
+    expect(warn).not.toHaveBeenCalled();
+  });
 });

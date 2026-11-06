@@ -19,7 +19,11 @@ exactly like an address nobody answers.
   address before the distribution or an in-page plugin registered that address is withdrawn when
   they do, with the same warning saying it was withdrawn. Otherwise the outcome would depend on load
   order, and a frame plugin connecting early could keep what the product answers. Between two frame
-  plugins the first keeps the address, since neither outranks the other.
+  plugins the first keeps the address, since neither outranks the other. A withdrawal is checked
+  against what the registry holds for that plugin, so an address the plugin no longer holds is never
+  reported as withdrawn. Keying the held addresses by surface id was rejected: a frame plugin cannot
+  release a route over its connection, so re-registering an id at a new path leaves the old route
+  registered, and it must still yield.
 - **Under means a longer address that the held one would match.** Segments are compared one by one,
   a parameter on either side matching any segment. The home address is not counted, because every
   address lies under it. Registering a shorter address above another owner's is not covered: the
@@ -32,10 +36,8 @@ exactly like an address nobody answers.
   when that plugin never connected, the workbench keeps, per frame plugin, the addresses and view
   ids it registered while connected, in working state. It is reset when the plugin connects and
   dropped when the plugin is removed. At most a hundred are kept per plugin, the oldest dropped first,
-  and at the first activation after the user's plugin choices are read, the entries of plugins that
-  are neither composed, deployed nor installed are dropped. If the installed list arrives later than
-  those choices, a plugin's entry may be dropped once; its failure then reads as not existing until it
-  answers again. A plugin that never answered before is not named; its address
+  and once the installed and deployed lists and the remembered addresses have been read, the entries
+  of plugins that are neither composed, deployed nor installed are dropped. A plugin that never answered before is not named; its address
   still reads as not existing. Naming any failed plugin at any unknown address was rejected because
   it would blame a plugin for a link it never answered.
 - **Trying again starts that one plugin again.** It clears the failure and lets activation start the
