@@ -44,6 +44,11 @@ and the name before the mark, so that what identifies the product is the last th
 - **THEN** the mark is shown and the name is not
 - **AND** the entry is still announced by the product's name
 
+#### Scenario: In a bar that runs out of room the identity stays
+
+- **WHEN** a bar holding the product's identity has folded every other entry and still lacks room
+- **THEN** the identity stays in the bar with its mark, and its name and tagline shorten
+
 ### Requirement: The product's identity can be presented where the product chooses
 
 The block that presents the product's identity SHALL be available to a distribution to place
@@ -291,3 +296,23 @@ default is the supported case rather than a fallback for the unconfigured one.
 
 - **WHEN** a distribution says nothing about announcing
 - **THEN** the workbench announces as it always has
+
+### Requirement: An update that cannot be activated keeps the session
+
+Where activating a new version fails after the user agreed to apply it, the workbench SHALL NOT
+reload. The session SHALL stay as it was, including work the user agreed to discard, and the update
+SHALL stay on offer. The user SHALL be told that the update could not be activated and to try again
+later, also where the distribution announces updates itself.
+
+The limit: recovering from broken offline storage is not an activation and still ends in a reload.
+
+#### Scenario: A failed activation does not reload
+
+- **WHEN** the user applies an update and activating it fails
+- **THEN** the application is not reloaded and unsaved work is still there
+- **AND** the user is told the update could not be activated
+
+#### Scenario: The update can be tried again
+
+- **WHEN** activating an update has failed
+- **THEN** the update is still offered and applying it again asks and activates afresh

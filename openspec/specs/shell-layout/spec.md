@@ -357,6 +357,12 @@ the bar is shown at its natural width.
 - **WHEN** a bar has to fold one entry
 - **THEN** it is the entry nearest the bar's end, the one with the highest order in the end slot
 
+#### Scenario: The name is cut only once every entry that can fold has folded
+
+- **WHEN** a bar holding the product's name runs out of room while other entries are still shown
+- **THEN** those entries fold and the name is shown in full
+- **AND** the name shortens only once no other entry is left in the bar
+
 ### Requirement: Folding follows the bar's width
 
 Folding SHALL follow the bar's width as it changes, in both directions: an entry folded on a narrow
