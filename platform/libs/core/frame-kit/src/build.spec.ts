@@ -100,6 +100,8 @@ describe('frame-kit build', () => {
     expect(js).toContain('stateChanged');
   });
 
+  const TYPE_CHECK_TIME = 60_000;
+
   function problemsOf(surface: string): string[] {
     const file = join(out, 'surface.ts');
     writeFileSync(file, surface);
@@ -146,7 +148,7 @@ describe('frame-kit build', () => {
         ].join('\n'),
       ),
     ).toEqual([]);
-  });
+  }, TYPE_CHECK_TIME);
 
   it('tells a typed surface about a description the workbench would refuse, and a property no element has', () => {
     const problems = problemsOf(
@@ -160,7 +162,7 @@ describe('frame-kit build', () => {
     expect(problems).toHaveLength(2);
     expect(problems[0]).toContain("'null' is not assignable");
     expect(problems[1]).toContain("'contxt' does not exist");
-  });
+  }, TYPE_CHECK_TIME);
 
   it('sets every global value its declaration names', () => {
     const declaration = readFileSync(join(out, 'lw-frame.d.ts'), 'utf8');
