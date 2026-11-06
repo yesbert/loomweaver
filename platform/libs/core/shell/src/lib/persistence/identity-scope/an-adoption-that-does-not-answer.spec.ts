@@ -125,6 +125,30 @@ describe('an adoption that does not answer', () => {
     expect(remote.data.has('lw.id.ada:lw.test.setting')).toBe(false);
   });
 
+  it('leaves nothing anonymous in the person\'s namespace from a copy that lands after the bound, and says so only then', async () => {
+    const remote = backend({ 'lw.test.setting': 'nobodys' });
+    const landing = new Subject<void>();
+    const copy = remote.store.set;
+    remote.store.set = (key, value) =>
+      key.startsWith('lw.id.')
+        ? firstValueFrom(landing).then(() => copy(key, value))
+        : copy(key, value);
+    const app = signedInLate(remote.store);
+    await app.settings.get('lw.test.setting');
+    app.signIn('ada');
+    await app.settings.get('lw.test.setting');
+    await vi.advanceTimersByTimeAsync(BOUND_MS);
+
+    expect(app.told()).toEqual([]);
+
+    landing.next();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(remote.data.has('lw.id.ada:lw.test.setting')).toBe(false);
+    expect(remote.data.get('lw.test.setting')).toBe('nobodys');
+    expect(app.told()).toEqual(['auth.localWorkKept']);
+  });
+
   it('says nothing where the adoption answers in time', async () => {
     const remote = backend({ 'lw.test.setting': 'nobodys' });
     const app = signedInLate(remote.store);

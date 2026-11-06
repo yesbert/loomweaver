@@ -156,12 +156,14 @@ async function adoptNamespace(
   const outcome = await Promise.race([adopted, bound]);
   clearTimeout(timer);
   latch.settle();
-  void Promise.all(
-    stores.map((store) =>
-      outcome === 'adopted'
-        ? store.writeWhatArrivedDuringAdoption()
-        : store.writeWhatWasHeldWithoutAdopting(),
-    ),
+  if (outcome === 'adopted') {
+    void Promise.all(
+      stores.map((store) => store.writeWhatArrivedDuringAdoption()),
+    ).catch(ignored);
+    return outcome;
+  }
+  await Promise.all(
+    stores.map((store) => store.writeWhatWasHeldWithoutAdopting()),
   ).catch(ignored);
   return outcome;
 }

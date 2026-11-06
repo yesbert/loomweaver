@@ -17,6 +17,8 @@ export class IdentityScopedStore implements KeyValueStore {
   >();
   private namespaceRead = false;
   private givenUp = false;
+  private copying: Promise<unknown> = Promise.resolve();
+  private readonly copiedFromNobody = new Set<string>();
 
   constructor(
     inner: KeyValueStore,
@@ -68,7 +70,7 @@ export class IdentityScopedStore implements KeyValueStore {
             return;
           }
           if (stored === undefined) {
-            await this.inner.set(scoped, value);
+            await this.copy(scoped, value, held === this.inherited);
           }
         }
       }
@@ -80,6 +82,7 @@ export class IdentityScopedStore implements KeyValueStore {
   }
 
   async writeWhatArrivedDuringAdoption(): Promise<void> {
+    this.copiedFromNobody.clear();
     const arrived = [...this.arrived];
     this.arrived.clear();
     for (const [scoped, value] of arrived) {
@@ -89,7 +92,7 @@ export class IdentityScopedStore implements KeyValueStore {
     }
   }
 
-  writeWhatWasHeldWithoutAdopting(): Promise<void> {
+  async writeWhatWasHeldWithoutAdopting(): Promise<void> {
     this.givenUp = true;
     this.namespaceRead = true;
     for (const [scoped, value] of this.built) {
@@ -100,12 +103,35 @@ export class IdentityScopedStore implements KeyValueStore {
     this.built.clear();
     this.inherited.clear();
     this.heldWhileNobodyWasKnown.clear();
-    return this.writeWhatArrivedDuringAdoption();
+    await this.copying;
+    await this.undoCopiesFromNobody();
+    await this.writeWhatArrivedDuringAdoption();
+  }
+
+  private copy(scoped: string, value: string, fromNobody: boolean): Promise<void> {
+    const copied = this.inner.set(scoped, value).then(() => {
+      if (fromNobody) {
+        this.copiedFromNobody.add(scoped);
+      }
+    });
+    this.copying = copied.catch(() => undefined);
+    return copied;
+  }
+
+  private async undoCopiesFromNobody(): Promise<void> {
+    const copied = [...this.copiedFromNobody];
+    this.copiedFromNobody.clear();
+    for (const scoped of copied) {
+      if (!this.arrived.has(scoped)) {
+        await this.inner.delete(scoped);
+      }
+    }
   }
 
   private write(key: string, value: string | undefined): Promise<void> {
     const scoped = this.scoped(key);
     this.remember(key, scoped, value);
+    this.copiedFromNobody.delete(scoped);
     if (this.held(key)) {
       this.inherited.delete(scoped);
       (this.namespaceRead ? this.arrived : this.built).set(scoped, value);

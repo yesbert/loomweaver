@@ -39,6 +39,14 @@ namespace are not copied, and nothing anonymous is deleted. A late answer from t
 after the bound changes nothing any more. No new control starts the adoption again: a later session
 that begins anonymously runs it as before.
 
+**Giving up undoes what the adoption had already copied.** A copy of an anonymous value can be
+under way when the bound passes, and a port cannot take a started write back. Giving up therefore
+waits for that copy to settle, removes every anonymous value the adoption copied that nothing has
+written over since, and only then stores the held writes and tells the user. The alternative,
+refusing to copy once the bound passed, leaves the write already started and the values copied
+before it in place. The limit: a copy that never settles holds the held writes and the notice back,
+while new writes already reach the person's namespace.
+
 **The notice about a given-up adoption is the workbench's own.** It is shown through the same
 notification service as every other workbench notice, with a translation key in each shipped
 language.
