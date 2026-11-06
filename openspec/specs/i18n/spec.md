@@ -34,11 +34,6 @@ is served at a location derived from that name and the language, and the workben
 contents under that name. A contributed key therefore MUST NOT be able to replace a key the shell
 ships, whatever it is called.
 
-Declarations SHALL accumulate. A distribution that declares bundles in more than one place, whether
-by hand or because a generator added a second declaration beside the first, loads every bundle
-named in any of them, in the order they were declared. A later declaration MUST NOT replace an
-earlier one. A name declared twice is loaded once.
-
 #### Scenario: A plugin bundle's strings live under the plugin's namespace
 
 - **WHEN** a distribution declares a named translation bundle and the bundle contains a key whose
@@ -51,6 +46,12 @@ earlier one. A name declared twice is loaded once.
 - **WHEN** a distribution supplies its product tagline through a named bundle rather than as a
   literal
 - **THEN** the tagline is translated like any other string, in every language the bundle covers
+
+### Requirement: Declarations of translation bundles accumulate
+
+Declarations of translation bundles SHALL accumulate. A distribution that declares bundles in more
+than one place loads every bundle named in any of them, in the order they were declared. A later
+declaration MUST NOT replace an earlier one. A name declared twice is loaded once.
 
 #### Scenario: Two declarations load both bundles
 
@@ -131,18 +132,13 @@ a string nothing ships.
 
 ### Requirement: The starting language is resolved before the first paint
 
-The workbench SHALL determine its starting language before it renders anything, from the languages
-the distribution serves: a previously chosen language if it is still served, otherwise the first of
-the user's browser preferences that matches a served language, otherwise English if it is served,
-otherwise the first language the distribution declared.
+The workbench SHALL determine its starting language before it renders anything, from the served
+languages: a previously chosen language if it is still served, otherwise the first of the user's
+browser preferences that matches a served language, otherwise English if served, otherwise the
+first language the distribution declared.
 
 A browser preference SHALL match a served language when it names that language exactly, or when it
 names a regional form of it and the region-less language is served.
-
-Because this answer is needed before the application's services exist, it is read from
-device-local storage rather than through the product's settings port. A product whose settings live
-behind a network therefore MUST accept that the first paint uses the device-local answer and that
-its stored preference is applied once it arrives.
 
 #### Scenario: A previous choice is honoured
 
@@ -172,6 +168,13 @@ its stored preference is applied once it arrives.
 - **WHEN** neither a stored value nor any browser preference names a language the workbench serves
 - **AND** the distribution's declaration does not include English
 - **THEN** the workbench starts in the first language the distribution declared
+
+### Requirement: The starting language is read on the device before the product's settings arrive
+
+Because the starting language is needed before the application's services exist, it SHALL be read
+from device-local storage rather than through the product's settings port. A product whose settings
+live behind a network therefore MUST accept that the first paint uses the device-local answer and
+that its stored preference is applied once it arrives.
 
 #### Scenario: A network-stored preference arrives after the first paint
 
@@ -245,13 +248,8 @@ problem it did not cause.
 
 Wherever chrome text may be given either as a translation key or as a literal, a literal SHALL be
 shown as it is and SHALL NOT be reported as a missing key. The workbench SHALL tell the two apart by
-shape: a key is dot-separated segments of word characters, with at least one dot and no whitespace,
-which is the shape of every key the workbench ships and of every contributed key, since a
-contributed bundle is nested under its own name. A string of any other shape is a literal.
-
-The limit of that: a literal that happens to have the shape of a key, such as a version written
-with dots and nothing else, is reported like a key when no bundle knows it. That is the price of
-telling them apart without a marker, and it is stated here so that nobody looks for a switch.
+shape: a key is dot-separated segments of word characters, with at least one dot and no whitespace.
+A string of any other shape is a literal.
 
 #### Scenario: A code, a name or a sentence stays silent
 
@@ -265,6 +263,12 @@ telling them apart without a marker, and it is stated here so that nobody looks 
   loaded and that bundle does not contain it
 - **THEN** it is reported as missing, as before
 
+### Requirement: A literal shaped like a key is reported like a key
+
+A literal that happens to have the shape of a key, such as a version written with dots and nothing
+else, SHALL be reported like a key when no bundle knows it. That is the price of telling them apart
+without a marker, and no switch exists for it.
+
 #### Scenario: A literal shaped like a key is reported
 
 - **WHEN** a literal such as `1.2.3` is looked up after a bundle has loaded
@@ -277,31 +281,26 @@ code. The declaration SHALL be able to add languages the workbench does not ship
 languages it does ship, and to name a set containing none of the shipped languages. A distribution
 that declares nothing SHALL be served the languages the workbench ships.
 
-The declared set SHALL be the only set: what the workbench loads, what it offers to the user, what a
-stored or browser preference may select, and what the document declares as its language SHALL all
-be derived from it, so that no language can be served and unreachable, or offered and unserved.
-
-Each offered language SHALL be named in that language itself, derived from its code rather than from
-a list kept beside the set, so that a language added to the declaration is named without anything
-else being edited. Where no name can be derived for a code, the code itself is shown.
-
-A declaration that names no language, or that names something that is not a language code, SHALL be
-refused when the distribution is composed, with a message saying which.
-
-#### Scenario: The switcher offers what the workbench serves
-
-- **WHEN** the user opens the language switcher
-- **THEN** it offers the served languages and no others
-
 #### Scenario: A distribution that declares nothing serves the shipped languages
 
 - **WHEN** a distribution declares no set of languages
 - **THEN** the switcher offers the languages the workbench ships and no others
 
-#### Scenario: A further served language reaches the switcher
+#### Scenario: A set without any shipped language is served
 
-- **WHEN** a distribution declares a set containing a language the workbench does not ship
-- **THEN** the switcher offers it, named in that language, without a second list being edited
+- **WHEN** a distribution declares a set containing none of the languages the workbench ships
+- **THEN** the workbench starts in one of the declared languages and offers only those
+
+### Requirement: The declared set of languages is the only set
+
+The declared set SHALL be the only set: what the workbench loads, what it offers to the user, what a
+stored or browser preference may select, and what the document declares as its language SHALL all
+be derived from it, so that no language can be served and unreachable, or offered and unserved.
+
+#### Scenario: The switcher offers what the workbench serves
+
+- **WHEN** the user opens the language switcher
+- **THEN** it offers the served languages and no others
 
 #### Scenario: A shipped language left out of the declaration is not offered
 
@@ -309,15 +308,26 @@ refused when the distribution is composed, with a message saying which.
 - **THEN** the switcher does not offer it
 - **AND** no preference, stored or from the browser, selects it
 
-#### Scenario: A set without any shipped language is served
-
-- **WHEN** a distribution declares a set containing none of the languages the workbench ships
-- **THEN** the workbench starts in one of the declared languages and offers only those
-
 #### Scenario: The document declares the language in use
 
 - **WHEN** the user is working in a declared language the workbench does not ship
 - **THEN** the language the document declares is that language
+
+### Requirement: Each offered language is named in its own language
+
+Each offered language SHALL be named in that language itself, derived from its code rather than from
+a list kept beside the set, so that a language added to the declaration is named without anything
+else being edited. Where no name can be derived for a code, the code itself is shown.
+
+#### Scenario: A further served language reaches the switcher
+
+- **WHEN** a distribution declares a set containing a language the workbench does not ship
+- **THEN** the switcher offers it, named in that language, without a second list being edited
+
+### Requirement: An empty or malformed language declaration is refused
+
+A declaration that names no language, or that names something that is not a language code, SHALL be
+refused when the distribution is composed, with a message saying which.
 
 #### Scenario: An empty or malformed declaration is refused
 
@@ -330,14 +340,11 @@ refused when the distribution is composed, with a message saying which.
 For a served language the workbench does not ship, the product SHALL supply the workbench's own
 strings in that language, in the place the shipped languages are served from. Any workbench string
 the product does not supply SHALL be shown in English rather than as its key or as nothing, and the
-developer SHALL be told which strings those are.
+developer SHALL be told which strings those are. This SHALL NOT prevent the language from being
+served.
 
-Where the product supplies none of the workbench's strings for a served language, the workbench SHALL
-be shown in English throughout while that language is active, and the developer SHALL be told that
-this is what happened. Neither case SHALL prevent the language from being served.
-
-This concerns the workbench's own strings. The strings of a named bundle and of an overlay keep the
-behaviour stated for them.
+This concerns the workbench's own strings; a named bundle and an overlay keep their stated
+behaviour.
 
 #### Scenario: A partly translated language shows the rest in English
 
@@ -347,6 +354,17 @@ behaviour stated for them.
 - **AND** the rest are shown in English
 - **AND** the developer is told which strings were not supplied
 
+#### Scenario: A later release's new string is shown in English until supplied
+
+- **WHEN** a release adds a workbench string and a product's served language does not supply it
+- **THEN** it is shown in English and named to the developer
+
+### Requirement: A served language with none of the workbench's strings is shown in English throughout
+
+Where the product supplies none of the workbench's strings for a served language, the workbench
+SHALL be shown in English throughout while that language is active, and the developer SHALL be told
+that this is what happened. This SHALL NOT prevent the language from being served.
+
 #### Scenario: A language with no workbench strings is still served
 
 - **WHEN** a product serves a language the workbench does not ship and supplies none of the
@@ -355,11 +373,6 @@ behaviour stated for them.
 - **AND** the developer is told that no workbench strings were found for it
 - **AND** the document still declares that language
 
-#### Scenario: A later release's new string is shown in English until supplied
-
-- **WHEN** a release adds a workbench string and a product's served language does not supply it
-- **THEN** it is shown in English and named to the developer
-
 ### Requirement: A product can read and change the language
 
 A product SHALL be able to read the active language, the served languages with the name of each in
@@ -367,11 +380,7 @@ its own language, and SHALL be able to change the active language. A change made
 be the same act as a change made through the workbench's own switcher: applied everywhere at once,
 remembered, and carried to the application's other windows and isolated surfaces.
 
-The names a product reads SHALL be the ones the workbench's own switcher shows, so that a control a
-product draws in place of the switcher offers the same languages under the same names.
-
-A change to a language that is not served SHALL be refused, leaving the active language as it was,
-and the developer SHALL be told.
+The names a product reads SHALL be the ones the workbench's own switcher shows.
 
 #### Scenario: A product's own control changes the language
 
@@ -391,6 +400,11 @@ and the developer SHALL be told.
 - **WHEN** a product reads the served languages
 - **THEN** it receives each with the name the workbench's switcher shows for it
 
+### Requirement: A change to a language that is not served is refused
+
+A change to a language that is not served SHALL be refused, leaving the active language as it was,
+and the developer SHALL be told.
+
 #### Scenario: An unserved language is refused
 
 - **WHEN** a product changes the language to one that is not served
@@ -401,13 +415,9 @@ and the developer SHALL be told.
 
 Choosing a language SHALL update what the user sees, what the document reports as its language, and
 what is remembered for the next visit, in one step. Text whose strings in the new language have not
-arrived yet MAY show its keys for that moment, because the workbench does not hold the interface
-back while they load. Everything the workbench draws, open menus included, SHALL show the words as
-soon as the strings arrive, without a reload and without the user doing anything.
-
-The limits: a dialog or prompt keeps the words it was opened with until it is closed. Where the
-strings of the chosen language cannot be loaded, the interface shows what the translation library
-falls back to, and the choice is still remembered, so the next visit tries it again.
+arrived yet MAY show its keys for that moment. Everything the workbench draws, open menus included,
+SHALL show the words as soon as the strings arrive, without a reload and without the user doing
+anything.
 
 #### Scenario: Switching the language updates the page and the record of it
 
@@ -421,3 +431,14 @@ falls back to, and the choice is still remembered, so the next visit tries it ag
 - **WHEN** the user chooses a language whose strings have not been loaded yet, while a menu is open
 - **THEN** keys may show until the strings arrive
 - **AND** once they have arrived, the page and the open menu show the words in that language
+
+#### Scenario: An open dialog keeps the words it was opened with
+
+- **WHEN** the language changes while a dialog or prompt is open
+- **THEN** the dialog keeps the words it was opened with until it is closed
+
+#### Scenario: A language whose strings cannot be loaded is still remembered
+
+- **WHEN** the strings of the chosen language cannot be loaded
+- **THEN** the interface shows what the translation library falls back to
+- **AND** the choice is still remembered, so the next visit tries it again

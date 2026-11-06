@@ -62,12 +62,11 @@ appears is the user's arrangement, not the declaration.
 
 A surface with an address MAY declare that it owns the content area while it is shown. Such a
 surface SHALL never become a tab, SHALL show no strip while it is active, and SHALL be excluded from
-splitting and from dragging, because each of those presumes a tab that could be moved or reached
-again. Whatever else is parked in the content area SHALL survive and reappear when the surface is
-left.
+splitting and from dragging. Whatever else is parked in the content area SHALL survive and reappear
+when the surface is left.
 
-This is for a screen that is not a document — a sign-in, an onboarding, an overview — and it is the
-only presentation the user cannot rearrange, because there is nothing to arrange it beside.
+This is for a screen that is not a document, such as a sign-in, an onboarding or an overview, and it
+is the only presentation the user cannot rearrange.
 
 #### Scenario: The screen shows no tab of its own
 
@@ -108,23 +107,13 @@ every mount point, and what stands between its content and the pane edge SHALL b
 surface itself draws.
 
 A distribution MAY ask that everything it composes be inset, and a surface's own declaration SHALL
-win over that default. The declaration SHALL work in both directions: a surface MAY ask to be inset
-where the distribution asks for nothing, and MAY ask to be flush where the distribution asks for an
-inset.
-
-A surface's declaration SHALL travel with the surface, so it holds wherever the user puts it — the
-content pane, a split, a sidebar, a pop-out window. Whether there is an inset is the contract; how
-wide it is remains a matter of styling.
+win over that default, in both directions: a surface MAY ask to be inset where the distribution asks
+for nothing, and MAY ask to be flush where the distribution asks for an inset.
 
 #### Scenario: A surface nothing was said about fills its pane
 
 - **WHEN** a surface is shown and neither it nor the distribution asks for an inset
 - **THEN** it fills the pane, with nothing applied by the workbench
-
-#### Scenario: An edge-owning surface is flush in every pane
-
-- **WHEN** a surface that owns its edges is shown at its address, and again in a secondary pane
-- **THEN** it fills the pane in both, with no inset applied by the workbench
 
 #### Scenario: An ordinary surface is inset consistently
 
@@ -137,6 +126,17 @@ wide it is remains a matter of styling.
 - **WHEN** a surface declares that it wants an inset and the distribution asks for none
 - **THEN** the workbench insets that surface and no other
 
+### Requirement: A surface's inset declaration travels with it
+
+A surface's declaration SHALL travel with the surface, so it holds wherever the user puts it: the
+content pane, a split, a sidebar, a pop-out window. Whether there is an inset is the contract; how
+wide it is remains a matter of styling.
+
+#### Scenario: An edge-owning surface is flush in every pane
+
+- **WHEN** a surface that owns its edges is shown at its address, and again in a secondary pane
+- **THEN** it fills the pane in both, with no inset applied by the workbench
+
 ### Requirement: A surface is measured against its pane, not the window
 
 The workbench SHALL offer every host-rendered surface the width of the pane it is mounted in as the
@@ -144,13 +144,20 @@ reference an adaptive layout resolves against, under a stable name the surface c
 surface SHALL NOT have to establish that reference itself, and a surface that establishes one of its
 own SHALL keep it.
 
+This holds for a surface the workbench renders. A surface presented as an isolated document already
+measures against its own frame, which is the pane.
+
+#### Scenario: A surface that brought its own reference is not overridden
+
+- **WHEN** a surface establishes a sizing reference of its own
+- **THEN** its own reference continues to apply to its content
+
+### Requirement: The pane reference follows the surface and tracks the pane
+
 The reference SHALL follow the surface to every mount point, so a surface moved from the content
 area into a sidebar, a split or a pop-out window is measured against wherever it now sits. It SHALL
 track the pane as the pane changes, so splitting a pane, dragging a splitter or maximising re-lays
 the surface out without it being remounted.
-
-The guarantee holds for a surface the workbench renders. A surface presented as an isolated document
-already measures against its own frame, which is the pane, and therefore needs nothing added.
 
 #### Scenario: Splitting a pane re-lays out the surface inside it
 
@@ -168,21 +175,11 @@ already measures against its own frame, which is the pane, and therefore needs n
 - **WHEN** the user moves an adaptive surface from the content area into a sidebar
 - **THEN** it is measured against the sidebar it now sits in
 
-#### Scenario: A surface that brought its own reference is not overridden
-
-- **WHEN** a surface establishes a sizing reference of its own
-- **THEN** its own reference continues to apply to its content
-
 ### Requirement: The declaration carries the labels the workbench draws
 
-A surface SHALL supply the title and icon the workbench uses wherever it names the surface — a tab,
-a strip, a picker. A surface with an address MAY supply a different title for that address, and a
+A surface SHALL supply the title and icon the workbench uses wherever it names the surface: a tab, a
+strip, a picker. A surface with an address MAY supply a different title for that address, and a
 title MAY be given either as a translation key or as a literal.
-
-A surface MAY also supply a badge: a short mark such as "Beta" or "Developer", given as a text, an
-icon or both, in one of the tones the workbench's badges have. The workbench SHALL show it on every
-tab that shows the surface, as a tab's badge is shown. Its text MAY be a translation key or a
-literal, as a title may.
 
 #### Scenario: An address-specific title wins where it is given
 
@@ -194,6 +191,13 @@ literal, as a title may.
 - **WHEN** a surface supplies no title for its address
 - **THEN** the workbench leaves it without one rather than substituting an empty string
 
+### Requirement: A surface may declare a badge
+
+A surface MAY also supply a badge: a short mark such as "Beta" or "Developer", given as a text, an
+icon or both, in one of the tones the workbench's badges have. The workbench SHALL show it on every
+tab that shows the surface, as a tab's badge is shown. Its text MAY be a translation key or a
+literal, as a title may.
+
 #### Scenario: A declared badge is drawn on the surface's tabs
 
 - **WHEN** a surface declares a badge and is shown as a tab
@@ -203,8 +207,7 @@ literal, as a title may.
 
 A plugin SHALL be able to give a surface it registered a new title without registering it again, and
 everywhere the workbench names that surface SHALL follow: its tab, the header of the panel it is
-docked in, and any picker that lists it. The surface itself SHALL NOT be rebuilt, so what the user
-has typed, scrolled or folded inside it survives the rename.
+docked in, and any picker that lists it.
 
 The limit of that: a rename reaches the name only. Where a surface is drawn, what it draws and every
 other thing its declaration carries are unaffected, and a rename of an id nothing was registered
@@ -214,11 +217,6 @@ under changes nothing.
 
 - **WHEN** a plugin renames a surface it registered
 - **THEN** the panel header naming that surface shows the new title
-
-#### Scenario: The surface keeps what the user did in it
-
-- **WHEN** a surface is renamed while the user has state inside it
-- **THEN** the surface is not rebuilt and that state is still there
 
 #### Scenario: A name given as a key is still translated
 
@@ -230,20 +228,37 @@ under changes nothing.
 - **WHEN** a plugin renames an id it did not register
 - **THEN** nothing changes and nothing is drawn differently
 
+### Requirement: A rename does not rebuild the surface
+
+The surface itself SHALL NOT be rebuilt by a rename, so what the user has typed, scrolled or folded
+inside it survives the rename.
+
+#### Scenario: The surface keeps what the user did in it
+
+- **WHEN** a surface is renamed while the user has state inside it
+- **THEN** the surface is not rebuilt and that state is still there
+
 ### Requirement: A surface's action may be replaced while the surface is mounted
 
 A plugin SHALL be able to replace one action of a surface it registered, naming the surface and the
-action by the ids it registered them under, without registering the surface again. Everywhere the
-workbench draws that surface's actions SHALL follow, the header of the panel it is docked in first
-among them. The surface itself SHALL NOT be rebuilt, so what the user has typed, scrolled or folded
-inside it survives. An action id the surface did not carry SHALL be added to its actions, in the
-place its order gives it.
+action by the ids it registered them under, without registering the surface again.
 
-The limit of that: a replacement reaches the one action named. The surface's other actions, its
-name and everything else its declaration carries are unaffected, and a replacement on a surface id
-nothing was registered under changes nothing. This is held on the in-process runtime and verified
-on the panel header; a sandboxed surface carries no actions, so there is nothing on it for this to
-replace.
+The limit of that: a replacement reaches the one action named. The surface's other actions, its name
+and everything else its declaration carries are unaffected, and a replacement on a surface id
+nothing was registered under changes nothing.
+
+#### Scenario: Replacing on a surface that was never registered does nothing
+
+- **WHEN** a plugin replaces an action on a surface id it did not register
+- **THEN** nothing changes and nothing is drawn differently
+
+### Requirement: A replaced action is followed everywhere without rebuilding the surface
+
+Everywhere the workbench draws that surface's actions SHALL follow a replacement, the header of the
+panel it is docked in first among them. The surface itself SHALL NOT be rebuilt, so what the user
+has typed, scrolled or folded inside it survives. This is held on the in-process runtime and
+verified on the panel header; a sandboxed surface carries no actions, so there is nothing on it for
+this to replace.
 
 #### Scenario: The header draws the replaced action
 
@@ -256,15 +271,15 @@ replace.
 - **WHEN** an action is replaced while the user has state inside the surface
 - **THEN** the surface is not rebuilt and that state is still there
 
+### Requirement: A replaced action the surface did not carry is added
+
+An action id the surface did not carry SHALL be added to its actions by a replacement, in the place
+its order gives it.
+
 #### Scenario: An action the surface did not carry is added
 
 - **WHEN** a plugin replaces an action under an id the surface's actions did not include
 - **THEN** the surface's actions gain it, ordered as its order says
-
-#### Scenario: Replacing on a surface that was never registered does nothing
-
-- **WHEN** a plugin replaces an action on a surface id it did not register
-- **THEN** nothing changes and nothing is drawn differently
 
 ### Requirement: A toggling action carries its state
 
@@ -309,18 +324,11 @@ the same declaration.
 ### Requirement: A surface's badge may be changed while it is mounted
 
 A plugin SHALL be able to give a surface it registered a badge, replace it or take it away without
-registering the surface again, and every tab that shows that surface SHALL follow. The surface itself
-SHALL NOT be rebuilt, so what the user has typed, scrolled or folded inside it survives the change.
-This SHALL hold for a plugin that runs isolated from the workbench as it does for one that runs in
-the page.
+registering the surface again, and every tab that shows that surface SHALL follow. This SHALL hold
+for a plugin that runs isolated from the workbench as it does for one that runs in the page.
 
 The limit of that: a change of badge reaches the badge only, and a change for an id the plugin did
 not register, whether nothing or another plugin registered it, changes nothing.
-
-#### Scenario: Every tab showing the surface follows
-
-- **WHEN** a plugin gives a mounted surface a badge
-- **THEN** each tab that shows the surface shows the badge, and the surface is not rebuilt
 
 #### Scenario: A badge can be taken away
 
@@ -338,6 +346,16 @@ not register, whether nothing or another plugin registered it, changes nothing.
   registered
 - **THEN** nothing changes and nothing is drawn differently
 
+### Requirement: A badge change does not rebuild the surface
+
+The surface itself SHALL NOT be rebuilt by a change of badge, so what the user has typed, scrolled
+or folded inside it survives the change.
+
+#### Scenario: Every tab showing the surface follows
+
+- **WHEN** a plugin gives a mounted surface a badge
+- **THEN** each tab that shows the surface shows the badge, and the surface is not rebuilt
+
 ### Requirement: A surface's actions are drawn wherever the surface stands
 
 The actions a surface declares SHALL be drawn in the header of whatever holds the surface while it
@@ -346,46 +364,12 @@ that pane carries the address or not and whether it shows a tab strip or only it
 In a pane they SHALL stand before the pane's own controls, in the order the actions give, and they
 SHALL follow the surface when it is moved to another pane or panel.
 
-The actions SHALL be the surface's own toolbar, on a slot named for the surface that the surface's
-registration declares. The actions declared on the surface SHALL be the entries its owner
-contributes to that slot, and SHALL keep working declared as they are today. Any other plugin MAY
-contribute an entry to that slot the way it contributes to a menu, and the workbench SHALL draw it
-among the surface's actions, matched against a description that names the surface. The owner of the
-surface SHALL be able to tell its own actions from contributed ones by the plugin that contributed
-each, and a distribution SHALL be able to remove a contributed one by its identity as it removes any
-contribution.
-
-An action SHALL behave the same in every header: it runs what it names, is hidden or disabled as its
-access requirement says and is not drawn where the command it names may not run, shows its toggle
-state, and follows a replacement made while the surface is mounted. Only the actions of the surface
-currently shown SHALL be drawn; a surface in a tab that is not the active one contributes none.
-
-In a detached window, which has no header of its own, the actions SHALL be drawn in a bar above the
-surface, and that bar SHALL be absent where the surface offers no action there. An action that names
-a command SHALL be drawn there only if that command declares itself suitable for a detached window.
-
-The limit of that: a sandboxed surface's declaration carries no actions. Entries a plugin
-contributes to its slot are drawn in its header all the same, including entries the sandboxed plugin
-itself contributes through its channel, since a menu entry is data and crosses the boundary.
-
 #### Scenario: A content surface's action is drawn in its pane's header
 
 - **WHEN** a plugin registers a routable surface with an action and that surface is the active tab of
   a content pane
 - **THEN** the pane's header shows the action before the pane's own controls
 - **AND** activating it runs what the action names
-
-#### Scenario: Another plugin adds to a surface's header
-
-- **WHEN** a second plugin contributes an entry to the slot named for a surface, naming a command of
-  its own
-- **THEN** the entry is drawn among that surface's actions wherever the surface stands, and
-  activating it runs the command with a description naming the surface
-
-#### Scenario: The actions change with the active tab
-
-- **WHEN** the user switches to a tab whose surface declares other actions, or none
-- **THEN** the header shows that surface's actions and no longer the previous one's
 
 #### Scenario: A pane without a tab strip still shows them
 
@@ -398,6 +382,45 @@ itself contributes through its channel, since a menu entry is data and crosses t
 - **THEN** its actions are drawn in the header of the pane it now stands in, and no longer where it
   was
 
+### Requirement: A surface's actions are the entries of its own toolbar slot
+
+The actions SHALL be the surface's own toolbar, on a slot named for the surface that the surface's
+registration declares. The actions declared on the surface SHALL be the entries its owner
+contributes to that slot, and SHALL keep working declared as they are today.
+
+#### Scenario: Declared actions are the owner's entries in the surface's slot
+
+- **WHEN** a plugin registers a surface that declares actions
+- **THEN** those actions are drawn as entries of the slot named for that surface, contributed by
+  that plugin
+
+### Requirement: Another plugin may contribute to a surface's actions
+
+Any other plugin MAY contribute an entry to a surface's slot the way it contributes to a menu, and
+the workbench SHALL draw it among the surface's actions, matched against a description that names
+the surface. The owner of the surface SHALL be able to tell its own actions from contributed ones by
+the plugin that contributed each, and a distribution SHALL be able to remove a contributed one by
+its identity as it removes any contribution.
+
+#### Scenario: Another plugin adds to a surface's header
+
+- **WHEN** a second plugin contributes an entry to the slot named for a surface, naming a command of
+  its own
+- **THEN** the entry is drawn among that surface's actions wherever the surface stands, and
+  activating it runs the command with a description naming the surface
+
+### Requirement: An action behaves the same in every header
+
+An action SHALL behave the same in every header: it runs what it names, is hidden or disabled as its
+access requirement says and is not drawn where the command it names may not run, shows its toggle
+state, and follows a replacement made while the surface is mounted. Only the actions of the surface
+currently shown SHALL be drawn; a surface in a tab that is not the active one contributes none.
+
+#### Scenario: The actions change with the active tab
+
+- **WHEN** the user switches to a tab whose surface declares other actions, or none
+- **THEN** the header shows that surface's actions and no longer the previous one's
+
 #### Scenario: A replaced action is followed in a pane header
 
 - **WHEN** a plugin replaces an action of a surface shown in a content pane
@@ -408,6 +431,12 @@ itself contributes through its channel, since a menu entry is data and crosses t
 - **WHEN** an action declares no requirement of its own and names a command whose requirement the
   session does not meet
 - **THEN** the action is not drawn in any header, and appears once the session qualifies
+
+### Requirement: A detached surface draws its actions in a bar above it
+
+In a detached window, which has no header of its own, the actions SHALL be drawn in a bar above the
+surface, and that bar SHALL be absent where the surface offers no action there. An action that names
+a command SHALL be drawn there only if that command declares itself suitable for a detached window.
 
 #### Scenario: A detached surface keeps its actions
 
@@ -420,6 +449,12 @@ itself contributes through its channel, since a menu entry is data and crosses t
   commands in a detached window are applied
 - **THEN** the window shows the surface alone, with no bar
 
+### Requirement: A sandboxed surface's header carries contributed entries
+
+A sandboxed surface's declaration carries no actions. Entries a plugin contributes to its slot SHALL
+be drawn in its header all the same, including entries the sandboxed plugin itself contributes
+through its channel, since a menu entry is data and crosses the boundary.
+
 #### Scenario: A sandboxed surface gains a header entry through its channel
 
 - **WHEN** an isolated plugin contributes a menu entry to the slot named for its own surface
@@ -429,14 +464,23 @@ itself contributes through its channel, since a menu entry is data and crosses t
 
 A plugin SHALL be able to ask the workbench to bring a surface it docked to the front by the
 surface's identity. The workbench SHALL make that surface current where it stands, in a side panel
-or in the content area, and SHALL put it in view: a collapsed side panel SHALL be expanded, and on a
-window narrow enough for side panels to be overlays the panel's overlay SHALL be opened. This SHALL
-hold whether or not the panel has been drawn in the session, so a surface declared for a panel is
-found there before the person has ever opened it.
+or in the content area.
 
 The limits: a surface the person hid, a surface no plugin declares, and one that is placed nowhere
 are left alone and nothing happens. A surface that lives only inside a container, and a surface
 reached by its address, are not brought forward this way.
+
+#### Scenario: A hidden surface stays hidden
+
+- **WHEN** a plugin brings forward a surface the person has hidden
+- **THEN** nothing changes
+
+### Requirement: A surface brought to the front is put in view
+
+The workbench SHALL put a surface brought to the front in view: a collapsed side panel SHALL be
+expanded, and on a window narrow enough for side panels to be overlays the panel's overlay SHALL be
+opened. This SHALL hold whether or not the panel has been drawn in the session, so a surface
+declared for a panel is found there before the person has ever opened it.
 
 #### Scenario: A collapsed panel is expanded
 
@@ -454,8 +498,3 @@ reached by its address, are not brought forward this way.
 - **WHEN** a plugin brings forward a surface declared for a side panel in a session in which that
   panel has never been drawn, as on a narrow window before its overlay was first opened
 - **THEN** the panel comes into view showing that surface
-
-#### Scenario: A hidden surface stays hidden
-
-- **WHEN** a plugin brings forward a surface the person has hidden
-- **THEN** nothing changes

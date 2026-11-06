@@ -14,10 +14,9 @@ Every part of the context that reaches host services, host state or the address 
 SHALL be gated on a capability. A plugin without that capability SHALL be refused, loudly and
 identifiably, rather than receiving a silent no-op.
 
-This governs the context, and only the context. Data a plugin obtains for itself, without asking the
-workbench for it, passes no capability and is refused by nothing here — what such a plugin reaches
-follows from the level it runs at instead. The workbench SHALL NOT present the capabilities as
-though they decided it.
+This governs the context only: data a plugin obtains for itself passes no capability and is refused
+by nothing here, and what it reaches follows from the level it runs at. The workbench SHALL NOT
+present the capabilities as though they decided it.
 
 #### Scenario: An ungranted plugin is refused everything
 
@@ -45,10 +44,6 @@ Nothing the workbench sends a plugin on its own account SHALL be usable to prese
 service, and the workbench SHALL offer no path whose purpose is to deliver one. What it tells a
 plugin about the person using the application SHALL be limited to what that plugin needs in order to
 gate itself: whether someone is signed in, and which opaque roles they hold.
-
-This is what keeps the decision about what a plugin may see where it can still be made. A plugin
-holding a credential of its own is answerable to nobody afterwards, because the service it presents
-it to cannot tell the plugin from the person.
 
 #### Scenario: A permitted session tells a plugin who, not how
 
@@ -86,13 +81,8 @@ A user SHALL be able to withdraw any capability a plugin was granted. The withdr
 from the plugin's next use of that part of the context, without a reload, and SHALL survive a
 restart. Restoring it SHALL work the same way.
 
-A user SHALL NOT be able to grant beyond what the distribution allowed — revocation only ever
+A user SHALL NOT be able to grant beyond what the distribution allowed: revocation only ever
 subtracts.
-
-Where a plugin was deployed by the operator rather than chosen by the user, the permissions surface
-SHALL state what it holds and SHALL NOT offer to withdraw it. Withdrawing a capability such a plugin
-was issued with does not restrain software the user is answerable for; it breaks software they were
-given, in a way they cannot be expected to connect to the switch they pressed.
 
 #### Scenario: Revocation applies without a reload
 
@@ -114,6 +104,13 @@ given, in a way they cannot be expected to connect to the switch they pressed.
 - **WHEN** the user views the permissions of a plugin
 - **THEN** only capabilities the distribution granted can be switched at all
 
+### Requirement: A deployed plugin's permissions are stated and not withdrawable
+
+Where a plugin was deployed by the operator rather than chosen by the user, the permissions surface
+SHALL state what it holds and SHALL NOT offer to withdraw it. Withdrawing a capability such a plugin
+was issued with would break software the user was given rather than restrain software they are
+answerable for.
+
 #### Scenario: A deployed plugin's permissions are shown but not switchable
 
 - **WHEN** the user views the permissions of a plugin the operator deployed
@@ -125,27 +122,22 @@ A distribution MAY declare that a plugin it composes is not optional. The permis
 list such a plugin, state what it holds, and SHALL NOT offer to switch it off. It SHALL remain
 active, whatever the user chose before the declaration was made.
 
-Where such a plugin holds nothing that can be withdrawn, the surface SHALL leave it out rather than
-draw a section in which nothing can be operated. A page about what may be permitted SHALL NOT carry a
-part with nothing to permit, and SHALL NOT describe controls it does not contain.
-
-A declaration that names a plugin the distribution does not compose SHALL have no effect, and in
-development the developer SHALL be told which id names nothing, however the distribution composes
-its plugins.
-
-The declaration SHALL be the distribution's. A plugin SHALL NOT be able to make itself
-not-optional by anything it says about itself, because everything a plugin declares in this model is
-a request the distribution grants, and self-exemption from being switched off is the one grant that
-would answer to nobody.
-
-Withholding the switch SHALL withhold only that switch. The capabilities such a plugin was granted
-SHALL remain revocable, because needing a plugin says nothing about needing everything it asked for.
-This is narrower than the treatment of a plugin the operator deployed, which withholds both.
-
 #### Scenario: The plugin an application cannot run without has no switch
 
 - **WHEN** the user views the permissions of a plugin the distribution declared not optional
 - **THEN** what it holds is stated, and no switch to turn it off is offered
+
+#### Scenario: A plugin that was switched off comes back when it becomes required
+
+- **WHEN** a plugin the user had switched off is declared not optional
+- **THEN** it is active again, and the surface offers no switch for it
+
+### Requirement: A not-optional plugin with nothing to withdraw is left out
+
+Where a plugin the distribution declared not optional holds nothing that can be withdrawn, the
+surface SHALL leave it out rather than draw a section in which nothing can be operated. A page about
+what may be permitted SHALL NOT carry a part with nothing to permit, and SHALL NOT describe controls
+it does not contain.
 
 #### Scenario: A plugin with nothing to permit is not drawn
 
@@ -153,20 +145,11 @@ This is narrower than the treatment of a plugin the operator deployed, which wit
 - **THEN** the permissions surface leaves it out
 - **AND** a surface left with nothing to show says so, as it does when nothing is installed
 
-#### Scenario: Its capabilities can still be withdrawn
+### Requirement: A not-optional declaration naming no composed plugin is reported
 
-- **WHEN** the user views the capabilities of such a plugin
-- **THEN** each may still be withdrawn and restored
-
-#### Scenario: A plugin that was switched off comes back when it becomes required
-
-- **WHEN** a plugin the user had switched off is declared not optional
-- **THEN** it is active again, and the surface offers no switch for it
-
-#### Scenario: A plugin says nothing about being required
-
-- **WHEN** a plugin declares itself not optional in what it says about itself
-- **THEN** that has no effect, and only the distribution's declaration counts
+A declaration that names a plugin the distribution does not compose SHALL have no effect, and in
+development the developer SHALL be told which id names nothing, however the distribution composes
+its plugins.
 
 #### Scenario: A declaration naming a plugin that is not composed is reported
 
@@ -174,6 +157,29 @@ This is narrower than the treatment of a plugin the operator deployed, which wit
   plugins run in the page, in isolated frames or come from a catalogue
 - **THEN** nothing changes for the user
 - **AND** in development the developer is told which id names no composed plugin
+
+### Requirement: Only the distribution declares a plugin not optional
+
+The declaration SHALL be the distribution's. A plugin SHALL NOT be able to make itself not-optional
+by anything it says about itself, because self-exemption from being switched off is the one grant
+that would answer to nobody.
+
+#### Scenario: A plugin says nothing about being required
+
+- **WHEN** a plugin declares itself not optional in what it says about itself
+- **THEN** that has no effect, and only the distribution's declaration counts
+
+### Requirement: A not-optional plugin's capabilities stay revocable
+
+Withholding the switch SHALL withhold only that switch. The capabilities a plugin declared not
+optional was granted SHALL remain revocable, because needing a plugin says nothing about needing
+everything it asked for. This is narrower than the treatment of a plugin the operator deployed,
+which withholds both.
+
+#### Scenario: Its capabilities can still be withdrawn
+
+- **WHEN** the user views the capabilities of such a plugin
+- **THEN** each may still be withdrawn and restored
 
 ### Requirement: Revoking the right to contribute is not offered
 
@@ -210,26 +216,23 @@ offer a way to the place where it can be undone. The workbench's own route to it
 remain reachable no matter what has been revoked, so a user can never revoke themselves out of the
 ability to restore.
 
-Where a refusal happens because the capability was never granted, whether the distribution did not
-grant it or the plugin did not declare it, the workbench SHALL tell the user that the action is not
-available in this installation and SHALL NOT offer the way to the settings, because there is nothing
-there the user could change. In development the workbench SHALL tell the developer which plugin was
-refused which capability, so that a forgotten grant is visible rather than swallowed.
-
-This SHALL NOT depend on where the refusal arose. An action a plugin takes from inside its own
-surface counts as much as one the workbench invoked on the plugin's behalf, and a refusal that
-nothing catches SHALL reach the user in either case.
-
-For a plugin running in the page the workbench can see that the plugin handled its own refusal, and
-SHALL then stay silent. Across the frame boundary it cannot see that: a refusal there returns to the
-plugin as a rejected answer, and whether the plugin absorbed it is not observable from here. A
-refusal crossing that boundary SHALL therefore be reported whether or not the plugin handled it, and
-the workbench SHALL NOT claim the quieter behaviour for it.
-
 #### Scenario: A blocked action explains itself
 
 - **WHEN** an action fails because the user revoked a capability the plugin behind it was granted
 - **THEN** the user is told, and offered a way to the permission settings
+
+#### Scenario: Settings stay reachable when everything is revoked
+
+- **WHEN** every capability of every plugin is revoked
+- **THEN** the workbench's own way into its settings still works
+
+### Requirement: A refusal for a capability never granted does not point to the settings
+
+Where a refusal happens because the capability was never granted, whether the distribution did not
+grant it or the plugin did not declare it, the workbench SHALL tell the user that the action is not
+available in this installation and SHALL NOT offer the way to the settings, because there is nothing
+there the user could change. In development the workbench SHALL tell the developer which plugin was
+refused which capability.
 
 #### Scenario: An action refused for a capability never granted does not point to the settings
 
@@ -242,11 +245,31 @@ the workbench SHALL NOT claim the quieter behaviour for it.
 - **WHEN** a plugin is refused a capability it was never granted, in development
 - **THEN** the developer is told which plugin was refused which capability
 
+### Requirement: A refusal reaches the user wherever it arose
+
+How a refusal is told to the user SHALL NOT depend on where it arose. An action a plugin takes from
+inside its own surface counts as much as one the workbench invoked on the plugin's behalf, and a
+refusal that nothing catches SHALL reach the user in either case.
+
 #### Scenario: A refusal inside a plugin's own surface is not swallowed
 
 - **WHEN** a plugin running in the page is refused while acting from its own surface, and does not
   handle the refusal itself
 - **THEN** the user is told, exactly as when the workbench invoked the action
+
+#### Scenario: A refusal inside a menu entry's own implementation is not swallowed
+
+- **WHEN** a plugin running in the page contributes a menu entry that carries its own
+  implementation, and choosing it is refused a capability the plugin does not handle
+- **THEN** the user is told, exactly as when the same refusal arises in a command
+
+### Requirement: A handled refusal is silent in the page and reported across the frame
+
+For a plugin running in the page the workbench can see that the plugin handled its own refusal, and
+SHALL then stay silent. Across the frame boundary a refusal returns to the plugin as a rejected
+answer, and whether the plugin absorbed it is not observable. A refusal crossing that boundary SHALL
+therefore be reported whether or not the plugin handled it, and the workbench SHALL NOT claim the
+quieter behaviour for it.
 
 #### Scenario: A plugin that handles its own refusal does not raise a notice
 
@@ -257,17 +280,6 @@ the workbench SHALL NOT claim the quieter behaviour for it.
 
 - **WHEN** a plugin running in a frame is refused a capability it asked to use
 - **THEN** the user is told, whether or not the plugin handled the refusal on its own side
-
-#### Scenario: Settings stay reachable when everything is revoked
-
-- **WHEN** every capability of every plugin is revoked
-- **THEN** the workbench's own way into its settings still works
-
-#### Scenario: A refusal inside a menu entry's own implementation is not swallowed
-
-- **WHEN** a plugin running in the page contributes a menu entry that carries its own
-  implementation, and choosing it is refused a capability the plugin does not handle
-- **THEN** the user is told, exactly as when the same refusal arises in a command
 
 ### Requirement: The set of capabilities is coarse and enumerable
 
@@ -287,8 +299,7 @@ true of the plugin it stands under. A plugin running in the application's own co
 described as unable to reach the application, its storage or the user's session.
 
 Every rung a plugin can be composed at SHALL have its own account. Where a rung has none, the
-surface SHALL say nothing about isolation rather than borrow the account of another rung, because a
-missing sentence misleads no one and a borrowed one does.
+surface SHALL say nothing about isolation rather than borrow the account of another rung.
 
 #### Scenario: A trusted plugin is not called isolated
 
@@ -314,14 +325,6 @@ command nor learn that it exists, so that a refusal cannot be turned into a way 
 is installed. What it may list without the grant SHALL therefore hold nothing beyond the commands it
 registered itself.
 
-The capability SHALL cover only commands the plugin does not own. A plugin invoking a command it
-registered itself SHALL need no grant, because that is its own behaviour and it could run it
-directly.
-
-The grant SHALL open no more than the seam already allows: holding it lets a plugin reach the
-commands that declared themselves open to a foreign caller and that the session qualifies for, and
-nothing beyond them.
-
 #### Scenario: Without the grant, nothing is reachable and nothing is visible
 
 - **WHEN** a plugin without the grant invokes a command another plugin registered
@@ -329,32 +332,42 @@ nothing beyond them.
 - **AND** listing what it may invoke yields nothing beyond commands it registered itself, whatever
   else is installed
 
-#### Scenario: The grant reaches only what was opened
-
-- **WHEN** a plugin holding the grant lists what it may invoke
-- **THEN** it sees the commands that declared themselves open and that the session qualifies for,
-  and no others
-
-#### Scenario: A plugin's own commands need no grant
-
-- **WHEN** a plugin without the grant invokes a command it registered itself
-- **THEN** it runs
-
 #### Scenario: Revoking it takes effect at once
 
 - **WHEN** the user revokes the grant from a running plugin
 - **THEN** its next invocation of a command it does not own is refused, without a reload
 - **AND** what it may list holds nothing beyond its own commands
 
+### Requirement: A plugin invoking its own command needs no grant
+
+The capability SHALL cover only commands the plugin does not own. A plugin invoking a command it
+registered itself SHALL need no grant, because that is its own behaviour and it could run it
+directly.
+
+#### Scenario: A plugin's own commands need no grant
+
+- **WHEN** a plugin without the grant invokes a command it registered itself
+- **THEN** it runs
+
+### Requirement: The command grant opens no more than the seam allows
+
+The grant SHALL open no more than the seam already allows: holding it lets a plugin reach the
+commands that declared themselves open to a foreign caller and that the session qualifies for, and
+nothing beyond them.
+
+#### Scenario: The grant reaches only what was opened
+
+- **WHEN** a plugin holding the grant lists what it may invoke
+- **THEN** it sees the commands that declared themselves open and that the session qualifies for,
+  and no others
+
 ### Requirement: Grants declared in several places compose
 
 A distribution SHALL be able to declare capability grants in more than one place, and the grant in
 effect for a plugin SHALL be the union of what every declaration lists for that plugin. A later
 declaration SHALL NOT replace an earlier one, and no declaration SHALL be silently dropped. A plugin
-that no declaration names SHALL hold nothing, and everything that applies to one declaration, the
-intersection with the plugin's own declaration and the user's revocations, SHALL apply to the
-composed grant in the same way. A single declaration naming every plugin SHALL mean exactly what it
-meant before.
+that no declaration names SHALL hold nothing, and the intersection with the plugin's own declaration
+and the user's revocations SHALL apply to the composed grant as they apply to one declaration.
 
 #### Scenario: Two declarations for two plugins both count
 
@@ -367,6 +380,11 @@ meant before.
 
 - **WHEN** two declarations each list capabilities for the same plugin
 - **THEN** the plugin holds the union of both lists, intersected with what it declares itself
+
+### Requirement: A single grant declaration keeps its meaning
+
+A single declaration naming every plugin SHALL mean exactly what it meant before grants could be
+declared in several places.
 
 #### Scenario: One declaration is unchanged in meaning
 

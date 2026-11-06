@@ -17,10 +17,6 @@ nothing is supplied, so that an unbranded build still runs.
 The identity SHALL be supplied as composition, not discovered, so that one installation is one
 product.
 
-Where the frame is too narrow to show the name beside the mark, the mark alone SHALL stand for the
-product, and the name SHALL remain its accessible name. The tagline SHALL give way before the name,
-and the name before the mark, so that what identifies the product is the last thing to go.
-
 #### Scenario: The product's own identity is what the user sees
 
 - **WHEN** a distribution supplies its identity
@@ -36,6 +32,12 @@ and the name before the mark, so that what identifies the product is the last th
 - **WHEN** the tagline is supplied as a translation key
 - **THEN** it is translated like any other text
 
+### Requirement: The product's mark is the last part of its identity to give way
+
+Where the frame is too narrow to show the name beside the mark, the mark alone SHALL stand for the
+product, and the name SHALL remain its accessible name. The tagline SHALL give way before the name,
+and the name before the mark, so that what identifies the product is the last thing to go.
+
 #### Scenario: On a narrow frame the mark stands for the product
 
 - **WHEN** the frame is too narrow for side panels beside the content
@@ -45,12 +47,12 @@ and the name before the mark, so that what identifies the product is the last th
 ### Requirement: The product's identity can be presented where the product chooses
 
 The block that presents the product's identity SHALL be available to a distribution to place
-elsewhere in its own interface — an about dialog is the obvious place — and SHALL draw the same
-name, mark and tagline, from the same supplied identity, as the workbench's own frame does.
+elsewhere in its own interface, such as an about dialog, and SHALL draw the same name, mark and
+tagline, from the same supplied identity, as the workbench's own frame does.
 
-A caller SHALL be able to ask for the narrow form, in which the mark stands for the product alone,
-rather than having the form follow the width of the frame around it. Where a caller asks for
-nothing, the form SHALL follow the frame, as it does in the workbench's chrome.
+A caller SHALL be able to ask for the narrow form, in which the mark stands for the product alone
+whatever the width of the frame around it. Where a caller asks for nothing, the form SHALL follow
+the frame.
 
 #### Scenario: The identity is drawn the same way outside the chrome
 
@@ -191,19 +193,16 @@ The workbench SHALL expose the version it was built as, so that a distribution c
 user can report it. It SHALL be stamped from one source at build time rather than maintained by
 hand.
 
-What is exposed SHALL also say whether that version is a preview of a line that has not been
-released, so a distribution learns it by asking rather than by taking the version apart. A version
-that is not a preview SHALL say so just as plainly; there is no third answer.
-
-Announcing it remains the distribution's, as showing the version already is. The workbench SHALL NOT
-decide how prominently a preview is marked, or mark it anywhere the distribution did not ask for,
-because how loudly a product tells its users that it is unfinished is a product's judgement and not
-the workbench's.
-
 #### Scenario: The running version is reported
 
 - **WHEN** a distribution shows the version
 - **THEN** it is the version the build was stamped with
+
+### Requirement: The running version says whether it is a preview
+
+The exposed version SHALL also say whether it is a preview of a line that has not been
+released, so a distribution learns it by asking rather than by taking the version apart. A version
+that is not a preview SHALL say so just as plainly; there is no third answer.
 
 #### Scenario: A preview says that it is one
 
@@ -215,6 +214,13 @@ the workbench's.
 
 - **WHEN** the build was stamped with a version of a released line
 - **THEN** what the workbench exposes says the running version is not a preview
+
+### Requirement: Announcing a preview is the distribution's decision
+
+Announcing a preview remains the distribution's, as showing the version already is. The workbench
+SHALL NOT decide how prominently a preview is marked, or mark it anywhere the distribution did not
+ask for, because how loudly a product tells its users that it is unfinished is a product's judgement
+and not the workbench's.
 
 #### Scenario: The workbench marks nothing on its own
 
@@ -265,9 +271,6 @@ Taking the announcing over SHALL take away nothing else: what the workbench know
 applying an update stays available, and the marker a distribution chooses to keep stays driven by the
 same state.
 
-Where a distribution says nothing, the workbench SHALL announce exactly as it does today. The default
-is the supported case rather than a fallback for the unconfigured one.
-
 #### Scenario: The workbench stays quiet where the product answers
 
 - **WHEN** a distribution announces updates itself and a new version becomes available
@@ -278,6 +281,11 @@ is the supported case rather than a fallback for the unconfigured one.
 
 - **WHEN** a distribution announces updates itself and the workbench's own check finds a new version
 - **THEN** no notice is shown, and the product can read what was found
+
+### Requirement: Without a word from the distribution, the workbench announces updates
+
+Where a distribution says nothing, the workbench SHALL announce exactly as it does today. The
+default is the supported case rather than a fallback for the unconfigured one.
 
 #### Scenario: Saying nothing keeps the workbench's own notices
 

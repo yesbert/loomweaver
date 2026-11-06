@@ -58,24 +58,10 @@ preview in place, in whichever pane of the main area it stands; that pane SHALL 
 address, and the address SHALL name the new content. Where the main area holds no preview, the new
 one SHALL open in the pane carrying the address.
 
-Moving a preview to another pane of the main area, whether by dragging, by its menu or by the
-keyboard, SHALL keep it a preview. Moving it into a sidebar SHALL make it a permanent tab, because a
-sidebar holds no preview.
-
-Promotion to a permanent tab SHALL be explicit; re-opening the same content SHALL NOT promote it,
-because content commonly re-opens itself to refine its own title.
-
 #### Scenario: Browsing reuses one slot
 
 - **WHEN** several items are opened as previews in turn
 - **THEN** one tab is reused rather than one appearing per item
-
-#### Scenario: A preview dragged to another pane stays a preview
-
-- **WHEN** a preview is dragged from the pane carrying the address into another pane of the main
-  area, onto its strip or onto an edge
-- **THEN** it is still a preview in the pane it joined
-- **AND** that pane carries the address, which still names the same content
 
 #### Scenario: The next preview replaces it where it stands
 
@@ -90,11 +76,29 @@ because content commonly re-opens itself to refine its own title.
 - **WHEN** no pane of the main area holds a preview and an item is opened as a preview
 - **THEN** it opens in the pane carrying the address
 
+### Requirement: A preview stays a preview only within the main area
+
+Moving a preview to another pane of the main area, whether by dragging, by its menu or by the
+keyboard, SHALL keep it a preview. Moving it into a sidebar SHALL make it a permanent tab, because a
+sidebar holds no preview.
+
+#### Scenario: A preview dragged to another pane stays a preview
+
+- **WHEN** a preview is dragged from the pane carrying the address into another pane of the main
+  area, onto its strip or onto an edge
+- **THEN** it is still a preview in the pane it joined
+- **AND** that pane carries the address, which still names the same content
+
 #### Scenario: A preview moved into a sidebar becomes permanent
 
 - **WHEN** a preview is moved from the main area into a sidebar
 - **THEN** it is a permanent tab there
 - **AND** the next item opened as a preview does not replace it
+
+### Requirement: A preview is promoted only on purpose
+
+Promotion to a permanent tab SHALL be explicit; re-opening the same content SHALL NOT promote it,
+because content commonly re-opens itself to refine its own title.
 
 #### Scenario: Promotion is a deliberate act
 
@@ -132,16 +136,6 @@ unpinning SHALL return it to the front of the unpinned ones.
 The user SHALL be able to close the other tabs, all of them, or those after a given one. Each SHALL
 spare pinned tabs and any tab the arrangement declares unclosable.
 
-Closing a pane and undoing a split are bulk closes too, whether the user asks for them through a
-pane's control or the distribution asks for them from its own code. They SHALL spare the same tabs,
-and a spared tab SHALL be handed to the pane that takes the closed pane's space exactly as dragging
-it there would move it, without changing which tab that pane shows or which pane carries the
-address. A spared tab is built anew in the pane that takes it. Where it holds unsaved work, or its
-surface may refuse a close, the close SHALL ask about it as it asks about a tab that closes, and a
-refusal SHALL leave the pane and its tabs as they were. Where the distribution has switched closing
-off, every tab counts as one that cannot be closed, so closing a pane joins all of its tabs to that
-neighbour.
-
 #### Scenario: Closing the others keeps the target and the pinned ones
 
 - **WHEN** the user closes all tabs but one
@@ -151,6 +145,14 @@ neighbour.
 
 - **WHEN** a bulk close would include a tab the arrangement declares unclosable
 - **THEN** it remains
+
+### Requirement: Closing a pane or undoing a split hands the spared tabs to the neighbour
+
+Closing a pane and undoing a split are bulk closes too, whether the user asks for them through a
+pane's control or the distribution asks for them from its own code. They SHALL spare the same tabs,
+and a spared tab SHALL be handed to the pane that takes the closed pane's space exactly as dragging
+it there would move it, without changing which tab that pane shows or which pane carries the
+address. A spared tab is built anew in the pane that takes it.
 
 #### Scenario: Closing a pane hands what cannot close to its neighbour
 
@@ -173,10 +175,21 @@ neighbour.
   unclosable or pinned
 - **THEN** those tabs are in the remaining pane afterwards, and only the other tabs are closed
 
+### Requirement: With closing switched off, closing a pane keeps every tab
+
+Where the distribution has switched closing off, every tab SHALL count as one that cannot be closed,
+so closing a pane joins all of its tabs to the neighbour that takes its space.
+
 #### Scenario: With closing switched off, closing a pane loses nothing
 
 - **WHEN** the distribution has switched closing off and a pane of a split area is closed
 - **THEN** every tab it held is in the pane that takes its space
+
+### Requirement: A spared tab is asked about before its pane closes
+
+Where a tab spared by closing a pane holds unsaved work, or its surface may refuse a close, the
+close SHALL ask about it as it asks about a tab that closes, and a refusal SHALL leave the pane and
+its tabs as they were.
 
 #### Scenario: A spared tab that would lose unsaved work is asked about
 
@@ -219,16 +232,6 @@ order SHALL belong to the pane holding them rather than to the work area as a wh
 survive a restart, SHALL leave a newly opened tab at its natural place, and SHALL silently forget
 tabs that are gone.
 
-Whether a tab may be reordered, and whether it may be dragged into another pane, SHALL rest on the
-gestures the distribution offers and on whether the pane really holds that tab, and SHALL NOT rest
-on whether the tab may be closed. A tab the arrangement declares unclosable keeps both gestures, as
-a pinned tab does; only closing is refused it, and it SHALL share its band with the tabs it stands
-among, so that reordering it is something the user can actually carry out.
-
-A tab the workbench projects from the address rather than one the pane holds SHALL offer neither
-gesture, because there is nothing to move: the workbench SHALL NOT advertise a gesture it would
-answer with nothing.
-
 The bands SHALL be one statement for every route, so that a tab the pointer may not move across a
 band cannot be moved across it from the keyboard either.
 
@@ -252,6 +255,14 @@ band cannot be moved across it from the keyboard either.
 - **WHEN** a tab has focus and the user asks to move it
 - **THEN** it moves within its band and the new position is announced
 
+### Requirement: Moving a tab rests on the gestures offered, not on whether it may close
+
+Whether a tab may be reordered, and whether it may be dragged into another pane, SHALL rest on the
+gestures the distribution offers and on whether the pane really holds that tab, and SHALL NOT rest
+on whether the tab may be closed. A tab the arrangement declares unclosable keeps both gestures, as
+a pinned tab does; only closing is refused it, and it SHALL share its band with the tabs it stands
+among.
+
 #### Scenario: A tab that cannot be closed is still moved and reordered
 
 - **WHEN** the arrangement declares a tab unclosable and the distribution offers reordering and
@@ -259,15 +270,21 @@ band cannot be moved across it from the keyboard either.
 - **THEN** that tab can be reordered within its band and dragged into another pane
 - **AND** it still cannot be closed
 
-#### Scenario: A tab the pane does not hold offers no move
-
-- **WHEN** the strip shows a tab the workbench projects from the address beside a tab the pane holds
-- **THEN** the projected tab offers neither reordering nor dragging, and the held tab offers both
-
 #### Scenario: Switching closing off does not take reordering with it
 
 - **WHEN** a distribution switches closing off while reordering and moving between panes stay on
 - **THEN** its tabs can still be reordered and moved
+
+### Requirement: A tab projected from the address offers no move
+
+A tab the workbench projects from the address rather than one the pane holds SHALL offer neither
+gesture, because there is nothing to move: the workbench SHALL NOT advertise a gesture it would
+answer with nothing.
+
+#### Scenario: A tab the pane does not hold offers no move
+
+- **WHEN** the strip shows a tab the workbench projects from the address beside a tab the pane holds
+- **THEN** the projected tab offers neither reordering nor dragging, and the held tab offers both
 
 ### Requirement: A strip too narrow to show everything stays usable
 
@@ -309,17 +326,6 @@ literal, and these SHALL survive a restart. Where a tab has no label of its own,
 derive one from the content's declaration, and where it can derive nothing it SHALL show the address
 rather than an empty tab.
 
-A derived label SHALL NOT become the tab's own. What is kept across a restart SHALL be only what the
-tab carried, so a label the workbench worked out from a declaration is worked out again each time
-and corrects itself when the declaration it rests on changes or first appears.
-
-A declaration at the address that names nothing SHALL NOT be a declaration for every address. Where
-the address a tab carries has no declaration of its own, the workbench SHALL derive nothing and show
-the address, rather than borrowing the label of whatever answers the bare address.
-
-Where a tab was stored with a label it could not have carried, the workbench SHALL drop that label
-as it loads, so a profile written before this recovers without the user clearing browser storage.
-
 #### Scenario: A refined title survives a restart
 
 - **WHEN** content refines its tab's title and the application restarts
@@ -330,10 +336,32 @@ as it loads, so a profile written before this recovers without the user clearing
 - **WHEN** neither the tab nor any declaration supplies a title
 - **THEN** the address is shown
 
+#### Scenario: A badge a tab was opened with survives a restart
+
+- **WHEN** a content tab is opened with a badge of its own and the application restarts
+- **THEN** the tab shows that badge again
+
+### Requirement: A derived label does not become the tab's own
+
+A derived label SHALL NOT become the tab's own. What is kept across a restart SHALL be only what the
+tab carried, so a label the workbench worked out from a declaration is worked out again each time
+and corrects itself when the declaration it rests on changes or first appears.
+
 #### Scenario: A label worked out for a tab is not saved as the tab's own
 
 - **WHEN** a tab whose label the workbench derived is written to a workspace's stored panes
 - **THEN** what is stored carries no label
+
+#### Scenario: A tab refines itself once its content arrives
+
+- **WHEN** the content that answers a restored tab's address registers
+- **THEN** the tab shows the title and icon that content declares, with no restart
+
+### Requirement: A tab does not borrow the label of the bare address
+
+A declaration at the address that names nothing SHALL NOT be a declaration for every address. Where
+the address a tab carries has no declaration of its own, the workbench SHALL derive nothing and show
+the address, rather than borrowing the label of whatever answers the bare address.
 
 #### Scenario: A tab waiting for its content does not borrow the home label
 
@@ -341,10 +369,10 @@ as it loads, so a profile written before this recovers without the user clearing
   answers the address that names nothing
 - **THEN** the tab shows its address rather than that surface's title and icon
 
-#### Scenario: A tab refines itself once its content arrives
+### Requirement: A stored label a tab could not have carried is dropped
 
-- **WHEN** the content that answers a restored tab's address registers
-- **THEN** the tab shows the title and icon that content declares, with no restart
+Where a tab was stored with a label it could not have carried, the workbench SHALL drop that label
+as it loads, so a profile written before this recovers without the user clearing browser storage.
 
 #### Scenario: A profile carrying a borrowed label recovers on its own
 
@@ -352,32 +380,13 @@ as it loads, so a profile written before this recovers without the user clearing
   the application is opened
 - **THEN** both are dropped as the panes load, and the tab is labelled from its own content
 
-#### Scenario: A badge a tab was opened with survives a restart
-
-- **WHEN** a content tab is opened with a badge of its own and the application restarts
-- **THEN** the tab shows that badge again
-
 ### Requirement: A tab may carry a badge beside its title
 
 A tab SHALL show a badge where it has one: its own, given when it was opened, or else the badge of
 the surface it shows. In a strip that shows titles, the badge SHALL stand after the title, drawn in
-the tone it names, and SHALL NOT be a control of its own, so the tab stays a single stop for the
-keyboard. The badge's text SHALL be part of the tab's accessible name, after the title and before
-any word about unsaved work, so a screen reader announces "Erweitert, Developer" rather than the
-title alone.
-
-A tab's own badge MAY be taken away again; the surface's badge then shows, where it has one. In a
-strip that shows icons only, there is no room for text beside an icon; the badge's text SHALL then
-be part of the tab's tooltip and accessible name, and a badge that is an icon alone is not shown
-there.
-
-Where a tab in a strip that shows titles is too narrow for its title and its badge, the title SHALL
-come first: the badge SHALL give way before the title is shortened, narrowing to a mark in its tone
-with its text cut. The tooltip of a tab in a strip that shows titles SHALL carry the badge's text
-after the title, as its accessible name does, so a badge that has given way can still be read.
-
-The limit: a tab's badge is drawn on the tab. The list of tabs that do not fit the strip, Quick-Open
-and the minimized strip name the tab without it.
+the tone it names, and SHALL NOT be a control of its own. The badge's text SHALL be part of the
+tab's accessible name, after the title and before any word about unsaved work. The badge is drawn on
+the tab only.
 
 #### Scenario: The badge stands after the title
 
@@ -400,15 +409,38 @@ and the minimized strip name the tab without it.
 - **WHEN** a content tab was opened with a badge of its own and its surface declares another
 - **THEN** the tab shows its own
 
+#### Scenario: A list of tabs names the tab without its badge
+
+- **WHEN** a tab with a badge is named in the list of tabs that do not fit the strip, in Quick-Open
+  or in the minimized strip
+- **THEN** it is named without its badge
+
+### Requirement: A tab's own badge may be taken away
+
+A tab's own badge MAY be taken away again; the surface's badge SHALL then show, where it has one.
+
 #### Scenario: A tab's own badge can be taken away
 
 - **WHEN** a content tab carrying a badge of its own is opened again with its badge taken away
 - **THEN** the tab shows the surface's badge, or none where the surface has none
 
+### Requirement: In a strip of icons the badge's text moves to the tooltip
+
+In a strip that shows icons only, there is no room for text beside an icon; the badge's text SHALL
+then be part of the tab's tooltip and accessible name, and a badge that is an icon alone is not
+shown there.
+
 #### Scenario: A strip of icons carries the badge in the tooltip
 
 - **WHEN** a tab with a badge is shown in a strip that shows icons only
 - **THEN** its tooltip and its accessible name carry the badge's text
+
+### Requirement: A narrow tab's badge gives way before its title
+
+Where a tab in a strip that shows titles is too narrow for its title and its badge, the title SHALL
+come first: the badge SHALL give way before the title is shortened, narrowing to a mark in its tone
+with its text cut. The tooltip of a tab in a strip that shows titles SHALL carry the badge's text
+after the title, as its accessible name does, so a badge that has given way can still be read.
 
 #### Scenario: A narrow tab keeps its title before its badge
 
@@ -427,13 +459,22 @@ opening it again. The tab SHALL take what the change gives as its own label, kee
 leaves out, and lose its own badge where the change takes it away; a label changed this way SHALL be
 kept like one the tab was opened with.
 
-The change SHALL reach the tab in whichever pane of the main area it stands, the pane carrying the
-address or another, and SHALL NOT bring the tab forward, move the focus or change the address. This
-SHALL hold for a plugin that runs isolated from the workbench as it does for one that runs in the
-page.
+#### Scenario: What the change leaves out stays
 
-The limit: the change reaches an open tab only. For content with no open tab it changes nothing and
-opens nothing, and a change for content another plugin registered changes nothing.
+- **WHEN** a plugin changes only the badge of a tab that has a title of its own
+- **THEN** the tab keeps its title and shows the new badge
+
+#### Scenario: A changed label survives a restart
+
+- **WHEN** a plugin changes the title of an open tab and the application restarts
+- **THEN** the tab shows the changed title
+
+### Requirement: A label change reaches the tab wherever it stands, without bringing it forward
+
+A change to an open tab's label SHALL reach the tab in whichever pane of the main area it stands,
+the pane carrying the address or another, and SHALL NOT bring the tab forward, move the focus or
+change the address. This SHALL hold for a plugin that runs isolated from the workbench as it does
+for one that runs in the page.
 
 #### Scenario: A tab behind another follows without coming forward
 
@@ -447,15 +488,10 @@ opens nothing, and a change for content another plugin registered changes nothin
   carrying the address
 - **THEN** that tab shows the new title where it stands
 
-#### Scenario: What the change leaves out stays
+### Requirement: A label change reaches only an open tab of the plugin's own content
 
-- **WHEN** a plugin changes only the badge of a tab that has a title of its own
-- **THEN** the tab keeps its title and shows the new badge
-
-#### Scenario: A changed label survives a restart
-
-- **WHEN** a plugin changes the title of an open tab and the application restarts
-- **THEN** the tab shows the changed title
+A change to a tab's label reaches an open tab only. For content with no open tab it SHALL change
+nothing and open nothing, and a change for content another plugin registered SHALL change nothing.
 
 #### Scenario: Content with no open tab is left alone
 

@@ -47,18 +47,7 @@ A distribution SHALL work when it is served below a path of its origin, beside o
 the same origin, provided its base names that path and its assets are served beside it. Everything
 the workbench fetches or opens on the distribution's behalf SHALL resolve under that base and not
 under the origin's root: the workbench's own strings, every contributed translation namespace, the
-default directory of translation overlays, and the address of a pop-out window. A pop-out opened
-under the base SHALL recognise itself as a pop-out there.
-
-An overlay directory the distribution names relative to the application SHALL resolve under the base
-as the default does. One it names from the origin's root SHALL be used as named, because the
-distribution chose it.
-
-A distribution served at the origin's root SHALL make exactly the requests it made before this
-guarantee.
-
-The guarantee covers what the workbench requests. Addresses a plugin or the distribution builds
-themselves, such as the source of an isolated plugin, are theirs to resolve.
+default directory of translation overlays, and the address of a pop-out window.
 
 #### Scenario: Strings come from the distribution's own path
 
@@ -66,6 +55,29 @@ themselves, such as the source of an isolated plugin, are theirs to resolve.
 - **THEN** the workbench's strings for that language are requested under `/x/`
 - **AND** each contributed namespace is requested under `/x/` as well
 - **AND** nothing is requested from the translation directory at the origin's root
+
+#### Scenario: An address a plugin builds itself is its own to resolve
+
+- **WHEN** a plugin or the distribution builds an address itself, such as the source of an isolated
+  plugin
+- **THEN** resolving it is the plugin's or the distribution's own affair, outside what the workbench
+  resolves under the base
+
+### Requirement: A pop-out opened under the base recognises itself
+
+A pop-out opened under the base SHALL recognise itself as a pop-out there.
+
+#### Scenario: A pop-out opens the same distribution
+
+- **WHEN** a person opens a surface in a new window from a distribution under `/x/`
+- **THEN** the new window's address lies under `/x/`
+- **AND** the window starts as a pop-out of that distribution, showing that surface alone
+
+### Requirement: An overlay directory resolves under the base unless named from the root
+
+An overlay directory the distribution names relative to the application SHALL resolve under the base
+as the default does. One it names from the origin's root SHALL be used as named, because the
+distribution chose it.
 
 #### Scenario: The default overlay directory follows the base
 
@@ -77,11 +89,10 @@ themselves, such as the source of an isolated plugin, are theirs to resolve.
 - **WHEN** a distribution under `/x/` names an overlay directory that starts at the origin's root
 - **THEN** its overlays are requested from that directory, not from one under `/x/`
 
-#### Scenario: A pop-out opens the same distribution
+### Requirement: A distribution at the origin's root makes the requests it made before
 
-- **WHEN** a person opens a surface in a new window from a distribution under `/x/`
-- **THEN** the new window's address lies under `/x/`
-- **AND** the window starts as a pop-out of that distribution, showing that surface alone
+A distribution served at the origin's root SHALL make exactly the requests it made before this
+guarantee.
 
 #### Scenario: A distribution at the root is unchanged
 
@@ -145,13 +156,6 @@ a menu entry aimed at a slot nothing declares, a removal instruction that matche
 settings row replacement that matched no row, a control pointing at an action nothing registers,
 and a keyboard shortcut more than one action claims.
 
-Where a shortcut is claimed more than once, the report SHALL name the actions claiming it and SHALL
-say which of them the shortcut runs, because that is what the mistake costs: a control goes on
-offering a shortcut that now does something else.
-
-A removal instruction that *did* remove something SHALL NOT be reported, nor SHALL a row replacement
-that did replace a row, and the report SHALL say so plainly when it finds nothing.
-
 #### Scenario: A control pointing at nothing is named
 
 - **WHEN** a button names an action that nothing registers, or that a removal instruction took away
@@ -174,6 +178,17 @@ that did replace a row, and the report SHALL say so plainly when it finds nothin
 - **WHEN** a distribution replaces a settings row under an identity no contributed section carries
 - **THEN** the report names the identity
 
+#### Scenario: The report does not displace something already there
+
+- **WHEN** the report installs its entry point and something of the same name already exists
+- **THEN** the existing one is left alone
+
+### Requirement: A shortcut claimed twice is reported with the action it runs
+
+Where a shortcut is claimed more than once, the report SHALL name the actions claiming it and SHALL
+say which of them the shortcut runs, because that is what the mistake costs: a control goes on
+offering a shortcut that now does something else.
+
 #### Scenario: A shortcut two actions claim is named, with the one that runs
 
 - **WHEN** two actions in a composition declare the same keyboard shortcut
@@ -185,15 +200,15 @@ that did replace a row, and the report SHALL say so plainly when it finds nothin
 - **WHEN** every declared shortcut in a composition is declared once
 - **THEN** the report says nothing about shortcuts
 
+### Requirement: The report names only real mistakes, and says when there are none
+
+A removal instruction that *did* remove something SHALL NOT be reported, nor SHALL a row replacement
+that did replace a row, and the report SHALL say so plainly when it finds nothing.
+
 #### Scenario: A sound composition is told it is sound
 
 - **WHEN** nothing is wrong
 - **THEN** the report says so rather than staying silent
-
-#### Scenario: The report does not displace something already there
-
-- **WHEN** the report installs its entry point and something of the same name already exists
-- **THEN** the existing one is left alone
 
 ### Requirement: A plugin never chooses how it is served
 
@@ -219,8 +234,7 @@ SHALL be derived from the specification rather than maintained beside it; where 
 the specification is right and the other is a defect.
 
 A change to what the platform guarantees SHALL be made as a change against the capability, with its
-reasoning in that change's design note, so that the reasoning survives without becoming a second
-source.
+reasoning in that change's design note.
 
 #### Scenario: A guide and a specification disagree
 

@@ -26,16 +26,12 @@ SHALL therefore share the content and not the sender's layout.
 ### Requirement: Navigating reaches the content where it already is
 
 Where the user has content open somewhere in the workbench, navigating to that content SHALL reach
-the copy that is already open rather than opening a second one beside whatever they were looking at.
-This SHALL hold however the navigation was started — by the application's own chrome, by a link or a
-programmatic navigation inside content, or by browser history — because a user cannot tell those
-apart and would meet two different behaviours for one gesture.
+the copy that is already open rather than opening a second one.
+This SHALL hold however the navigation was started: by the application's own chrome, by a link or a
+programmatic navigation inside content, or by browser history.
 
 Reaching an existing copy SHALL move only which part of the arrangement carries the address; it SHALL
 NOT move, rebuild or reorder anything the user arranged.
-
-The guarantee is about the content, not its parameters: content open at a different parameter value
-is different content, and navigating to it opens it rather than reusing what is there.
 
 #### Scenario: An ordinary link reaches the copy in another pane
 
@@ -58,6 +54,12 @@ is different content, and navigating to it opens it rather than reusing what is 
 - **WHEN** navigation names content that is open nowhere
 - **THEN** it opens where the address is currently carried
 
+### Requirement: Content at a different parameter value is not an existing copy
+
+The guarantee of reaching an open copy is about the content, not its parameters: content open at a
+different parameter value SHALL count as different content, and navigating to it SHALL open it
+rather than reuse what is there.
+
 #### Scenario: A different parameter value is not an existing copy
 
 - **WHEN** content is open at one parameter value and navigation names another
@@ -65,24 +67,11 @@ is different content, and navigating to it opens it rather than reusing what is 
 
 ### Requirement: A surface reads its address the same way in every pane
 
-A surface SHALL be able to read the address it is shown at — its values, its sub-address or owned
-remainder, its query and its fragment — in whichever pane it is shown, and SHALL be told when any of
-it changes. While the surface's pane carries the address, what it reads SHALL follow the address
-bar; while it does not, it SHALL be the address of the tab the pane shows. A surface SHALL be able to
-tell which of the two holds, and SHALL be told when that changes.
-
-Moving between sub-addresses, or within an owned remainder, of the same tab SHALL reach the surface
-without rebuilding it. An address with different values is different content and SHALL be shown by a
-new instance, as it is today.
-
-The limits of that: this is what a surface rendered by the workbench reads. A surface that runs
-isolated receives the same over its channel, as before. Pages a distribution owns are not surfaces
-and are unaffected.
-
-#### Scenario: A sub-address reaches the surface without a rebuild
-
-- **WHEN** a surface in the pane carrying the address moves to another of its sub-addresses
-- **THEN** it is told the new sub-address, and it is the same instance as before
+A surface the workbench renders SHALL be able to read the address it is shown at (its values, its
+sub-address or owned remainder, its query and its fragment) in whichever pane it is shown, and SHALL
+be told when any of it changes. While its pane carries the address, what it reads SHALL follow
+the address bar; while it does not, it SHALL be the address of the tab the pane shows. A surface
+SHALL be able to tell which of the two holds, and SHALL be told when that changes.
 
 #### Scenario: A surface in another pane reads its own tab's address
 
@@ -96,6 +85,27 @@ and are unaffected.
 - **THEN** the surface is told that its pane now carries the address, and from then on follows the
   address bar, including the query and the fragment
 
+#### Scenario: An isolated surface receives the same over its channel
+
+- **WHEN** a surface runs isolated from the workbench
+- **THEN** it receives the same address over its channel, as before
+
+#### Scenario: A page a distribution owns is unaffected
+
+- **WHEN** a page the distribution owns is shown at an address
+- **THEN** it is not a surface, and none of this applies to it
+
+### Requirement: Moving within one tab's address does not rebuild its surface
+
+Moving between sub-addresses, or within an owned remainder, of the same tab SHALL reach the surface
+without rebuilding it. An address with different values is different content and SHALL be shown by a
+new instance, as it is today.
+
+#### Scenario: A sub-address reaches the surface without a rebuild
+
+- **WHEN** a surface in the pane carrying the address moves to another of its sub-addresses
+- **THEN** it is told the new sub-address, and it is the same instance as before
+
 #### Scenario: Different values mean a new instance
 
 - **WHEN** navigation changes the values of the address a surface is shown at
@@ -104,28 +114,13 @@ and are unaffected.
 ### Requirement: A deep link survives arriving before the plugin that answers it
 
 Content is contributed by plugins that may register after the first navigation. An address opened
-directly SHALL therefore be remembered and resolved once the content that answers it exists — but
+directly SHALL therefore be remembered and resolved once the content that answers it exists, but
 SHALL NOT be chased once the user has navigated somewhere else themselves.
-
-Waiting SHALL be quiet: while the address is remembered the workbench SHALL NOT report the address
-as unreachable, because a plugin that has not registered yet is the expected case rather than a
-fault.
-
-Where such an address is never answered, whatever the workbench shows instead SHALL be shown only.
-It SHALL NOT become part of a workspace's remembered arrangement, because an arrangement is what the
-product declared and what the user chose, and a navigation that did not succeed is neither. The
-limit of this guarantee is what is remembered, not what is displayed: the workbench MAY show
-fallback content, and MAY leave the address in the address bar.
 
 #### Scenario: An address opened directly waits for its content
 
 - **WHEN** the application is opened at an address whose content registers later
 - **THEN** the content is shown once it registers
-
-#### Scenario: Waiting is not reported as a failure
-
-- **WHEN** the application is opened at an address whose content has not registered yet
-- **THEN** the address is remembered and nothing is reported as unreachable
 
 #### Scenario: The pending address is abandoned when the user moves on
 
@@ -136,6 +131,25 @@ fallback content, and MAY leave the address in the address bar.
 
 - **WHEN** the application is opened at its starting address
 - **THEN** nothing is remembered as pending
+
+### Requirement: Waiting for a deep link is quiet
+
+Waiting for an address opened directly SHALL be quiet: while it is remembered the workbench SHALL
+NOT report it as unreachable, because a plugin that has not registered yet is the expected case
+rather than a fault.
+
+#### Scenario: Waiting is not reported as a failure
+
+- **WHEN** the application is opened at an address whose content has not registered yet
+- **THEN** the address is remembered and nothing is reported as unreachable
+
+### Requirement: An address that is never answered is not remembered in the arrangement
+
+Where an address opened directly is never answered, whatever the workbench shows instead SHALL be
+shown only. It SHALL NOT become part of a workspace's remembered arrangement, because an arrangement
+is what the product declared and what the user chose, and a navigation that did not succeed is
+neither. The limit of this guarantee is what is remembered, not what is displayed: the workbench MAY
+show fallback content, and MAY leave the address in the address bar.
 
 #### Scenario: An address that is never answered leaves the workspace as it was
 
@@ -274,23 +288,10 @@ This SHALL apply only to content that opts into following; ordinary content may 
 
 Where an address nothing answers lies under one a workspace claims, the workbench SHALL make that
 workspace the active one while it shows, at that address, the explanation that the content is not
-available. It SHALL NOT leave the user in the workspace that claims the starting address, because an
-explanation read under a foreign sidebar makes the module the user asked for look empty rather than
-incomplete.
-
-What is shown at the address is unchanged by this: the workbench keeps the address and shows the
-explanation exactly as it did.
+available. It SHALL NOT leave the user in the workspace that claims the starting address.
 
 This SHALL hold however the address came to be unanswered: never registered, registered by a plugin
 that has since been removed, or carried by an arrangement stored before the content went away.
-
-The limit of this guarantee is the claim. An address **no** workspace claims SHALL keep the outcome
-it has today, since nothing better can be said about a mistyped address than to show the starting
-screen. The guarantee is also about where the user lands, not about what is remembered: what is
-shown instead SHALL still not become part of a workspace's remembered arrangement.
-
-Waiting SHALL be unaffected. While an address is still being waited for, nothing SHALL be explained
-or reported, because a plugin that has not registered yet is the expected case rather than a fault.
 
 #### Scenario: An address a workspace claims lands in that workspace
 
@@ -304,15 +305,32 @@ or reported, because a plugin that has not registered yet is the expected case r
   opened afterwards
 - **THEN** the workspace that claims it is the active one, with the explanation shown at that address
 
+### Requirement: An unanswered address no workspace claims keeps its outcome
+
+The limit of landing in the claiming workspace is the claim. An address **no** workspace claims
+SHALL keep the outcome it has today, since nothing better can be said about a mistyped address than
+to show the starting screen.
+
 #### Scenario: An address nobody claims is unchanged
 
 - **WHEN** the workbench opens at an address no workspace claims and nothing answers it
 - **THEN** the outcome is the one it has today, and no workspace is entered on account of the claim
 
+### Requirement: Waiting for a claimed address stays quiet
+
+Waiting SHALL be unaffected by the claim. While an address is still being waited for, nothing SHALL
+be explained or reported, because a plugin that has not registered yet is the expected case rather
+than a fault.
+
 #### Scenario: Waiting is still quiet
 
 - **WHEN** the workbench opens at an address whose content has not registered yet
 - **THEN** the address is waited for, and no explanation is shown while it is
+
+### Requirement: The explanation at a claimed address is not remembered
+
+Landing in the claiming workspace is about where the user lands, not about what is remembered: what
+is shown instead SHALL still not become part of a workspace's remembered arrangement.
 
 #### Scenario: What is shown instead is still not remembered
 
@@ -387,8 +405,7 @@ under another only where the shorter one is a whole prefix of it and not merely 
 text.
 
 The answer SHALL be live in the same way as reading the active content, so a plugin can mark where
-the user is rather than poll for it, and it SHALL require the same permission, because it answers
-the same question in a narrower form.
+the user is rather than poll for it, and it SHALL require the same permission.
 
 #### Scenario: A deeper address counts as under the one named
 
@@ -418,26 +435,13 @@ the same question in a narrower form.
 
 ### Requirement: Addresses a distribution owns keep resolving
 
-A distribution SHALL be able to declare addresses of its own beside the ones plugins contribute — a
-redirect for the address that names no content, a legal page, a sign-in page — and those addresses
+A distribution SHALL be able to declare addresses of its own beside the ones plugins contribute (a
+redirect for the address that names no content, a legal page, a sign-in page), and those addresses
 SHALL resolve for as long as the application runs.
 
 The guarantee SHALL survive the moment the contributed addresses are put in place and every later
 change to them, so that a plugin arriving, being enabled, being disabled or being omitted never
 takes a distribution's own address away.
-
-An address the distribution owns SHALL be shown in the content area without becoming part of the
-arrangement: no tab is opened for it, and the panes keep what they were showing. What it does with
-the address afterwards is the distribution's own affair; a redirect it declares SHALL take effect
-like any other navigation.
-
-A catch-all the distribution declares SHALL answer only where nothing else does, so that a page for
-addresses that name nothing never swallows the addresses plugins contribute.
-
-Where the distribution and a plugin declare the same address, the distribution's SHALL answer,
-because the distribution composes the product and cannot otherwise correct what it ships. In
-development the developer SHALL be told which address is declared twice, so that a shadowed plugin
-surface is not a silent surprise.
 
 #### Scenario: The distribution's own address resolves once the plugins are in place
 
@@ -445,17 +449,24 @@ surface is not a silent surprise.
   are put in place at start-up
 - **THEN** the distribution's address still resolves
 
-#### Scenario: A redirect for the bare address takes effect
-
-- **WHEN** a distribution declares that the address naming no content leads elsewhere, and the
-  application is opened at that address
-- **THEN** the application ends up where the distribution said
-
 #### Scenario: A later change to the contributed addresses leaves it alone
 
 - **WHEN** a plugin is enabled or disabled after start-up, and the contributed addresses are put in
   place again
 - **THEN** the distribution's own addresses still resolve
+
+### Requirement: An address a distribution owns is shown outside the arrangement
+
+An address the distribution owns SHALL be shown in the content area without becoming part of the
+arrangement: no tab is opened for it, and the panes keep what they were showing. What it does with
+the address afterwards is the distribution's own affair; a redirect it declares SHALL take effect
+like any other navigation.
+
+#### Scenario: A redirect for the bare address takes effect
+
+- **WHEN** a distribution declares that the address naming no content leads elsewhere, and the
+  application is opened at that address
+- **THEN** the application ends up where the distribution said
 
 #### Scenario: An address the distribution owns opens no tab
 
@@ -463,12 +474,24 @@ surface is not a silent surprise.
 - **THEN** it is shown in the content area
 - **AND** no tab is opened for it and the arrangement is unchanged
 
+### Requirement: A catch-all a distribution declares answers last
+
+A catch-all the distribution declares SHALL answer only where nothing else does, so that a page for
+addresses that name nothing never swallows the addresses plugins contribute.
+
 #### Scenario: A catch-all the distribution declares stays last
 
 - **WHEN** a distribution declares a page for addresses that name nothing, and a plugin contributes
   content at an address of its own
 - **THEN** the plugin's content is what its address resolves to
 - **AND** an address neither of them declares reaches the distribution's page
+
+### Requirement: An address both a distribution and a plugin declare is the distribution's
+
+Where the distribution and a plugin declare the same address, the distribution's SHALL answer,
+because the distribution composes the product and cannot otherwise correct what it ships. In
+development the developer SHALL be told which address is declared twice, so that a shadowed plugin
+surface is not a silent surprise.
 
 #### Scenario: The distribution wins an address a plugin also declares
 
@@ -479,15 +502,13 @@ surface is not a silent surprise.
 ### Requirement: Completing the opening address never overrules the user
 
 The workbench MAY complete the opening of the application at the address it was opened with once the
-content that address names becomes reachable, so that content belonging to a plugin that arrives late
-is still reached.
+content that address names becomes reachable.
 
 It SHALL NOT do so once the user has navigated somewhere else. An opening that is finished after the
-user has moved SHALL be abandoned rather than taken up, however it was started, because a person who
-has gone somewhere is not waiting to be sent back.
+user has moved SHALL be abandoned rather than taken up, however it was started.
 
-This holds for the whole life of the application, not only for its first moments: the address the
-application was opened with SHALL stop being a destination as soon as the user has chosen one.
+This holds for the whole life of the application: the address the application was opened with SHALL
+stop being a destination as soon as the user has chosen one.
 
 #### Scenario: A late arrival does not pull the user back
 
@@ -500,3 +521,44 @@ application was opened with SHALL stop being a destination as soon as the user h
 - **WHEN** the application is opened at an address whose content is not reachable yet, the user does
   not navigate, and that content becomes reachable afterwards
 - **THEN** the content the address names is shown
+
+### Requirement: Values in an address are read decoded, and paths keep its encoded form
+
+A parameter value a surface or a plugin reads out of an address SHALL be decoded. Every path the
+workbench hands out SHALL be in the address's encoded form, as the address bar shows it. A segment
+written with an encoding of its value SHALL stay one segment, open one tab and be read back as that
+value. A path is never decoded for the reader; a value put back into a path is encoded again.
+
+#### Scenario: A parameter is read decoded
+
+- **WHEN** the address `people/M%C3%BCller` is shown on content declared as `people/:name`
+- **THEN** the plugin reading what is shown, and the surface reading its address, read `name` as
+  `Müller`
+- **AND** a sandboxed surface is handed the same decoded value
+
+#### Scenario: Every path is in the address's encoded form
+
+- **WHEN** a plugin or a surface reads the address of what is shown, a tab's path, the segments of
+  its own address, its sub-address or the remainder below the address it claims
+- **THEN** each reads as the address bar shows it, `people/M%C3%BCller` rather than `people/Müller`,
+  with the query string included where a remainder carries one
+
+#### Scenario: A path written without encoding is held in the encoded form
+
+- **WHEN** a plugin opens a tab at a path containing a non-ASCII character or a space, written as it
+  is
+- **THEN** the address, the tab's path and the path of what is shown all read in the encoded form
+- **AND** navigating to the encoded address finds that tab rather than opening a second one
+
+#### Scenario: An encoded value stays one segment
+
+- **WHEN** a plugin opens content at a path whose segment is a value encoded in full, the value
+  containing `/`, `?`, `#`, `;`, `(`, `)`, `%` or a space
+- **THEN** the address has one segment for it and matches the declaration with one parameter there
+- **AND** opening the same path again activates the same tab
+- **AND** the parameter reads back as the value
+
+#### Scenario: A value that is not a valid encoding is read as it stands
+
+- **WHEN** a segment contains a percent sign that does not start a valid encoding
+- **THEN** its parameter reads as the characters written

@@ -136,15 +136,7 @@ person SHALL NOT be replaced by state the workbench built while no person was kn
 user does next.
 
 What was read from the anonymous namespace SHALL be superseded by what the adopted namespace holds.
-Where the adopted namespace holds nothing for a key, what the workbench holds SHALL stand and may be
-written: the person is new to this product, and nothing of theirs can be lost.
-
-The re-read SHALL reach the state the workbench keeps for the user's arrangement and for anything
-else it restored from the anonymous namespace before the adoption. A product SHALL NOT have to ask
-for it, because a product cannot see the moment the adoption happens.
-
-A product that answers the identity at the first read SHALL be unaffected: there is no adoption to
-make, and nothing is read twice.
+For a key it holds nothing for, what the workbench holds SHALL stand and may be written.
 
 #### Scenario: The arrangement stored for a person survives a late sign-in
 
@@ -158,6 +150,23 @@ make, and nothing is read twice.
 - **WHEN** an anonymous session adopts a namespace that holds nothing
 - **THEN** what the workbench holds stands and is written there
 
+### Requirement: The re-read on adoption needs nothing from the product
+
+The re-read on adoption SHALL reach the state the workbench keeps for the user's arrangement and for
+anything else it restored from the anonymous namespace before the adoption. A product SHALL NOT have
+to ask for it, because a product cannot see the moment the adoption happens.
+
+#### Scenario: Nothing restored before the adoption is left unread
+
+- **WHEN** an anonymous session adopts an identity's namespace and the product does nothing about it
+- **THEN** the workbench reads again its arrangement and everything else it restored from the
+  anonymous namespace
+
+### Requirement: An identity known at the first read involves no adoption
+
+A product that answers the identity at the first read SHALL be unaffected: there is no adoption to
+make, and nothing is read twice.
+
 #### Scenario: An identity known at the first read is read once
 
 - **WHEN** a product answers the identity before the workbench first reads
@@ -168,18 +177,8 @@ make, and nothing is read twice.
 A product MAY ask the workbench to reload when the person changes. Where it does, the workbench SHALL
 reload when a person established in this page's lifetime is replaced by a different one, and at no
 other moment: not at the first sign-in of an anonymous session, not at a sign-out, not when the same
-person's roles change, and not for a session that names no person.
-
-The reload SHALL open the application at its start, under the base it is served from, as opening it
-without a path would. The address the previous person was at SHALL NOT be loaded again, so the next
-person lands in their own arrangement or in the declared start, never on the previous person's
-place. The question about unsaved work SHALL NOT be asked for this reload.
-
-A pop-out window SHALL close instead, because what it shows belongs to the previous person. Where
-the browser refuses to close it, it SHALL open the application at its start like any other window.
-
-The limit: the workbench learns of the change only from the session the product supplies. A product
-that names no person gets no reload.
+person's roles change, and not for a session that names no person. The workbench learns of the
+change only from the session the product supplies.
 
 #### Scenario: A different person after a sign-out does not inherit the address
 
@@ -193,10 +192,23 @@ that names no person gets no reload.
 - **WHEN** a person signs out and the same person signs in again in the same page
 - **THEN** nothing reloads and the address is unchanged
 
+### Requirement: The reload for a new person opens the application at its start
+
+The reload on a change of person SHALL open the application at its start, under the base it is
+served from, as opening it without a path would. The address the previous person was at SHALL NOT be
+loaded again, so the next person lands in their own arrangement or in the declared start, never on
+the previous person's place. The question about unsaved work SHALL NOT be asked for this reload.
+
 #### Scenario: A distribution served under a path reloads under it
 
 - **WHEN** the application is served under a path and the person changes
 - **THEN** the reload opens the application at that path, not at the root of the origin
+
+### Requirement: A pop-out window closes when the person changes
+
+On that reload, a pop-out window SHALL close instead, because what it shows belongs to the previous
+person. Where the browser refuses to close it, it SHALL open the application at its start like any
+other window.
 
 #### Scenario: A pop-out window closes
 
@@ -327,18 +339,13 @@ its defaults without a reload.
 
 ### Requirement: A held write is not lost to leaving the page
 
-Where the workbench holds a write back to spare the store — a plugin's private store and a surface
-instance's state — it SHALL send every write still held when the page is reloaded, closed or
-navigated away from, in the main window and in a detached window alike. It SHALL also bound the
-wait: while writes to one key keep arriving, the latest value SHALL be sent no later than two
-seconds after the first write that was held, and the holding begins again from there.
-
-A value that was cleared or reset while a write for it was held SHALL stay cleared; leaving the page
-SHALL NOT bring it back.
+Where the workbench holds a write back to spare the store (a plugin's private store and a surface
+instance's state), it SHALL send every write still held when the page is reloaded, closed or
+navigated away from, in the main window and in a detached window alike.
 
 The limit of that: the workbench sends the write before the page goes. Whether a store that answers
-only asynchronously completes it is that store's to ensure, since the page no longer exists to wait
-for the answer. With the built-in local store the value is there on the next load.
+only asynchronously completes it is that store's to ensure. With the built-in local store the value
+is there on the next load.
 
 #### Scenario: A value written just before a reload is there afterwards
 
@@ -352,18 +359,29 @@ for the answer. With the built-in local store the value is there on the next loa
   local store
 - **THEN** the instance finds that state after the reload
 
+### Requirement: A held write waits a bounded time
+
+The workbench SHALL bound the wait: while writes to one key keep arriving, the latest value SHALL be
+sent no later than two seconds after the first write that was held, and the holding begins again
+from there.
+
 #### Scenario: Continuous writing still reaches the store
 
 - **WHEN** a plugin writes one key again and again at intervals shorter than the holding time
 - **THEN** the store receives the latest value no later than two seconds after the first of those
   writes, and again within every two seconds for as long as they continue
 
-#### Scenario: A cleared value is not written back on leaving
-
-- **WHEN** a plugin writes a key, clears it while the write is still held, and the page is left
-- **THEN** the store holds no value for that key
-
 #### Scenario: A quiet key is written once
 
 - **WHEN** a plugin writes a key several times in quick succession and then stops
 - **THEN** the store receives one write, carrying the last value
+
+### Requirement: A value cleared while its write is held stays cleared
+
+A value that was cleared or reset while a write for it was held SHALL stay cleared; leaving the page
+SHALL NOT bring it back.
+
+#### Scenario: A cleared value is not written back on leaving
+
+- **WHEN** a plugin writes a key, clears it while the write is still held, and the page is left
+- **THEN** the store holds no value for that key

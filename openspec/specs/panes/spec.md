@@ -13,23 +13,17 @@ Every place the workbench can show work SHALL be a pane of the same kind, holdin
 items with one of them showing. This SHALL hold in the main area and in a sidebar, so that the same
 gestures apply in both and work can move between them.
 
-A view's tab SHALL offer the view's menu on the right-click wherever the tab stands: in a sidebar,
-in a split pane of the main area, and in the main area when it is a single pane. The menu SHALL
-carry the workbench's own entries for the view and any entry a plugin contributes for it, and the
-entries that act on the view's region SHALL act on the region the tab stands in.
-
-A content tab SHALL offer the tab menu on the right-click in every pane of the main area, whether or
-not that pane carries the address. Its entries SHALL act on the pane the tab stands in: closing
-one, the others, those to the right or all SHALL apply to that pane's tabs and keep its pinned and
-unclosable ones; pinning SHALL anchor the tab in that pane; splitting SHALL make the sibling beside
-that pane. A close that would lose unsaved work SHALL ask first in every pane. The tab's menu
-context SHALL name the pane and say whether it carries the address, so that an entry a plugin
-contributes can act on that pane or confine itself to the address-carrying one.
-
 #### Scenario: A sidebar pane and a main-area pane behave alike
 
 - **WHEN** work is moved from a sidebar into the main area, and back
 - **THEN** it is shown in both, and the gestures available to it are the same
+
+### Requirement: A view's tab offers the view's menu wherever it stands
+
+A view's tab SHALL offer the view's menu on the right-click wherever the tab stands: in a sidebar,
+in a split pane of the main area, and in the main area when it is a single pane. The menu SHALL
+carry the workbench's own entries for the view and any entry a plugin contributes for it, and the
+entries that act on the view's region SHALL act on the region the tab stands in.
 
 #### Scenario: A view's tab offers its menu in the unsplit main area
 
@@ -39,6 +33,14 @@ contributes can act on that pane or confine itself to the address-carrying one.
   contributed for it, the same menu the tab offers in a split pane of the main area
 - **AND** a content tab beside it keeps the content tab's own menu
 
+### Requirement: A content tab's menu acts on the pane the tab stands in
+
+A content tab SHALL offer the tab menu on right-click in every pane, address-carrying or not, and
+its entries SHALL act on its own pane: closing one, the others, those to the right or all applies to
+its tabs and keeps its pinned and unclosable ones; pinning anchors the tab there; splitting puts the
+sibling beside it. The menu context SHALL name the pane and say whether it carries the address, so
+that a contributed entry can act on that pane or confine itself to the address-carrying one.
+
 #### Scenario: A content tab in a split pane offers its menu and acts on that pane
 
 - **WHEN** the main area has been split, a pane other than the address-carrying one holds several
@@ -47,17 +49,17 @@ contributes can act on that pane or confine itself to the address-carrying one.
 - **AND** choosing *Close Others* leaves that pane with the chosen tab and its pinned ones, while the
   address-carrying pane's tabs are untouched
 
+#### Scenario: A close from the tab menu asks first in every pane
+
+- **WHEN** a close chosen from a content tab's menu would lose unsaved work, in whichever pane of
+  the main area the tab stands
+- **THEN** the user is asked first
+
 ### Requirement: Splitting a pane makes a sibling, and the tree may nest
 
 The user SHALL be able to split a pane along either axis, producing a sibling that is a pane in its
 own right, and SHALL be able to split again inside either. Splits SHALL be resizable, and the
 arrangement SHALL survive a restart.
-
-Whether a pane can be split SHALL depend on the item it is showing, never on the shape of that
-item's address. Content that cannot be duplicated into a sibling is content the workbench has nothing
-to show for: an address no surface answers for, or one the signed-in user may not see. Splitting the
-empty screen SHALL be allowed and SHALL produce an empty sibling rather than a tab standing for
-nothing.
 
 #### Scenario: Splitting produces a usable sibling
 
@@ -74,6 +76,14 @@ nothing.
 
 - **WHEN** the application restarts
 - **THEN** the panes, their nesting and their proportions are as the user left them
+
+### Requirement: Whether a pane can be split depends on the item it shows
+
+Whether a pane can be split SHALL depend on the item it is showing, never on the shape of that
+item's address. Content that cannot be duplicated into a sibling is content the workbench has
+nothing to show for: an address no surface answers for, or one the signed-in user may not see.
+Splitting the empty screen SHALL be allowed and SHALL produce an empty sibling rather than a tab
+standing for nothing.
 
 #### Scenario: An address of several segments splits like any other
 
@@ -102,7 +112,7 @@ gesture.
 
 A pane SHALL offer two kinds of drop target: its strip, which joins the item to that pane, and its
 edges, which split the pane and place the item in the new sibling. A pane holding nothing SHALL
-offer one target over its whole area, because splitting it would produce an empty half.
+offer one target over its whole area.
 
 A pane SHALL offer these targets for as long as it exists, whether or not it carries the address
 and however often the address has moved to or from it, so that an item dragged out of a pane can
@@ -164,13 +174,8 @@ links, browser history and reloads keep working. Which pane that is SHALL be rec
 to a pane, and focusing another pane SHALL move the pointer rather than renaming or rebuilding
 anything.
 
-A pane SHALL keep its identity for as long as it exists, so that what is keyed to a pane — retained
-work, stored state — is never orphaned by a change of focus.
-
-Moving the pointer SHALL leave every surface where it is drawn: no surface SHALL be moved in the
-page, rebuilt or restarted because its pane gained or lost the address, whether or not the surface is
-kept. An interaction the user began inside a pane — a press that becomes a click, a field that took
-focus — SHALL complete, even when that same interaction moved the address.
+A pane SHALL keep its identity for as long as it exists, so that what is keyed to a pane (retained
+work, stored state) is never orphaned by a change of focus.
 
 #### Scenario: Focusing another pane moves the address to it
 
@@ -192,6 +197,13 @@ focus — SHALL complete, even when that same interaction moved the address.
 - **WHEN** the application restarts
 - **THEN** the same pane carries the address
 - **AND** if that pane no longer exists, another takes it over rather than the arrangement failing
+
+### Requirement: Moving the address leaves every surface where it is
+
+Moving the address from pane to pane SHALL leave every surface where it is drawn: no surface SHALL
+be moved in the page, rebuilt or restarted because its pane gained or lost the address, whether or
+not the surface is kept. An interaction the user began inside a pane (a press that becomes a click,
+a field that took focus) SHALL complete, even when that same interaction moved the address.
 
 #### Scenario: A click that moves the address still lands
 
@@ -288,14 +300,10 @@ reconstructed from its address.
 ### Requirement: The arrangement of the content area is reachable to the distribution
 
 The distribution SHALL be able to perform on the content area's panes, from its own code, what the
-pane controls perform: split the pane that is showing something to the right or downwards,
-duplicating what it shows; close a pane; undo the split; make a pane fill the area and restore it;
-collapse a pane into its strip and bring it back; move the address to a pane; move an open item into
-a pane. Each action SHALL be the same action the corresponding control performs, with the same
-guards and the same outcome. This reach covers the content area; panes in a sidebar are not
-addressed by it.
-
-Where no pane is named, the action SHALL apply to the pane that carries the address.
+pane controls perform: split a pane that shows something to the right or downwards, duplicating what
+it shows; close a pane; undo the split; make a pane fill the area and restore it; collapse a pane
+into its strip and bring it back; move the address to a pane; move an open item into a pane. Each
+SHALL be the action the corresponding control performs, with the same guards and the same outcome.
 
 #### Scenario: Splitting from code duplicates like the toolbar
 
@@ -322,6 +330,16 @@ Where no pane is named, the action SHALL apply to the pane that carries the addr
 
 - **WHEN** the distribution has switched splitting off and splits a pane from its own code
 - **THEN** the pane splits, and no split control is shown to the user
+
+#### Scenario: An action that names no pane acts on the pane carrying the address
+
+- **WHEN** the distribution performs an action on the arrangement without naming a pane
+- **THEN** the action applies to the pane that carries the address
+
+#### Scenario: Panes in a sidebar are not reached
+
+- **WHEN** the distribution acts on the arrangement from its own code
+- **THEN** only panes of the content area are addressed, and no pane in a sidebar is
 
 ### Requirement: A pane is addressed by a handle the workbench hands out
 
@@ -365,20 +383,23 @@ these facts and not the arrangement's internal shape.
 
 The entries of a tab's menu that take the tab or its work somewhere SHALL be offered only where
 they can do so, and SHALL be absent otherwise rather than drawn and dead. A content tab SHALL be
-offered the entries that split it out into a new pane only while other tabs share its pane, since a
-tab alone would leave its pane empty; the pane's own split control remains the way to split a lone
-tab. A view's tab SHALL be offered the entries that bring it into the main area or move it to the
-other sidebar only while it stands outside the main area. The entries that copy a view on purpose,
-reset it, open it in a window or hide it SHALL stay wherever the tab stands.
-
-A tab's menu context SHALL say whether the tab is alone in its pane and, for a view, whether it
-stands in the main area, so that an entry a plugin contributes can make the same distinctions.
+offered the entries that split it out into a new pane only while other tabs share its pane; the
+pane's own split control remains the way to split a lone tab. A tab's menu context SHALL say whether
+the tab is alone in its pane, so that an entry a plugin contributes can make the same distinction.
 
 #### Scenario: A lone content tab is not offered a split it cannot make
 
 - **WHEN** a content tab is the only tab in the address-carrying pane and the user opens its menu
 - **THEN** the split entries are absent, and the pane toolbar still offers to split
 - **AND** with a second tab in the pane the split entries are offered and split the chosen tab out
+
+### Requirement: A view's tab is offered the sidebar's moves only outside the main area
+
+A view's tab SHALL be offered the entries that bring it into the main area or move it to the other
+sidebar only while it stands outside the main area. The entries that copy a view on purpose, reset
+it, open it in a window or hide it SHALL stay wherever the tab stands. A view's menu context SHALL
+say whether it stands in the main area, so that an entry a plugin contributes can make the same
+distinction.
 
 #### Scenario: A view in the main area is not offered the sidebar's moves
 

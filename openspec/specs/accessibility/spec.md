@@ -13,17 +13,6 @@ The chrome the workbench draws SHALL conform to WCAG 2.1 Level AA. Conformance S
 by an automated audit over the workbench's principal screens and states, which runs as part of the
 end-to-end suite.
 
-A control the workbench draws SHALL carry in its accessible name every word it shows, in the order it
-shows them, and the shortcut it shows. Where the control shows words that are not its purpose, such
-as a person's initials, a person's name or the active view, its name SHALL begin with those words and
-name the purpose after them. A shortcut it shows SHALL follow the purpose, as it does in a menu row,
-and the control SHALL announce it as its keyboard shortcut. This holds for an entry a distribution
-declares as data and the workbench draws: where such an entry has a visible label and a tooltip, its
-name SHALL begin with the label even though the tooltip says something else.
-
-The limit: a component a distribution draws itself, in a bar or anywhere else, is named by the
-distribution. The workbench neither reads nor corrects it.
-
 #### Scenario: The principal screens pass an automated audit
 
 - **WHEN** the automated accessibility audit runs over the workbench's principal screens in both
@@ -37,16 +26,20 @@ distribution. The workbench neither reads nor corrects it.
 - **THEN** that establishes only what a machine can check — names, contrast, roles and relationships
 - **AND** focus order, keyboard reach and screen-reader sense remain to be checked by a person
 
+### Requirement: A control is named by every word it shows
+
+A control the workbench draws SHALL carry in its accessible name every word it shows, in the order
+it shows them, and the shortcut it shows. Where the control shows words that are not its purpose,
+such as a person's initials, a person's name or the active view, its name SHALL begin with those
+words and name the purpose after them.
+
+The limit: a component a distribution draws itself, in a bar or anywhere else, is named by the
+distribution. The workbench neither reads nor corrects it.
+
 #### Scenario: An entry drawn with initials is named by them first
 
 - **WHEN** a rail entry or a declared bar button is drawn with the initials "NR" and is titled "Account"
 - **THEN** its accessible name is "NR, Account"
-
-#### Scenario: An entry that shows its shortcut says it in its name
-
-- **WHEN** the command palette entry is drawn with the hint ⌘K on a Mac
-- **THEN** its accessible name is its purpose followed by ⌘K
-- **AND** it announces the platform's command key with K as its keyboard shortcut
 
 #### Scenario: A control that shows what is chosen is named by it first
 
@@ -65,6 +58,24 @@ distribution. The workbench neither reads nor corrects it.
 - **WHEN** a content tab titled "Export" carries the badge "New"
 - **THEN** the text the tab shows reads as the two words "Export" and "New"
 - **AND** its accessible name contains both, in that order
+
+### Requirement: A shortcut a control shows follows its purpose and is announced as a shortcut
+
+Where a control the workbench draws shows a shortcut, the shortcut SHALL follow the purpose in its
+accessible name, as it does in a menu row, and the control SHALL announce it as its keyboard
+shortcut.
+
+#### Scenario: An entry that shows its shortcut says it in its name
+
+- **WHEN** the command palette entry is drawn with the hint ⌘K on a Mac
+- **THEN** its accessible name is its purpose followed by ⌘K
+- **AND** it announces the platform's command key with K as its keyboard shortcut
+
+### Requirement: A declared entry is named by its label before its tooltip
+
+The naming of a control by the words it shows holds for an entry a distribution declares as data and
+the workbench draws. Where such an entry has a visible label and a tooltip, its name SHALL begin
+with the label even though the tooltip says something else.
 
 #### Scenario: A tooltip does not replace a visible label
 
@@ -104,23 +115,8 @@ excluded from arranging their work.
 ### Requirement: The workbench's structure is announced, not just drawn
 
 The workbench SHALL expose its regions as landmarks, its tab strips as real tab lists, and its
-transient messages as live regions, so that the structure a sighted user sees is available to a
-screen reader. Where two regions are of the same kind, each SHALL be distinguishable by name.
-
-The landmarks SHALL be these, each named in the interface language:
-
-- the row of bars at the top edge as one banner, and the row at the bottom edge as one content-info
-  region, however many bars a distribution declares there; a single bar is not a landmark of its own;
-- the rail as navigation;
-- each side panel as a complementary region;
-- the content area as the one main region, holding every pane and every tab strip in it, however it
-  is split.
-
-Each pane's body SHALL be a tab panel named by its active tab, and each tab SHALL identify the panel
-it controls. This holds in the content area and in the side panels alike.
-
-The limit: where a side panel's header is drawn in the top row rather than beside the panel, its tab
-strip lies in the banner and not in the panel's complementary region.
+transient messages as live regions. Where two regions are of the same kind, each SHALL be
+distinguishable by name.
 
 The limit: a transient message is announced by whoever draws it. Where a distribution draws notices
 itself, the workbench exposes no live region for them, and announcing them with an urgency matching
@@ -135,6 +131,18 @@ their kind is the distribution's.
 
 - **WHEN** a notice is raised and the workbench draws notices
 - **THEN** it is announced, with urgency matching the kind of notice
+
+### Requirement: The workbench's landmarks are one per edge and one main region
+
+The landmarks SHALL be these, each named in the interface language:
+
+- the row of bars at the top edge as one banner, and the row at the bottom edge as one content-info
+  region, however many bars a distribution declares there; a single bar is not a landmark of its
+  own;
+- the rail as navigation;
+- each side panel as a complementary region;
+- the content area as the one main region, holding every pane and every tab strip in it, however it
+  is split.
 
 #### Scenario: Bars at both edges are not two banners
 
@@ -151,6 +159,21 @@ their kind is the distribution's.
 - **WHEN** the content area is split into two panes
 - **THEN** both panes, their surfaces and their tab strips lie inside the one main region
 
+#### Scenario: The landmark audit passes over a split workbench
+
+- **WHEN** the automated audit's landmark rules run over a workbench with bars at both edges, a
+  panel on each side and a split content area
+- **THEN** no landmark is reported as duplicated, unnamed among its kind, or missing, and no content
+  is reported outside every landmark
+
+### Requirement: Each pane's body is a tab panel named by its active tab
+
+Each pane's body SHALL be a tab panel named by its active tab, and each tab SHALL identify the panel
+it controls. This holds in the content area and in the side panels alike.
+
+The limit: where a side panel's header is drawn in the top row rather than beside the panel, its tab
+strip lies in the banner and not in the panel's complementary region.
+
 #### Scenario: A surface is named by the tab it is opened under
 
 - **WHEN** a pane shows a surface under its active tab
@@ -162,26 +185,14 @@ their kind is the distribution's.
 - **WHEN** a side panel is drawn with its header beside it
 - **THEN** its tab strip lies inside the panel's complementary region
 
-#### Scenario: The landmark audit passes over a split workbench
-
-- **WHEN** the automated audit's landmark rules run over a workbench with bars at both edges, a panel
-  on each side and a split content area
-- **THEN** no landmark is reported as duplicated, unnamed among its kind, or missing, and no content
-  is reported outside every landmark
-
 ### Requirement: A surface that opens in more than one mode is named for the mode it is in
 
 Where the workbench opens one surface in more than one mode, the accessible name it presents SHALL
-describe the mode it opened in, so that what a screen reader announces is what actually opened. This
-holds for the container and for the control that receives focus inside it: neither SHALL be left
-unnamed, and neither SHALL carry the name of a mode other than the current one.
+describe the mode it opened in. This holds for the container and for the control that receives focus
+inside it: neither SHALL be left unnamed, and neither SHALL carry the name of a mode other than the
+current one. A placeholder SHALL NOT be relied on to carry this distinction.
 
-A placeholder SHALL NOT be relied on to carry this distinction. It is announced inconsistently
-across screen readers and it disappears as soon as the user types, so it cannot be the only thing
-that says which of two searches is open.
-
-The limit of this guarantee: it is not established by the automated audit, which reports a control
-named for the wrong thing as correctly named. It SHALL therefore rest on a test that asserts the
+The automated audit does not establish this guarantee, so it SHALL rest on a test that asserts the
 name against the mode.
 
 #### Scenario: The search over open work announces itself as that
@@ -201,28 +212,34 @@ name against the mode.
 
 ### Requirement: A tab strip stays a valid tab list
 
-Because a tab is announced as a tab, it cannot contain another focusable control. Affordances drawn
-inside a tab — closing it, unpinning it — SHALL therefore not be focusable, and their function
-SHALL be reachable from the keyboard by another route.
-
-A tab strip SHALL also behave as the tab list it is announced as. It SHALL be a single stop in the
-focus order: moving focus into it SHALL land on its selected tab, and moving focus on SHALL leave
-it. Within it, the left and right arrow keys SHALL move the focus to the previous and next tab,
-wrapping at either end, and Home and End SHALL move it to the first and the last tab. Moving the focus SHALL NOT choose a tab; Enter or Space SHALL choose the
-focused one. This SHALL hold for every tab strip the workbench draws.
-
-The limits of that: a key pressed with a modifier keeps the meaning the workbench gives it elsewhere,
-such as reordering or moving, and a distribution cannot make the focus choose the tab.
+A tab cannot contain another focusable control. Affordances drawn inside a tab, such as closing it
+or unpinning it, SHALL therefore not be focusable, and their function SHALL be reachable from the
+keyboard by another route.
 
 #### Scenario: The close affordance is not a second focus stop
 
 - **WHEN** a user walks a populated tab strip with the arrow keys
 - **THEN** focus lands on each tab and not on the affordances drawn inside them
 
+### Requirement: A tab strip is one stop in the focus order
+
+Every tab strip the workbench draws SHALL behave as the tab list it is announced as. It SHALL be a
+single stop in the focus order: moving focus into it SHALL land on its selected tab, and moving
+focus on SHALL leave it.
+
 #### Scenario: A strip is one stop in the focus order
 
 - **WHEN** a strip holds several tabs and the user moves focus into it and then on
 - **THEN** focus lands on the selected tab, and the next move leaves the strip
+
+### Requirement: The keys move the focus within a tab strip without choosing a tab
+
+Within every tab strip the workbench draws, the left and right arrow keys SHALL move the focus to
+the previous and next tab, wrapping at either end, and Home and End SHALL move it to the first and
+the last tab. Moving the focus SHALL NOT choose a tab; Enter or Space SHALL choose the focused one.
+
+The limits of that: a key pressed with a modifier keeps the meaning the workbench gives it
+elsewhere, such as reordering or moving, and a distribution cannot make the focus choose the tab.
 
 #### Scenario: The arrow keys walk the strip without choosing
 
