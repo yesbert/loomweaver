@@ -160,10 +160,10 @@ async function adoptNamespace(
     void Promise.all(
       stores.map((store) => store.writeWhatArrivedDuringAdoption()),
     ).catch(ignored);
-    return outcome;
+  } else {
+    await Promise.all(
+      stores.map((store) => store.writeWhatWasHeldWithoutAdopting()),
+    ).catch(ignored);
   }
-  await Promise.all(
-    stores.map((store) => store.writeWhatWasHeldWithoutAdopting()),
-  ).catch(ignored);
   return outcome;
 }
