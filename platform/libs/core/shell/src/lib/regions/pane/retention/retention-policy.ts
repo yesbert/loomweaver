@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
-import { matchRoute } from '../../content/content-path';
+import { declaringRoute } from '../../content/content-path';
 import { isViewPanePath } from '../tree/pane-address';
 import { surfaceForPanePath } from '../pane-surface';
 
@@ -55,7 +55,7 @@ export function surfaceRetentionMode(
   if (isViewPanePath(path)) {
     return 'move';
   }
-  const route = matchRoute(routes, path);
+  const route = declaringRoute(routes, path);
   if (!route || route.container !== undefined) {
     return 'rebuild';
   }

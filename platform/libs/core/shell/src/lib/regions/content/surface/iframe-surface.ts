@@ -30,12 +30,7 @@ import { AuthContext } from '../../../auth/auth-context';
 import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
 import { PluginIsolationLevelService } from '../../../plugin-isolation/plugin-isolation-level.service';
 import { ContentTabsService } from '../tabs/content-tabs.service';
-import {
-  encodeSegment,
-  normalizePath,
-  restBelow,
-  suffixOf,
-} from '../content-path';
+import { normalizePath, restBelow, suffixOf } from '../content-path';
 import type {
   LwSlotView,
   LwSurfaceCapture,
@@ -146,7 +141,7 @@ export class IframeSurface implements DirtySurface {
   private readonly hostSub = linkedSignal(() => this.routeData().sub ?? '');
 
   private readonly tabRoot = this.route.snapshot.pathFromRoot
-    .flatMap((route) => route.url.map((segment) => encodeSegment(segment.path)))
+    .flatMap((route) => route.url.map((segment) => segment.path))
     .join('/');
 
   private readonly currentUrl = inject(CurrentAddress).url;

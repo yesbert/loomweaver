@@ -23,6 +23,18 @@ describe('the addresses a plugin owns', () => {
     expect(owns('notes/7')).toBe(false);
   });
 
+  it('are not those another plugin declares more closely below one of its own', () => {
+    registry.addContentRoute({ path: 'guide', component: TestOwned }, 'guides');
+    registry.addContentRoute(
+      { path: 'guide/special', component: TestOwned },
+      'specials',
+    );
+
+    expect(pathOwnedBy(registry, 'guides')('guide/special/x')).toBe(false);
+    expect(pathOwnedBy(registry, 'specials')('guide/special/x')).toBe(true);
+    expect(pathOwnedBy(registry, 'guides')('guide/other/x')).toBe(true);
+  });
+
   it('do not include every other address for the plugin that registered the home route', () => {
     const owns = pathOwnedBy(registry, 'start');
 

@@ -50,14 +50,15 @@ everything you pass on:
 // src/app/app.config.ts
 provideTabAddressResolver(({ surfaceId, params, activePath }) =>
   surfaceId === 'orders' && params['customerId']
-    ? `customers/${params['customerId']}/orders/${orderFor(activePath)}`
+    ? `customers/${encodeURIComponent(params['customerId'])}/orders/${orderFor(activePath)}`
     : null,   // null → the host's own substitution
 ),
 ```
 
 The resolver is a `TabAddressResolver`, and its `TabAddressInput` carries the following surface's
-`surfaceId` and `pattern`, the `params` of the address you are on and that `activePath` in full. Your
-answer is taken at its word: the host checks reachability only for its own computation, where an
+`surfaceId` and `pattern`, the `params` of the address you are on (decoded) and that `activePath` in
+full (in the address's encoded form). Write a value into the address you return with
+`encodeURIComponent`, so a `/` or a `%` in it stays one segment. Your answer is taken at its word: the host checks reachability only for its own computation, where an
 address that leads nowhere means the facet has no selection yet and its tab is left out.
 
 ## Where next

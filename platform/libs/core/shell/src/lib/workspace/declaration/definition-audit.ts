@@ -1,5 +1,5 @@
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { matchRoute, normalizePath } from '../../regions/content/content-path';
+import { declaringRoute } from '../../regions/content/content-path';
 import { VIEW_PANE_PREFIX } from '../../regions/pane/tree/pane-address';
 import { conflictingClaims } from '../workspace-claims';
 import { BUILT_IN_WORKSPACE_ID, claimsOf } from './composed-definitions';
@@ -86,7 +86,7 @@ function claimGaps(
 ): readonly string[] {
   const id = definition.id;
   return (definition.claims ?? [])
-    .filter((pattern) => matchRoute(routes, pattern) === undefined)
+    .filter((pattern) => declaringRoute(routes, pattern) === undefined)
     .map(
       (pattern) =>
         `Workspace "${id}": the claim "${pattern}" matches no registered surface route — no address will ever lead here through it.`,
@@ -99,11 +99,8 @@ function tabGaps(
 ): readonly string[] {
   const id = definition.id;
   return declaredTabPaths(definition).flatMap((path) => {
-    const route = matchRoute(routes, path);
-    if (
-      !route ||
-      (normalizePath(route.path) === '' && normalizePath(path) !== '')
-    ) {
+    const route = declaringRoute(routes, path);
+    if (!route) {
       return [
         `Workspace "${id}": tab path "${path}" matches no registered surface route — the tab renders a placeholder.`,
       ];

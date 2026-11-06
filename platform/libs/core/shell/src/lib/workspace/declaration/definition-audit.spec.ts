@@ -1,4 +1,24 @@
-import { auditWorkspaceDefinitions } from './definition-audit';
+import { ContentRoute } from '@loomweaver/plugin-sdk';
+import {
+  auditWorkspaceDefinitions,
+  declarationGaps,
+} from './definition-audit';
+
+describe('declarationGaps', () => {
+  it('reports a claim no content answers, also where a home route exists', () => {
+    const routes = [
+      { path: '' },
+      { path: 'sales/customers' },
+    ] as unknown as ContentRoute[];
+
+    const gaps = declarationGaps(
+      { id: 'finance', title: 'k', claims: ['finance', 'sales/customers'] },
+      { routes, declaredPaths: () => [] },
+    );
+
+    expect(gaps).toEqual([expect.stringContaining('the claim "finance"')]);
+  });
+});
 
 describe('auditWorkspaceDefinitions', () => {
   const regions = ['primary', 'secondary'];

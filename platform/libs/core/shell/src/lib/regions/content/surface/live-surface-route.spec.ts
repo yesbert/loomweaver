@@ -39,7 +39,7 @@ describe('a live surface route', () => {
     ]);
   });
 
-  it('reads the values and segments of an address decoded, however the path was stored', () => {
+  it('reads the values of an address decoded and its segments as the address holds them, however the path was stored', () => {
     const person = { path: 'people/:name' } as unknown as RegisteredContentRoute;
 
     for (const path of ['people/M%C3%BCller', 'people/Müller']) {
@@ -48,9 +48,20 @@ describe('a live surface route', () => {
       expect(snapshot.paramMap.get('name')).toBe('Müller');
       expect(snapshot.url.map((segment) => segment.path)).toEqual([
         'people',
-        'Müller',
+        'M%C3%BCller',
       ]);
     }
+  });
+
+  it('hands over the segments of an address left as it was written unchanged', () => {
+    const person = { path: 'people/:id' } as unknown as RegisteredContentRoute;
+
+    const snapshot = liveSurfaceRoute(person, at('people/7;x=1')).route.snapshot;
+
+    expect(snapshot.url.map((segment) => segment.path)).toEqual([
+      'people',
+      '7;x=1',
+    ]);
   });
 
   it('reads a value that is no encoding as it stands', () => {

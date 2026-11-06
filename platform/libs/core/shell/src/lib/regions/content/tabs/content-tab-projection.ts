@@ -37,9 +37,9 @@ export interface OpenTab {
 
 /** One rendered tab in the content strip (static or dynamic), as the content-area template consumes it. */
 export interface ContentTabView {
-  /** The tab **root** — stable identity (tracking, active compare, close). */
+  /** The tab **root** in the address's encoded form — stable identity (tracking, active compare, close). */
   readonly path: string;
-  /** The full path to navigate to when the tab is selected (root + remembered sub-route). */
+  /** The full path to navigate to when the tab is selected (root + remembered sub-route), encoded alike. */
   readonly navPath: string;
   readonly title: string;
   /** When true the host shows `title` verbatim; otherwise it is a Transloco key. */

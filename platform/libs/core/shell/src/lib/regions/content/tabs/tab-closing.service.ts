@@ -183,9 +183,6 @@ export class TabClosingService {
     this.closeGuard.guarded(candidates, () => {
       for (const tab of tabs) {
         this.paneTree.removeTab(pane.dock, pane.paneId, tab.path);
-        if (!isViewPanePath(tab.path)) {
-          this.runCloseHook(tab.path);
-        }
       }
     });
   }
@@ -200,7 +197,6 @@ export class TabClosingService {
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => tabRootOf(routes, tab.path) !== root),
     );
-    this.runCloseHook(root);
     if (wasActive) {
       void this.navigateAfterClose(this.collapseOrNeighbour(root));
     }
@@ -265,9 +261,6 @@ export class TabClosingService {
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => !roots.has(tabRootOf(routes, tab.path))),
     );
-    for (const root of roots) {
-      this.runCloseHook(root);
-    }
     if (activeWentAway) {
       void this.navigateAfterClose(fallbackPath);
     }

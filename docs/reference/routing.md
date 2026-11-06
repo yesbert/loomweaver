@@ -23,18 +23,18 @@ with several panes is on [The address](../concepts/the-address.md).
 
 ## What you already know, and where it lands
 
-| Angular                                            | Here                                                                                                    |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `routerLink`, `router.navigate`, `navigateByUrl`   | work as they do anywhere: the address resolves and the workbench opens or refines the tab that holds it |
-| `ActivatedRoute` and `paramMap`                    | work; a surface at `doc/:id` reads `id` the ordinary way                                                |
-| a query string and a fragment                      | work, and are not part of a tab's identity, so `doc/7?view=raw` stays the tab that `doc/7` is           |
-| `<router-outlet>` inside your own component        | stays inert; a declared sub-route reaches your component through `ActivatedRoute` (below)               |
-| back, forward, reload and a pasted link            | work, and are the reason the content area is addressed at all                                           |
-| `provideRouter(routes)`                            | `provideShellRouter(routes)` instead, once, in the distribution                                         |
-| a `Routes` array for your content                  | you write none: a surface declares `routable: { path }`                                                 |
-| a `canActivate` of your own on contributed content | not attachable; declare `access` and the host gates it for you                                          |
-| resolvers                                          | none: you write no `Routes`, so a surface loads its own data                                            |
-| live parameter streams                             | work, and follow the address while the pane carries it                                                  |
+| Angular                                            | Here                                                                                                            |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `routerLink`, `router.navigate`, `navigateByUrl`   | work as they do anywhere: the address resolves and the workbench opens or refines the tab that holds it         |
+| `ActivatedRoute` and `paramMap`                    | work; a surface at `doc/:id` reads `id` the ordinary way, decoded, while `url` keeps the address's encoded form |
+| a query string and a fragment                      | work, and are not part of a tab's identity, so `doc/7?view=raw` stays the tab that `doc/7` is                   |
+| `<router-outlet>` inside your own component        | stays inert; a declared sub-route reaches your component through `ActivatedRoute` (below)                       |
+| back, forward, reload and a pasted link            | work, and are the reason the content area is addressed at all                                                   |
+| `provideRouter(routes)`                            | `provideShellRouter(routes)` instead, once, in the distribution                                                 |
+| a `Routes` array for your content                  | you write none: a surface declares `routable: { path }`                                                         |
+| a `canActivate` of your own on contributed content | not attachable; declare `access` and the host gates it for you                                                  |
+| resolvers                                          | none: you write no `Routes`, so a surface loads its own data                                                    |
+| live parameter streams                             | work, and follow the address while the pane carries it                                                          |
 
 ## Where a route comes from
 

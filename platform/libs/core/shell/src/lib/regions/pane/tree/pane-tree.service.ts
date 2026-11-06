@@ -16,11 +16,13 @@ import {
   leafPath,
 } from './pane-node';
 import {
+  TabsLeftListener,
   collectLeafIds,
   findLeaf,
   landingLeaf,
   leavesOf,
   tabHolderOf,
+  tabPathsLeft,
 } from './pane-queries';
 import {
   TabKeep,
@@ -58,6 +60,7 @@ export class PaneTreeService {
     this.storage.peek(),
   );
   private readonly replacements = signal(0);
+  private readonly tabsLeftListeners: TabsLeftListener[] = [];
   readonly arrangement = this.replacements.asReadonly();
   readonly hydrated = this.storage.hydrated;
   readonly arrangementSettled = this.storage.arrangementSettled;
@@ -170,6 +173,10 @@ export class PaneTreeService {
       dock,
       setTabs(this.tree(dock), paneId, reorderedTabs(leaf.tabs, order)),
     );
+  }
+
+  whenTabsLeave(listener: TabsLeftListener): void {
+    this.tabsLeftListeners.push(listener);
   }
 
   commit(dock: string, next: PaneNode, primary?: string): void {
@@ -348,6 +355,7 @@ export class PaneTreeService {
   }
 
   private update(dock: string, next: PaneNode, primary?: string): void {
+    const left = tabPathsLeft(this.tree(dock), next);
     this.evacuateRemovedPanes(dock, next);
     this.docks.update((docks) => {
       const updated = { ...docks };
@@ -362,6 +370,9 @@ export class PaneTreeService {
       }
       return updated;
     });
+    for (const listener of left.length > 0 ? this.tabsLeftListeners : []) {
+      listener(left);
+    }
   }
 
   private evacuateRemovedPanes(dock: string, next: PaneNode): void {

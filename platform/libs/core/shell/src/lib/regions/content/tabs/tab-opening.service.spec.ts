@@ -78,6 +78,24 @@ describe('Opening a content tab', () => {
     expect(service.activeTabRoot()).toBe('doc/M%C3%BCller%20&%20S%C3%B6hne');
   });
 
+  it('opens one tab for an address built from a value with encodeURIComponent, and hands the value back', async () => {
+    await harness.navigateByUrl('/reports');
+    const paneTree = TestBed.inject(PaneTreeService);
+
+    for (const value of ['a/b', 'what?', 'part#2', 'a;b', 'it (draft)', '50%']) {
+      const path = `doc/${encodeURIComponent(value)}`;
+
+      service.open({ path, title: value, titleIsLiteral: true });
+      await harness.fixture.whenStable();
+      service.open({ path, title: value, titleIsLiteral: true });
+      await harness.fixture.whenStable();
+
+      expect(service.activeContent()?.params).toEqual({ id: value });
+      expect(service.activeContent()?.path).toBe(service.activeTabRoot());
+    }
+    expect(paneTree.primaryTabs(CONTENT_DOCK)).toHaveLength(7);
+  });
+
   it('finds the tab an earlier arrangement stored under the path as it was typed', async () => {
     await harness.navigateByUrl('/reports');
     const paneTree = TestBed.inject(PaneTreeService);

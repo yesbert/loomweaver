@@ -70,6 +70,13 @@ describe('completing the address the application was opened at', () => {
     expect(router.url).toBe('/people/M%C3%BCller%20&%20S%C3%B6hne');
   });
 
+  it('lands on an opening address with an encoded slash, and answers no other address for it', async () => {
+    const router = await openAt('/doc/a%2Fb');
+
+    expect(router.url).toBe('/doc/a%2Fb');
+    await expect(router.navigateByUrl('/doc/a/b')).rejects.toThrow();
+  });
+
   it('reaches content declared at an address with characters the address encodes', async () => {
     const router = await openAt('/');
     arrive('übersicht/:id');

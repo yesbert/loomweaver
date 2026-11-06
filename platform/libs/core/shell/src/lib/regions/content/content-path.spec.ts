@@ -3,6 +3,7 @@ import {
   normalizePath,
   paramsOfPattern,
   restBelow,
+  segmentsOf,
   suffixOf,
   tabRootOf,
 } from './content-path';
@@ -91,9 +92,54 @@ describe('the one form of a content path', () => {
     );
   });
 
+  it('reads what the browser sends for a typed path with a stray percent sign as the path that was typed', () => {
+    expect(normalizePath('doc/M%C3%BCller%')).toBe('doc/M%C3%BCller%25');
+    expect(normalizePath('doc/Müller%')).toBe('doc/M%C3%BCller%25');
+    expect(paramsOfPattern('doc/:name', 'doc/M%C3%BCller%')).toEqual({
+      name: 'Müller%',
+    });
+  });
+
   it('takes a sequence that is no encoding literally instead of failing', () => {
     expect(normalizePath('people/%E0%A4%A')).toBe('people/%25E0%25A4%25A');
     expect(normalizePath('sale/50%')).toBe('sale/50%25');
+  });
+});
+
+describe('an address built from a value', () => {
+  const values = [
+    'a/b',
+    'what?',
+    'part#2',
+    'a;b=c',
+    'it (draft)',
+    '50%',
+    '%41',
+    'Müller & Söhne',
+    'a:b,c@d$e+f=g',
+    ':x',
+    '..',
+  ];
+
+  it('takes a segment written with encodeURIComponent, holds it as the router writes it, and hands the value back', () => {
+    const serializer = new DefaultUrlSerializer();
+
+    for (const value of values) {
+      const address = normalizePath(
+        `people/${encodeURIComponent(value)}/edit`,
+      );
+
+      expect(segmentsOf(address)).toHaveLength(3);
+      expect(serializer.serialize(serializer.parse(`/${address}`))).toBe(
+        `/${address}`,
+      );
+      expect(paramsOfPattern('people/:id/edit', address)).toEqual({
+        id: value,
+      });
+      expect(tabRootOf([{ path: 'people/:id' }], address)).toBe(
+        normalizePath(`people/${encodeURIComponent(value)}`),
+      );
+    }
   });
 });
 

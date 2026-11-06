@@ -24,8 +24,9 @@ export class LiveSurfaceRoutes {
     key: string,
     address: SurfaceAddress,
   ): LiveSurfaceRoute {
+    this.forgetUnread();
     const known = this.bound.get(key);
-    if (known?.route === route && (known.paneViews > 0 || this.kept(key))) {
+    if (known?.route === route) {
       known.paneViews += 1;
       return known.live;
     }
@@ -39,9 +40,13 @@ export class LiveSurfaceRoutes {
     if (known?.live === live) {
       known.paneViews -= 1;
     }
-    for (const [each, entry] of this.bound) {
-      if (entry.paneViews === 0 && !this.kept(each)) {
-        this.bound.delete(each);
+    this.forgetUnread();
+  }
+
+  private forgetUnread(): void {
+    for (const [key, entry] of this.bound) {
+      if (entry.paneViews === 0 && !this.kept(key)) {
+        this.bound.delete(key);
       }
     }
   }

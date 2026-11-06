@@ -1,5 +1,15 @@
 import { Component } from '@angular/core';
-import { buildContentRoutes } from './content-route-table';
+import {
+  Route,
+  UrlMatchResult,
+  UrlSegment,
+  UrlSegmentGroup,
+} from '@angular/router';
+import {
+  addressPlaceholder,
+  buildContentRoutes,
+  routePlaceholder,
+} from './content-route-table';
 import { SurfaceRouteStub } from './surface-route-stub';
 import { ContentSubStub } from './content-sub-stub';
 
@@ -30,23 +40,68 @@ describe('buildContentRoutes', () => {
     expect(route.data).toEqual({ content: true });
   });
 
-  it('hands the router an address held in its encoded form the way it is typed, which is what the router matches', () => {
-    const [open, gated, heldBack, omitted] = buildContentRoutes(
-      [
-        { path: '%C3%BCbersicht/:id', component: TestRoute },
-        {
-          path: 'b%C3%BCro',
-          component: TestRoute,
-          access: { authenticated: true },
-        },
-      ],
-      [{ path: 'sp%C3%A4ter', component: TestRoute }],
-    );
+  describe('for an address the address form encodes', () => {
+    const matched = (route: Route, url: string): UrlMatchResult | null =>
+      route.matcher?.(
+        url.split('/').map((part) => new UrlSegment(decodeURIComponent(part), {})),
+        new UrlSegmentGroup([], {}),
+        route,
+      ) ?? null;
 
-    expect(open.path).toBe('übersicht/:id');
-    expect(gated.path).toBe('büro');
-    expect(heldBack.path).toBe('büro');
-    expect(omitted.path).toBe('später');
+    it('answers that address however the registry holds it, and hands over its values', () => {
+      const [open, gated, heldBack, omitted] = buildContentRoutes(
+        [
+          { path: '%C3%BCbersicht/:id', component: TestRoute },
+          {
+            path: 'b%C3%BCro',
+            component: TestRoute,
+            access: { authenticated: true },
+          },
+        ],
+        [{ path: 'sp%C3%A4ter', component: TestRoute }],
+      );
+
+      const overview = matched(open, '%C3%BCbersicht/7/more');
+      expect(overview?.consumed.map((segment) => segment.path)).toEqual([
+        'übersicht',
+        '7',
+      ]);
+      expect(overview?.posParams?.['id'].path).toBe('7');
+      expect(matched(open, 'overview/7')).toBeNull();
+      expect(matched(gated, 'b%C3%BCro')).not.toBeNull();
+      expect(matched(heldBack, 'b%C3%BCro')).not.toBeNull();
+      expect(matched(omitted, 'sp%C3%A4ter')).not.toBeNull();
+    });
+
+    it('keeps an encoded slash inside its segment', () => {
+      const [declared] = buildContentRoutes([
+        { path: 'doc/a%2Fb', component: TestRoute },
+      ]);
+      const placeholder = addressPlaceholder('doc/a%2Fb');
+
+      for (const route of [declared, placeholder]) {
+        expect(matched(route, 'doc/a%2Fb')).not.toBeNull();
+        expect(matched(route, 'doc/a/b')).toBeNull();
+      }
+    });
+
+    it('takes a colon or asterisks in an address that was opened as the characters they are, not as a value or a wildcard', () => {
+      for (const address of ['doc/%3Ax', 'doc/:x']) {
+        const placeholder = addressPlaceholder(address);
+
+        expect(matched(placeholder, 'doc/:x')).not.toBeNull();
+        expect(matched(placeholder, 'doc/other')).toBeNull();
+      }
+      expect(matched(addressPlaceholder('%2A%2A'), '**')).not.toBeNull();
+      expect(matched(addressPlaceholder('%2A%2A'), 'anything')).toBeNull();
+    });
+
+    it('still hands a plain address or pattern to the router as a path', () => {
+      expect(routePlaceholder('doc/:id').path).toBe('doc/:id');
+      expect(routePlaceholder('doc/:id').matcher).toBeUndefined();
+      expect(addressPlaceholder('doc/7').path).toBe('doc/7');
+      expect(addressPlaceholder('doc/7').matcher).toBeUndefined();
+    });
   });
 
   it('maps an iframe route to the stub, marked as content', () => {

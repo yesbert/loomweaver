@@ -1,13 +1,17 @@
 const PLAIN_PATH = /^[\w\-.!~*'@:$,&/]*$/;
-const ROUTER_SYNTAX = /[;()]/;
+const ROUTER_SYNTAX = /;|\([^():]*:/;
 const WRITTEN_AS_ITSELF = /%(?:40|3A|24|2C|26)/gi;
 
+const ESCAPES = /(?:%[0-9a-f]{2})+/gi;
+
 export function decodeSegment(segment: string): string {
-  try {
-    return decodeURIComponent(segment);
-  } catch {
-    return segment;
-  }
+  return segment.replaceAll(ESCAPES, (escapes) => {
+    try {
+      return decodeURIComponent(escapes);
+    } catch {
+      return escapes;
+    }
+  });
 }
 
 export function encodeSegment(value: string): string {
@@ -29,6 +33,10 @@ export function normalizePath(url: string): string {
         .split('/')
         .map((segment) => encodeSegment(decodeSegment(segment)))
         .join('/');
+}
+
+export function samePath(one: string, other: string): boolean {
+  return normalizePath(one) === normalizePath(other);
 }
 
 export function segmentsOf(path: string): string[] {

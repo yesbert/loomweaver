@@ -134,13 +134,38 @@ Open a tab yourself with:
 
 ```ts
 ctx.openContentTab({
-  path: `doc/${doc.id}`,
+  path: `doc/${encodeURIComponent(doc.id)}`,
   title: doc.name,          // a document name is a literal, not a Transloco key…
   titleIsLiteral: true,     // …so mark it literal: the host shows it verbatim, no i18n lookup, no warning
-  onClose: () => this.forget(doc.id), // runs once when THIS tab is closed — free per-tab state
+  onClose: () => this.forget(doc.id), // runs once when THIS tab has left its last pane — free per-tab state
 });
-ctx.closeContentTab(`doc/${doc.id}`); // the host activates a neighbour
+ctx.closeContentTab(`doc/${encodeURIComponent(doc.id)}`); // the host activates a neighbour
 ```
+
+`onClose` runs once the tab has left the last pane that held it, whichever way it left: its close
+control, `closeContentTab`, or that pane closing or being merged away. While a split or a container
+still shows the tab it does not run. Showing another workspace parks the tab rather than closing
+it, so that does not run it either.
+
+### Putting a value into an address
+
+Write a value into a segment with `encodeURIComponent(value)`. Then a `/`, `?`, `#`, `;`, `(`, `)`,
+`%` or a space in it stays inside that one segment, and the tab you open is the one the address
+finds again. The host holds every path in one encoded form, the form the browser's address bar
+shows. Parameters come back decoded: `doc/${encodeURIComponent('a/b')}` reaches `doc/:id` with
+`id` set to `a/b`.
+
+So there are two forms, and each field says which it carries:
+
+- **Decoded:** the `:param` values, wherever you read them. That covers `ctx.activeContent().params`,
+  `paramMap` on your route, the `params` a sandboxed surface is pushed and the `params` a tab address
+  resolver receives.
+- **The address's encoded form:** every path. That covers `ctx.activeContent().path`, a tab's path,
+  the segments of your route's `url`, the sub-address in `data.sub`, a sandboxed surface's `tab`, and
+  the rest a `rest` surface is handed, query string included.
+
+Do not decode a path yourself to read a value out of it: read the parameter instead. A path you
+build from a parameter needs `encodeURIComponent` again, since the value is decoded.
 
 `registerSurface` needs the `contributions` capability. `navigateContent`, `openContentTab`,
 `keepContentTab`, `pinContentTab`, `unpinContentTab` and `closeContentTab` need `navigation`.

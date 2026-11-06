@@ -159,8 +159,16 @@ export interface PluginSession {
 export interface ActiveContent {
   /** The matched surface's id, or `null` when the matched route carries none. */
   readonly surfaceId: string | null;
-  /** The full active content path (no leading slash), including any sub-route segment, as the address holds it. */
+  /**
+   * The full active content path (no leading slash), including any sub-route segment, in the
+   * address's encoded form: a value with a `/ ? # ; ( ) %`, a space or a non-ASCII character in it
+   * appears percent-encoded, e.g. `people/M%C3%BCller`.
+   */
   readonly path: string;
-  /** The decoded `:param` values of the matched route pattern (empty for parameter-less routes). */
+  /**
+   * The `:param` values of the matched route pattern, decoded (`people/:name` on `people/M%C3%BCller`
+   * gives `{ name: 'Müller' }`; empty for parameter-less routes). Put one back into an address with
+   * `encodeURIComponent`.
+   */
   readonly params: Readonly<Record<string, string>>;
 }

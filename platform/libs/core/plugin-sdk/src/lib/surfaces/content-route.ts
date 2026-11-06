@@ -63,8 +63,8 @@ export interface ContentRouteBase
   readonly follows?: boolean;
   /**
    * Own everything below {@link path} — carried through from {@link SurfaceRoutable.rest}: the host
-   * routes any deeper address to this route and hands the remainder over as the rest (verbatim,
-   * including the query string), while {@link path} stays the tab root.
+   * routes any deeper address to this route and hands the remainder over as the rest (in the address's
+   * encoded form, including the query string), while {@link path} stays the tab root.
    */
   readonly rest?: boolean;
   /**

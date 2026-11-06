@@ -1,7 +1,6 @@
-import { inject, Service } from '@angular/core';
+import { inject, Service, untracked } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
-import { CONTENT_DOCK } from '../../pane/tree/pane-address';
-import { leavesOf } from '../../pane/tree/pane-queries';
+import { collectTabPaths } from '../../pane/tree/pane-queries';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { tabRootOf } from '../content-path';
 
@@ -12,6 +11,14 @@ export class TabCloseHooks {
   private readonly paneTree = inject(PaneTreeService);
 
   private readonly hooks = new Map<string, () => void>();
+
+  constructor() {
+    this.paneTree.whenTabsLeave((paths) => {
+      for (const root of new Set(paths.map((path) => this.rootOf(path)))) {
+        this.runOnceGone(root);
+      }
+    });
+  }
 
   get(root: string): (() => void) | undefined {
     return this.hooks.get(root);
@@ -26,11 +33,10 @@ export class TabCloseHooks {
   }
 
   runOnceGone(root: string): void {
-    const routes = this.registry.contentRoutes();
-    const held = leavesOf(this.paneTree.tree(CONTENT_DOCK)).some((leaf) =>
-      leaf.tabs.some((tab) => tabRootOf(routes, tab.path) === root),
-    );
     const hook = this.hooks.get(root);
+    const held = Object.values(untracked(() => this.paneTree.dockTrees()))
+      .flatMap((tree) => collectTabPaths(tree))
+      .some((path) => this.rootOf(path) === root);
     if (held || !hook) {
       return;
     }
@@ -40,5 +46,9 @@ export class TabCloseHooks {
     } catch (error) {
       console.error('Content tab onClose handler failed', error);
     }
+  }
+
+  private rootOf(path: string): string {
+    return tabRootOf(untracked(() => this.registry.contentRoutes()), path);
   }
 }

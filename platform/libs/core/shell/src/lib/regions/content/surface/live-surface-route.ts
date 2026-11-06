@@ -9,12 +9,7 @@ import {
   convertToParamMap,
 } from '@angular/router';
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
-import {
-  decodeSegment,
-  matchRoute,
-  paramsOfPattern,
-  segmentsOf,
-} from '../content-path';
+import { matchRoute, paramsOfPattern, segmentsOf } from '../content-path';
 import { RegisteredContentRoute } from '../../../contributions/contribution-registry';
 import { routeSnapshot } from './route-snapshot';
 import { SurfaceRouteData } from './surface-route-data';
@@ -46,7 +41,7 @@ const same = (a: unknown, b: unknown): boolean =>
   JSON.stringify(a) === JSON.stringify(b);
 
 function toSegments(paths: readonly string[]): UrlSegment[] {
-  return paths.map((path) => new UrlSegment(decodeSegment(path), {}));
+  return paths.map((path) => new UrlSegment(path, {}));
 }
 
 function stateOf(

@@ -102,8 +102,8 @@ export interface SurfaceRoutable {
   readonly follows?: boolean;
   /**
    * Owns **everything below** {@link path}: the longest registered prefix wins, and whatever no more
-   * specific surface claims is handed to this one as **the rest**, verbatim and including the query
-   * string. `docs/guide/intro?line=12` reaches the surface registered on `docs` with
+   * specific surface claims is handed to this one as **the rest**, in the address's encoded form and
+   * including the query string. `docs/guide/intro?line=12` reaches the surface registered on `docs` with
    * `guide/intro?line=12`. The prefix stays the tab root, so the whole subtree is one tab whose state
    * survives every move within it.
    *

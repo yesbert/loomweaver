@@ -15,6 +15,9 @@ import { buildContentRoutes } from '../routing/content-route-table';
 import { ContentTabsService } from './content-tabs.service';
 import { TabClosingService } from './tab-closing.service';
 import { keepsEverything } from '../../pane/tree/pane-handover';
+import { PaneActions } from '../../pane/pane-actions.service';
+import { WithheldVisits } from '../../../workspace/settlement/withheld-visits';
+import { PaneMoveService } from '../../pane/drag/pane-move.service';
 
 @Component({ selector: 'lw-test-content', template: '' })
 class TestContent {}
@@ -450,6 +453,112 @@ describe('TabClosingService close hooks', () => {
     service.close('doc/a', { dock: CONTENT_DOCK, paneId: other?.id ?? '' });
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  describe('for a tab two panes hold, closed in the pane carrying the address', () => {
+    let onClose: ReturnType<typeof vi.fn<() => void>>;
+    let paneTree: PaneTreeService;
+    let other: string;
+
+    beforeEach(async () => {
+      await harness.navigateByUrl('/');
+      onClose = vi.fn<() => void>();
+      service.open({ path: 'doc/a', title: 'A.ts', onClose });
+      service.open({ path: 'doc/b', title: 'B.ts' });
+      paneTree = TestBed.inject(PaneTreeService);
+      paneTree.splitPane('content', PRIMARY_PANE, 'row', 'doc/a');
+      const primary = paneTree.primaryId(CONTENT_DOCK);
+      other =
+        findLeafWhere(
+          paneTree.tree(CONTENT_DOCK),
+          (leaf) => leaf.id !== primary,
+        )?.id ?? '';
+      service.close('doc/a');
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it('runs the teardown when the other pane is closed', () => {
+      TestBed.inject(PaneActions).close(CONTENT_DOCK, other);
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs the teardown when the split is undone', () => {
+      TestBed.inject(PaneActions).unsplit(CONTENT_DOCK);
+
+      expect(
+        paneTree.primaryTabs(CONTENT_DOCK).some((tab) => tab.path === 'doc/a'),
+      ).toBe(false);
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs the teardown when the other pane has taken the address and is closed as the pane carrying it', () => {
+      paneTree.focusPane(CONTENT_DOCK, other, 'doc/b');
+
+      service.closePrimaryPane();
+
+      expect(paneTree.hasTab('doc/a')).toBe(false);
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs the teardown when the last tab is taken out of the other pane', () => {
+      paneTree.removeTab(CONTENT_DOCK, other, 'doc/a');
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the teardown while the tab only moves to another dock', () => {
+      TestBed.inject(PaneMoveService).moveToStrip(
+        { dock: CONTENT_DOCK, paneId: other },
+        'doc/a',
+        { dock: 'container@board', paneId: PRIMARY_PANE },
+      );
+
+      expect(paneTree.hasTab('doc/a')).toBe(true);
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it('keeps the teardown when another workspace is shown, which parks the tab rather than closing it', () => {
+      const parked = paneTree.serialize();
+
+      paneTree.hydrate(undefined);
+      expect(onClose).not.toHaveBeenCalled();
+
+      paneTree.hydrate(parked);
+      paneTree.removeTab(CONTENT_DOCK, other, 'doc/a');
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('runs the teardown when a withheld visit settles and takes the tab with it', async () => {
+    await harness.navigateByUrl('/');
+    const visits = TestBed.inject(WithheldVisits);
+    visits.note('doc/a');
+    const onClose = vi.fn();
+    service.open({ path: 'doc/a', title: 'A.ts', onClose });
+    await harness.navigateByUrl('/reports');
+
+    visits.leave('doc/a');
+
+    expect(TestBed.inject(PaneTreeService).hasTab('doc/a')).toBe(false);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets a withheld visit at an address nothing declares go, whatever the home route asks of the session', async () => {
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: '',
+      component: TestContent,
+      access: { anyRole: ['admin'] },
+    });
+    await harness.navigateByUrl('/reports');
+    const visits = TestBed.inject(WithheldVisits);
+    const paneTree = TestBed.inject(PaneTreeService);
+    visits.note('gone/1');
+    paneTree.insertTab(CONTENT_DOCK, paneTree.primaryId(CONTENT_DOCK), 'gone/1');
+
+    visits.arrived();
+
+    expect(paneTree.hasTab('gone/1')).toBe(false);
   });
 
   it('keeps the teardown of a tab another pane holds when the pane carrying the address is asked to close it', async () => {

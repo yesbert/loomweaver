@@ -6,9 +6,7 @@ export function pathOwnedBy(
   registry: ContributionRegistry,
   pluginId: string,
 ): (path: string) => boolean {
-  const routes = registry
-    .contentRoutes()
-    .filter((route) => route.pluginId === pluginId);
+  const routes = registry.contentRoutes();
   const viewIds = new Set(
     registry
       .views()
@@ -23,6 +21,6 @@ export function pathOwnedBy(
     if (viewId !== null) {
       return viewIds.has(viewId);
     }
-    return declaringRoute(routes, path) !== undefined;
+    return declaringRoute(routes, path)?.pluginId === pluginId;
   };
 }

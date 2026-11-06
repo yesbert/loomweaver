@@ -231,7 +231,7 @@ describe('IframeSurface', () => {
       undefined,
       undefined,
       undefined,
-      { segments: ['people', 'Müller'], rest: true },
+      { segments: ['people', 'M%C3%BCller'], rest: true },
     );
     TestBed.inject(ContributionRegistry).addContentRoute({
       path: 'people/:name',
@@ -251,6 +251,33 @@ describe('IframeSurface', () => {
     surface.navigateWithinTabRoot('people/Müller/files');
 
     expect(navigateTo).toHaveBeenCalledWith('people/M%C3%BCller/files');
+  });
+
+  it('follows the address below a tab root left as it was written, and may navigate below it', async () => {
+    const { component, surface, tabs } = create(
+      undefined,
+      undefined,
+      undefined,
+      { segments: ['people', '7;x=1'], rest: true },
+    );
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'people/:id',
+      iframe: '/sandbox/view.html',
+      rest: true,
+    });
+    const navigateTo = vi
+      .spyOn(tabs, 'navigateTo')
+      .mockImplementation(() => undefined);
+
+    await TestBed.inject(Router).navigateByUrl('/people/7;x=1/notes');
+
+    expect(
+      (component as unknown as ToldItsAddress).reactiveState(),
+    ).toMatchObject({ tab: 'notes', rest: 'notes' });
+
+    surface.navigateWithinTabRoot('people/7;x=1/files');
+
+    expect(navigateTo).toHaveBeenCalledWith('people/7;x=1/files');
   });
 
   it('leaves no rejection unhandled when a slot or state push is cut off', async () => {

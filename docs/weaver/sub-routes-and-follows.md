@@ -107,7 +107,7 @@ Sub-tab-less views (the common case) need none of this.
 segments and the host mounts one child per name. That stops working as soon as the segment carries a
 value, and it says nothing about a third level. Declare `rest: true` instead and the deal changes: the
 **longest registered prefix wins**, and whatever no more specific surface claims is handed to you as
-**the rest**, verbatim, query string included.
+**the rest**, in the address's encoded form, query string included.
 
 ```ts
 ctx.registerSurface({ id: 'orders', title: 'orders.title', iframe: '/orders/view.html',
@@ -185,8 +185,8 @@ rule, on [Retention and unsaved work](../concepts/retention-and-unsaved-work.md#
 A sidebar surface that reacts to the focused tab
 (an inspector, a details view) reads the signal-shaped `ctx.activeContent()` (also `navigation`):
 `{ surfaceId, path, params } | null`, with `params` extracted against your route pattern
-(`ask/:id` on `ask/abc` → `{ id: 'abc' }`). Read this instead of injecting the host's router and
-regex-parsing URLs. It stays stable across host URL-shape changes. Trusted rung only (a sandboxed
+(`ask/:id` on `ask/abc` → `{ id: 'abc' }`). The `params` are decoded, while `path` keeps the
+address's encoded form. Read this instead of injecting the host's router and regex-parsing URLs. It stays stable across host URL-shape changes. Trusted rung only (a sandboxed
 surface already receives its own state over the surface channel).
 
 ## Asking whether the address shown is under yours: `ctx.isShowingUnder`

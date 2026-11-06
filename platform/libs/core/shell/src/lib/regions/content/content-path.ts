@@ -13,6 +13,7 @@ export {
   decodeSegment,
   encodeSegment,
   normalizePath,
+  samePath,
   segmentsOf,
 } from '../../addressing/address-form';
 

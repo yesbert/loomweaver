@@ -373,6 +373,31 @@ describe('A host-mounted pane says why it is empty', () => {
     logged.mockRestore();
   });
 
+  it('tries a lazy surface whose load failed again when another tab of the same content is opened', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    let calls = 0;
+    const fixture = mounted(ANONYMOUS, 'doc/a', (registry) =>
+      registry.addContentRoute({
+        path: 'doc/:id',
+        loadComponent: () => {
+          calls += 1;
+          return Promise.reject(new Error('chunk gone'));
+        },
+      }),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(calls).toBe(1);
+
+    fixture.componentRef.setInput('path', 'doc/b');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(calls).toBe(2);
+    logged.mockRestore();
+  });
+
   it('says a lazy view could not be loaded once its load has failed, rather than staying blank', async () => {
     const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const fixture = mounted(ANONYMOUS, 'view:broken', (registry) =>

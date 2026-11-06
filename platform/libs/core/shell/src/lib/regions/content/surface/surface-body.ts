@@ -29,6 +29,7 @@ import { ComponentLoader } from '../../pane/component-loader.service';
 import { PopoutWindow } from '../../../popout/popout-window';
 import { AuthRequiredView } from '../access/auth-required-view';
 import { RouteUnavailableView } from '../access/route-unavailable-view';
+import { surfaceHostClass } from './surface-host-class';
 import { IframeSurface } from './iframe-surface';
 import {
   CONTAINER_CONTEXT,
@@ -152,19 +153,13 @@ export class SurfaceBody {
     effectivePadding(this.declared()?.padded, this.padding),
   );
 
-  protected readonly hostClass = computed(() => {
-    if (this.isContainerSurface()) {
-      return 'flex h-full min-h-0 min-w-0';
-    }
-    if (this.variant() === 'panel') {
-      return this.padded()
-        ? '@container/surface block h-full min-h-0 overflow-auto p-3 text-content'
-        : '@container/surface block h-full min-h-0 overflow-auto text-content';
-    }
-    return this.padded()
-      ? '@container/surface block h-full overflow-auto bg-surface-raised p-6 text-content'
-      : '@container/surface block h-full overflow-auto bg-surface-raised text-content';
-  });
+  protected readonly hostClass = computed(() =>
+    surfaceHostClass({
+      container: this.isContainerSurface(),
+      variant: this.variant(),
+      padded: this.padded(),
+    }),
+  );
 
   private readonly notHostableKey = inject(PopoutWindow).active
     ? 'popout.unavailable'
@@ -317,6 +312,7 @@ export class SurfaceBody {
       untracked(() => this.releaseMountsLetGo(shown));
     });
     effect(() => {
+      this.surfaceKey();
       const opened = this.activeRoute() ?? this.view() ?? {};
       untracked(() => this.componentLoader.retry(opened));
     });

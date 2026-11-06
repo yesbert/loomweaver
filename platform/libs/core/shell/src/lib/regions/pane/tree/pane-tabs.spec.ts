@@ -50,6 +50,22 @@ describe('pane tabs', () => {
     expect(replaced.tabs[0]).toEqual({ path: 'a', pinned: true });
   });
 
+  it('inserting a tab replaces the one stored under the same path as it was typed', () => {
+    const leaf: PaneNode = {
+      kind: 'leaf',
+      id: 'p',
+      tabs: [{ path: 'doc/Müller', title: 'Stored' }, { path: 'notes' }],
+      active: 'notes',
+    };
+
+    const next = insertTab(leaf, 'p', { path: 'doc/M%C3%BCller', title: 'New' });
+
+    expect(findLeaf(next, 'p')?.tabs).toEqual([
+      { path: 'doc/M%C3%BCller', title: 'New' },
+      { path: 'notes' },
+    ]);
+  });
+
   it('sets the active tab and removing the active one re-picks a neighbour', () => {
     const group = insertTab(
       insertTab(leafOf('p', 'a'), 'p', { path: 'b' }),
