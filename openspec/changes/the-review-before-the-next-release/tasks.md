@@ -96,26 +96,17 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 4. Persistence, identity and workspaces
 
-- [ ] 4.1 A session whose subject is the empty string is nobody: no reload at sign-in or sign-out (`auth/identity-change.ts`)
-- [ ] 4.2 Adopting a namespace that holds nothing for a setting leaves what the workbench holds (`persistence/cross-tab/state-sync.service.ts`, `identity-scope/adopting-a-namespace.spec.ts`)
 - [x] 4.3 Resetting a workspace that is not the active one clears its changed and unusable marks at once (`workspace/working-state/unsaved-workspaces.ts`, `usability/unusable-workspaces.service.ts`)
-- [ ] 4.4 A read issued before adoption that answers after it does not overwrite the adopted value (`persistence/identity-scope/identity-scoped-store.ts`)
-- [ ] 4.5 A picture shows what covers a surface: overlays are not painted over by the surface's drawing (`capture/workbench-capture.service.ts`)
-- [ ] 4.6 A contributed translation bundle named like one of the shell's own groups does not replace that group; reported (`i18n/transloco-loader.ts`)
 
 - [x] 4.1 A session whose subject is the empty string is nobody: no reload at sign-in or sign-out (`auth/identity-change.ts`)
 - [x] 4.2 Adopting a namespace that holds nothing for a setting leaves what the workbench holds (`persistence/cross-tab/state-sync.service.ts`, `identity-scope/adopting-a-namespace.spec.ts`)
-- [ ] 4.3 Resetting a workspace that is not the active one clears its changed and unusable marks at once (`workspace/working-state/unsaved-workspaces.ts`, `usability/unusable-workspaces.service.ts`)
 - [x] 4.4 A read issued before adoption that answers after it does not overwrite the adopted value (`persistence/identity-scope/identity-scoped-store.ts`)
 - [x] 4.5 A picture shows what covers a surface: overlays are not painted over by the surface's drawing (`capture/workbench-capture.service.ts`)
 - [x] 4.6 A contributed translation bundle named like one of the shell's own groups does not replace that group; reported (`i18n/transloco-loader.ts`)
-- [ ] 4.7 A stored choice superseded by a declared start opens that workspace from its baseline at any address (`workspace/opening/workbench-opening.ts`)
-- [ ] 4.8 A stored active workspace nothing lists any more gives way to the starting one (`workspace/opening/workbench-opening.ts`)
 - [x] 4.9 Sidebar state, widths, the user's order and view state survive a write made before an asynchronous store answered (`regions/panel/panel-state.ts`, `panel-size.service.ts`, `regions/reorder/user-order.service.ts`, `views/view-state.service.ts`)
 
 - [x] 4.7 A stored choice superseded by a declared start opens that workspace from its baseline at any address (`workspace/opening/workbench-opening.ts`)
 - [x] 4.8 A stored active workspace nothing lists any more gives way to the starting one (`workspace/opening/workbench-opening.ts`)
-- [ ] 4.9 Sidebar state, widths, the user's order and view state survive a write made before an asynchronous store answered (`regions/panel/panel-state.ts`, `panel-size.service.ts`, `regions/reorder/user-order.service.ts`, `views/view-state.service.ts`)
 - [x] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs The lead on the picture of a scrolled surface is task 4.17.
 - [x] 4.11 Deleting the workspace in use asks about unsaved work in the surfaces it shows, not only about what it parked (`workspace/workspace.service.ts`, `remove`)
 - [ ] 4.12 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`; was 2.15)
@@ -131,7 +122,6 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.27 Withdrawn: the question covers everything the workspace shows or parked; narrowing it to what the switch destroys left a hole (a tab the start holds but does not show)
 - [x] 4.28 The delta says what the code does: the unreadable-list scenario is narrowed to an address that names content, and every sentence is checked against the code after 4.23 to 4.27
 
-- [ ] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs
 - [x] 4.14 A picture taken on a screen with a device pixel ratio of 2 has the size that was asked for and every surface drawn where it sits (`capture/workbench-capture.service.ts`, `capture/picture-size.ts`)
 - [x] 4.15 Not done: whether a layer is opaque cannot be decided cheaply and reliably, and a miss would leave a visible surface blank in a picture; the picture is right since 4.5. Was: A surface wholly hidden behind an opaque layer is not asked to draw for a picture (`capture/surface-capture-registry.ts`)
 - [x] 4.16 A read during adoption sees the write held for the same key, not the store's older value (`persistence/identity-scope/identity-scoped-store.ts`)
@@ -290,26 +280,12 @@ Each of these is a review. What it finds is added to the group it belongs to and
 - [ ] 12.4 The shell's stylesheets, and the product-identity, host-services and platform-composition capabilities against the code
 - [ ] 12.5 The generator schemas, the tooling READMEs, the unit specs of the testbed weaver and the AG-UI adapter, and `platform/tools/media/`
 
-## 16. More tests that could not fail
+## 13. Hand-over
 
-What review 12.1 found in the end-to-end suite (`platform/apps/loom-testbed-e2e/src/`).
-
-- [x] 16.1 Revealing a surface is checked by the tab it selects, not by a text that is on the page anyway (`reveal-surface.spec.ts`)
-- [x] 16.2 The container test looks for its sidebar tab where sidebar tabs are (`container.spec.ts`)
-- [x] 16.3 The retained-address test waits for the address to move before it reads the panes (`retained-url-pane.spec.ts`)
-- [x] 16.4 A hidden rail entry is checked after the rail has been drawn (`rail-visibility.spec.ts`)
-- [x] 16.5 The withholding test takes the picture from the workbench and records what the frame can observe (`surface-withholding.spec.ts`)
-- [x] 16.6 Three tests anchor on something present before they assert an absence (`workspace-claims.spec.ts`, `route-omit.spec.ts`, `identity.spec.ts`)
-- [x] 16.7 Promoting a preview tab is checked by what a kept tab does (`pane-focus-drag.spec.ts`)
-- [x] 16.8 A menu entry's absence is asserted on an open menu, and an absence after loading on a drawn page (`shell-features.spec.ts`)
-- [x] 16.9 Three negatives are read after the gesture has taken effect (`container.spec.ts`, `popout.spec.ts`, `palette-context-commands.spec.ts`)
-- [x] 16.10 The test named for commands, rail entry and button checks the rail entry (`shell-features.spec.ts`)
-- [x] 16.11 A fixed wait gives way to a gesture whose effect is awaited, and the pop-out test compares the stored keys (`shell-features.spec.ts`, `popout.spec.ts`)
-- [x] 16.12 The split test reads the size it says it resizes and persists (`content-split.spec.ts`)
-- [x] 16.13 Three tests check the half their name promises (`view-state-travel.spec.ts`, `plugin-state.spec.ts`, `settings.spec.ts`)
-- [x] 16.14 The test that a switch never collapses a sidebar starts from an expanded one (`workspaces.spec.ts`)
-- [x] 16.15 Six negatives move behind their anchor or onto what was really open (`hidden-views.spec.ts`, `workspace-definitions.spec.ts`, `settings.spec.ts`, `tab-follows.spec.ts`, `surface-retention.spec.ts`, `plugin-store.spec.ts`)
-- [x] 16.16 Handed to the owner as a decision (see design.md): a plugin's own script can notice that a picture is being made, because the drawing adds and removes nodes in the frame's document; the test that says so is kept as `test.fixme` (`surface-withholding.spec.ts`)
+- [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged
+- [ ] 13.2 The end-to-end suite passes on `main` at that commit, started by hand rather than waited for
+- [ ] 13.3 SonarQube passes on `main` at that commit with no open issue
+- [ ] 13.4 `docs/updating.md` says what the next release asks of a product, if anything here does
 
 ## 14. The published contract and the frame kit
 
@@ -355,12 +331,26 @@ What reviews 12.4 and 12.5 found. Paths are under `platform/libs/core/shell/src/
 - [x] 15.13 The search entry in the top bar shows the focus under the keyboard: the focusable element carries the ring (`styles/theme/controls.css`)
 - [x] 15.14 The tour recording fails on a step that did nothing: the splitter presses, the Dashboard option and the theme toggle each check their effect (`platform/tools/media/record-tour.mjs`)
 
-## 13. Hand-over
+## 16. More tests that could not fail
 
-- [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged
-- [ ] 13.2 The end-to-end suite passes on `main` at that commit, started by hand rather than waited for
-- [ ] 13.3 SonarQube passes on `main` at that commit with no open issue
-- [ ] 13.4 `docs/updating.md` says what the next release asks of a product, if anything here does
+What review 12.1 found in the end-to-end suite (`platform/apps/loom-testbed-e2e/src/`).
+
+- [x] 16.1 Revealing a surface is checked by the tab it selects, not by a text that is on the page anyway (`reveal-surface.spec.ts`)
+- [x] 16.2 The container test looks for its sidebar tab where sidebar tabs are (`container.spec.ts`)
+- [x] 16.3 The retained-address test waits for the address to move before it reads the panes (`retained-url-pane.spec.ts`)
+- [x] 16.4 A hidden rail entry is checked after the rail has been drawn (`rail-visibility.spec.ts`)
+- [x] 16.5 The withholding test takes the picture from the workbench and records what the frame can observe (`surface-withholding.spec.ts`)
+- [x] 16.6 Three tests anchor on something present before they assert an absence (`workspace-claims.spec.ts`, `route-omit.spec.ts`, `identity.spec.ts`)
+- [x] 16.7 Promoting a preview tab is checked by what a kept tab does (`pane-focus-drag.spec.ts`)
+- [x] 16.8 A menu entry's absence is asserted on an open menu, and an absence after loading on a drawn page (`shell-features.spec.ts`)
+- [x] 16.9 Three negatives are read after the gesture has taken effect (`container.spec.ts`, `popout.spec.ts`, `palette-context-commands.spec.ts`)
+- [x] 16.10 The test named for commands, rail entry and button checks the rail entry (`shell-features.spec.ts`)
+- [x] 16.11 A fixed wait gives way to a gesture whose effect is awaited, and the pop-out test compares the stored keys (`shell-features.spec.ts`, `popout.spec.ts`)
+- [x] 16.12 The split test reads the size it says it resizes and persists (`content-split.spec.ts`)
+- [x] 16.13 Three tests check the half their name promises (`view-state-travel.spec.ts`, `plugin-state.spec.ts`, `settings.spec.ts`)
+- [x] 16.14 The test that a switch never collapses a sidebar starts from an expanded one (`workspaces.spec.ts`)
+- [x] 16.15 Six negatives move behind their anchor or onto what was really open (`hidden-views.spec.ts`, `workspace-definitions.spec.ts`, `settings.spec.ts`, `tab-follows.spec.ts`, `surface-retention.spec.ts`, `plugin-store.spec.ts`)
+- [x] 16.16 Handed to the owner as a decision (see design.md): a plugin's own script can notice that a picture is being made, because the drawing adds and removes nodes in the frame's document; the test that says so is kept as `test.fixme` (`surface-withholding.spec.ts`)
 
 ## Workflow follow-up
 
