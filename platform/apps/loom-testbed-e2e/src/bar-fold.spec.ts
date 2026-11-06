@@ -44,6 +44,9 @@ test.describe('A top bar that runs out of room', () => {
         return state.folded && !state.nameCut && state.othersShown > 0;
       })
       .toBe(true);
+    await expect(
+      page.getByRole('group', { name: 'Top bar' }).locator('[data-bar-fold]'),
+    ).toHaveCount(1);
   });
 
   test('cuts the name only once every button has folded, and keeps the name in the bar', async ({
@@ -76,5 +79,8 @@ test.describe('A top bar that runs out of room', () => {
     await expect
       .poll(() => topBarState(page))
       .toEqual({ nameCut: false, othersShown: 3, folded: false });
+    await expect(
+      page.getByRole('group', { name: 'Top bar' }).locator('[data-bar-fold]'),
+    ).toHaveCount(0);
   });
 });
