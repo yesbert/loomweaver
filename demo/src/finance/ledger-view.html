@@ -6,9 +6,12 @@
     <span
       class="text-sm"
       [class.text-content-muted]="balanced()"
-      [class.text-caution]="!balanced()"
+      [class.text-content]="!balanced()"
       data-testid="ledger-balance"
     >
+      @if (!balanced()) {
+        <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+      }
       {{ (balanced() ? 'finance.balanced' : 'finance.unbalanced') | transloco }}
     </span>
   </div>

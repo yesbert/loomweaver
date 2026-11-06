@@ -6,7 +6,11 @@ import { PaneMoveService } from '../pane/drag/pane-move.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { PanelState } from './panel-state';
 import { regionOnOtherSide } from '../../layout/layout-queries';
-import { MoveAnnouncer, MoveWording } from '../reorder/move-announcer';
+import {
+  MoveAnnouncer,
+  MovedEntry,
+  MoveWording,
+} from '../reorder/move-announcer';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 
 const VIEW_MOVE_WORDING: MoveWording = {
@@ -32,7 +36,11 @@ export class ViewMoveService {
   private readonly announcer = inject(MoveAnnouncer);
   private readonly collapsing = inject(FeatureSwitches).sidebar.collapse;
 
-  move(viewId: string, targetRegion: string, index?: number): void {
+  async move(
+    viewId: string,
+    targetRegion: string,
+    index?: number,
+  ): Promise<boolean> {
     const path = viewPanePath(viewId);
     const source = this.paneTree.sourceOf(path);
     const targetPrimary = this.paneTree.primaryId(targetRegion);
@@ -43,41 +51,47 @@ export class ViewMoveService {
       source.paneId === targetPrimary
     ) {
       this.paneTree.setActiveTab(targetRegion, targetPrimary, path);
-    } else {
-      this.paneMove.moveToStrip(
+    } else if (
+      !(await this.paneMove.moveToStrip(
         source,
         path,
         { dock: targetRegion, paneId: targetPrimary },
         index,
-      );
-    }
-    if (this.collapsing()) {
-      this.panels.expand(targetRegion);
+      ))
+    ) {
+      return false;
     }
     const view = this.registry.views().find((one) => one.id === viewId);
-    this.announcer.announce(
-      VIEW_MOVE_WORDING,
-      { id: viewId, title: view?.title },
-      targetRegion,
-    );
+    this.arrived({ id: viewId, title: view?.title }, targetRegion);
+    return true;
   }
 
-  moveTab(source: PaneRef, tab: MovedTab, targetRegion: string): void {
-    this.paneMove.moveToStrip(source, tab.path, {
+  async moveTab(
+    source: PaneRef,
+    tab: MovedTab,
+    targetRegion: string,
+  ): Promise<boolean> {
+    const moved = await this.paneMove.moveToStrip(source, tab.path, {
       dock: targetRegion,
       paneId: this.paneTree.primaryId(targetRegion),
     });
-    if (this.collapsing()) {
-      this.panels.expand(targetRegion);
+    if (moved) {
+      this.arrived(
+        { id: tab.path, title: tab.title, literalTitle: tab.literalTitle },
+        targetRegion,
+      );
     }
-    this.announcer.announce(
-      VIEW_MOVE_WORDING,
-      { id: tab.path, title: tab.title, literalTitle: tab.literalTitle },
-      targetRegion,
-    );
+    return moved;
   }
 
   otherPanel(fromRegion: string): string | undefined {
     return regionOnOtherSide(this.layout, 'panel', fromRegion)?.id;
+  }
+
+  private arrived(subject: MovedEntry, targetRegion: string): void {
+    if (this.collapsing()) {
+      this.panels.expand(targetRegion);
+    }
+    this.announcer.announce(VIEW_MOVE_WORDING, subject, targetRegion);
   }
 }

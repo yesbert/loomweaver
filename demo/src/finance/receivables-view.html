@@ -35,7 +35,7 @@
               <span class="text-content-muted tabular-nums">
                 {{ row.due }}
                 @if (row.state === 'open' && row.overdue > 0) {
-                  <span class="ml-2 text-xs text-caution" data-testid="receivable-overdue">{{
+                  <span class="ml-2 text-xs text-content" data-testid="receivable-overdue"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{
                     'finance.overdue' | transloco: { days: row.overdue }
                   }}</span>
                 }

@@ -233,7 +233,7 @@ describe('SurfaceCloseGuard', () => {
     expect(proceed).toHaveBeenCalledTimes(1);
   });
 
-  it('a hung veto gets the escape dialog and "Close anyway" proceeds', async () => {
+  it('a hung veto gets the escape dialog and "Go ahead anyway" proceeds', async () => {
     vi.useFakeTimers();
     try {
       const guard = TestBed.inject(SurfaceCloseGuard);
@@ -250,7 +250,7 @@ describe('SurfaceCloseGuard', () => {
       const dialog = topDialog();
       expect(dialog.buttons.map((button) => button.label)).toEqual([
         'dialog.cancel',
-        'retention.closeAnyway',
+        'retention.goAheadAnyway',
       ]);
 
       dialog.ref.close('force');

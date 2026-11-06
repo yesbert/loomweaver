@@ -33,7 +33,10 @@
               <span class="truncate text-content">{{ row.item.labelKey | transloco }}</span>
               <span class="font-mono text-xs text-content-muted">{{ row.item.location }}</span>
               <span class="text-right tabular-nums">
-                <span [class.font-medium]="row.low" [class.text-caution]="row.low" [class.text-content]="!row.low">{{
+                @if (row.low) {
+                  <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+                }
+                <span class="text-content" [class.font-medium]="row.low">{{
                   row.onHand
                 }}</span>
                 <span class="ml-1 text-xs text-content-faint">{{ 'inventory.unit.' + row.item.unit | transloco }}</span>
@@ -46,7 +49,10 @@
                 <span class="text-xs text-content-faint">{{ row.item.number }} · {{ row.item.location }}</span>
               </span>
               <span class="shrink-0 text-sm tabular-nums">
-                <span [class.font-medium]="row.low" [class.text-caution]="row.low" [class.text-content]="!row.low">{{
+                @if (row.low) {
+                  <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+                }
+                <span class="text-content" [class.font-medium]="row.low">{{
                   row.onHand
                 }}</span>
                 <span class="ml-1 text-xs text-content-faint">{{ 'inventory.unit.' + row.item.unit | transloco }}</span>

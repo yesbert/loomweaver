@@ -62,8 +62,11 @@ close, `true` to let it continue. Typically you draw your own dialog first and r
 the user's answer. An approved close does **not** bypass the safety net. If the instance is still dirty
 afterwards, the standard _Save · Discard · Cancel_ ask still runs. So approve-and-stay-dirty never
 discards silently. Resolve your own save/discard first, and the surface closes without a second dialog.
-The host enforces a timeout with a guaranteed **"Close anyway"** escape, and a hook that throws or
-rejects counts as approval. A broken or hung veto can never make a tab unclosable. Programmatic
+The same hook is consulted when the user moves the tab to another pane. It is also consulted when the
+tab is handed to a neighbouring pane because its own pane closes or a split is undone. Either way the
+tab is built anew there, so the instance ends, and a `false` result leaves the tab where it was. The host enforces a timeout with a
+guaranteed escape that lets the user go ahead anyway, and a hook that throws or rejects counts as
+approval. A broken or hung veto can never make a tab unclosable or unmovable. Programmatic
 destruction (your plugin being disabled or uninstalled, a workspace reset) does **not** consult the
 hook; only the unsaved-changes dialog guards those, because a plugin must not be able to veto its own
 removal.

@@ -284,12 +284,15 @@ export class PaneTabStrip {
     if (event.previousContainer !== event.container) {
       const source = stripSourceOf(event.previousContainer.id);
       if (source) {
-        this.paneMove.moveToStrip(
-          source,
-          String(event.item.data ?? ''),
-          this.source(),
-          event.currentIndex,
-        );
+        const path = String(event.item.data ?? '');
+        this.stripOverflow().notePicked(path);
+        void this.paneMove
+          .moveToStrip(source, path, this.source(), event.currentIndex)
+          .then((moved) => {
+            if (!moved) {
+              this.stripOverflow().forgetPicked(path);
+            }
+          });
       }
       return;
     }

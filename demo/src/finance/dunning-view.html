@@ -26,7 +26,7 @@
             <span class="hidden items-center gap-3 text-sm @2xl:grid" [style.grid-template-columns]="columns">
               <span class="font-mono text-xs text-content-muted">{{ row.entry.number }}</span>
               <span class="truncate text-content">{{ row.customer }}</span>
-              <span class="text-caution tabular-nums">{{
+              <span class="text-content tabular-nums"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{
                 'finance.overdue' | transloco: { days: row.overdue }
               }}</span>
               <span class="text-content-muted" [attr.data-level]="row.entry.number">{{
@@ -39,7 +39,7 @@
                 <span class="truncate text-content">{{ row.customer }}</span>
                 <span class="text-xs text-content-faint">
                   {{ row.entry.number }} ·
-                  <span class="text-caution">{{ 'finance.overdue' | transloco: { days: row.overdue } }}</span>
+                  <span class="text-content"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{ 'finance.overdue' | transloco: { days: row.overdue } }}</span>
                   · {{ 'finance.level' | transloco: { level: row.level } }}
                 </span>
               </span>

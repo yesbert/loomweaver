@@ -88,9 +88,10 @@ never disagree in the same window.
 
 A plugin takes part by implementing the unsaved-changes contract
 ([Unsaved changes](../weaver/unsaved-changes.md)): it reports whether it is dirty, it saves on
-request, and it may say what should happen before a close. A sandboxed surface pushes the same facts
+request, and it may say what should happen before a close. Its tab moving to another pane counts as
+a close, because the tab is built anew there. A sandboxed surface pushes the same facts
 over its channel. The owner of the work decides; the workbench only asks. If the owner does not answer within a
-bounded wait, the user is offered a way to close anyway, and an answer that still arrives counts.
+bounded wait, the user is offered a way to go ahead anyway, and an answer that still arrives counts.
 
 ## Where to act on it
 

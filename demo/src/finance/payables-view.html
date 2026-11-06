@@ -36,7 +36,7 @@
               @if (row.entry.approved) {
                 <span class="text-xs text-content-muted">{{ 'finance.approved' | transloco }}</span>
               } @else {
-                <span class="text-xs text-caution" data-testid="payable-unapproved">{{
+                <span class="text-xs text-content" data-testid="payable-unapproved"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{
                   'finance.awaitingApproval' | transloco
                 }}</span>
               }
@@ -48,7 +48,7 @@
                 <span class="text-xs text-content-faint">
                   {{ row.entry.number }} · {{ row.due }}
                   @if (!row.entry.approved) {
-                    · <span class="text-caution">{{ 'finance.awaitingApproval' | transloco }}</span>
+                    · <span class="text-content"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{ 'finance.awaitingApproval' | transloco }}</span>
                   }
                 </span>
               </span>

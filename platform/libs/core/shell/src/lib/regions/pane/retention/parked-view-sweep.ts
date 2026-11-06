@@ -1,6 +1,5 @@
 import { effect, inject, Injector, Service, untracked } from '@angular/core';
 import { ContentRoute, View } from '@loomweaver/plugin-sdk';
-import { PopoutWindow } from '../../../popout/popout-window';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { tabRootOf } from '../../content/content-path';
@@ -35,11 +34,10 @@ export class ParkedViewSweep {
   private readonly saveOnHide = inject(SaveOnHide);
   private readonly injector = inject(Injector);
   private readonly workspace = inject(ActiveWorkspaceService);
-  private readonly popout = inject(PopoutWindow).active;
   private started = false;
 
   start(): void {
-    if (this.started || this.popout) {
+    if (this.started) {
       return;
     }
     this.started = true;

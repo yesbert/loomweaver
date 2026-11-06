@@ -11,6 +11,8 @@ import { ViewMoveService } from './view-move.service';
 import { PanelState } from './panel-state';
 import { SidebarService } from './sidebar.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { DialogService } from '../../dialog/dialog.service';
+import { UnsavedWork } from '../pane/unsaved-work/unsaved-work';
 import type { MockInstance } from 'vitest';
 
 const EN = {
@@ -169,11 +171,77 @@ describe('ViewMoveService (as a moveTab special case)', () => {
     });
   });
 
-  describe('moveTab', () => {
-    it('announces a moved tab by the title it shows', () => {
+  describe('a move that first asks about unsaved work', () => {
+    let panels: PanelState;
+
+    beforeEach(() => {
+      panels = TestBed.inject(PanelState);
+      panels.toggle('secondary');
+      vi.spyOn(TestBed.inject(UnsavedWork), 'lostBy').mockReturnValue([
+        { surfaceDirty: () => true },
+      ]);
+    });
+
+    function answer(choice: 'discard' | 'cancel'): void {
+      TestBed.inject(DialogService).dialogs().at(-1)?.ref.close(choice);
+    }
+
+    const settled = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    it('announces nothing and leaves the sidebar collapsed while the question stands, and after Cancel', async () => {
+      paneTree.seedPrimaryTabs('primary', ['view:v1']);
+
+      const moved = service.move('v1', 'secondary');
+      await settled();
+
+      expect(TestBed.inject(DialogService).dialogs().length).toBe(1);
+      expect(panels.isCollapsed('secondary')).toBe(true);
+      expect(announce).not.toHaveBeenCalled();
+
+      answer('cancel');
+
+      await expect(moved).resolves.toBe(false);
+      expect(paneTree.sourceOf('view:v1')?.dock).toBe('primary');
+      expect(panels.isCollapsed('secondary')).toBe(true);
+      expect(announce).not.toHaveBeenCalled();
+    });
+
+    it('announces the view and expands the sidebar once the move has happened', async () => {
+      paneTree.seedPrimaryTabs('primary', ['view:v1']);
+
+      const moved = service.move('v1', 'secondary');
+      await settled();
+      answer('discard');
+
+      await expect(moved).resolves.toBe(true);
+      expect(paneTree.sourceOf('view:v1')?.dock).toBe('secondary');
+      expect(panels.isCollapsed('secondary')).toBe(false);
+      expect(announce).toHaveBeenCalledWith('v1 moved to right sidebar');
+    });
+
+    it('announces nothing for a parked tab whose move was cancelled', async () => {
       paneTree.seedPrimaryTabs('primary', ['notes/today']);
 
-      service.moveTab(
+      const moved = service.moveTab(
+        { dock: 'primary', paneId: PRIMARY_PANE },
+        { path: 'notes/today', title: 'Today', literalTitle: true },
+        'secondary',
+      );
+      await settled();
+      answer('cancel');
+
+      await expect(moved).resolves.toBe(false);
+      expect(paneTree.sourceOf('notes/today')?.dock).toBe('primary');
+      expect(panels.isCollapsed('secondary')).toBe(true);
+      expect(announce).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('moveTab', () => {
+    it('announces a moved tab by the title it shows', async () => {
+      paneTree.seedPrimaryTabs('primary', ['notes/today']);
+
+      await service.moveTab(
         { dock: 'primary', paneId: PRIMARY_PANE },
         { path: 'notes/today', title: 'Today', literalTitle: true },
         'secondary',

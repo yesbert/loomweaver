@@ -31,6 +31,7 @@ import { ActiveWorkspaceService } from '../../../workspace/active-workspace.serv
 import { LeftOutChildren } from '../container/left-out-children';
 import { SurfaceCloseGuard } from '../unsaved-work/surface-close-guard';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
+import { NotificationService } from '../../../notifications/notification.service';
 
 export type PaneDropEdge = 'top' | 'bottom' | 'left' | 'right';
 
@@ -78,14 +79,15 @@ export class PaneMoveService {
   private readonly unsavedWork = inject(UnsavedWork);
   private readonly closeGuard = inject(SurfaceCloseGuard);
   private readonly workspace = inject(ActiveWorkspaceService);
+  private readonly notifications = inject(NotificationService);
 
   moveToStrip(
     source: PaneRef,
     rawPath: string,
     target: PaneRef,
     index?: number,
-  ): void {
-    this.relocate(() => {
+  ): Promise<boolean> {
+    return this.relocate(() => {
       const tab = this.resolveTab(source, rawPath);
       if (!tab || isSamePane(source, target)) {
         return null;
@@ -105,10 +107,10 @@ export class PaneMoveService {
     rawPath: string,
     target: PaneRef,
     edge: PaneDropEdge,
-  ): void {
+  ): Promise<boolean> {
     const orientation = edge === 'left' || edge === 'right' ? 'row' : 'column';
     const position = edge === 'left' || edge === 'top' ? 'before' : 'after';
-    this.relocate(() => {
+    return this.relocate(() => {
       const tab = this.resolveTab(source, rawPath);
       if (
         !tab ||
@@ -134,12 +136,12 @@ export class PaneMoveService {
     rootPath: string,
     orientation: 'row' | 'column',
     pane?: PaneRef,
-  ): void {
+  ): Promise<boolean> {
     const source: PaneRef = pane ?? {
       dock: CONTENT_DOCK,
       paneId: this.paneTree.primaryId(CONTENT_DOCK),
     };
-    this.moveToEdge(
+    return this.moveToEdge(
       source,
       rootPath,
       source,
@@ -147,33 +149,48 @@ export class PaneMoveService {
     );
   }
 
-  private relocate(plan: () => PlannedMove | null): void {
+  private relocate(plan: () => PlannedMove | null): Promise<boolean> {
     const first = plan();
     if (!first) {
-      return;
+      return Promise.resolve(false);
     }
     const workspace = this.workspace.id();
     const arrangement = this.paneTree.arrangement();
     const lost = this.lostBy(first);
     const asked = new Set(this.needingAnAnswer(lost));
-    this.closeGuard.guarded(lost, () => {
-      const unchanged =
-        this.workspace.id() === workspace &&
-        this.paneTree.arrangement() === arrangement;
-      const move = unchanged ? plan() : null;
-      if (
-        !move ||
-        this.needingAnAnswer(this.lostBy(move)).some((one) => !asked.has(one))
-      ) {
-        return;
-      }
-      const follow = this.urlFollowup(move.source, move.tab);
-      for (const dock of new Set([move.arrival.dock, move.source.dock])) {
-        this.paneTree.commit(dock, move.edits[dock]);
-      }
-      this.collapseEmptiedPrimary(move.source.dock);
-      this.afterArrival(move.arrival, move.moved, follow);
-    });
+    let moved = false;
+    return this.closeGuard
+      .guarded(lost, () => {
+        const unchanged =
+          this.workspace.id() === workspace &&
+          this.paneTree.arrangement() === arrangement;
+        const move = unchanged ? plan() : null;
+        if (!move || this.asksAnew(move, asked)) {
+          this.notifications.show({
+            message: 'retention.moveDropped',
+            kind: 'warning',
+          });
+          return;
+        }
+        this.carryOut(move);
+        moved = true;
+      })
+      .then(() => moved);
+  }
+
+  private carryOut(move: PlannedMove): void {
+    const follow = this.urlFollowup(move.source, move.tab);
+    for (const dock of new Set([move.arrival.dock, move.source.dock])) {
+      this.paneTree.commit(dock, move.edits[dock]);
+    }
+    this.collapseEmptiedPrimary(move.source.dock);
+    this.afterArrival(move.arrival, move.moved, follow);
+  }
+
+  private asksAnew(move: PlannedMove, asked: ReadonlySet<unknown>): boolean {
+    return this.needingAnAnswer(this.lostBy(move)).some(
+      (one) => !asked.has(one),
+    );
   }
 
   private needingAnAnswer(instances: readonly unknown[]): unknown[] {

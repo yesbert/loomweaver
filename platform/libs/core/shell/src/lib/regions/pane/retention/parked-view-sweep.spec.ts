@@ -19,6 +19,7 @@ import { PaneTreeService } from '../tree/pane-tree.service';
 import { RetainedComponent } from './retained-component';
 import { RetainedViewStash } from './retained-view-stash';
 import { ParkedViewSweep } from './parked-view-sweep';
+import { PopoutWindow } from '../../../popout/popout-window';
 import { RetentionUnloadGuard } from '../unsaved-work/retention-unload-guard';
 
 let instances: ProbeView[] = [];
@@ -314,5 +315,60 @@ describe('surface retention', () => {
       globalThis.dispatchEvent(cleanEvent);
       expect(cleanEvent.defaultPrevented).toBe(false);
     });
+  });
+});
+
+describe('a window of its own', () => {
+  beforeEach(() => {
+    instances = [];
+    destroyed = 0;
+    TestBed.configureTestingModule({
+      providers: [{ provide: PopoutWindow, useValue: { active: true } }],
+    });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'notes',
+      component: ProbeView,
+    });
+  });
+
+  it('destroys a kept surface whose pane inside the arrangement it shows was closed', () => {
+    const dock = 'container@board';
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.commit(dock, {
+      kind: 'split',
+      id: 'root',
+      orientation: 'row',
+      ratio: 0.5,
+      first: { kind: 'leaf', id: 'main', tabs: [{ path: 'a' }], active: 'a' },
+      second: {
+        kind: 'leaf',
+        id: 'b',
+        tabs: [{ path: 'notes' }],
+        active: 'notes',
+      },
+    });
+    const slot = TestBed.inject(RetainedViewStash).acquire(
+      `${dock}:b|notes`,
+      ProbeView,
+      () => {
+        const componentRef = createComponent(ProbeView, {
+          environmentInjector: TestBed.inject(EnvironmentInjector),
+        });
+        return {
+          view: componentRef.hostView as EmbeddedViewRef<unknown>,
+          instance: componentRef.instance,
+        };
+      },
+    );
+    slot.detach(true);
+
+    TestBed.inject(ParkedViewSweep).start();
+    TestBed.tick();
+    expect(destroyed).toBe(0);
+
+    paneTree.closePane(dock, 'b');
+    TestBed.tick();
+
+    expect(destroyed).toBe(1);
   });
 });

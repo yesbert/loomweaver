@@ -172,8 +172,9 @@
     "saveFailed": "Speichern fehlgeschlagen — deine Änderungen bleiben erhalten und die Ansicht offen",
     "stillDirty": "Die Ansicht meldet nach dem Speichern weiterhin ungespeicherte Änderungen — das Schließen wurde abgebrochen",
     "vetoPendingTitle": "Warten auf das Plugin",
-    "vetoPendingMessage": "Das Plugin dieses Tabs hat seine Schließen-Prüfung noch nicht beantwortet. Du kannst den Tab trotzdem schließen.",
-    "closeAnyway": "Trotzdem schließen"
+    "vetoPendingMessage": "Das Plugin dieses Tabs hat seine Prüfung noch nicht abgeschlossen. Du kannst fortfahren, ohne darauf zu warten.",
+    "goAheadAnyway": "Trotzdem fortfahren",
+    "moveDropped": "Der Tab wurde nicht verschoben, weil sich die Panes geändert haben, während du geantwortet hast."
   },
   "route": {
     "unavailableTitle": "Ansicht nicht verfügbar",

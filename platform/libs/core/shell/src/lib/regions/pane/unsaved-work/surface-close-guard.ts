@@ -34,15 +34,19 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
     );
   }
 
-  guarded(candidates: readonly unknown[], proceed: () => void): void {
+  guarded(
+    candidates: readonly unknown[],
+    proceed: () => void,
+  ): Promise<boolean> {
     if (!this.mustAsk(candidates)) {
       proceed();
-      return;
+      return Promise.resolve(true);
     }
-    void this.confirmClose(candidates).then((ok) => {
+    return this.confirmClose(candidates).then((ok) => {
       if (ok) {
         proceed();
       }
+      return ok;
     });
   }
 
@@ -111,20 +115,20 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
       if (outcome !== 'timeout') {
         return outcome;
       }
-      return await this.closeAnyway(settled);
+      return await this.goAheadAnyway(settled);
     } finally {
       clearTimeout(timer);
     }
   }
 
-  private closeAnyway(settled: Promise<boolean>): Promise<boolean> {
+  private goAheadAnyway(settled: Promise<boolean>): Promise<boolean> {
     const ref = this.dialogs.open<'force' | 'keep'>(ClosePromptMessage, {
       data: 'retention.vetoPendingMessage',
       title: 'retention.vetoPendingTitle',
       tone: 'warning',
       buttons: [
         { label: 'dialog.cancel', value: 'keep' },
-        { label: 'retention.closeAnyway', variant: 'danger', value: 'force' },
+        { label: 'retention.goAheadAnyway', variant: 'danger', value: 'force' },
       ],
     });
     void settled.then((approved) => ref.close(approved ? 'force' : 'keep'));
