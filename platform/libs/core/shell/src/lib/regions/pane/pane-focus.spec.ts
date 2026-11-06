@@ -4,7 +4,12 @@ import { PaneTreeService } from './tree/pane-tree.service';
 import { leafOf } from './tree/pane-node';
 import { stripIdOf } from './drag/pane-move.service';
 import { panelIdIn } from './chrome/strip-tab';
-import { MAIN_CONTENT_ID, minimizedIdOf, PaneFocus } from './pane-focus';
+import {
+  MAIN_CONTENT_ID,
+  minimizedIdOf,
+  PaneFocus,
+  paneKeyOf,
+} from './pane-focus';
 
 const SIDE = { dock: 'content', paneId: 'p2' };
 const ADDRESS = { dock: 'content', paneId: 'main' };
@@ -124,6 +129,49 @@ describe('PaneFocus', () => {
     focus.settleOnTab('doc/b', ADDRESS);
     settle();
 
+    expect(document.activeElement).toBe(list.firstElementChild);
+  });
+
+  it('leaves the focus on a menu that opened while the pane was closing its tab', () => {
+    const list = strip(SIDE, 'doc/a');
+    const menu = element('lw-opened-menu', 'button');
+
+    focus.settleOn(SIDE);
+    menu.focus();
+    settle();
+
+    expect(document.activeElement).toBe(menu);
+    expect(document.activeElement).not.toBe(list.firstElementChild);
+  });
+
+  it('moves the focus on from a control inside the pane the action came from', () => {
+    const pane = document.createElement('div');
+    pane.dataset['pane'] = paneKeyOf(SIDE);
+    const control = document.createElement('button');
+    pane.append(control);
+    document.body.append(pane);
+    const list = strip(ADDRESS, 'doc/a');
+
+    held = ['main'];
+    focus.settleOn(SIDE);
+    control.focus();
+    settle();
+
+    expect(document.activeElement).toBe(list.firstElementChild);
+  });
+
+  it('lets a moved tab take the focus only from the pane it left', () => {
+    const list = strip(SIDE, 'doc/b');
+    const elsewhere = element('lw-elsewhere', 'button');
+
+    focus.settleOnTab('doc/b', ADDRESS, SIDE);
+    elsewhere.focus();
+    settle();
+    expect(document.activeElement).toBe(elsewhere);
+
+    elsewhere.blur();
+    focus.settleOnTab('doc/b', ADDRESS, SIDE);
+    settle();
     expect(document.activeElement).toBe(list.firstElementChild);
   });
 });

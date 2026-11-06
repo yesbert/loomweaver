@@ -13,6 +13,10 @@ import { panelIdIn } from './chrome/strip-tab';
 
 export const MAIN_CONTENT_ID = 'lw-main-content';
 
+export function paneKeyOf(pane: PaneRef): string {
+  return stripIdOf(pane);
+}
+
 export function minimizedIdOf(pane: PaneRef): string {
   return `${stripIdOf(pane)}:minimized`;
 }
@@ -25,19 +29,28 @@ export class PaneFocus {
 
   settleOn(pane: PaneRef): void {
     afterNextRender(
-      { read: () => this.focusNow(this.remaining(pane)) },
+      {
+        read: () => {
+          if (this.free(pane)) {
+            this.focusNow(this.remaining(pane));
+          }
+        },
+      },
       { injector: this.injector },
     );
   }
 
-  settleOnTab(path: string, fallback: PaneRef): void {
+  settleOnTab(path: string, from: PaneRef, fallback: PaneRef = from): void {
     afterNextRender(
       {
-        read: () =>
-          this.focusNow(
-            this.paneTree.sourceOf(path) ?? this.remaining(fallback),
-            path,
-          ),
+        read: () => {
+          if (this.free(from)) {
+            this.focusNow(
+              this.paneTree.sourceOf(path) ?? this.remaining(fallback),
+              path,
+            );
+          }
+        },
       },
       { injector: this.injector },
     );
@@ -66,6 +79,20 @@ export class PaneFocus {
       this.byId(this.bodyIdOf(pane)) ??
       this.byId(minimizedIdOf(pane));
     target?.focus();
+  }
+
+  private free(from: PaneRef): boolean {
+    const focused = this.document.activeElement;
+    if (focused === null || focused === this.document.body) {
+      return true;
+    }
+    const pane = this.document.querySelector(
+      `[data-pane="${CSS.escape(paneKeyOf(from))}"]`,
+    );
+    return (
+      pane?.contains(focused) === true ||
+      focused === this.byId(minimizedIdOf(from))
+    );
   }
 
   private byId(id: string): HTMLElement | null {

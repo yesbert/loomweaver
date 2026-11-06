@@ -68,7 +68,7 @@ export class TabMoves {
       this.announcer.announceTab('content.tabMove.announce', subject, {
         position: target.position,
       });
-      this.paneFocus.settleOnTab(path, target.pane);
+      this.paneFocus.settleOnTab(path, source, target.pane);
     }
     return moved;
   }

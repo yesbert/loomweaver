@@ -53,17 +53,21 @@ function unusableIds(): ReadonlySet<string> {
   return TestBed.inject(UNUSABLE_WORKSPACES).ids();
 }
 
-function compose(): WorkspaceService {
+function compose(...more: readonly object[]): WorkspaceService {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', children: [] }]),
       provideLayout(LAYOUT as never),
-      provideWorkspaces({ id: 'overview', title: 'Overview', initial: true }, {
-        id: 'orders',
-        title: 'Orders',
-        claims: ['orders/:id'],
-        content: { tabs: [{ path: 'orders/o-0', closable: false }] },
-      } as never),
+      provideWorkspaces(
+        { id: 'overview', title: 'Overview', initial: true },
+        {
+          id: 'orders',
+          title: 'Orders',
+          claims: ['orders/:id'],
+          content: { tabs: [{ path: 'orders/o-0', closable: false }] },
+        } as never,
+        ...(more as never[]),
+      ),
       { provide: UNUSABLE_WORKSPACES, useExisting: UnusableWorkspacesService },
     ],
   });
@@ -161,6 +165,41 @@ describe('resetting a workspace', () => {
     expect(hooks.get('orders/o-1')).toBeUndefined();
     expect(kept).not.toHaveBeenCalled();
     expect(hooks.get('orders/o-0')).toBe(kept);
+  });
+
+  it('keeps the teardown of a tab another workspace the user is not in still holds, when one of them is reset', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
+    localStorage.setItem('lw.shell.pane-trees:archive', REARRANGED);
+    const ws = compose({ id: 'archive', title: 'Archive' });
+    const hooks = TestBed.inject(TabCloseHooks);
+    const teardown = vi.fn();
+    hooks.set('orders/o-1', teardown);
+
+    await ws.reset('orders');
+
+    expect(teardown).not.toHaveBeenCalled();
+    expect(hooks.get('orders/o-1')).toBe(teardown);
+
+    await ws.reset('archive');
+
+    expect(teardown).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the teardown of a tab that a reset of every workspace leaves in one of them', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
+    const ws = compose({
+      id: 'archive',
+      title: 'Archive',
+      content: { tabs: [{ path: 'orders/o-1' }] },
+    });
+    const hooks = TestBed.inject(TabCloseHooks);
+    const teardown = vi.fn();
+    hooks.set('orders/o-1', teardown);
+
+    await ws.resetAll();
+
+    expect(teardown).not.toHaveBeenCalled();
+    expect(hooks.get('orders/o-1')).toBe(teardown);
   });
 });
 

@@ -92,7 +92,7 @@ describe('TabMoves', () => {
       { id: 'doc/a', title: 'doc/a', literalTitle: true },
       { position: 2 },
     );
-    expect(settleOnTab).toHaveBeenCalledWith('doc/a', SIDE);
+    expect(settleOnTab).toHaveBeenCalledWith('doc/a', ADDRESS, SIDE);
   });
 
   it('says nothing and leaves the focus where a move did not happen', async () => {

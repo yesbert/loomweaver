@@ -46,7 +46,7 @@ import { TAB_CONTEXT_MENU } from '../content/tabs/tab-context-menu';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
-import { MAIN_CONTENT_ID, PaneFocus } from './pane-focus';
+import { MAIN_CONTENT_ID, PaneFocus, paneKeyOf } from './pane-focus';
 
 @Component({
   selector: 'lw-pane-view',
@@ -63,6 +63,7 @@ import { MAIN_CONTENT_ID, PaneFocus } from './pane-focus';
   host: {
     class: 'relative flex min-h-0 min-w-0 flex-1 flex-col',
     '[attr.data-address-pane]': 'carriesAddress() || null',
+    '[attr.data-pane]': 'paneKey()',
   },
   templateUrl: './pane-view.html',
 })
@@ -124,6 +125,8 @@ export class PaneView {
     dock: this.dock(),
     paneId: this.leaf().id,
   }));
+
+  protected readonly paneKey = computed(() => paneKeyOf(this.pane()));
 
   protected readonly path = computed(() => leafPath(this.leaf()) ?? '');
 
