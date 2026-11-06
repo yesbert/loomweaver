@@ -77,6 +77,14 @@ describe('foldedIds', () => {
     expect(back).toEqual([]);
   });
 
+  it('never folds an entry that stays, and folds every other one before it gives up room', () => {
+    const rank = foldRank(STATUS_BAR);
+
+    expect(
+      foldedIds(rank, { ...measure(10, SIXTY_EACH), stays: (id) => id === 'search' }),
+    ).toEqual(['legal', 'version', 'preview', 'update', 'look']);
+  });
+
   it('treats an entry never measured as taking no room, so it is shown and measured', () => {
     const rank = foldRank(STATUS_BAR);
 

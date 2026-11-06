@@ -2,9 +2,9 @@ import { BarItem, BarSlot } from '../../foundation/bar-item';
 
 export {
   closeOnOutsidePointer,
-  entryWidth,
   FOLD_CONTROL_PX,
   foldedIds,
+  naturalWidth,
   sameIds,
   type FoldMeasure,
 } from '../../elements/row-fold';

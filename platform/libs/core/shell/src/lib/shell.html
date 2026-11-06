@@ -34,7 +34,7 @@
             <lw-shell-sidebar-header [region]="panel" context="floating" />
           }
           @for (region of topBars; track region.id) {
-            <lw-shell-bar [region]="region" class="flex-1" />
+            <lw-shell-bar [region]="region" class="min-w-0 flex-1" />
           }
           @if (needsHeaderSpacer()) {
             <div class="h-12 flex-1"></div>

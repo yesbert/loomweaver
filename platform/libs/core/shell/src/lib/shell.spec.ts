@@ -65,6 +65,16 @@ describe('Shell', () => {
     );
   });
 
+  it('lets the top bar narrow with its column, so the bar folds rather than spill past it', async () => {
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const bar = (fixture.nativeElement as HTMLElement).querySelector(
+      '[role="banner"] lw-shell-bar',
+    );
+
+    expect(bar?.classList.contains('min-w-0')).toBe(true);
+  });
+
   it('draws one banner, one main and one content-info region, each named', async () => {
     const fixture = TestBed.createComponent(Shell);
     await fixture.whenStable();

@@ -24,12 +24,13 @@ import { ShellBarItem } from './shell-bar-item';
 import { BarEntry, barMenuContext, isBarButton } from './bar-context';
 import {
   closeOnOutsidePointer,
-  entryWidth,
   FOLD_CONTROL_PX,
   foldedIds,
   foldRank,
+  naturalWidth,
   sameIds,
 } from './bar-fold';
+import { BRAND_ENTRY } from './default-bar-items';
 
 const GAP_PX = 8;
 
@@ -219,6 +220,7 @@ export class ShellBar {
             control: this.controlWidth,
             gap: GAP_PX,
             widthOf: (id) => this.widths.get(id),
+            stays: (id) => id === BRAND_ENTRY,
           })
         : [],
     );
@@ -227,7 +229,7 @@ export class ShellBar {
   private observeEntries(bar: HTMLElement): void {
     for (const host of bar.querySelectorAll<HTMLElement>('[data-bar-entry]')) {
       this.observer?.observe(host);
-      this.widths.set(host.dataset['barEntry'] ?? '', entryWidth(host));
+      this.widths.set(host.dataset['barEntry'] ?? '', naturalWidth(host));
     }
   }
 
