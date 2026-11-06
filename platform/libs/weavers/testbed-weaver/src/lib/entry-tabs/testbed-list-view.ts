@@ -40,7 +40,7 @@ const PRIORITY_STRIPE: Readonly<Record<EntryPriority, string>> = {
 
 const PRIORITY_TEXT: Readonly<Record<EntryPriority, string>> = {
   urgent: 'text-negative',
-  high: 'text-caution',
+  high: 'text-content',
   normal: 'text-brand-text',
   low: 'text-content-faint',
 };

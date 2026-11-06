@@ -76,3 +76,21 @@ before it folds a button. Shell-layout's folding requirement, read literally, as
 first, so that every entry left in the bar is shown at its natural width. Measuring at the natural
 width would fold buttons where the name is cut today, and could fold the brand itself as the last
 entry.
+
+**Two colours sit under 3:1 on an overlay surface, and both are the brand's to decide.** Measured
+as sRGB relative luminance, the way the website's contrast check does it. In the light theme the
+brand blue `#2e96c9` reads 3.15:1 on the base surface, 3.32:1 on the raised surface and 2.95:1 on
+the overlay surface `#eef2f6`. It shows wherever the blue is drawn as a mark over an overlay: every
+focus ring, including the one inside a segmented control, whose own background is the overlay, and
+a brand-coloured icon whose button takes the overlay on hover, such as the update badge. In the dark
+theme the danger fill `#c62d2d` reads 3.21:1 on the base surface, 2.91:1 on the raised surface and
+2.57:1 on the overlay surface `#232c36`. It shows as the danger button over a dark overlay, where
+the button's edge is weak; its white label is unaffected at 5.51:1. Neither was changed here. Fixing
+the first changes the brand's own blue, or gives focus rings a tone other than the brand; fixing the
+second changes how the danger button looks in the dark theme. Both are a judgement about the
+product's appearance rather than a correction. Three more numbers belong to the same
+decision. The focus ring this change gave the segmented control and the track of a switch that is on
+are that same brand blue on the overlay surface, 2.95:1 in the light theme. The light `caution`
+`#b27f1e` drawn as an icon on its own 10% tint reads 2.84:1 where that tint lies on the overlay
+surface. And after the user has consented, an update whose activation then fails still reloads,
+which now costs the work the user agreed to discard for an update that did not apply.

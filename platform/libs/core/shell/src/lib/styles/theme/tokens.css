@@ -69,10 +69,10 @@
 
     --lw-positive: #1f7a43;
     --lw-on-positive: #ffffff;
-    --lw-negative: #d14343;
+    --lw-negative: #cc3333;
     --lw-negative-fill: #c62d2d;
     --lw-on-negative: #ffffff;
-    --lw-caution: #b8841f;
+    --lw-caution: #b27f1e;
     --lw-on-caution: #0f1419;
     --lw-info: #1d7099;
     --lw-on-info: #ffffff;
@@ -115,7 +115,7 @@
 
     --lw-positive: #46c178;
     --lw-on-positive: #0f1419;
-    --lw-negative: #e06464;
+    --lw-negative: #e47272;
     --lw-negative-fill: #c62d2d;
     --lw-on-negative: #ffffff;
     --lw-caution: #d9b250;

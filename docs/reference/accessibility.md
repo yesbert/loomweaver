@@ -90,15 +90,16 @@ the binding guardrail; it complements [`design-tokens.md`](design-tokens.md) (co
 
 ## Colour token rules (AA)
 
-| Purpose                 | Token                                         | Rule                                                                                         |
-| ----------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Body text / labels      | `content` / `content-muted` / `content-faint` | all ≥4.5:1 on every surface                                                                  |
-| Brand as **text**       | `brand-text`                                  | deeper tone, ≥4.5:1 (not `brand`)                                                            |
-| Brand as **fill+label** | `brand-fill` (+ `on-brand`)                   | primary-button fill; `brand` stays the identity (logo/icon)                                  |
-| Danger **button**       | `negative-fill` (+ `on-negative`)             | deeper than `negative`; `negative` stays error text/icon                                     |
-| Status icons/text       | `positive`/`negative`/`caution`/`info`        | ≥3:1 as an icon; ≥4.5:1 as text                                                              |
-| Unsaved work            | `unsaved`                                     | ≥3:1 on every surface, as a graphical indicator rather than as text                          |
-| Borders/dividers        | `border`                                      | decorative (exempt from 1.4.11); interaction boundaries additionally carry a focus ring/fill |
+| Purpose                 | Token                                         | Rule                                                                                                                                                                   |
+| ----------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Body text / labels      | `content` / `content-muted` / `content-faint` | all ≥4.5:1 on every surface                                                                                                                                            |
+| Brand as **text**       | `brand-text`                                  | deeper tone, ≥4.5:1 (not `brand`)                                                                                                                                      |
+| Brand as **fill+label** | `brand-fill` (+ `on-brand`)                   | primary-button fill; `brand` stays the identity (logo/icon)                                                                                                            |
+| Danger **button**       | `negative-fill` (+ `on-negative`)             | deeper than `negative`; `negative` stays error text/icon                                                                                                               |
+| Status icons/text       | `positive`/`negative`/`info`                  | ≥3:1 as an icon and ≥4.5:1 as text, on every surface                                                                                                                   |
+| Warning                 | `caution` (+ `on-caution`)                    | ≥3:1 as an icon or a fill on every surface; **not** a text colour, because in the light theme it stays below 4.5:1: write the words beside a warning icon in `content` |
+| Unsaved work            | `unsaved`                                     | ≥3:1 on every surface, as a graphical indicator rather than as text                                                                                                    |
+| Borders/dividers        | `border`                                      | decorative (exempt from 1.4.11); interaction boundaries additionally carry a focus ring/fill                                                                           |
 
 ## Checking
 

@@ -2,7 +2,7 @@
   --tw-prose-body: var(--lw-content);
   --tw-prose-headings: var(--lw-content);
   --tw-prose-lead: var(--lw-content-muted);
-  --tw-prose-links: var(--lw-brand);
+  --tw-prose-links: var(--lw-brand-text);
   --tw-prose-bold: var(--lw-content);
   --tw-prose-counters: var(--lw-content-muted);
   --tw-prose-bullets: var(--lw-border);

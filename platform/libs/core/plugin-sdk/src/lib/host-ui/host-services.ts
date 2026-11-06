@@ -123,7 +123,11 @@ export interface PluginHost {
   readonly updatesEnabled: boolean;
   /** Manually check for a new version. */
   checkForUpdate(): Promise<void>;
-  /** Activate the downloaded version and reload into it. */
+  /**
+   * Activate the downloaded version and reload into it. Asks first where work is unsaved in this
+   * window. Where the user declines, the update is abandoned and the promise resolves without a
+   * reload.
+   */
   activateUpdate(): Promise<void>;
 }
 

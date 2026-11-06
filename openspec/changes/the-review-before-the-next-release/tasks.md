@@ -279,6 +279,25 @@ What review 12.3 found. Paths are under `platform/libs/core/`.
 - [x] 14.19 A second `stateWatch` for a key the frame already watches is answered with the current value again, so a handle created later for a key the surface first watched by a raw call does not stay unloaded until the next change (`shell/src/lib/plugin/plugin-state-bridge.ts`)
 - [x] 14.20 The frame's warning says what happened: a call that could not be completed is not reported as refused (`shell/src/lib/surface-kit/surface-host-call.ts`); and the spec of the kit's elements also pins what may be assigned, `null` included, and checks `lw-progress-ring` against its real class
 
+## 15. Updates, styles and the tour
+
+What reviews 12.4 and 12.5 found. Paths are under `platform/libs/core/shell/src/lib/` unless they start with `platform/`.
+
+- [x] 15.1 Applying an update asks about unsaved work before it activates anything, and declining leaves the application as it was (`update/update.service.ts`)
+- [x] 15.2 The pressed item of a segmented control shows the focus under the keyboard (`styles/theme/controls.css`)
+- [x] 15.3 The tour recording finds the rail by the name it carries and fails on a step it cannot do (`platform/tools/media/record-tour.mjs`)
+- [x] 15.4 A check for updates made in the background does not record "current" while an update has failed (`update/update.service.ts`, `silentCheck`)
+- [x] 15.5 A link in rendered text has the contrast of text in the light theme (`styles/theme/lw-markdown.css`)
+- [x] 15.6 A switch that is off can be told from its background (`styles/theme/controls.css`, `.lw-switch`)
+- [x] 15.7 The tokens the guide calls verified for text meet 4.5:1 on every surface they are used on, or the guide says where they may be used (`styles/theme/tokens.css`, `docs/reference/design-tokens.md`)
+- [x] 15.8 Asking to apply an update while that question is already open opens no second dialog: the second request joins the first (`update/update.service.ts`, `activateUpdate`)
+- [x] 15.9 The testbed uses no fill tone as a text colour: the places that put `text-caution` on real text take a tone the guide calls text-safe, or carry the warning as an icon beside text in the content colour (`platform/libs/weavers/testbed-weaver/src/lib/dashboard/testbed-dashboard-view.html`, `entry-tabs/testbed-entry-view.html`, `entry-tabs/testbed-list-view.ts`, `access-gating/admin-route-view.html`)
+- [x] 15.10 A request to apply an update cannot make the control dead: the join lasts only while the question is open, and once the user has answered, a later request starts afresh (`update/update.service.ts`)
+- [x] 15.11 Where the question itself fails, the request ends without an unhandled rejection, and out of a broken state the application still reloads (`update/update.service.ts`)
+- [x] 15.12 The descriptions of applying an update say what is true: the question covers unsaved work in this window, the promise resolves without a reload on a decline, and `on-negative` is the label colour on the `negative-fill` surface (`update/update.service.ts`, `platform/libs/core/plugin-sdk/src/lib/host-ui/host-services.ts`, `docs/distribution-api/windows-and-sync.md`, `docs/distribution-api/index.md`, `docs/weaver/host-ui-and-facts.md`, `docs/reference/design-tokens.md`)
+- [x] 15.13 The search entry in the top bar shows the focus under the keyboard: the focusable element carries the ring (`styles/theme/controls.css`)
+- [x] 15.14 The tour recording fails on a step that did nothing: the splitter presses, the Dashboard option and the theme toggle each check their effect (`platform/tools/media/record-tour.mjs`)
+
 ## 13. Hand-over
 
 - [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged

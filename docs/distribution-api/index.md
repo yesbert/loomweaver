@@ -81,7 +81,7 @@ Two options of `provideShell` govern toasts: `toastPosition` chooses the edge th
 | make my own state follow across windows                 | `sync.register(…)`, `sync.announce(key)`                                                                            | [Windows, sync and updates](windows-and-sync.md#do-it)   |
 | apply a change my backend pushed from another device    | `sync.notifyRemoteChange(key)`                                                                                      | [Windows, sync and updates](windows-and-sync.md#do-it)   |
 | point the version at my own build info                  | `version.version.set(v)`                                                                                            | [Windows, sync and updates](windows-and-sync.md#do-it)   |
-| react to a new version                                  | `updates.updateAvailable()`, `await updates.activateUpdate()`                                                       | [Windows, sync and updates](windows-and-sync.md#read-it) |
+| react to a new version                                  | `updates.updateAvailable()`, `await updates.activateUpdate()`, which asks about unsaved work first                  | [Windows, sync and updates](windows-and-sync.md#read-it) |
 | check for a new version by hand                         | `await updates.checkForUpdate()`                                                                                    | [Windows, sync and updates](windows-and-sync.md#do-it)   |
 
 ## The pages
