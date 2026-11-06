@@ -2,7 +2,12 @@ import { NotificationInput } from '@loomweaver/plugin-sdk';
 import { STAYS } from '../notifications/notification-lifetime';
 
 export type UpdateNotice =
-  'waiting' | 'current' | 'unreachable' | 'failed' | 'broken';
+  | 'waiting'
+  | 'current'
+  | 'unreachable'
+  | 'failed'
+  | 'broken'
+  | 'notActivated';
 
 const NOTICES: Record<
   UpdateNotice,
@@ -33,6 +38,12 @@ const NOTICES: Record<
     message: 'update.failed',
     timeoutMs: STAYS,
     action: { label: 'update.reload', run: activate },
+  }),
+  notActivated: () => ({
+    id: 'shell.update.notActivated',
+    kind: 'warning',
+    message: 'update.activationFailed',
+    timeoutMs: 8000,
   }),
   broken: (activate) => ({
     id: 'shell.update.broken',

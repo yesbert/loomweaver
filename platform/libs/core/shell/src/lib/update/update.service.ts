@@ -1,7 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, inject, Service, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
-import { DialogService } from '../dialog/dialog.service';
 import { ServedBase } from '../foundation/served-base';
 import { NotificationService } from '../notifications/notification.service';
 import { RetentionUnloadGuard } from '../regions/pane/unsaved-work/retention-unload-guard';
@@ -66,8 +65,6 @@ export class UpdateService {
   private readonly closeGuard = inject(SurfaceCloseGuard);
 
   private readonly unsavedWork = inject(UnsavedWork);
-
-  private readonly dialogs = inject(DialogService);
 
   private readonly unloadGuard = inject(RetentionUnloadGuard);
 
@@ -160,14 +157,18 @@ export class UpdateService {
   }
 
   /**
-   * Gets the client onto a working version and reloads into it — it reloads even if that fails,
-   * so the affordance is never a silent no-op.
+   * Gets the client onto a working version and reloads into it.
    *
    * Where work is unsaved in this window the user is asked first, with the question any other
    * action that would destroy it asks. Declining abandons the update: nothing is activated, nothing
    * is dropped and the page is not reloaded, so the update stays on offer and the promise resolves
    * all the same. A call made while that question is still open joins it rather than asking a second
    * time; once it is answered, a later call starts afresh.
+   *
+   * Where activating the new version fails, the page is not reloaded either, so work the user agreed
+   * to discard is still there. The user is told the update could not be activated, also where the
+   * distribution announces updates itself, and the update stays on offer for a later try. Activation
+   * that finds nothing to activate, which is the case after a failed installation, still reloads.
    *
    * The promise never rejects. Where the question itself cannot be put, a healthy update is
    * abandoned as if declined, while a broken worker is still dropped and the page reloaded, with the
@@ -176,9 +177,10 @@ export class UpdateService {
    * When the worker is {@link updateBroken} activating is pointless: the broken registration would
    * still control the next load and report the same failure, which is a loop the user cannot leave
    * from inside the app. There the shell unregisters its own worker and drops its caches first, so
-   * the reload lands uncontrolled and registers afresh. Only the shell's own `ngsw-worker.js` and
-   * the `ngsw:` caches of the application's base are touched; anything else the product registered,
-   * and any other distribution served on the same origin, is left alone.
+   * the reload lands uncontrolled and registers afresh, even where dropping them fails. Only the
+   * shell's own `ngsw-worker.js` and the `ngsw:` caches of the application's base are touched;
+   * anything else the product registered, and any other distribution served on the same origin, is
+   * left alone.
    */
   activateUpdate(): Promise<void> {
     this.asking ??= this.applyUpdate();
@@ -192,8 +194,9 @@ export class UpdateService {
     }
     if (this.broken()) {
       await dropShellWorker(this.document.defaultView, this.base.path);
-    } else {
-      await this.tryActivate();
+    } else if (!(await this.activated())) {
+      this.tell('notActivated');
+      return;
     }
     if (consent === 'given') {
       this.unloadGuard.suppress();
@@ -211,19 +214,23 @@ export class UpdateService {
   }
 
   private askWhileJoinable(): Promise<boolean> {
+    let joinable = true;
     const release = () => {
+      if (!joinable) {
+        return;
+      }
+      joinable = false;
       this.asking = null;
     };
-    const openBefore = this.dialogs.dialogs().length;
-    const answer = this.askAboutUnsavedWork();
-    const question = this.dialogs.dialogs().at(openBefore);
-    void (question?.ref.closed ?? answer).then(release, release);
+    const answer = this.askAboutUnsavedWork(release);
+    void answer.then(release, release);
     return answer;
   }
 
-  private async askAboutUnsavedWork(): Promise<boolean> {
+  private async askAboutUnsavedWork(answered: () => void): Promise<boolean> {
     return this.closeGuard.confirmDiscard(
       this.unsavedWork.instancesEverywhere(),
+      answered,
     );
   }
 
@@ -263,13 +270,16 @@ export class UpdateService {
     return found;
   }
 
-  private async tryActivate(): Promise<void> {
+  private async activated(): Promise<boolean> {
+    if (!this.swUpdate?.isEnabled) {
+      return true;
+    }
     try {
-      if (this.swUpdate?.isEnabled) {
-        await this.swUpdate.activateUpdate();
-      }
-    } catch {
-      return;
+      await this.swUpdate.activateUpdate();
+      return true;
+    } catch (error) {
+      console.error('Activating the update failed', error);
+      return false;
     }
   }
 
@@ -352,6 +362,10 @@ export class UpdateService {
     if (!this.isAnnouncing) {
       return;
     }
+    this.tell(notice);
+  }
+
+  private tell(notice: UpdateNotice): void {
     this.notifications.show(
       updateNotice(notice, () => void this.activateUpdate()),
     );

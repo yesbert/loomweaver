@@ -12,6 +12,7 @@ import { WORKING_STATE_STORE } from '../working-state-store';
 import { withCrossTabSync } from '../cross-tab/cross-tab-sync-store';
 import { AuthContext } from '../../auth/auth-context';
 import { StateSyncService } from '../cross-tab/state-sync.service';
+import { NotificationService } from '../../notifications/notification.service';
 import { BootLatchedIdentity } from './boot-latched-identity';
 import { IdentityScopedStore } from './identity-scoped-store';
 import {
@@ -19,6 +20,8 @@ import {
   LANGUAGE_STORAGE_KEY,
   THEME_STORAGE_KEY,
 } from '../device-level-keys';
+
+const ADOPTION_BOUND_MS = 10_000;
 
 /**
  * The storage keys that stay **device-level** by default when the stores are identity-scoped:
@@ -45,10 +48,17 @@ export interface IdentityScopedStoreOptions {
    * the next user's namespace. The shell peeks bootstrap-critical keys before first paint, so the
    * discriminator must be answerable synchronously at boot (persist the last-known subject
    * yourself). Where it cannot be, nothing stored for that user is lost: from the moment an
-   * anonymous session adopts a namespace, writes are held, everything already read is read again
-   * from the adopted namespace, and a first sign-in carries over every value read or written while
-   * nobody was known, each only where the adopted namespace holds nothing for its key. What remains
-   * is the flash before the session lands.
+   * anonymous session adopts a namespace, writes are held and everything already read is read again
+   * from the adopted namespace. Every key read during the adoption that the adopted namespace holds
+   * nothing for is answered with the value read or written for it while nobody was known, and that
+   * value is copied there; a write held meanwhile is stored only where the adopted namespace holds
+   * nothing for its key. What remains is the flash before the session lands.
+   *
+   * An adoption that has not settled after ten seconds, because the port or a handler registered
+   * with `StateSyncService.onNamespaceAdopted` never answers, is given up. The writes held during it
+   * are then stored in the person's namespace, nothing is copied from or deleted in the anonymous
+   * one, and the user is told that the local work stays on this device. The next session that
+   * begins anonymously adopts again.
    */
   identity: () => string | null | undefined;
   /**
@@ -102,8 +112,18 @@ export function provideIdentityScopedStores(
     provideEnvironmentInitializer(() => {
       const sync = inject(StateSyncService);
       const auth = inject(AuthContext);
+      const notifications = inject(NotificationService);
       latch.watchAdoption(() => {
-        void adoptNamespace(sync, latch, [settings, workingState]);
+        void adoptNamespace(sync, latch, [settings, workingState]).then(
+          (outcome) => {
+            if (outcome === 'given up') {
+              notifications.show({
+                message: 'auth.localWorkKept',
+                kind: 'warning',
+              });
+            }
+          },
+        );
       });
       effect(() => {
         auth.state();
@@ -113,24 +133,37 @@ export function provideIdentityScopedStores(
   ];
 }
 
-function adoptNamespace(
+type Adoption = 'adopted' | 'given up';
+
+async function adoptNamespace(
   sync: StateSyncService,
   latch: BootLatchedIdentity,
   stores: readonly IdentityScopedStore[],
-): Promise<void> {
+): Promise<Adoption> {
   const ignored = (): undefined => undefined;
-  const writeHeld = (): void => {
-    latch.settle();
-    void Promise.all(
-      stores.map((store) => store.writeWhatArrivedDuringAdoption()),
-    ).catch(ignored);
-  };
-  return sync
+  const adopted = sync
     .namespaceAdopted()
     .catch(ignored)
     .then(() =>
       Promise.all(stores.map((store) => store.writeWhereTheNamespaceIsEmpty())),
     )
     .then(ignored, ignored)
-    .finally(writeHeld);
+    .then((): Adoption => 'adopted');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const bound = new Promise<Adoption>((resolve) => {
+    timer = setTimeout(() => resolve('given up'), ADOPTION_BOUND_MS);
+  });
+  const outcome = await Promise.race([adopted, bound]);
+  clearTimeout(timer);
+  latch.settle();
+  if (outcome === 'adopted') {
+    void Promise.all(
+      stores.map((store) => store.writeWhatArrivedDuringAdoption()),
+    ).catch(ignored);
+    return outcome;
+  }
+  await Promise.all(
+    stores.map((store) => store.writeWhatWasHeldWithoutAdopting()),
+  ).catch(ignored);
+  return outcome;
 }

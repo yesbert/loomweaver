@@ -173,8 +173,23 @@ file of your own, where they are shown in English until you do.
 Reaches you if the product or a plugin calls `activateUpdate`.
 
 It asks about unsaved work in this window before it applies anything. Where the user declines, the
-update is abandoned and the promise resolves with no reload. What to do: do not put code after the
-`await` that assumes the window is on its way out.
+update is abandoned and the promise resolves with no reload. Where activating the new version fails,
+nothing reloads either: the user is told with `update.activationFailed`, also where the product
+announces updates itself, and the update stays on offer. What to do: do not put code after the
+`await` that assumes the window is on its way out. Translate the new key where you serve a language
+the workbench does not ship.
+
+### A first sign-in that never finishes adopting is given up
+
+Reaches you if the product uses `provideIdentityScopedStores` with a store that may not answer, or
+registers a handler with `StateSyncService.onNamespaceAdopted`.
+
+An adoption that has not settled after ten seconds is given up. Writes held during it are stored in
+the person's namespace, nothing is copied from or deleted in the anonymous one, and the user is told
+with `auth.localWorkKept`. The next session that begins anonymously adopts again.
+
+What to do: make a handler return within that time. Translate the new key where you serve a language
+the workbench does not ship.
 
 ### A key something handled runs no command
 

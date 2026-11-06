@@ -1,4 +1,5 @@
 import { DOCUMENT } from '@angular/common';
+import { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   SwUpdate,
@@ -122,7 +123,18 @@ function documentSeenThrough(defaultView: object): Document {
   });
 }
 
-function setupOverUnsavedWork(instances: readonly unknown[]) {
+function versionReady(): VersionEvent {
+  return {
+    type: 'VERSION_READY',
+    currentVersion: { hash: 'a' },
+    latestVersion: { hash: 'b' },
+  } as VersionEvent;
+}
+
+function setupOverUnsavedWork(
+  instances: readonly unknown[],
+  also: readonly Provider[] = [],
+) {
   const sw = new FakeSwUpdate();
   const worker = shellWorker();
   const caches = shellCaches();
@@ -146,6 +158,7 @@ function setupOverUnsavedWork(instances: readonly unknown[]) {
         provide: UnsavedWork,
         useValue: { instancesEverywhere: () => [...instances] },
       },
+      ...also,
     ],
   });
   return {
@@ -458,6 +471,63 @@ describe('UpdateService applying an update over unsaved work', () => {
     complaint.mockRestore();
   });
 
+  it('a failed activation after consent keeps the session and the work, and says so', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    const complaint = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const leaving = new Event('beforeunload', { cancelable: true });
+    TestBed.inject(RetentionUnloadGuard).start();
+    app.sw.versionUpdates.next(versionReady());
+    app.sw.activateUpdate.mockRejectedValueOnce(new Error('no waiting worker'));
+
+    const applied = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await applied;
+    app.leave(leaving);
+
+    expect(app.reload).not.toHaveBeenCalled();
+    expect(leaving.defaultPrevented).toBe(true);
+    expect(app.service.updateAvailable()).toBe(true);
+    const notice = TestBed.inject(NotificationService)
+      .notifications()
+      .find((shown) => shown.message === 'update.activationFailed');
+    expect(notice?.kind).toBe('warning');
+    complaint.mockRestore();
+  });
+
+  it('a failed activation is told also where the product announces updates', async () => {
+    const app = setupOverUnsavedWork([], [{ provide: ANNOUNCE_UPDATES, useValue: false }]);
+    const complaint = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    app.sw.activateUpdate.mockRejectedValueOnce(new Error('no waiting worker'));
+
+    await app.service.activateUpdate();
+
+    expect(app.reload).not.toHaveBeenCalled();
+    expect(
+      TestBed.inject(NotificationService)
+        .notifications()
+        .map((shown) => shown.message),
+    ).toEqual(['update.activationFailed']);
+    complaint.mockRestore();
+  });
+
+  it('applying again after a failed activation asks and activates afresh', async () => {
+    const app = setupOverUnsavedWork([unsaved()]);
+    const complaint = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    app.sw.versionUpdates.next(versionReady());
+    app.sw.activateUpdate.mockRejectedValueOnce(new Error('no waiting worker'));
+    const failed = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await failed;
+
+    const again = app.service.activateUpdate();
+    await answerTheQuestion(app.dialogs, 'discard');
+    await again;
+
+    expect(app.sw.activateUpdate).toHaveBeenCalledTimes(2);
+    expect(app.reload).toHaveBeenCalledTimes(1);
+    complaint.mockRestore();
+  });
+
   it('asks nothing where nothing is unsaved', async () => {
     const app = setupOverUnsavedWork([{ surfaceDirty: () => false }]);
 
@@ -632,9 +702,9 @@ describe('UpdateService', () => {
     }
   });
 
-  it('reloads even when SW activation rejects (the reload click never silently no-ops)', async () => {
+  it('reloads when activation finds nothing to activate, which is the retry after a failed installation', async () => {
     const sw = new FakeSwUpdate();
-    sw.activateUpdate.mockRejectedValue(new Error('no waiting worker'));
+    sw.activateUpdate.mockResolvedValue(false);
     const reload = vi.fn();
     TestBed.configureTestingModule({
       providers: [

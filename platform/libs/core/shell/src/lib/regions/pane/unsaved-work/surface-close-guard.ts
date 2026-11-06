@@ -59,7 +59,10 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
     return this.confirmDiscard(candidates);
   }
 
-  async confirmDiscard(candidates: readonly unknown[]): Promise<boolean> {
+  async confirmDiscard(
+    candidates: readonly unknown[],
+    answered?: () => void,
+  ): Promise<boolean> {
     const dirty = this.dirtyOf(candidates);
     if (dirty.length === 0) {
       return true;
@@ -68,6 +71,7 @@ export class SurfaceCloseGuard implements DialogCloseGuard {
       (surface) => typeof surface.surfaceSave === 'function',
     );
     const choice = await this.ask(savable);
+    answered?.();
     if (choice === 'discard') {
       return true;
     }
