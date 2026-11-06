@@ -99,7 +99,7 @@ describe('ActiveWorkspaceService', () => {
     expect(TestBed.inject(ActiveWorkspaceService).id()).toBe('ws-1');
   });
 
-  it('reads a stored choice of the built-in workspace as the declared initial, and stores that', () => {
+  it('reads a stored choice of the built-in workspace as the declared initial, stores that and reports the adoption', () => {
     localStorage.setItem(KEY, BUILT_IN_WORKSPACE_ID);
     TestBed.configureTestingModule({
       providers: [
@@ -109,11 +109,11 @@ describe('ActiveWorkspaceService', () => {
     const active = TestBed.inject(ActiveWorkspaceService);
 
     expect(active.id()).toBe('research');
-    expect(active.takeAdoption()).toBeNull();
+    expect(active.takeAdoption()).toBe('research');
     expect(localStorage.getItem(KEY)).toBe('research');
   });
 
-  it('reads the built-in workspace as the declared initial through a peek-less store too', async () => {
+  it('reads the built-in workspace as the declared initial and reports the adoption through a peek-less store too', async () => {
     const set = vi.fn(() => Promise.resolve());
     TestBed.configureTestingModule({
       providers: [
@@ -131,7 +131,7 @@ describe('ActiveWorkspaceService', () => {
     const active = TestBed.inject(ActiveWorkspaceService);
 
     await expect(active.ready).resolves.toBe('research');
-    expect(active.takeAdoption()).toBeNull();
+    expect(active.takeAdoption()).toBe('research');
     expect(set).toHaveBeenCalledWith(KEY, 'research');
   });
 

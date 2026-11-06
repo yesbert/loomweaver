@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { provideLayout } from '../layout/layout';
 import { WorkspaceService } from './workspace.service';
 import { provideWorkspaces } from './declaration/provide-workspaces';
+import { UNUSABLE_WORKSPACES } from './usability/unusable-workspaces';
+import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 
 const LAYOUT = {
   regions: [
@@ -23,6 +25,30 @@ const REARRANGED = JSON.stringify({
   },
 });
 
+const WITHOUT_CONTENT = JSON.stringify({
+  'right-panel': {
+    tree: {
+      kind: 'leaf',
+      id: 'main',
+      tabs: [{ path: 'view:agent.chat' }],
+      active: 'view:agent.chat',
+    },
+    primary: 'main',
+  },
+});
+
+async function opened(): Promise<WorkspaceService> {
+  const ws = compose();
+  for (let turn = 0; turn < 4; turn += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  return ws;
+}
+
+function unusableIds(): ReadonlySet<string> {
+  return TestBed.inject(UNUSABLE_WORKSPACES).ids();
+}
+
 function compose(): WorkspaceService {
   TestBed.configureTestingModule({
     providers: [
@@ -34,6 +60,7 @@ function compose(): WorkspaceService {
         claims: ['orders/:id'],
         content: { tabs: [{ path: 'orders/o-0', closable: false }] },
       } as never),
+      { provide: UNUSABLE_WORKSPACES, useExisting: UnusableWorkspacesService },
     ],
   });
   return TestBed.inject(WorkspaceService);
@@ -86,5 +113,52 @@ describe('resetting a workspace', () => {
 
     expect(storedOrders()).toContain('orders/o-0');
     expect(storedOrders()).not.toContain('orders/o-1');
+  });
+});
+
+describe('the marks of a workspace the user is not in', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('the changed mark is cleared at once by a reset that names the workspace', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
+    const ws = await opened();
+    expect(ws.changedIds().has('orders')).toBe(true);
+
+    await ws.reset('orders');
+
+    expect(ws.changedIds().has('orders')).toBe(false);
+  });
+
+  it('the changed mark is cleared at once by a reset of every workspace that leaves the active one as it was', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
+    const ws = await opened();
+    expect(ws.changedIds().has('overview')).toBe(false);
+    expect(ws.changedIds().has('orders')).toBe(true);
+
+    await ws.resetAll();
+
+    expect(ws.activeId()).toBe('overview');
+    expect(ws.changedIds().size).toBe(0);
+  });
+
+  it('the unusable mark is cleared at once by a reset that names the workspace', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', WITHOUT_CONTENT);
+    const ws = await opened();
+    expect(unusableIds().has('orders')).toBe(true);
+
+    await ws.reset('orders');
+
+    expect(unusableIds().has('orders')).toBe(false);
+  });
+
+  it('the unusable mark is cleared at once by a reset of every workspace that leaves the active one as it was', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', WITHOUT_CONTENT);
+    const ws = await opened();
+    expect(unusableIds().has('orders')).toBe(true);
+
+    await ws.resetAll();
+
+    expect(ws.activeId()).toBe('overview');
+    expect(unusableIds().size).toBe(0);
   });
 });

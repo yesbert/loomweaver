@@ -1,7 +1,7 @@
 import { DialogRef } from '@loomweaver/plugin-sdk';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { DialogService } from '../dialog/dialog.service';
 import { CommandService } from '../commands/command.service';
 import {
@@ -12,6 +12,9 @@ import { WorkspaceCatalog } from './catalog/workspace-catalog';
 import { WorkspaceDefinition } from './declaration/workspace-definition';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDialog } from './workspace-dialog';
+import { type Workspace } from './catalog/saved-workspaces';
+import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
+import { assignWorkspaceInitials } from './workspace-initials';
 
 interface DialogInternals {
   readonly offersBuiltIn: boolean;
@@ -102,5 +105,155 @@ describe('WorkspaceDialog (where a variant came from)', () => {
     const dialog = build(BUILT_IN_WORKSPACE_ID, DEFINITIONS, { mine: 'gone' });
 
     expect(dialog.originName('mine')).toBeNull();
+  });
+});
+
+interface Marks {
+  readonly changed?: readonly string[];
+  readonly unusable?: readonly string[];
+}
+
+function render(
+  saved: readonly Workspace[],
+  origins: Readonly<Record<string, string | null>> = {},
+  marks: Marks = {},
+): HTMLElement {
+  const ws = {
+    workspaces: signal(saved),
+    initials: signal(assignWorkspaceInitials(saved)),
+    definitions: DEFINITIONS,
+    activeId: signal(BUILT_IN_WORKSPACE_ID),
+    hasChanges: signal(false),
+    changedIds: signal(new Set<string>(marks.changed)),
+  };
+  const catalog = {
+    offersBuiltIn: true,
+    originOf: (id: string) => origins[id] ?? null,
+    definitionOf: (id: string) =>
+      DEFINITIONS.find((definition) => definition.id === id),
+  };
+  TestBed.configureTestingModule({
+    imports: [
+      WorkspaceDialog,
+      TranslocoTestingModule.forRoot({
+        langs: {
+          en: {
+            k: { review: 'Review' },
+            workspace: {
+              default: 'Default',
+              variantOf: 'Variant of {{name}}',
+              changedMark: 'Unapplied changes',
+              unusableMark: 'Cannot work as declared',
+            },
+          },
+        },
+        translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+        preloadLangs: true,
+      }),
+    ],
+    providers: [
+      { provide: WorkspaceService, useValue: ws },
+      { provide: WorkspaceCatalog, useValue: catalog },
+      {
+        provide: UnusableWorkspacesService,
+        useValue: { ids: () => new Set<string>(marks.unusable) },
+      },
+      { provide: DialogRef, useValue: { close: () => undefined } },
+      { provide: DialogService, useValue: {} },
+      { provide: CommandService, useValue: { execute: () => undefined } },
+    ],
+  });
+  const fixture = TestBed.createComponent(WorkspaceDialog);
+  fixture.autoDetectChanges();
+  return fixture.nativeElement as HTMLElement;
+}
+
+function nameOf(host: HTMLElement, testId: string): string | null {
+  const entry = [...host.querySelectorAll<HTMLElement>('[data-testid]')].find(
+    (element) => element.dataset['testid'] === testId,
+  );
+  return entry?.getAttribute('aria-label') ?? null;
+}
+
+function switchButton(host: HTMLElement): HTMLButtonElement {
+  const button = host
+    .querySelector('[data-testid="workspace-initials"]')
+    ?.closest('button');
+  if (!button) {
+    throw new Error('no saved workspace drawn');
+  }
+  return button;
+}
+
+describe('WorkspaceDialog (what a saved workspace is called)', () => {
+  it('names a saved workspace by the initials it shows, then by its name', () => {
+    const host = render([{ id: 'mine', name: 'Alpha Beta', baseline: {} }]);
+
+    expect(switchButton(host).textContent).toContain('AB');
+    expect(switchButton(host).getAttribute('aria-label')).toBe(
+      'AB, Alpha Beta',
+    );
+  });
+
+  it('names a variant by its initials, its name and the workspace it came from', () => {
+    const host = render([{ id: 'mine', name: 'Alpha Beta', baseline: {} }], {
+      mine: 'app.review',
+    });
+
+    expect(switchButton(host).getAttribute('aria-label')).toBe(
+      'AB, Alpha Beta, Variant of Review',
+    );
+  });
+});
+
+describe('WorkspaceDialog (what the marks say to a screen reader)', () => {
+  const MINE: readonly Workspace[] = [
+    { id: 'mine', name: 'Alpha Beta', baseline: {} },
+  ];
+
+  it('shows the initials, the name and the origin as words of their own', () => {
+    const host = render(MINE, { mine: 'app.review' });
+
+    expect(switchButton(host).textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(
+      'AB Alpha Beta Variant of Review',
+    );
+  });
+
+  it('names an unchanged, usable workspace by what it shows alone', () => {
+    const host = render(MINE);
+
+    expect(nameOf(host, 'workspace-default')).toBe('Default');
+  });
+
+  it('says in the name of the built-in workspace that it has unapplied changes', () => {
+    const host = render(MINE, {}, { changed: [BUILT_IN_WORKSPACE_ID] });
+
+    expect(nameOf(host, 'workspace-default')).toBe(
+      'Default, Unapplied changes',
+    );
+  });
+
+  it('says in the name of a saved workspace that it has unapplied changes and cannot work as declared', () => {
+    const host = render(
+      MINE,
+      { mine: 'app.review' },
+      { changed: ['mine'], unusable: ['mine'] },
+    );
+
+    expect(switchButton(host).getAttribute('aria-label')).toBe(
+      'AB, Alpha Beta, Variant of Review, Unapplied changes, Cannot work as declared',
+    );
+  });
+
+  it('says in the name of a declared workspace that it cannot work as declared', async () => {
+    const host = render(MINE, {}, { unusable: ['app.review'] });
+    host
+      .querySelector<HTMLElement>('[data-testid="workspace-tab-provided"]')
+      ?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(nameOf(host, 'workspace-def-app.review')).toBe(
+      'Review, Cannot work as declared',
+    );
   });
 });

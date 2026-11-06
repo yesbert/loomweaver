@@ -33,6 +33,13 @@ did not know, and carried a call from a run that broke off into the next one.
   arrives. Where that would destroy unsaved work, the move or the close asks first. The capability
   said a handed-over tab keeps its work and is not asked about; the workbench never kept it, and
   until a surface can be carried to another pane, asking is what protects the work.
+
+- A reset of a workspace the user is not in asks about the unsaved work parked under it, and the
+  removal of the one they are in asks about everything it shows and parked. A remembered workspace
+  that no longer exists gives way to the default one for the session once the saved workspaces have
+  been read, asking first about everything it shows and parked except the tab at the address it
+  keeps; it rewrites no stored choice and removes nothing stored. Saved workspaces whose first read
+  was rejected, or that are not a list of workspaces, move nobody.
 - Every other finding is fixed where it sits, each with a test that fails before the fix. The task
   list names them by area: the plugin trust boundary, unsaved work and panes, addresses and tabs,
   persistence and workspaces, commands and menus, the chrome, the agent connection, the scaffolding
@@ -55,6 +62,9 @@ None.
   unsaved work.
 - `commands`: the agent connection follows one run at a time, and a check that fails lets nothing
   through.
+- `workspaces`: resetting a workspace the user is not in and removing the one in use ask about the
+  unsaved work they hold, and a remembered workspace that no longer exists gives way to the default
+  one for the session without writing anything.
 
 ## Impact
 

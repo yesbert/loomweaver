@@ -65,6 +65,43 @@ class AsyncStore implements KeyValueStore {
   }
 }
 
+class LateStore extends AsyncStore {
+  override get(key: string): Promise<string | undefined> {
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(super.get(key)), 5),
+    );
+  }
+}
+
+class SilentStore extends AsyncStore {
+  override get(): Promise<string | undefined> {
+    return new Promise(() => undefined);
+  }
+}
+
+const DASHBOARD_WITH_REPORTS = JSON.stringify({
+  content: {
+    tree: {
+      kind: 'leaf',
+      id: 'main',
+      tabs: [{ path: 'dashboard', closable: false }, { path: 'reports' }],
+      active: 'reports',
+    },
+    primary: 'main',
+  },
+});
+
+class UnreadableStore extends AsyncStore {
+  override get(): Promise<string | undefined> {
+    return Promise.reject(new Error('503'));
+  }
+}
+
+async function lateAnswersArrived(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  await appStableAfterPromiseChains();
+}
+
 interface Opened {
   readonly workspaces: WorkspaceService;
   readonly tabs: ContentTabsService;
@@ -84,6 +121,7 @@ async function open(
   options: {
     declared?: readonly unknown[];
     stores?: Map<string, string>;
+    settings?: KeyValueStore;
     owns?: readonly unknown[];
   } = {},
 ): Promise<Opened> {
@@ -99,7 +137,9 @@ async function open(
       provideWorkspaces(...((options.declared ?? DECLARED) as never[])),
       ...(options.stores
         ? [
-            provideSettingsStore(new AsyncStore(options.stores)),
+            provideSettingsStore(
+              options.settings ?? new AsyncStore(options.stores),
+            ),
             provideWorkingStateStore(new AsyncStore(options.stores)),
           ]
         : []),
@@ -254,6 +294,87 @@ describe('opening the application where the distribution says', () => {
 
     expect(again.workspaces.activeId()).toBe('dashboard');
     expect(again.location.path()).toBe('/dashboard');
+  });
+
+  it('restores what the user built in the declared workspace when it supersedes a stored choice of the built-in one, through a working state that reads back asynchronously', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'default'],
+      ['lw.shell.pane-trees:dashboard', DASHBOARD_WITH_REPORTS],
+    ]);
+
+    const opened = await open('/', { stores });
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(opened.tabs.tabs().map((tab) => tab.path)).toEqual([
+      'dashboard',
+      'reports',
+    ]);
+    expect(opened.location.path()).toBe('/reports');
+    expect(stores.get('lw.shell.pane-trees:dashboard')).toContain('reports');
+  });
+
+  it('lands in the declared workspace without waiting for a saved list that never answers', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'gone'],
+    ]);
+
+    const opened = await open('/', {
+      stores,
+      settings: new SilentStore(stores),
+    });
+    await lateAnswersArrived();
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(opened.location.path()).toBe('/dashboard');
+  });
+
+  it('waits for a saved list that reads back asynchronously before judging the stored workspace', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'mine'],
+      [
+        'lw.shell.workspaces',
+        JSON.stringify([{ id: 'mine', name: 'Mine', baseline: {} }]),
+      ],
+    ]);
+
+    const opened = await open('/reports', {
+      stores,
+      settings: new LateStore(stores),
+    });
+    await lateAnswersArrived();
+
+    expect(opened.workspaces.activeId()).toBe('mine');
+    expect(opened.location.path()).toBe('/reports');
+  });
+
+  it('leaves the user in the stored workspace, and the stored choice alone, where the saved list could not be read', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'mine'],
+    ]);
+
+    const opened = await open('/reports', {
+      stores,
+      settings: new UnreadableStore(stores),
+    });
+    await lateAnswersArrived();
+
+    expect(opened.workspaces.activeId()).toBe('mine');
+    expect(stores.get('lw.shell.active-workspace')).toBe('mine');
+    expect(opened.location.path()).toBe('/reports');
+  });
+
+  it('gives a stored workspace nothing lists up for the session once a saved list that reads back asynchronously has answered', async () => {
+    const stores = new Map<string, string>([
+      ['lw.shell.active-workspace', 'gone'],
+    ]);
+
+    const opened = await open('/reports', { stores });
+    await lateAnswersArrived();
+
+    expect(opened.workspaces.activeId()).toBe('dashboard');
+    expect(stores.get('lw.shell.active-workspace')).toBe('gone');
+    expect(opened.location.path()).toBe('/reports');
+    expect(opened.tabs.tabs().map((tab) => tab.path)).toContain('reports');
   });
 
   it('keeps the tab of an address that names content when a working state that reads back asynchronously lays out the first visit', async () => {

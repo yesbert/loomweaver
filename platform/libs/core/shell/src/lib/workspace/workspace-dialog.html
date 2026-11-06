@@ -58,6 +58,7 @@
             type="button"
             class="flex min-w-0 flex-1 items-center gap-1.5 rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
             [attr.aria-current]="activeId() === builtInId ? 'true' : null"
+            [attr.aria-label]="nameOf(builtInId, 'workspace.default' | transloco)"
             (click)="switchTo(builtInId)"
             data-testid="workspace-default"
           >
@@ -86,6 +87,7 @@
               type="button"
               class="flex min-w-0 flex-1 items-center gap-1.5 rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
               [attr.aria-current]="activeId() === definition.id ? 'true' : null"
+              [attr.aria-label]="nameOf(definition.id, definition.title | transloco)"
               (click)="switchTo(definition.id)"
               [attr.data-testid]="'workspace-def-' + definition.id"
             >
@@ -118,6 +120,7 @@
               type="button"
               class="flex flex-1 items-center gap-2 truncate rounded px-2 py-1 text-left text-sm text-content transition-colors hover:bg-surface-overlay"
               [attr.aria-current]="activeId() === workspace.id ? 'true' : null"
+              [attr.aria-label]="nameOf(workspace.id, workspace.name, originName(workspace.id))"
               (click)="switchTo(workspace.id)"
             >
               @if (initials().get(workspace.id); as badge) {
@@ -126,12 +129,12 @@
                   class="lw-rail-initials shrink-0 text-content-faint"
                   data-testid="workspace-initials"
                   >{{ badge }}</span
-                >
+                >&ngsp;
               }
               <span class="min-w-0 flex-1 truncate">
                 <span class="block truncate">{{ workspace.name }}</span>
                 @if (originName(workspace.id); as origin) {
-                  <span
+                  &ngsp;<span
                     class="block truncate text-xs text-content-faint"
                     data-testid="workspace-origin"
                     >{{ 'workspace.variantOf' | transloco: { name: origin } }}</span

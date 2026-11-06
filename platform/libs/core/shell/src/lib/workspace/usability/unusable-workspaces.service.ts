@@ -12,6 +12,7 @@ import { ANNOUNCE_UNUSABLE_WORKSPACES } from '../declaration/provide-workspaces'
 import { PANE_TREES_KEY } from '../../regions/pane/tree/pane-tree-storage';
 import { unusableWorkspaceIds } from './workspace-usability';
 import { WorkspaceCatalog } from '../catalog/workspace-catalog';
+import { StoredStateRevision } from '../working-state/stored-state-revision';
 
 @Service()
 export class UnusableWorkspacesService implements UnusableWorkspaces {
@@ -19,11 +20,13 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
   private readonly active = inject(ActiveWorkspaceService);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly paneTree = inject(PaneTreeService);
+  private readonly storedRevision = inject(StoredStateRevision);
 
   readonly announcesUnusable = inject(ANNOUNCE_UNUSABLE_WORKSPACES);
 
-  private readonly unusable = computed(() =>
-    unusableWorkspaceIds({
+  private readonly unusable = computed(() => {
+    this.storedRevision.current();
+    return unusableWorkspaceIds({
       workspaces: this.catalog.everyOrigin(),
       activeId: this.active.id(),
       activeHasContent:
@@ -31,8 +34,8 @@ export class UnusableWorkspacesService implements UnusableWorkspaces {
       definitionOf: (id) => this.catalog.definitionOf(id),
       storedTrees: (id) =>
         this.workingStateStore.peek?.(workspaceScopedKey(PANE_TREES_KEY, id)),
-    }),
-  );
+    });
+  });
 
   ids(): ReadonlySet<string> {
     return this.unusable();

@@ -316,7 +316,8 @@
     "unusableTitle": "This workspace has no content left",
     "unusableBody": "Its saved layout no longer holds the content this workspace declares, so there is nothing here to show. Resetting puts back the layout it was declared with. Your other workspaces are untouched.",
     "unusableAction": "Reset this workspace",
-    "unusableMark": "Cannot work as declared"
+    "unusableMark": "Cannot work as declared",
+    "changedMark": "Unapplied changes"
   },
   "railLabels": {
     "desc": "Show each entry’s name under its icon."

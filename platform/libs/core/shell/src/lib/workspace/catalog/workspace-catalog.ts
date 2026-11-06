@@ -1,4 +1,6 @@
-import { inject, isDevMode, Service } from '@angular/core';
+import { inject, Injector, isDevMode, Service } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, firstValueFrom } from 'rxjs';
 import { SHELL_LAYOUT } from '../../layout/layout';
 import { regionIdsOfType } from '../../layout/layout-queries';
 import { persistedSetting } from '../../persistence/stored-values/persisted-setting';
@@ -11,7 +13,7 @@ import {
 } from './workspace-lookup';
 import {
   WORKSPACES_KEY,
-  parseWorkspaces,
+  readWorkspaces,
   type Workspace,
 } from './saved-workspaces';
 import {
@@ -36,8 +38,16 @@ export class WorkspaceCatalog {
     inject(WORKSPACE_DEFINITIONS, { optional: true }) ?? []
   ).flat();
 
+  private readonly injector = inject(Injector);
+
+  private malformed = false;
+
   private readonly stored = persistedSetting<Workspace[]>(WORKSPACES_KEY, {
-    parse: parseWorkspaces,
+    parse: (raw) => {
+      const read = readWorkspaces(raw);
+      this.malformed = read.malformed;
+      return read.workspaces;
+    },
     serialize: (list) => JSON.stringify(list),
   });
 
@@ -65,7 +75,20 @@ export class WorkspaceCatalog {
   }
 
   commit(next: Workspace[]): void {
+    this.malformed = false;
     this.stored.set(next);
+  }
+
+  async savedRead(): Promise<boolean> {
+    const answered =
+      this.stored.answered() ||
+      (await firstValueFrom(
+        toObservable(this.stored.answered, { injector: this.injector }).pipe(
+          filter(Boolean),
+        ),
+        { defaultValue: false },
+      ));
+    return answered && !this.stored.unreadable() && !this.malformed;
   }
 
   definitionOf(id: string): WorkspaceDefinition | undefined {

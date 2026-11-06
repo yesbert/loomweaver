@@ -4,10 +4,18 @@ import { SHELL_LAYOUT } from '../layout/layout';
 import { regionIdsOfType } from '../layout/layout-queries';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { activeContentPath } from '../regions/pane/tree/active-content-path';
+import { CONTENT_DOCK, PRIMARY_PANE } from '../regions/pane/tree/pane-address';
+import {
+  PANE_TREES_KEY,
+  parseDocks,
+} from '../regions/pane/tree/pane-tree-storage';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
-import { ActiveWorkspaceService } from './active-workspace.service';
+import {
+  ActiveWorkspaceService,
+  workspaceScopedKey,
+} from './active-workspace.service';
 import {
   WORKSPACE_STATE_KEYS,
   stateChannels,
@@ -82,11 +90,39 @@ export class WorkspaceSwitcher {
   }
 
   currentState(): Promise<Record<string, string>> {
+    return this.stateOf(this.active.id());
+  }
+
+  stateOf(id: string): Promise<Record<string, string>> {
     return readWorkspaceState(
       this.workingStateStore,
-      (key) => this.active.scopedKey(key),
+      (key) => workspaceScopedKey(key, id),
       WORKSPACE_STATE_KEYS,
     );
+  }
+
+  restore(stored: Readonly<Record<string, string>>): void {
+    this.hydrate(stored, this.baselineOf(this.active.id()));
+  }
+
+  primaryContentPane(
+    id: string,
+    stored: Readonly<Record<string, string>>,
+  ): string {
+    const docks = parseDocks(
+      stored[PANE_TREES_KEY] ?? this.baselineOf(id)[PANE_TREES_KEY],
+    );
+    return docks[CONTENT_DOCK]?.primary ?? PRIMARY_PANE;
+  }
+
+  enterForTheSession(
+    id: string,
+    stored: Readonly<Record<string, string>>,
+  ): void {
+    this.active.setForTheSession(id);
+    this.restore(stored);
+    this.settlement.arrivedInWorkspace();
+    this.warnDeclarationGaps(id);
   }
 
   chooseCurrentAddress(): void {
@@ -106,7 +142,13 @@ export class WorkspaceSwitcher {
 
   private async hydrateActive(): Promise<void> {
     const baseline = this.baselineOf(this.active.id());
-    const stored = await this.currentState();
+    this.hydrate(await this.currentState(), baseline);
+  }
+
+  private hydrate(
+    stored: Readonly<Record<string, string>>,
+    baseline: Readonly<Record<string, string>>,
+  ): void {
     for (const key of WORKSPACE_STATE_KEYS) {
       this.channels[key].hydrate(stored[key] ?? baseline[key]);
     }
