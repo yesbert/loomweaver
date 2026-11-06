@@ -262,7 +262,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 11. Guards and the release
 
-- [ ] 11.1 The bundle-size guard counts every file the entry script imports statically; the sum equals the builder's initial total for all four applications, and the ceilings are recorded anew (`platform/tools/checks/check-bundle-size.mjs`)
+- [x] 11.1 The bundle-size guard counts every file the entry script imports statically; the sum equals the builder's initial total for all four applications, and the ceilings are recorded anew (`platform/tools/checks/check-bundle-size.mjs`)
 - [x] 11.2 A release run that failed part-way can be run again: a package already published at that version is skipped and named (`.github/workflows/release.yml`)
 - [x] 11.3 The comment guard sees a comment before a closing brace, bracket or parenthesis (`platform/tools/checks/check-comments.mjs`; six shapes reported, the tree still clean)
 - [x] 11.4 The comment guard skips only files carrying the generated banner; the six files it skipped are read and cleaned (`check-comments.mjs`)
