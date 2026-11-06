@@ -11,7 +11,8 @@
     "requiredTitle": "Sign-in required",
     "requiredMessage": "Sign in with an account that has permission to see this content.",
     "deniedTitle": "No access",
-    "deniedMessage": "Your account does not have access to this content. Ask your administrator for the permission it needs."
+    "deniedMessage": "Your account does not have access to this content. Ask your administrator for the permission it needs.",
+    "localWorkKept": "Your local work could not be taken over into your account. It stays on this device."
   },
   "bar": {
     "more": "More"
@@ -294,7 +295,8 @@
     "checkUnavailable": "Can't check for updates — please reload the page",
     "failed": "Update couldn't be installed — reload to retry",
     "broken": "This app's offline cache is broken. Repairing rebuilds it from scratch.",
-    "repair": "Repair and reload"
+    "repair": "Repair and reload",
+    "activationFailed": "The update could not be activated. Try again later."
   },
   "viewInstance": {
     "default": "Default",

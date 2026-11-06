@@ -597,7 +597,7 @@ interface PluginHost {              // read-only; version/updateAvailable are si
   readonly updatesEnabled: boolean;
   readonly isPreview: () => boolean;         // the running version is a preview of an unreleased line (0.9.0-preview.3); saying so on screen is the product's
   checkForUpdate(): Promise<void>;
-  activateUpdate(): Promise<void>;
+  activateUpdate(): Promise<void>;           // asks about unsaved work first; a decline or a failed activation resolves with no reload
 }
 interface PluginSession {           // ctx.session ([session] cap): imperative self-gating; signal-shaped () => T
   readonly authenticated: () => boolean;
@@ -973,6 +973,8 @@ function provideWorkingStateStore(store: KeyValueStore | Type<KeyValueStore>): P
 // owns the latching. deviceKeys REPLACES the default list (spread DEVICE_LEVEL_KEYS to extend) and applies to both
 // ports. peek exists on a wrapper only when the wrapped store has it. Pair with
 // provideAuthSource(..., { onIdentityChange: 'reload' }) so a user switch re-hydrates from the new namespace.
+// An anonymous→first-sign-in adoption not settled after 10 s (store or onNamespaceAdopted handler never answers) is
+// given up: held writes go to the person's namespace, nothing anonymous is copied or deleted, toast auth.localWorkKept.
 const DEVICE_LEVEL_KEYS: readonly string[];   // ['lw.shell.theme', 'lw.shell.lang', 'lw.shell.font-scale']
 interface IdentityScopedStoreOptions { identity: () => string | null | undefined; deviceKeys?: readonly string[]; settingsStore?: KeyValueStore; workingStateStore?: KeyValueStore; }
 function provideIdentityScopedStores(options: IdentityScopedStoreOptions): (Provider | EnvironmentProviders)[];   // place AFTER provideShell(); replaces provideSettingsStore
@@ -1167,7 +1169,7 @@ class CapabilityGrantService { permissions: Signal<readonly PluginPermissions[]>
 class PluginInstallService { installed: Signal<readonly InstalledPlugin[]>; isInstalled(id): boolean; byId(id): InstalledPlugin | undefined; install(plugin: InstalledPlugin): void; update(plugin: InstalledPlugin): void; uninstall(id): void; markComposed(ids: readonly string[]): void }   // the user's installs, persisted at lw.shell.installed-plugins; the runtime follows it live; a composed id is never shadowed
 class PluginEnablementService { disabled: Signal<ReadonlySet<string>>; plugins: Signal<readonly PluginInfo[]>; isEnabled(id): boolean; setEnabled(id, enabled): void; isRequired(id): boolean; register; unregister }
 class PluginRuntime { activateAll(); deactivate(id); deactivateAll() }  class FramePluginRuntime { activateAll(); deactivate(id); deactivateAll() }   // trusted and sandboxed loaders; deactivate undoes every contribution
-class UpdateService { updateAvailable: Signal<boolean>; updateFailed: Signal<boolean>; updateBroken: Signal<boolean>; enabled: boolean; lastCheck: Signal<UpdateCheck | null>; checkForUpdate(): Promise<UpdateOutcome>; activateUpdate(): Promise<void> }
+class UpdateService { updateAvailable: Signal<boolean>; updateFailed: Signal<boolean>; updateBroken: Signal<boolean>; enabled: boolean; lastCheck: Signal<UpdateCheck | null>; checkForUpdate(): Promise<UpdateOutcome>; activateUpdate(): Promise<void> }   // a failed activation keeps the session: no reload, update stays on offer, toast update.activationFailed even with announceUpdates: false
 type UpdateOutcome = 'waiting' | 'current' | 'unreachable' | 'failed' | 'unavailable';   // what a check found
 interface UpdateCheck { outcome: UpdateOutcome; at: number; automatic: boolean }   // the last check, including the workbench's own (see ShellOptions.announceUpdates)
 class VersionService { version: WritableSignal<string>; isPreview: Signal<boolean> }   // the running build; announcing a preview is the product's own decision

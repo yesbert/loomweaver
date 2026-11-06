@@ -104,6 +104,24 @@ describe('SurfaceCloseGuard', () => {
     expect(proceed).toHaveBeenCalledTimes(1);
   });
 
+  it('tells the asker once the question is answered, before a save has finished', async () => {
+    const guard = TestBed.inject(SurfaceCloseGuard);
+    const answered = vi.fn();
+    const stuck: DirtySurface = {
+      surfaceDirty: () => true,
+      surfaceSave: () => new Promise<void>(() => undefined),
+    };
+
+    void guard.confirmDiscard([stuck], answered);
+    await settle();
+    expect(answered).not.toHaveBeenCalled();
+
+    topDialog().ref.close('save');
+    await settle();
+
+    expect(answered).toHaveBeenCalledTimes(1);
+  });
+
   it('a failed save aborts the close, keeps the instance and reports visibly', async () => {
     const guard = TestBed.inject(SurfaceCloseGuard);
     const proceed = vi.fn();

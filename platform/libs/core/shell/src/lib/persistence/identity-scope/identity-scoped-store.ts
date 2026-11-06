@@ -16,6 +16,7 @@ export class IdentityScopedStore implements KeyValueStore {
     string | undefined
   >();
   private namespaceRead = false;
+  private givenUp = false;
 
   constructor(
     inner: KeyValueStore,
@@ -52,6 +53,9 @@ export class IdentityScopedStore implements KeyValueStore {
   }
 
   async writeWhereTheNamespaceIsEmpty(): Promise<void> {
+    if (this.givenUp) {
+      return;
+    }
     this.namespaceRead = true;
     try {
       for (const held of [this.built, this.inherited]) {
@@ -59,7 +63,11 @@ export class IdentityScopedStore implements KeyValueStore {
           if (value === undefined) {
             continue;
           }
-          if ((await this.inner.get(scoped)) === undefined) {
+          const stored = await this.inner.get(scoped);
+          if (this.givenUp) {
+            return;
+          }
+          if (stored === undefined) {
             await this.inner.set(scoped, value);
           }
         }
@@ -79,6 +87,20 @@ export class IdentityScopedStore implements KeyValueStore {
         ? this.inner.delete(scoped)
         : this.inner.set(scoped, value));
     }
+  }
+
+  writeWhatWasHeldWithoutAdopting(): Promise<void> {
+    this.givenUp = true;
+    this.namespaceRead = true;
+    for (const [scoped, value] of this.built) {
+      if (!this.arrived.has(scoped)) {
+        this.arrived.set(scoped, value);
+      }
+    }
+    this.built.clear();
+    this.inherited.clear();
+    this.heldWhileNobodyWasKnown.clear();
+    return this.writeWhatArrivedDuringAdoption();
   }
 
   private write(key: string, value: string | undefined): Promise<void> {

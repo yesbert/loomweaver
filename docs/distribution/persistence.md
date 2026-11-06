@@ -192,6 +192,12 @@ product keeps it and a returning person keeps theirs. What remains is a flash: t
 arrangement is on screen until the session lands. Persisting the last-known subject is what removes
 the flash.
 
+An adoption is bounded. Where the store or a handler registered with
+`StateSyncService.onNamespaceAdopted` has not answered after ten seconds, the workbench gives it up
+and carries on in the person's namespace. What was written meanwhile is stored there, nothing is
+copied from or deleted in the anonymous namespace, and the user is told that the local work stays on
+this device. The next session that begins anonymously adopts again.
+
 Pair the store with `provideAuthSource(..., { onIdentityChange: 'reload' })` so a user switch
 re-hydrates cleanly (see [Auth integration](auth.md)).
 

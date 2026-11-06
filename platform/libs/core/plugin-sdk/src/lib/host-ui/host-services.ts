@@ -126,7 +126,8 @@ export interface PluginHost {
   /**
    * Activate the downloaded version and reload into it. Asks first where work is unsaved in this
    * window. Where the user declines, the update is abandoned and the promise resolves without a
-   * reload.
+   * reload. Where activating fails, nothing reloads either: the user is told, and the update stays
+   * on offer.
    */
   activateUpdate(): Promise<void>;
 }

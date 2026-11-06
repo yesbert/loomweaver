@@ -11,7 +11,8 @@
     "requiredTitle": "Anmeldung erforderlich",
     "requiredMessage": "Melde dich mit einem Konto an, das die nötige Berechtigung hat.",
     "deniedTitle": "Kein Zugriff",
-    "deniedMessage": "Dein Konto hat keinen Zugriff auf diesen Inhalt. Für die nötige Berechtigung wende dich an die Administration."
+    "deniedMessage": "Dein Konto hat keinen Zugriff auf diesen Inhalt. Für die nötige Berechtigung wende dich an die Administration.",
+    "localWorkKept": "Deine lokale Arbeit konnte nicht in dein Konto übernommen werden. Sie bleibt auf diesem Gerät."
   },
   "bar": {
     "more": "Mehr"
@@ -294,7 +295,8 @@
     "checkUnavailable": "Update-Prüfung nicht möglich — bitte die Seite neu laden",
     "failed": "Update konnte nicht installiert werden — zum Wiederholen neu laden",
     "broken": "Der Offline-Speicher dieser App ist beschädigt. Beim Reparieren wird er neu aufgebaut.",
-    "repair": "Reparieren und neu laden"
+    "repair": "Reparieren und neu laden",
+    "activationFailed": "Das Update konnte nicht aktiviert werden. Versuche es später noch einmal."
   },
   "viewInstance": {
     "default": "Standard",

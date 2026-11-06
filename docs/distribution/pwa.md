@@ -77,6 +77,11 @@ current, and the shell checks for updates in the background (every 30 minutes an
 becomes visible again), so a tab that stays open for days still learns about a deploy without a
 navigation.
 
+Applying an update reloads only once the new version is active. Where activating it fails, the
+session stays as it was, including work the user agreed to discard, the update stays on offer, and
+the user is told to try again later. That notice is shown also where the product announces updates
+itself, because it answers what the user just did.
+
 The two ways an update goes wrong are told apart, because only one of them a reload can fix:
 
 | State                        | What it means                                                                                                | What the affordance does                                                          |
