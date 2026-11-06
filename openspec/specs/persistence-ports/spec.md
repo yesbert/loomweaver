@@ -130,10 +130,10 @@ namespace directly.
 
 ### Requirement: Adopting a namespace reads it before it writes to it
 
-Where an anonymous session adopts an identity's namespace, the workbench SHALL read the state it
-holds again from the adopted namespace before writing any of it back there. State stored for that
-person SHALL NOT be replaced by state the workbench built while no person was known, whatever the
-user does next.
+Where an anonymous session adopts an identity's namespace, the workbench SHALL read that namespace
+again before writing to it. State stored for that person SHALL NOT be replaced by state built while
+no person was known, whatever the user does next. The limit is an adoption given up for want of an
+answer.
 
 What was read from the anonymous namespace SHALL be superseded by what the adopted namespace holds.
 For a key it holds nothing for, what the workbench holds SHALL stand and may be written.
@@ -385,3 +385,26 @@ SHALL NOT bring it back.
 
 - **WHEN** a plugin writes a key, clears it while the write is still held, and the page is left
 - **THEN** the store holds no value for that key
+
+### Requirement: An adoption that does not answer is given up
+
+An adoption that has not settled ten seconds after it began SHALL be given up. The workbench SHALL
+then carry on in the person's namespace, and what was written during the adoption SHALL be stored
+there as after an adoption that found nothing. Nothing from the anonymous namespace SHALL be copied
+or deleted, and the user SHALL be told that local work could not be taken over and stays on this
+device. A later session that begins anonymously SHALL adopt again.
+
+#### Scenario: A port that never answers does not hold the session
+
+- **WHEN** an anonymous session signs in and the adopted namespace never answers a read
+- **THEN** after ten seconds writes reach the person's namespace and the user is told
+
+#### Scenario: The anonymous data stays
+
+- **WHEN** an adoption is given up
+- **THEN** what the anonymous namespace holds is neither copied nor deleted
+
+#### Scenario: An answer after the bound changes nothing
+
+- **WHEN** the adopted namespace answers after the adoption was given up
+- **THEN** nothing from the anonymous namespace is written to the person's namespace
