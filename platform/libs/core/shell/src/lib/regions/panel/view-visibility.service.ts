@@ -31,7 +31,7 @@ export class ViewVisibilityService {
     });
   }
 
-  reveal(viewId: string, region?: string): string | undefined {
+  async reveal(viewId: string, region?: string): Promise<string | undefined> {
     this.hiddenViews.show(viewId);
     const target = region ?? this.regionOf(viewId);
     if (target === undefined) {
@@ -42,8 +42,7 @@ export class ViewVisibilityService {
       this.panelGroup.seed(target);
       return undefined;
     }
-    this.moves.move(viewId, target);
-    return target;
+    return (await this.moves.move(viewId, target)) ? target : undefined;
   }
 
   private regionOf(viewId: string): string | undefined {

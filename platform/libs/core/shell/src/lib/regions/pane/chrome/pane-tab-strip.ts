@@ -24,6 +24,7 @@ import { MENU_ANCHOR_GAP } from '../../../elements/menu/lw-menu.element';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 import { Reorderable } from '../../reorder/reorderable.directive';
 import { isViewPanePath, PaneRef } from '../tree/pane-address';
+import { PaneTreeService } from '../tree/pane-tree.service';
 import { paneRetentionScope } from '../retention/retention-keys';
 import { UnsavedWork } from '../unsaved-work/unsaved-work';
 import { resolveTitle } from './tab-label';
@@ -38,6 +39,10 @@ import { RovingTabs } from './roving-tabs.directive';
 import { StripOverflow } from './strip-overflow.directive';
 import { StripTab, TabAcceptance, tabIdIn, tabMenuContext } from './strip-tab';
 import { SurfaceActions } from '../../content/actions/surface-actions';
+
+const CLOSE_KEY = 'Delete';
+
+const KEEP_KEY = 'Shift+Enter';
 
 @Component({
   selector: 'lw-pane-tab-strip',
@@ -95,6 +100,8 @@ export class PaneTabStrip {
 
   readonly closeTab = output<StripTab>();
 
+  readonly keepTab = output<StripTab>();
+
   readonly unpinTab = output<StripTab>();
 
   readonly reorderTabs = output<string[]>();
@@ -110,6 +117,8 @@ export class PaneTabStrip {
   private readonly paneMove = inject(PaneMoveService);
 
   private readonly unsavedWork = inject(UnsavedWork);
+
+  private readonly paneTree = inject(PaneTreeService);
 
   private readonly stripOverflow = viewChild.required(StripOverflow);
 
@@ -237,15 +246,29 @@ export class PaneTabStrip {
       paneId: this.source().paneId,
       primary: this.urlDriven(),
       sole: this.tabs().length === 1,
+      split: this.paneTree.isSplit(this.source().dock),
     });
   }
 
+  protected keyShortcuts(tab: StripTab): string | null {
+    const keys = [
+      ...(this.closesByKey(tab) ? [CLOSE_KEY] : []),
+      ...(tab.preview ? [KEEP_KEY] : []),
+    ];
+    return keys.length > 0 ? keys.join(' ') : null;
+  }
+
   protected onTabKeydown(event: KeyboardEvent, tab: StripTab): void {
-    if (event.key !== 'Delete' || !tab.closable || tab.pinned) {
+    if (event.key === 'Delete' && this.closesByKey(tab)) {
+      event.preventDefault();
+      this.closeTab.emit(tab);
+      return;
+    }
+    if (event.key !== 'Enter' || !event.shiftKey || !tab.preview) {
       return;
     }
     event.preventDefault();
-    this.closeTab.emit(tab);
+    this.keepTab.emit(tab);
   }
 
   protected onClose(event: Event, tab: StripTab): void {
@@ -301,5 +324,9 @@ export class PaneTabStrip {
     this.reorderTabs.emit(
       tabs.filter((tab) => tab.movable).map((tab) => tab.path),
     );
+  }
+
+  private closesByKey(tab: StripTab): boolean {
+    return tab.closable && !tab.pinned;
   }
 }

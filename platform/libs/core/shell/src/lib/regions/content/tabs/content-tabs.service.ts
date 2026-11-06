@@ -204,20 +204,22 @@ export class ContentTabsService {
    * Closes the pane that carries the address, in a split: a neighbour takes the address, is navigated
    * to, and receives the pinned tabs and those that cannot close (every tab while closing is switched
    * off). Unsaved work is asked about first: in the tabs that really close, and in a kept tab the
-   * neighbour cannot take because it already holds that tab.
+   * neighbour cannot take because it already holds that tab. Resolves to whether the pane closed:
+   * false where the question was cancelled or there was no split to close.
    */
-  closePrimaryPane(): void {
-    this.closing.closePrimaryPane(
+  closePrimaryPane(): Promise<boolean> {
+    return this.closing.closePrimaryPane(
       this.features.close() ? sparedByBulkClose : keepsEverything,
     );
   }
 
   /**
    * Closes a tab, by any path below its root. If it was active, a neighbour is navigated to first.
-   * The pane that showed it lets its surface go once the tab is no longer open anywhere.
+   * The pane that showed it lets its surface go once the tab is no longer open anywhere. Unsaved
+   * work is asked about first, and the promise resolves to false where that question was cancelled.
    */
-  close(path: string, pane?: PaneRef): void {
-    this.closing.close(path, pane);
+  close(path: string, pane?: PaneRef): Promise<boolean> {
+    return this.closing.close(path, pane);
   }
 
   /**

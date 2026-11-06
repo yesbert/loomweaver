@@ -60,7 +60,7 @@ test.describe('Every tab is draggable — focus handoff on arrival', () => {
     await expect(page).toHaveURL(/sandbox-unclaimed/);
 
     const content = (await page.locator('#lw-main-content').boundingBox())!;
-    await dragTo(page, '[role="tab"][aria-label="Sandbox (unclaimed)"]', {
+    await dragTo(page, '[role="tab"][aria-label^="Sandbox (unclaimed)"]', {
       x: content.x + content.width - 12,
       y: content.y + content.height / 2,
     });

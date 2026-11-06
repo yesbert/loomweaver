@@ -114,10 +114,11 @@ export class SidebarService {
     if (regionId !== undefined && !this.declared(regionId)) {
       return;
     }
-    const movedInto = this.visibility.reveal(viewId, regionId);
-    if (movedInto !== undefined && this.panels.isCollapsed(movedInto)) {
-      this.panels.expand(movedInto);
-    }
+    void this.visibility.reveal(viewId, regionId).then((movedInto) => {
+      if (movedInto !== undefined && this.panels.isCollapsed(movedInto)) {
+        this.panels.expand(movedInto);
+      }
+    });
   }
 
   private declared(regionId: string): boolean {

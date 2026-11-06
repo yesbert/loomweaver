@@ -10,6 +10,8 @@ export interface SurfaceRouteData {
   readonly urlDriven?: boolean;
   readonly docked?: boolean;
   readonly instanceId?: string;
+  readonly title?: string;
+  readonly literalTitle?: boolean;
 }
 
 export function surfaceRouteData(data: Data): SurfaceRouteData {

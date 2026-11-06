@@ -64,6 +64,7 @@ export function syntheticDockedRoute(
     data: {
       ...(view.iframe !== undefined && { iframe: view.iframe }),
       ...(view.pluginId && { pluginId: view.pluginId }),
+      ...(view.title && { title: view.title }),
       docked: true,
       instanceId,
     },

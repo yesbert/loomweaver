@@ -22,6 +22,7 @@
     (selectTab)="onSelectTab($event)"
     (escalate)="onEscalate($event)"
     (closeTab)="onCloseTab($event)"
+    (keepTab)="onKeepTab($event)"
     (unpinTab)="onUnpinTab($event)"
     (addTab)="openPicker($event)"
     (reorderTabs)="onReorderTabs($event)"
@@ -50,7 +51,7 @@
   [attr.id]="panelId()"
   [attr.role]="panelLabelledBy() ? 'tabpanel' : null"
   [attr.aria-labelledby]="panelLabelledBy()"
-  [attr.tabindex]="carriesAddress() ? -1 : null"
+  tabindex="-1"
   (pointerdown)="onBodyPointerDown()"
 >
   @if (carriesAddress()) {

@@ -5,7 +5,8 @@ import { ViewInstanceService } from './views/view-instance.service';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { registerTabContextMenu } from './regions/content/tabs/tab-context-menu';
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
-import { PaneMoveService } from './regions/pane/drag/pane-move.service';
+import { TabMoves } from './regions/pane/drag/tab-moves';
+import { PaneFocus } from './regions/pane/pane-focus';
 import {
   registerViewMoveMenu,
   registerViewHideMenu,
@@ -36,7 +37,8 @@ import {
 
 export interface BuiltInMenuDeps {
   readonly tabs: ContentTabsService;
-  readonly paneMove: PaneMoveService;
+  readonly tabMoves: TabMoves;
+  readonly paneFocus: PaneFocus;
   readonly viewMove: ViewMoveService;
   readonly viewVisibility: ViewVisibilityService;
   readonly railItems: RailItemsService;

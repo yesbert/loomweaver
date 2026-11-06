@@ -4,6 +4,10 @@ import { TabCloseHooks } from '../regions/content/tabs/tab-close-hooks';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import {
+  PANE_TREES_KEY,
+  storedTabPaths,
+} from '../regions/pane/tree/pane-tree-storage';
+import {
   ActiveWorkspaceService,
   workspaceScopedKey,
 } from './active-workspace.service';
@@ -118,7 +122,7 @@ export class WorkspaceService {
     if (!allowed) {
       return false;
     }
-    this.resetNow(id);
+    await this.resetNow(id);
     return true;
   }
 
@@ -126,12 +130,20 @@ export class WorkspaceService {
     if (!(await this.discard.confirmDiscardAll())) {
       return false;
     }
-    for (const workspace of this.catalog.everyOrigin()) {
-      this.resetNow(workspace.id);
+    const every = this.everyId();
+    const parked = every.filter((id) => id !== this.active.id());
+    const before = await this.arrangementsOf(parked);
+    for (const id of every) {
+      if (id === this.active.id()) {
+        this.resetActive(id);
+      } else {
+        this.resetParked(id);
+      }
     }
-    if (this.catalog.offersBuiltIn) {
-      this.resetNow(BUILT_IN_WORKSPACE_ID);
-    }
+    this.closeHooks.discarded(
+      before,
+      every.flatMap((id) => this.baselinePaths(id)),
+    );
     return true;
   }
 
@@ -180,23 +192,58 @@ export class WorkspaceService {
     this.discard.forgetOnceLetGo(id);
   }
 
-  private resetNow(id: string): void {
-    if (id !== this.active.id()) {
-      this.stash.evictWorkspace(id);
-      writeWorkspaceState(
-        this.workingStateStore,
-        id,
-        this.switcher.baselineOf(id),
-        WORKSPACE_STATE_KEYS,
-      );
-      this.storedRevision.advance();
+  private async resetNow(id: string): Promise<void> {
+    if (id === this.active.id()) {
+      this.resetActive(id);
       return;
     }
+    const before = await this.arrangementsOf([id]);
+    const others = this.everyId().filter(
+      (other) => other !== id && other !== this.active.id(),
+    );
+    const held = await this.arrangementsOf(others);
+    this.resetParked(id);
+    this.closeHooks.discarded(before, [...this.baselinePaths(id), ...held]);
+  }
+
+  private resetActive(id: string): void {
     this.stash.endHolds(id);
     this.closeHooks.closing(() =>
       this.switcher.apply(this.switcher.baselineOf(id)),
     );
     this.switcher.warnDeclarationGaps(id);
     this.switcher.chooseCurrentAddress();
+  }
+
+  private resetParked(id: string): void {
+    this.stash.evictWorkspace(id);
+    writeWorkspaceState(
+      this.workingStateStore,
+      id,
+      this.switcher.baselineOf(id),
+      WORKSPACE_STATE_KEYS,
+    );
+    this.storedRevision.advance();
+  }
+
+  private everyId(): string[] {
+    return [
+      ...this.catalog.everyOrigin().map((workspace) => workspace.id),
+      ...(this.catalog.offersBuiltIn ? [BUILT_IN_WORKSPACE_ID] : []),
+    ];
+  }
+
+  private async arrangementsOf(ids: readonly string[]): Promise<string[]> {
+    const stored = await Promise.all(ids.map((id) => this.switcher.stateOf(id)));
+    return ids.flatMap((id, index) =>
+      storedTabPaths(
+        stored[index][PANE_TREES_KEY] ??
+          this.switcher.baselineOf(id)[PANE_TREES_KEY],
+      ),
+    );
+  }
+
+  private baselinePaths(id: string): string[] {
+    return storedTabPaths(this.switcher.baselineOf(id)[PANE_TREES_KEY]);
   }
 }

@@ -11,6 +11,7 @@ import { SurfaceCloseGuard } from '../pane/unsaved-work/surface-close-guard';
 import { HiddenViewsService } from './hidden-views.service';
 import { PanelGroupService } from './panel-group.service';
 import { ViewVisibilityService } from './view-visibility.service';
+import { ViewMoveService } from './view-move.service';
 
 @Component({ selector: 'lw-visibility-stub', template: '' })
 class Stub {}
@@ -152,6 +153,19 @@ describe('ViewVisibilityService (hide and reveal sidebar views)', () => {
       'view:outline',
     ]);
     expect(group.activePath('primary')).toBe('view:outline');
+  });
+
+  it('reveal into another sidebar answers only once the move happened, and names no sidebar where it was cancelled', async () => {
+    visibility.hide('outline');
+    visibility.reveal('outline');
+    const moves = TestBed.inject(ViewMoveService);
+    const move = vi.spyOn(moves, 'move');
+
+    move.mockResolvedValueOnce(false);
+    expect(await visibility.reveal('outline', 'secondary')).toBeUndefined();
+
+    move.mockResolvedValueOnce(true);
+    expect(await visibility.reveal('outline', 'secondary')).toBe('secondary');
   });
 
   it('reveal into a named region puts the view there, not at its declared position', () => {

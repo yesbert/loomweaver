@@ -3,6 +3,7 @@
     type="button"
     class="lw-icon-btn h-6 w-6 self-center"
     (click)="newTab.emit($event)"
+    lwMenuAnnounced
     [attr.aria-label]="'content.split.newTab' | transloco"
     [attr.data-testid]="newTabTestId() || null"
   >

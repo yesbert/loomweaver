@@ -3,6 +3,7 @@ import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { PaneChromeService } from './pane-chrome.service';
 import { PaneLeaf } from '../tree/pane-node';
 import { PaneMinimizedStrip } from './pane-minimized-strip';
+import { minimizedIdOf, PaneFocus } from '../pane-focus';
 
 function leaf(tabs: PaneLeaf['tabs'], active?: string): PaneLeaf {
   return { kind: 'leaf', id: 'p1', tabs, active };
@@ -38,6 +39,19 @@ describe('PaneMinimizedStrip', () => {
       '[data-testid="pane-minimized-strip"]',
     );
   }
+
+  it('restoring the pane hands the focus on to it, and the strip is found by the pane it stands for', () => {
+    create(leaf([{ path: 'doc/a', title: 'Report', literalTitle: true }]));
+    const focus = TestBed.inject(PaneFocus);
+    const settle = vi.spyOn(focus, 'settleOn').mockImplementation(() => undefined);
+    chrome.toggleMinimize('content', 'p1');
+
+    expect(button().id).toBe(minimizedIdOf({ dock: 'content', paneId: 'p1' }));
+    button().click();
+
+    expect(chrome.isMinimized('content', 'p1')).toBe(false);
+    expect(settle).toHaveBeenCalledWith({ dock: 'content', paneId: 'p1' });
+  });
 
   it('shows the literal title of the active tab and no badge for a single tab', () => {
     create(leaf([{ path: 'doc/1', title: 'Report', literalTitle: true }]));

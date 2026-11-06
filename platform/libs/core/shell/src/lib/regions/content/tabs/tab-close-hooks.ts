@@ -39,6 +39,11 @@ export class TabCloseHooks {
     this.runForRootsOf(before);
   }
 
+  discarded(before: readonly string[], after: readonly string[]): void {
+    const kept = new Set(after.map((path) => this.rootOf(path)));
+    this.runForRootsOf(before.filter((path) => !kept.has(this.rootOf(path))));
+  }
+
   runOnceGone(root: string): void {
     const hook = this.hooks.get(root);
     if (!hook || this.held(root)) {

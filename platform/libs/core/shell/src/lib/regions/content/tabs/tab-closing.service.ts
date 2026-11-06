@@ -44,7 +44,7 @@ export class TabClosingService {
 
   closeOthers(path: string, pane?: PaneRef): void {
     if (this.inOtherPane(pane)) {
-      this.closeInPane(
+      void this.closeInPane(
         pane,
         this.closablePaneTabs(pane).filter((tab) => tab.path !== path),
       );
@@ -68,7 +68,7 @@ export class TabClosingService {
 
   closeAll(pane?: PaneRef): void {
     if (this.inOtherPane(pane)) {
-      this.closeInPane(pane, this.closablePaneTabs(pane));
+      void this.closeInPane(pane, this.closablePaneTabs(pane));
       return;
     }
     const routes = this.registry.contentRoutes();
@@ -88,7 +88,7 @@ export class TabClosingService {
     if (this.inOtherPane(pane)) {
       const tabs = this.paneTabs(pane);
       const index = tabs.findIndex((tab) => tab.path === path);
-      this.closeInPane(
+      void this.closeInPane(
         pane,
         tabs.slice(index + 1).filter((tab) => closable(tab)),
       );
@@ -109,7 +109,7 @@ export class TabClosingService {
     this.closeBulk(roots, views, target?.path ?? keep);
   }
 
-  closePrimaryPane(keeps: TabKeep = keepsNothing): void {
+  closePrimaryPane(keeps: TabKeep = keepsNothing): Promise<boolean> {
     const before = this.paneTree.dockTrees();
     const closed = closedWithHandover(
       this.paneTree.tree(CONTENT_DOCK),
@@ -120,7 +120,7 @@ export class TabClosingService {
       ...before,
       [CONTENT_DOCK]: closed ?? PRIMARY_LEAF,
     });
-    this.closeGuard.guarded(candidates, () => {
+    return this.closeGuard.guarded(candidates, () => {
       const promoted = this.paneTree.collapsePrimary(CONTENT_DOCK, keeps);
       if (promoted !== null) {
         void this.navigateAfterClose(promoted);
@@ -128,23 +128,21 @@ export class TabClosingService {
     });
   }
 
-  close(path: string, pane?: PaneRef): void {
+  close(path: string, pane?: PaneRef): Promise<boolean> {
     if (this.inOtherPane(pane)) {
-      this.closeInPane(
+      return this.closeInPane(
         pane,
         this.paneTabs(pane).filter((tab) => tab.path === path),
       );
-      return;
     }
     const normalized = normalizePath(path);
     if (isViewPanePath(normalized)) {
-      this.closeGuard.guarded(this.urlPaneCandidates(normalized), () =>
+      return this.closeGuard.guarded(this.urlPaneCandidates(normalized), () =>
         this.closeViewTab(normalized),
       );
-      return;
     }
     const { root } = this.state.rootFor(normalized);
-    this.closeGuard.guarded(this.urlPaneCandidates(root), () =>
+    return this.closeGuard.guarded(this.urlPaneCandidates(root), () =>
       this.closeNow(normalized),
     );
   }
@@ -172,15 +170,18 @@ export class TabClosingService {
     return this.paneTabs(pane).filter((tab) => closable(tab));
   }
 
-  private closeInPane(pane: PaneRef, tabs: readonly PaneTab[]): void {
+  private closeInPane(
+    pane: PaneRef,
+    tabs: readonly PaneTab[],
+  ): Promise<boolean> {
     if (tabs.length === 0) {
-      return;
+      return Promise.resolve(false);
     }
     const scope = paneRetentionScope(pane.dock, pane.paneId);
     const candidates = tabs.flatMap((tab) =>
       this.unsavedWork.instancesAt(scope, tab.path),
     );
-    this.closeGuard.guarded(candidates, () => {
+    return this.closeGuard.guarded(candidates, () => {
       for (const tab of tabs) {
         this.paneTree.removeTab(pane.dock, pane.paneId, tab.path);
       }

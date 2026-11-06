@@ -5,7 +5,8 @@ import { TestBed } from '@angular/core/testing';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { CommandService } from '../../../commands/command.service';
 import { ContentTabsService } from './content-tabs.service';
-import { PaneMoveService } from '../../pane/drag/pane-move.service';
+import { TabMoves } from '../../pane/drag/tab-moves';
+import { PaneFocus } from '../../pane/pane-focus';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { registerTabContextMenu, TAB_CONTEXT_MENU } from './tab-context-menu';
 import { PopoutService } from '../../../popout/popout.service';
@@ -15,24 +16,29 @@ describe('registerTabContextMenu', () => {
   let registry: ContributionRegistry;
   let commands: CommandService;
   let tabs: Record<string, Mock>;
-  let paneMove: Record<string, Mock>;
+  let tabMoves: Record<string, Mock>;
+  let paneFocus: Record<string, Mock>;
   let paneTree: Record<string, Mock>;
   let popoutOpen: Mock;
   let popout: PopoutService;
 
   beforeEach(() => {
     tabs = {
-      close: vi.fn(),
+      close: vi.fn(() => Promise.resolve(true)),
+      keep: vi.fn(),
       closeOthers: vi.fn(),
       closeToRight: vi.fn(),
       closeAll: vi.fn(),
       pin: vi.fn(),
       unpin: vi.fn(),
     };
-    paneMove = { splitTabOut: vi.fn() };
+    tabMoves = { splitOut: vi.fn(), pickTarget: vi.fn() };
+    paneFocus = { settleOn: vi.fn() };
     paneTree = {
       pinTab: vi.fn(),
       unpinTab: vi.fn(),
+      keepTab: vi.fn(),
+      primaryId: vi.fn(() => 'main'),
       sourceOf: vi.fn(() => null),
       carriesAddress: vi.fn(() => true),
     };
@@ -41,7 +47,6 @@ describe('registerTabContextMenu', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: ContentTabsService, useValue: tabs },
-        { provide: PaneMoveService, useValue: paneMove },
         { provide: PaneTreeService, useValue: paneTree },
       ],
     });
@@ -49,7 +54,8 @@ describe('registerTabContextMenu', () => {
     commands = TestBed.inject(CommandService);
     registerTabContextMenu(registry, {
       tabs: TestBed.inject(ContentTabsService),
-      paneMove: TestBed.inject(PaneMoveService),
+      tabMoves: tabMoves as unknown as TabMoves,
+      paneFocus: paneFocus as unknown as PaneFocus,
       paneTree: TestBed.inject(PaneTreeService),
       popout,
       features: TestBed.inject(FeatureSwitches),
@@ -70,11 +76,13 @@ describe('registerTabContextMenu', () => {
         'shell.tab.splitRight',
         'shell.tab.splitDown',
         'shell.tab.openInWindow',
+        'shell.tab.keepOpen',
+        'shell.tab.moveToPane',
       ]),
     );
     expect(
       registry.menuItems().filter((index) => index.menu === TAB_CONTEXT_MENU),
-    ).toHaveLength(8);
+    ).toHaveLength(10);
   });
 
   it('offers the split entries only to a tab that has company in its pane', () => {
@@ -109,7 +117,7 @@ describe('registerTabContextMenu', () => {
     expect(tabs['closeAll']).toHaveBeenCalledWith(pane);
     expect(paneTree['pinTab']).toHaveBeenCalledWith('content', 'p2', 't1');
     expect(tabs['pin']).not.toHaveBeenCalled();
-    expect(paneMove['splitTabOut']).toHaveBeenCalledWith('t1', 'row', pane);
+    expect(tabMoves['splitOut']).toHaveBeenCalledWith('t1', 'row', pane);
   });
 
   it('hands no pane from the address-carrying pane, so the group path stays', () => {
@@ -166,18 +174,80 @@ describe('registerTabContextMenu', () => {
 
   it('split right/down move the context tab into a new group', () => {
     commands.execute('shell.tab.splitRight', { tabId: 'doc/a' });
-    expect(paneMove['splitTabOut']).toHaveBeenCalledWith(
+    expect(tabMoves['splitOut']).toHaveBeenCalledWith(
       'doc/a',
       'row',
       undefined,
     );
 
     commands.execute('shell.tab.splitDown', { tabId: 'doc/a' });
-    expect(paneMove['splitTabOut']).toHaveBeenCalledWith(
+    expect(tabMoves['splitOut']).toHaveBeenCalledWith(
       'doc/a',
       'column',
       undefined,
     );
+  });
+
+  it('a preview is kept open from its menu, in the pane that holds it', () => {
+    const keep = registry
+      .menuItems()
+      .find((item) => item.command === 'shell.tab.keepOpen');
+    expect(keep?.when).toEqual({ preview: true });
+
+    commands.execute('shell.tab.keepOpen', { tabId: 'doc/a', primary: true });
+    expect(tabs['keep']).toHaveBeenCalledWith('doc/a');
+
+    commands.execute('shell.tab.keepOpen', {
+      tabId: 'doc/b',
+      group: 'content',
+      paneId: 'p2',
+      primary: false,
+    });
+    expect(paneTree['keepTab']).toHaveBeenCalledWith('content', 'p2', 'doc/b');
+  });
+
+  it('a tab is moved into another pane from its menu, offered only while the area is split', () => {
+    const move = registry
+      .menuItems()
+      .find((item) => item.command === 'shell.tab.moveToPane');
+    expect(move?.when).toEqual({ split: true });
+
+    commands.execute('shell.tab.moveToPane', { tabId: 'doc/a', primary: true });
+    expect(tabMoves['pickTarget']).toHaveBeenCalledWith('doc/a', {
+      dock: 'content',
+      paneId: 'main',
+    });
+
+    commands.execute('shell.tab.moveToPane', {
+      tabId: 'doc/b',
+      group: 'content',
+      paneId: 'p2',
+      primary: false,
+    });
+    expect(tabMoves['pickTarget']).toHaveBeenCalledWith('doc/b', {
+      dock: 'content',
+      paneId: 'p2',
+    });
+  });
+
+  it('closing from the menu puts the focus back on the pane once the tab is gone, not when the question was cancelled', async () => {
+    commands.execute('shell.tab.close', {
+      tabId: 't1',
+      group: 'content',
+      paneId: 'p2',
+      primary: false,
+    });
+    await Promise.resolve();
+    expect(paneFocus['settleOn']).toHaveBeenCalledWith({
+      dock: 'content',
+      paneId: 'p2',
+    });
+
+    paneFocus['settleOn'].mockClear();
+    tabs['close'].mockReturnValue(Promise.resolve(false));
+    commands.execute('shell.tab.close', { tabId: 't1', primary: true });
+    await Promise.resolve();
+    expect(paneFocus['settleOn']).not.toHaveBeenCalled();
   });
 
   it('falls back to an empty tab id when the context is missing it', () => {
@@ -196,7 +266,6 @@ describe('registerTabContextMenu', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: ContentTabsService, useValue: tabs },
-        { provide: PaneMoveService, useValue: paneMove },
         { provide: PaneTreeService, useValue: paneTree },
         provideShellFeatures({
           content: { close: false, pin: false, splitDown: false },
@@ -206,7 +275,8 @@ describe('registerTabContextMenu', () => {
     const bed = TestBed.inject(ContributionRegistry);
     registerTabContextMenu(bed, {
       tabs: TestBed.inject(ContentTabsService),
-      paneMove: TestBed.inject(PaneMoveService),
+      tabMoves: tabMoves as unknown as TabMoves,
+      paneFocus: paneFocus as unknown as PaneFocus,
       paneTree: TestBed.inject(PaneTreeService),
       popout,
       features: TestBed.inject(FeatureSwitches),

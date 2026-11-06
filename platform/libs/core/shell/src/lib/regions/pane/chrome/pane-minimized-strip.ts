@@ -11,6 +11,7 @@ import { PaneChromeService } from './pane-chrome.service';
 import { overlayTabTitle, PaneLabel, paneLabelOf } from './tab-label';
 import { nameShowing } from '../../../foundation/name-showing';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
+import { minimizedIdOf, PaneFocus } from '../pane-focus';
 
 @Component({
   selector: 'lw-pane-minimized-strip',
@@ -26,6 +27,11 @@ export class PaneMinimizedStrip {
 
   private readonly registry = inject(ContributionRegistry);
   private readonly chrome = inject(PaneChromeService);
+  private readonly paneFocus = inject(PaneFocus);
+
+  protected readonly id = computed(() =>
+    minimizedIdOf({ dock: this.dock(), paneId: this.leaf().id }),
+  );
 
   protected readonly vertical = computed(() => this.orientation() === 'row');
 
@@ -52,6 +58,8 @@ export class PaneMinimizedStrip {
   }
 
   protected restore(): void {
-    this.chrome.toggleMinimize(this.dock(), this.leaf().id);
+    const pane = { dock: this.dock(), paneId: this.leaf().id };
+    this.chrome.toggleMinimize(pane.dock, pane.paneId);
+    this.paneFocus.settleOn(pane);
   }
 }

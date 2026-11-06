@@ -28,12 +28,22 @@ export class MoveAnnouncer {
     moved: MovedEntry,
     targetRegion: string,
   ): void {
-    void this.announcer.announce(
-      this.transloco.translate(wording.announce, {
-        [wording.subject]: this.nameOf(moved),
-        target: this.targetLabel(wording, targetRegion),
-      }),
-    );
+    this.say(wording.announce, {
+      [wording.subject]: this.nameOf(moved),
+      target: this.targetLabel(wording, targetRegion),
+    });
+  }
+
+  announceTab(
+    key: string,
+    moved: MovedEntry,
+    params: Readonly<Record<string, unknown>> = {},
+  ): void {
+    this.say(key, { ...params, tab: this.nameOf(moved) });
+  }
+
+  private say(key: string, params: Record<string, unknown>): void {
+    void this.announcer.announce(this.transloco.translate(key, params));
   }
 
   private nameOf(moved: MovedEntry): string {

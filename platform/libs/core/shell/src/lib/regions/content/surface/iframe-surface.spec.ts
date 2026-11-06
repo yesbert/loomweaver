@@ -34,13 +34,22 @@ describe('IframeSurface', () => {
     pluginId?: string,
     level?: 'isolated' | 'embedded',
     session?: AuthSnapshot,
-    shownAt: { segments?: string[]; rest?: boolean } = {},
+    shownAt: {
+      segments?: string[];
+      rest?: boolean;
+      title?: string;
+      literalTitle?: boolean;
+    } = {},
   ) {
     const data = {
       iframe: '/sandbox/view.html',
       urlDriven: true,
       pluginId,
       ...(shownAt.rest && { rest: true }),
+      ...(shownAt.title && {
+        title: shownAt.title,
+        literalTitle: shownAt.literalTitle,
+      }),
     };
     const url = (shownAt.segments ?? ['sandbox']).map((path) => ({ path }));
     TestBed.configureTestingModule({
@@ -84,8 +93,40 @@ describe('IframeSurface', () => {
       fixture.componentInstance as unknown as NavigatesWithinTabRoot;
     const isolated = (fixture.componentInstance as unknown as { isolated: boolean })
       .isolated;
-    return { surface, tabs, isolated, component: fixture.componentInstance };
+    return {
+      surface,
+      tabs,
+      isolated,
+      component: fixture.componentInstance,
+      fixture,
+    };
   }
+
+  function frameTitleOf(shownAt: { title?: string; literalTitle?: boolean }) {
+    const quiet = IframeSurface.prototype as unknown as {
+      connect(): void;
+      watchVisibility(): void;
+    };
+    vi.spyOn(quiet, 'connect').mockImplementation(() => undefined);
+    vi.spyOn(quiet, 'watchVisibility').mockImplementation(() => undefined);
+    const { fixture } = create(undefined, undefined, undefined, shownAt);
+    fixture.detectChanges();
+    const frame = (fixture.nativeElement as HTMLElement).querySelector('iframe');
+    vi.restoreAllMocks();
+    return frame?.getAttribute('title');
+  }
+
+  it('titles its frame by what it shows, so frames are told apart', () => {
+    expect(frameTitleOf({ title: 'Orders board', literalTitle: true })).toBe(
+      'Orders board',
+    );
+    TestBed.resetTestingModule();
+    expect(frameTitleOf({ title: 'orders.title' })).toBe('orders.title');
+  });
+
+  it('titles a frame that declares no title by its kind', () => {
+    expect(frameTitleOf({})).toBe('content.pluginSurface');
+  });
 
   afterEach(() => localStorage.clear());
 

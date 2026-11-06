@@ -1,9 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, input, output } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
 
 @Component({
   selector: 'lw-pane-toolbar',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, MenuTriggerDirective],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'flex items-center gap-0.5' },
   templateUrl: './pane-toolbar.html',

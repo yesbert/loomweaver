@@ -382,6 +382,66 @@ describe('PaneTabStrip', () => {
 
     expect(tabLabel()).toBe('Q-2026-0001');
   });
+
+  it('closes a tab drawn as an icon with Delete, as a titled one, and names the key on it', () => {
+    create([tab({ path: 'view:quotes.customer', icon: 'customer' })]);
+    fixture.componentRef.setInput('variant', 'icons');
+    fixture.detectChanges();
+    const closed: string[] = [];
+    fixture.componentInstance.closeTab.subscribe((closing) => {
+      closed.push(closing.path);
+    });
+
+    const icon = tabByPath('view:quotes.customer');
+    icon?.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }),
+    );
+
+    expect(closed).toEqual(['view:quotes.customer']);
+    expect(icon?.getAttribute('aria-keyshortcuts')).toBe('Delete');
+  });
+
+  it('keeps a preview open with Shift+Enter, and names that key on the tab', () => {
+    create([tab({ path: 'quotes/q-1', preview: true }), tab({ path: 'kept' })]);
+    const kept: string[] = [];
+    fixture.componentInstance.keepTab.subscribe((keeping) => {
+      kept.push(keeping.path);
+    });
+
+    for (const path of ['quotes/q-1', 'kept']) {
+      tabByPath(path)?.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Enter',
+          shiftKey: true,
+          bubbles: true,
+        }),
+      );
+    }
+
+    expect(kept).toEqual(['quotes/q-1']);
+    expect(tabByPath('quotes/q-1')?.getAttribute('aria-keyshortcuts')).toBe(
+      'Delete Shift+Enter',
+    );
+    expect(tabByPath('kept')?.getAttribute('aria-keyshortcuts')).toBe('Delete');
+  });
+
+  it('says in the tab name that a tab is pinned, or only a preview', () => {
+    create([
+      tab({ path: 'pinned', title: 'Q-1', literalTitle: true, pinned: true }),
+      tab({ path: 'preview', title: 'Q-2', literalTitle: true, preview: true }),
+      tab({ path: 'plain', title: 'Q-3', literalTitle: true }),
+    ]);
+    bundle.next({
+      content: { pinnedTab: '{{title}}, pinned', previewTab: '{{title}}, preview' },
+    });
+    fixture.detectChanges();
+
+    expect(
+      ['pinned', 'preview', 'plain'].map((path) =>
+        tabByPath(path)?.getAttribute('aria-label'),
+      ),
+    ).toEqual(['Q-1, pinned', 'Q-2, preview', 'Q-3']);
+  });
 });
 
 describe('PaneTabStrip — what a tab tells its menu about where it stands', () => {

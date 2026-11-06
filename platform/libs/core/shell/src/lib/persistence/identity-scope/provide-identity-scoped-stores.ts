@@ -46,8 +46,9 @@ export interface IdentityScopedStoreOptions {
    * discriminator must be answerable synchronously at boot (persist the last-known subject
    * yourself). Where it cannot be, nothing stored for that user is lost: from the moment an
    * anonymous session adopts a namespace, writes are held, everything already read is read again
-   * from the adopted namespace, and what was built while nobody was known is kept only where the
-   * adopted namespace answers with nothing. What remains is the flash before the session lands.
+   * from the adopted namespace, and a first sign-in carries over every value read or written while
+   * nobody was known, each only where the adopted namespace holds nothing for its key. What remains
+   * is the flash before the session lands.
    */
   identity: () => string | null | undefined;
   /**

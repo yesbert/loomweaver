@@ -102,7 +102,7 @@ export class PaneService {
    * switched off every tab does.
    */
   closePane(pane: PaneHandle = this.activePane()): void {
-    this.actions.close(CONTENT_DOCK, pane);
+    void this.actions.close(CONTENT_DOCK, pane);
   }
 
   /**

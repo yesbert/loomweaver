@@ -19,7 +19,7 @@ test.describe('The one preview in the main area', () => {
     await expect(page.getByRole('tab', { name: 'E-01' })).toHaveClass(/italic/);
 
     const content = (await page.locator('#lw-main-content').boundingBox())!;
-    await dragTo(page, `${addressPane} [role="tab"][aria-label="E-01"]`, {
+    await dragTo(page, `${addressPane} [role="tab"][aria-label^="E-01"]`, {
       x: content.x + content.width - 12,
       y: content.y + content.height / 2,
     });
