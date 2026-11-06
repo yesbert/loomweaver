@@ -37,6 +37,7 @@ interface WithheldArea {
 interface PageAsCopied {
   readonly left: number;
   readonly top: number;
+  readonly width: number;
   readonly withheld: readonly WithheldArea[];
 }
 
@@ -65,8 +66,18 @@ function loadRenderer(): Promise<void> {
   return rendererLoad;
 }
 
+function marked(root: ParentNode, attribute: string): readonly Element[] {
+  const found = [...root.querySelectorAll(`[${CSS.escape(attribute)}]`)];
+  for (const element of root.querySelectorAll('*')) {
+    if (element.shadowRoot) {
+      found.push(...marked(element.shadowRoot, attribute));
+    }
+  }
+  return found;
+}
+
 function withheldAreas(attribute: string): readonly WithheldArea[] {
-  return [...document.querySelectorAll(`[${CSS.escape(attribute)}]`)]
+  return marked(document, attribute)
     .filter(
       (element) =>
         element !== document.body && element !== document.documentElement,
@@ -83,7 +94,7 @@ function withheldAreas(attribute: string): readonly WithheldArea[] {
 }
 
 function hideWithheldIn(copy: Element, attribute: string): void {
-  for (const area of copy.querySelectorAll(`[${CSS.escape(attribute)}]`)) {
+  for (const area of marked(copy, attribute)) {
     for (const element of [area, ...area.querySelectorAll('*')]) {
       (element as HTMLElement).style.setProperty(
         'visibility',
@@ -117,7 +128,15 @@ function whatTheFrameShows(
     context.fillStyle = background;
     context.fillRect(0, 0, canvas.width, canvas.height);
   }
-  context.drawImage(page, copied.left * scale, copied.top * scale);
+  const drawnAt = page.width / copied.width;
+  const zoom = Number.isFinite(drawnAt) && drawnAt > 0 ? scale / drawnAt : 1;
+  context.drawImage(
+    page,
+    copied.left * scale,
+    copied.top * scale,
+    page.width * zoom,
+    page.height * zoom,
+  );
   return { canvas, context };
 }
 
@@ -148,6 +167,7 @@ export async function captureSelf(
           seen.copied = {
             left: origin.left,
             top: origin.top,
+            width: origin.width,
             withheld: withheldAreas(withholdAttribute),
           };
         },

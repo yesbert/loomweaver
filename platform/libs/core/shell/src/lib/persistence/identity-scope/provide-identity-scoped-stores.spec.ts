@@ -332,6 +332,39 @@ describe('IdentityScopedStore while it adopts an identity', () => {
     expect(data.get('lw.id.ada:setting')).toBe('adas');
   });
 
+  it('answers a read during adoption with what nobody\'s namespace holds where the adopted one holds nothing, and stores it there', async () => {
+    const { store, data } = adopting({ setting: 'nobodys' });
+
+    await expect(store.get('setting')).resolves.toBe('nobodys');
+    await store.writeWhereTheNamespaceIsEmpty();
+
+    expect(data.get('lw.id.ada:setting')).toBe('nobodys');
+  });
+
+  it('does not bring back from nobody\'s namespace a setting removed while the adoption was under way', async () => {
+    const { store, data } = adopting({ setting: 'nobodys' });
+
+    await store.delete('setting');
+
+    await expect(store.get('setting')).resolves.toBeUndefined();
+    await store.writeWhereTheNamespaceIsEmpty();
+    expect(data.has('lw.id.ada:setting')).toBe(false);
+  });
+
+  it('removes a setting whose removal arrives while the held writes are being stored', async () => {
+    const { store, latch, data } = adopting({});
+    await store.set('setting', 'built meanwhile');
+    const writing = store.writeWhereTheNamespaceIsEmpty();
+
+    await store.delete('setting');
+    await writing;
+    latch.settle();
+    await store.writeWhatArrivedDuringAdoption();
+
+    expect(data.has('lw.id.ada:setting')).toBe(false);
+    await expect(store.get('setting')).resolves.toBeUndefined();
+  });
+
   it('answers a read issued while nobody was known from the namespace adopted since', async () => {
     let identity: string | null = null;
     const slow = handAnsweredStore({

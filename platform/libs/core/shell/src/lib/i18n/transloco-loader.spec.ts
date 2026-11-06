@@ -141,6 +141,28 @@ describe('TranslocoHttpLoader', () => {
     warn.mockRestore();
   });
 
+  it('gives a namespace the group a distribution added to the host bundle under the same name', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { loader, http } = setup(['orders']);
+    const result = loader.getTranslation('en');
+    const promise = new Promise((r) =>
+      (result as { subscribe: (f: unknown) => void }).subscribe(r),
+    );
+
+    http
+      .expectOne('/i18n/en.json')
+      .flush({ dialog: { ok: 'OK' }, orders: { legacy: 'Legacy' } });
+    http.expectOne('/i18n/orders/en.json').flush({ title: 'Orders' });
+
+    await expect(promise).resolves.toEqual({
+      dialog: { ok: 'OK' },
+      orders: { title: 'Orders' },
+    });
+    expect(warn).not.toHaveBeenCalled();
+    http.verify();
+    warn.mockRestore();
+  });
+
   it('exposes the registered namespaces via the token', () => {
     setup(['weaver', 'product']);
     expect(TestBed.inject(TRANSLATION_NAMESPACES)).toEqual(['weaver', 'product']);

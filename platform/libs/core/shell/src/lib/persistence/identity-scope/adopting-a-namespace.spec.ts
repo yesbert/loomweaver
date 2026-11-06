@@ -22,6 +22,12 @@ import { PaneTreeService } from '../../regions/pane/tree/pane-tree.service';
 import { PluginEnablementService } from '../../plugin/enablement/plugin-enablement.service';
 import { WORKING_STATE_STORE } from '../working-state-store';
 import { WORKSPACE_SETTLEMENT } from '../../regions/content/routing/workspace-settlement';
+import { PanelSizeService } from '../../regions/panel/panel-size.service';
+import { PanelState } from '../../regions/panel/panel-state';
+import { UserOrderService } from '../../regions/reorder/user-order.service';
+import { KeyValueStore, LocalStorageStore } from '../key-value-store';
+import { SETTINGS_STORE } from '../settings-store';
+import { StateSyncService } from '../cross-tab/state-sync.service';
 import { WorkspaceService } from '../../workspace/workspace.service';
 import { provideWorkspaces } from '../../workspace/declaration/provide-workspaces';
 
@@ -263,6 +269,37 @@ describe('a session that arrives after the workbench has already read', () => {
     expect(enablement.isEnabled('acme.board')).toBe(false);
   });
 
+  it('keeps widths, collapsed panels and the order for a person new to the product, and stores them for that person', async () => {
+    await open();
+    const sizes = TestBed.inject(PanelSizeService);
+    const panels = TestBed.inject(PanelState);
+    const order = TestBed.inject(UserOrderService);
+    sizes.setWidth('side', 333);
+    sizes.commit();
+    panels.toggle('side');
+    order.setOrder('bar', ['b', 'a']);
+
+    await signIn('ada');
+
+    expect(sizes.width('side')).toBe(333);
+    expect(panels.isCollapsed('side')).toBe(true);
+    expect(order.applyOrder('bar', ['a', 'b'], (id) => id)).toEqual(['b', 'a']);
+    expect(localStorage.getItem('lw.id.ada:lw.shell.panel-sizes')).toContain('333');
+    expect(localStorage.getItem('lw.id.ada:lw.shell.panels')).toContain('side');
+    expect(localStorage.getItem('lw.id.ada:lw.shell.item-order')).toContain('bar');
+  });
+
+  it('stores a setting kept for a person new to the product in that person\'s namespace at once', async () => {
+    await open();
+    TestBed.inject(PluginEnablementService).setEnabled('acme.notes', false);
+
+    await signIn('ada');
+
+    expect(localStorage.getItem('lw.id.ada:lw.shell.disabled-plugins')).toContain(
+      'acme.notes',
+    );
+  });
+
   it('keeps a container arrangement the adopted namespace holds nothing for', async () => {
     const { panes } = await open();
     await TestBed.inject(Router).navigateByUrl('/arranged/alpha');
@@ -289,5 +326,60 @@ describe('a session that arrives after the workbench has already read', () => {
 
     expect(panes.isSplit(CONTENT_DOCK)).toBe(true);
     expect(storedArrangement()).toBe(SPLIT_ARRANGEMENT);
+  });
+});
+
+describe('a distribution that switches the namespace of its own stores', () => {
+  let prefix = 'grace:';
+
+  class PrefixedStore implements KeyValueStore {
+    private readonly inner = new LocalStorageStore();
+
+    get(key: string): Promise<string | undefined> {
+      return this.inner.get(prefix + key);
+    }
+
+    set(key: string, value: string): Promise<void> {
+      return this.inner.set(prefix + key, value);
+    }
+
+    delete(key: string): Promise<void> {
+      return this.inner.delete(prefix + key);
+    }
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+    prefix = 'grace:';
+    TestBed.configureTestingModule({
+      providers: [
+        provideLayout(LAYOUT as never),
+        { provide: SETTINGS_STORE, useValue: new PrefixedStore() },
+        { provide: WORKING_STATE_STORE, useValue: new PrefixedStore() },
+      ],
+    });
+  });
+
+  it('starts the next person from the defaults where that person has stored nothing', async () => {
+    const enablement = TestBed.inject(PluginEnablementService);
+    const sizes = TestBed.inject(PanelSizeService);
+    const panels = TestBed.inject(PanelState);
+    const order = TestBed.inject(UserOrderService);
+    await appStableAfterPromiseChains();
+    const startWidth = sizes.width('side');
+    enablement.setEnabled('acme.notes', false);
+    sizes.setWidth('side', 333);
+    sizes.commit();
+    panels.toggle('side');
+    order.setOrder('bar', ['b', 'a']);
+
+    prefix = 'linus:';
+    await TestBed.inject(StateSyncService).namespaceAdopted();
+
+    expect(enablement.isEnabled('acme.notes')).toBe(true);
+    expect(sizes.width('side')).toBe(startWidth);
+    expect(panels.isCollapsed('side')).toBe(false);
+    expect(order.applyOrder('bar', ['a', 'b'], (id) => id)).toEqual(['a', 'b']);
+    expect(Object.keys(localStorage).filter((key) => key.startsWith('linus:'))).toEqual([]);
   });
 });

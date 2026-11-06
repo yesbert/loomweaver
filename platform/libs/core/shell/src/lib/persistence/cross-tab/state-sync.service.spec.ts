@@ -260,7 +260,7 @@ describe('StateSyncService', () => {
     expect(seen).toEqual(['adopted']);
   });
 
-  it('adopting a namespace that holds nothing for a registered key leaves its state alone', async () => {
+  it('a namespace a distribution switches to that holds nothing for a registered key resets it', async () => {
     const sync = configure();
     const settings = vi.fn();
     const workingState = vi.fn();
@@ -269,8 +269,8 @@ describe('StateSyncService', () => {
 
     await sync.namespaceAdopted();
 
-    expect(settings).not.toHaveBeenCalled();
-    expect(workingState).not.toHaveBeenCalled();
+    expect(settings).toHaveBeenCalledExactlyOnceWith(undefined, 'k');
+    expect(workingState).toHaveBeenCalledExactlyOnceWith(undefined, 'w');
   });
 
   it('adopting a namespace still tells an external registration to read its own storage again', async () => {

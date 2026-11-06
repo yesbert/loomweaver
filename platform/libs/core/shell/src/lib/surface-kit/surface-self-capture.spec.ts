@@ -3,7 +3,7 @@ import { captureSelf } from './surface-self-capture';
 
 const ATTRIBUTE = 'data-lw-withhold';
 
-const PAGE = { name: 'the whole page' } as unknown as HTMLCanvasElement;
+const PAGE_HEIGHT = 2000;
 
 const FRAME = { width: 400, height: 300 };
 
@@ -45,10 +45,12 @@ describe('a surface drawing itself', () => {
   let copies: Element[];
   let steps: Step[];
   let view: { width: number; height: number };
+  let page: { width: number; height: number } | undefined;
 
   function renderer(
     around: { beforeCopying?(): void; afterCopying?(): void } = {},
     copies_ = true,
+    drawnAt = (scale: number) => scale,
   ): void {
     (globalThis as Record<string, unknown>)['LwSnapdom'] = {
       snapdom: {
@@ -61,7 +63,12 @@ describe('a surface drawing itself', () => {
             options.plugins[0].afterClone({ clone });
           }
           around.afterCopying?.();
-          return PAGE;
+          const factor = drawnAt(options.scale);
+          page = {
+            width: FRAME.width * factor,
+            height: PAGE_HEIGHT * factor,
+          };
+          return page;
         },
       },
     };
@@ -77,6 +84,7 @@ describe('a surface drawing itself', () => {
     copies = [];
     steps = [];
     view = { width: 0, height: 0 };
+    page = undefined;
     vi.spyOn(globalThis, 'innerWidth', 'get').mockReturnValue(FRAME.width);
     vi.spyOn(globalThis, 'innerHeight', 'get').mockReturnValue(FRAME.height);
     vi.spyOn(document.head, 'append').mockImplementation((...nodes) => {
@@ -130,14 +138,14 @@ describe('a surface drawing itself', () => {
   it('draws its page and answers with the part its frame shows', async () => {
     renderer();
     document.body.getBoundingClientRect = () =>
-      ({ left: 0, top: -700 }) as DOMRect;
+      ({ left: 0, top: -700, width: FRAME.width }) as DOMRect;
 
     const answer = await captureSelf({ scale: 2 }, ATTRIBUTE);
 
     expect(asked).toHaveLength(1);
     expect(asked[0].target).toBe(document.body);
     expect(asked[0].options).toMatchObject({ scale: 2, dpr: 1 });
-    expect(steps).toEqual([{ image: PAGE, at: [0, -1400] }]);
+    expect(steps).toEqual([{ image: page, at: [0, -1400, 800, 4000] }]);
     expect(answer).toEqual({
       image: 'data:image/png;base64,view',
       width: 800,
@@ -147,15 +155,26 @@ describe('a surface drawing itself', () => {
 
   it('paints the colour of the page where the page ends above the edge of its frame', async () => {
     renderer();
-    document.body.getBoundingClientRect = () => ({ left: 0, top: 0 }) as DOMRect;
+    document.body.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: FRAME.width }) as DOMRect;
     document.body.style.backgroundColor = 'rgb(247, 249, 251)';
 
     await captureSelf({ scale: 1 }, ATTRIBUTE);
 
     expect(steps).toEqual([
       { fill: 'rgb(247, 249, 251)', box: [0, 0, 400, 300] },
-      { image: PAGE, at: [0, 0] },
+      { image: page, at: [0, 0, 400, 2000] },
     ]);
+  });
+
+  it('stamps a page the renderer had to draw smaller than asked at the zoom of its frame', async () => {
+    renderer({}, true, (scale) => scale / 4);
+    document.body.getBoundingClientRect = () =>
+      ({ left: 0, top: -700, width: FRAME.width }) as DOMRect;
+
+    await captureSelf({ scale: 2 }, ATTRIBUTE);
+
+    expect(steps).toEqual([{ image: page, at: [0, -1400, 800, 4000] }]);
   });
 
   it('covers a withheld area where it sits in the frame, at the scale of the drawing', async () => {
@@ -165,6 +184,21 @@ describe('a surface drawing itself', () => {
     await captureSelf({ scale: 2 }, ATTRIBUTE);
 
     expect(covers()).toEqual([[80, 200, 400, 100]]);
+  });
+
+  it('covers a withheld area that lives in an open shadow root', async () => {
+    renderer();
+    const host = document.createElement('div');
+    const area = document.createElement('p');
+    area.setAttribute(ATTRIBUTE, '');
+    area.getBoundingClientRect = () =>
+      ({ left: 40, top: 100, width: 200, height: 50 }) as DOMRect;
+    host.attachShadow({ mode: 'open' }).append(area);
+    document.body.append(host);
+
+    await captureSelf({ scale: 1 }, ATTRIBUTE);
+
+    expect(covers()).toEqual([[40, 100, 200, 50]]);
   });
 
   it('hides what is withheld in the copy the renderer draws from, and leaves the page alone', async () => {

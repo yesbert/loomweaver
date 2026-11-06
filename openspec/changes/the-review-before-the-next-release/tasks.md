@@ -136,6 +136,14 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.16 A read during adoption sees the write held for the same key, not the store's older value (`persistence/identity-scope/identity-scoped-store.ts`)
 - [x] 4.17 A surface is pictured at the size it has on the screen: one whose page is shorter than its frame is not stretched, and one that is scrolled is not squashed; the picture shows what the frame shows (`surface-kit/surface-self-capture.ts`)
 - [x] 4.22 What a surface withholds from a picture is covered where it was when the picture was taken, whatever the surface re-renders while it is being drawn (`surface-kit/surface-self-capture.ts`)
+- [x] 4.29 What the workbench holds stands only at the first sign-in of an anonymous session; a distribution that switches its own namespace and announces it starts the next person from the defaults wherever that person has stored nothing (`persistence/identity-scope/identity-scoped-store.ts`, `persistence/cross-tab/state-sync.service.ts`)
+- [x] 4.30 At a first sign-in into an empty namespace, panel widths, collapsed panels and the user's order stand like every other key, and what stands is stored for that person at the adoption, not on their next change (`persistence/identity-scope/identity-scoped-store.ts`)
+- [x] 4.31 A picture redraws a layer over a surface only where the layer is stacked above it: a background fixed beneath the workbench or below the surface covers nothing (`capture/covering-layers.ts`)
+- [x] 4.32 A picture finds every fixed layer, one nested in another (an open submenu) and one in an open shadow root (a tooltip) included (`capture/covering-layers.ts`)
+- [x] 4.33 A surface whose page is taller than the renderer can draw at full scale is pictured at the zoom of its frame (`surface-kit/surface-self-capture.ts`)
+- [x] 4.34 What a surface withholds inside an open shadow root is covered and labelled like the rest (`surface-kit/surface-self-capture.ts`)
+- [x] 4.35 Only the workbench's own translation groups are reserved: a namespace keeps its name where a distribution's host bundle carries a group of the same name (`i18n/transloco-loader.ts`, `i18n/workbench-groups.ts`)
+- [x] 4.36 A removal that arrives while the adoption is storing what it held is the last word for that key (`persistence/identity-scope/identity-scoped-store.ts`)
 
 ## 5. Commands, menus, dialogs and the UI kit
 

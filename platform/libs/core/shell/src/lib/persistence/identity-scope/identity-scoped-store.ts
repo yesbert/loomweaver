@@ -8,8 +8,9 @@ export class IdentityScopedStore implements KeyValueStore {
   private readonly inner: KeyValueStore;
   private readonly latch: BootLatchedIdentity;
   private readonly deviceKeys: ReadonlySet<string>;
-  private readonly built = new Map<string, string>();
-  private readonly arrived = new Map<string, string>();
+  private readonly built = new Map<string, string | undefined>();
+  private readonly arrived = new Map<string, string | undefined>();
+  private readonly inherited = new Map<string, string>();
   private namespaceRead = false;
 
   constructor(
@@ -20,47 +21,47 @@ export class IdentityScopedStore implements KeyValueStore {
     this.inner = inner;
     this.latch = latch;
     this.deviceKeys = deviceKeys;
-    this.peek = peekThrough(inner, (key) => this.scoped(key));
+    const peek = peekThrough(inner);
+    this.peek = peek && ((key) => this.peekHeld(peek, key));
   }
 
   async get(key: string): Promise<string | undefined> {
     const asked = this.scoped(key);
-    const answer = await this.read(asked);
+    const answer = this.withHeld(asked, await this.inner.get(asked));
     const adopted = this.scoped(key);
-    if (adopted === asked) {
+    if (adopted !== asked) {
+      return this.withHeld(adopted, await this.inner.get(adopted)) ?? answer;
+    }
+    if (answer !== undefined || !this.inherits(key, asked)) {
       return answer;
     }
-    return (await this.read(adopted)) ?? answer;
+    return this.inherit(key, asked, await this.inner.get(key));
   }
 
   set(key: string, value: string): Promise<void> {
-    const scoped = this.scoped(key);
-    if (this.held(key)) {
-      this.withheld().set(scoped, value);
-      return Promise.resolve();
-    }
-    return this.inner.set(scoped, value);
+    return this.write(key, value);
   }
 
   delete(key: string): Promise<void> {
-    const scoped = this.scoped(key);
-    if (this.held(key)) {
-      this.withheld().delete(scoped);
-      return Promise.resolve();
-    }
-    return this.inner.delete(scoped);
+    return this.write(key, undefined);
   }
 
   async writeWhereTheNamespaceIsEmpty(): Promise<void> {
     this.namespaceRead = true;
     try {
-      for (const [scoped, value] of this.built) {
-        if ((await this.inner.get(scoped)) === undefined) {
-          await this.inner.set(scoped, value);
+      for (const held of [this.built, this.inherited]) {
+        for (const [scoped, value] of held) {
+          if (value === undefined) {
+            continue;
+          }
+          if ((await this.inner.get(scoped)) === undefined) {
+            await this.inner.set(scoped, value);
+          }
         }
       }
     } finally {
       this.built.clear();
+      this.inherited.clear();
     }
   }
 
@@ -68,18 +69,62 @@ export class IdentityScopedStore implements KeyValueStore {
     const arrived = [...this.arrived];
     this.arrived.clear();
     for (const [scoped, value] of arrived) {
-      await this.inner.set(scoped, value);
+      await (value === undefined
+        ? this.inner.delete(scoped)
+        : this.inner.set(scoped, value));
     }
   }
 
-  private async read(scoped: string): Promise<string | undefined> {
-    const built = this.built.get(scoped);
-    const stored = await this.inner.get(scoped);
-    return this.arrived.get(scoped) ?? stored ?? built;
+  private write(key: string, value: string | undefined): Promise<void> {
+    const scoped = this.scoped(key);
+    if (this.held(key)) {
+      this.inherited.delete(scoped);
+      (this.namespaceRead ? this.arrived : this.built).set(scoped, value);
+      return Promise.resolve();
+    }
+    return value === undefined
+      ? this.inner.delete(scoped)
+      : this.inner.set(scoped, value);
   }
 
-  private withheld(): Map<string, string> {
-    return this.namespaceRead ? this.arrived : this.built;
+  private peekHeld(
+    peek: (key: string) => string | undefined,
+    key: string,
+  ): string | undefined {
+    const scoped = this.scoped(key);
+    const answer = this.withHeld(scoped, peek(scoped));
+    if (answer !== undefined || !this.inherits(key, scoped)) {
+      return answer;
+    }
+    return this.inherit(key, scoped, peek(key));
+  }
+
+  private withHeld(
+    scoped: string,
+    stored: string | undefined,
+  ): string | undefined {
+    if (this.arrived.has(scoped)) {
+      return this.arrived.get(scoped);
+    }
+    return stored ?? this.built.get(scoped) ?? this.inherited.get(scoped);
+  }
+
+  private inherits(key: string, scoped: string): boolean {
+    return this.held(key) && !this.namespaceRead && !this.built.has(scoped);
+  }
+
+  private inherit(
+    key: string,
+    scoped: string,
+    anonymous: string | undefined,
+  ): string | undefined {
+    if (!this.inherits(key, scoped)) {
+      return this.withHeld(scoped, undefined);
+    }
+    if (anonymous !== undefined) {
+      this.inherited.set(scoped, anonymous);
+    }
+    return anonymous;
   }
 
   private held(key: string): boolean {

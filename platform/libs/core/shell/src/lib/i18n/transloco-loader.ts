@@ -15,6 +15,7 @@ import {
   mergeTranslation,
   unknownOverrideKeys,
 } from './translation-tree';
+import { WORKBENCH_GROUPS } from './workbench-groups';
 
 const MISSING_OVERLAY: Translation = {};
 
@@ -42,7 +43,7 @@ export class TranslocoHttpLoader implements TranslocoLoader {
     }).pipe(
       map(({ host, namespaced, overlay }) =>
         this.applyOverrides(
-          { ...host, ...this.besideTheHost(host, namespaced) },
+          { ...host, ...this.besideTheWorkbench(namespaced) },
           overlay,
           lang,
         ),
@@ -50,13 +51,10 @@ export class TranslocoHttpLoader implements TranslocoLoader {
     );
   }
 
-  private besideTheHost(
-    host: Translation,
-    namespaced: Translation,
-  ): Translation {
+  private besideTheWorkbench(namespaced: Translation): Translation {
     return Object.fromEntries(
       Object.entries(namespaced).filter(([name]) => {
-        if (!Object.hasOwn(host, name)) {
+        if (!WORKBENCH_GROUPS.has(name)) {
           return true;
         }
         this.reportOnce(
