@@ -239,7 +239,9 @@ export interface PluginContext {
    * has placed it — a sidebar panel or a content pane — and puts it in view, so a command like
    * "Focus Library" can bring a docked view to the front. A collapsed sidebar is expanded, and on a
    * window narrow enough for sidebars to be overlays the sidebar's overlay is opened; a surface
-   * declared for a sidebar is found there even before that sidebar was ever drawn. Routable surfaces
+   * declared for a sidebar is found there even before that sidebar was ever drawn. Where the surface
+   * stands in several places, the copy current most recently is chosen, else the one in the pane
+   * carrying the address, else the first in reading order. Routable surfaces
    * are reached via {@link navigateContent} instead; container-only children (`docks: []`) live
    * inside their container and are not revealed from here. A no-op for a hidden, unknown or
    * un-placed id.

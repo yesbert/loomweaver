@@ -475,6 +475,31 @@ describe('PaneView (content pane)', () => {
     } as unknown as Event);
     expect(tree.insertTab).toHaveBeenCalledWith('content', 'p1', 'picked');
   });
+
+  it('opening an item through the add-tab button moves the address to the pane, as a tab click does', () => {
+    const c = build(CONTENT_PANE_OPTIONS);
+    c.openPicker({
+      currentTarget: document.createElement('button'),
+    } as unknown as Event);
+    expect(tree.focusPane).toHaveBeenCalledWith('content', 'p1', 'home');
+    expect(tabs.navigateTo).toHaveBeenCalledWith('search');
+  });
+
+  it('an add-tab picker closed without a choice leaves the address where it is', () => {
+    picker.openForHosting.mockImplementationOnce(() => undefined);
+    const c = build(CONTENT_PANE_OPTIONS);
+    c.openPicker({
+      currentTarget: document.createElement('button'),
+    } as unknown as Event);
+    expect(tree.focusPane).not.toHaveBeenCalled();
+  });
+
+  it('a toolbar button that only acts leaves the address where it is', () => {
+    const c = build(CONTENT_PANE_OPTIONS);
+    c.toggleMaximize();
+    c.minimize();
+    expect(tree.focusPane).not.toHaveBeenCalled();
+  });
 });
 
 describe('PaneView (panel pane)', () => {

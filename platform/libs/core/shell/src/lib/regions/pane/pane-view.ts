@@ -234,18 +234,12 @@ export class PaneView {
   );
 
   protected onBodyPointerDown(): void {
-    this.point();
-    if (this.focusable()) {
-      this.focusPane();
-    }
+    this.takeAddress();
   }
 
   protected onSelectTab(tab: StripTab): void {
     this.paneTree.setActiveTab(this.dock(), this.leaf().id, tab.path);
-    this.point();
-    if (this.focusable()) {
-      this.focusPane();
-    }
+    this.takeAddress();
   }
 
   protected onEscalate(tab: StripTab): void {
@@ -335,19 +329,28 @@ export class PaneView {
     const anchor = event.currentTarget as HTMLElement;
     const ctx = this.containerCtx;
     if (ctx) {
-      this.picker.openForChildren(anchor, ctx.spec, (path) =>
+      this.picker.openForChildren(anchor, ctx.spec, (path) => {
         this.containers.insertContainerChild(
           this.dock(),
           ctx.spec,
           this.leaf().id,
           path.slice(VIEW_PANE_PREFIX.length),
-        ),
-      );
+        );
+        this.takeAddress();
+      });
       return;
     }
-    this.picker.openForHosting(anchor, (path) =>
-      this.paneTree.insertTab(this.dock(), this.leaf().id, path),
-    );
+    this.picker.openForHosting(anchor, (path) => {
+      this.paneTree.insertTab(this.dock(), this.leaf().id, path);
+      this.takeAddress();
+    });
+  }
+
+  private takeAddress(): void {
+    this.point();
+    if (this.focusable()) {
+      this.focusPane();
+    }
   }
 
   private point(): void {

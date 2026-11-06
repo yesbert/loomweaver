@@ -56,6 +56,7 @@ import { ViewVisibilityService } from './regions/panel/view-visibility.service';
 import { RailItemsService } from './regions/rail/rail-items.service';
 import { RailMoveService } from './regions/rail/rail-move.service';
 import { RailWorkspaceEntries } from './regions/rail/rail-workspace-entries';
+import { SurfaceCopyRecency } from './regions/reveal/surface-copy-recency';
 import { PopoutService } from './popout/popout.service';
 import {
   APP_RESET_WORKSPACES,
@@ -243,6 +244,7 @@ function startupRegistrations(
     provideEnvironmentInitializer(wordChordKeys),
     provideEnvironmentInitializer(() => inject(LocaleService)),
     provideEnvironmentInitializer(() => inject(RailWorkspaceEntries).start()),
+    provideEnvironmentInitializer(() => inject(SurfaceCopyRecency).start()),
     provideEnvironmentInitializer(() => registerSettings(options)),
   ];
 }

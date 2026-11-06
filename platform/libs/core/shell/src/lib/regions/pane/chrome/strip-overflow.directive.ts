@@ -21,6 +21,9 @@ export class StripOverflow {
   readonly tabs = input<readonly unknown[]>([], {
     alias: 'lwStripOverflowTabs',
   });
+  readonly reorderable = input(false, {
+    alias: 'lwStripOverflowReorderable',
+  });
 
   readonly revealRequest = output<string>();
 
@@ -91,8 +94,19 @@ export class StripOverflow {
     const fullyVisible =
       tab.left >= band.left - EDGE_TOLERANCE_PX &&
       tab.right <= band.right + EDGE_TOLERANCE_PX;
-    if (!fullyVisible) {
-      this.revealRequest.emit(active);
+    if (fullyVisible) {
+      return;
     }
+    if (this.reorderable()) {
+      this.revealRequest.emit(active);
+      return;
+    }
+    strip.scrollLeft += this.shiftToShow(band, tab);
+  }
+
+  private shiftToShow(band: DOMRect, tab: DOMRect): number {
+    return tab.left < band.left || tab.width > band.width
+      ? tab.left - band.left
+      : tab.right - band.right;
   }
 }
