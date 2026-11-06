@@ -307,9 +307,9 @@ What review 12.2 and the reads of the last branches found. Paths are under `plat
 
 ## 13. Hand-over
 
-- [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged
-- [ ] 13.2 The end-to-end suite passes on `main` at that commit, started by hand rather than waited for
-- [ ] 13.3 SonarQube passes on `main` at that commit with no open issue
+- [x] 13.1 The merge gate ran on main after every merge and passed at daee6f71 (Build, run on the push). Was: The merge gate's steps pass locally on `main` after the last group merged
+- [x] 13.2 The nightly suite, started by hand on main at daee6f71, passed. Was: The end-to-end suite passes on `main` at that commit, started by hand rather than waited for
+- [x] 13.3 SonarQube passed with no new finding once the last one (S4123) was fixed in #867. Was: SonarQube passes on `main` at that commit with no open issue
 - [x] 13.4 Done in #864. Was: `docs/updating.md` says what the next release asks of a product, if anything here does
 
 ## 14. The published contract and the frame kit
