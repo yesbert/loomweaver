@@ -11,5 +11,5 @@ read finds every statement of the old text in the new one.
 
 ## 2. Check
 
-- [ ] 2.1 An independent read compares every changed requirement with its old text and finds nothing dropped or changed in meaning
-- [ ] 2.2 `openspec validate --all --strict` passes
+- [x] 2.1 An independent read compares every changed requirement with its old text and finds nothing dropped or changed in meaning
+- [x] 2.2 `openspec validate --all --strict` passes
