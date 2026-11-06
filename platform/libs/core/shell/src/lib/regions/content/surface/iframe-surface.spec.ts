@@ -1,10 +1,12 @@
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AuthSnapshot } from '@loomweaver/plugin-sdk';
 import { IframeSurface } from './iframe-surface';
+import { confinedTarget } from './iframe-surface-protocol';
+import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { ContentTabsService } from '../tabs/content-tabs.service';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { CapabilityGrantService } from '../../../permissions/capability-grant.service';
@@ -14,12 +16,33 @@ interface NavigatesWithinTabRoot {
   navigateWithinTabRoot(path: string): void;
 }
 
+interface ToldItsAddress {
+  reactiveState(): { tab: string; rest?: string };
+}
+
+interface PushesToItsFrame {
+  remote: unknown;
+  pushSlot(subscription: string, view: unknown): void;
+  pushState(key: string, value: unknown, loaded: boolean): void;
+}
+
+@Component({ selector: 'lw-test-page', template: '' })
+class TestPage {}
+
 describe('IframeSurface', () => {
   function create(
     pluginId?: string,
     level?: 'isolated' | 'embedded',
     session?: AuthSnapshot,
+    shownAt: { segments?: string[]; rest?: boolean } = {},
   ) {
+    const data = {
+      iframe: '/sandbox/view.html',
+      urlDriven: true,
+      pluginId,
+      ...(shownAt.rest && { rest: true }),
+    };
+    const url = (shownAt.segments ?? ['sandbox']).map((path) => ({ path }));
     TestBed.configureTestingModule({
       imports: [
         TranslocoTestingModule.forRoot({
@@ -29,17 +52,17 @@ describe('IframeSurface', () => {
         }),
       ],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: '**', component: TestPage }]),
         ...(session ? [{ provide: AUTH_SOURCE, useValue: signal(session) }] : []),
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ iframe: '/sandbox/view.html', urlDriven: true, pluginId }),
+            data: of(data),
             snapshot: {
-              data: { iframe: '/sandbox/view.html', urlDriven: true, pluginId },
+              data,
               params: {},
               routeConfig: null,
-              pathFromRoot: [{ url: [] }, { url: [{ path: 'sandbox' }] }],
+              pathFromRoot: [{ url: [] }, { url }],
             },
           },
         },
@@ -139,6 +162,142 @@ describe('IframeSurface', () => {
     expect(() =>
       surface.navigateWithinTabRoot('elsewhere?treaty=886320'),
     ).toThrow(/confined to its own tab root/);
+  });
+
+  it('refuses a target that steps out of its tab root through a dot segment or a backslash', () => {
+    const { surface, tabs } = create();
+    const navigateTo = vi
+      .spyOn(tabs, 'navigateTo')
+      .mockImplementation(() => undefined);
+    const stepsOut = [
+      'sandbox/../admin',
+      'sandbox/./../admin',
+      'sandbox/%2e%2e/admin',
+      'sandbox/%2E%2E/admin',
+      'sandbox/.%2E/admin',
+      'sandbox/%2e/admin',
+      'sandbox/..',
+      String.raw`sandbox\..\admin`,
+      String.raw`sandbox/a\b`,
+      'sandbox/a%5Cb',
+      'sandbox/%2e%2e/admin;year=2026',
+      String.raw`sandbox\..\admin;year=2026`,
+    ];
+
+    for (const path of stepsOut) {
+      expect(() => surface.navigateWithinTabRoot(path)).toThrow(
+        /confined to its own tab root/,
+      );
+    }
+    expect(navigateTo).not.toHaveBeenCalled();
+  });
+
+  it('still takes a target whose segment merely contains dots', () => {
+    expect(confinedTarget('sandbox', 'sandbox/v1.2/..hidden')).toBe(
+      'sandbox/v1.2/..hidden',
+    );
+  });
+
+  it('keeps its own address while it is kept but no longer shown, and is told nothing of the content that took over', async () => {
+    const { component } = create(undefined, undefined, undefined, {
+      rest: true,
+    });
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'sandbox',
+      iframe: '/sandbox/view.html',
+      rest: true,
+    });
+    const router = TestBed.inject(Router);
+    const told = () => (component as unknown as ToldItsAddress).reactiveState();
+
+    await router.navigateByUrl('/sandbox/pricing?treaty=886320');
+    expect(told()).toMatchObject({
+      tab: 'pricing',
+      rest: 'pricing?treaty=886320',
+    });
+
+    await router.navigateByUrl('/elsewhere/42?token=secret#part');
+    expect(told()).toMatchObject({
+      tab: 'pricing',
+      rest: 'pricing?treaty=886320',
+    });
+
+    await router.navigateByUrl('/sandbox/terms');
+    expect(told()).toMatchObject({ tab: 'terms', rest: 'terms' });
+  });
+
+  it('follows the address below a tab root the address encodes', async () => {
+    const { component, surface, tabs } = create(
+      undefined,
+      undefined,
+      undefined,
+      { segments: ['people', 'M%C3%BCller'], rest: true },
+    );
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'people/:name',
+      iframe: '/sandbox/view.html',
+      rest: true,
+    });
+    const navigateTo = vi
+      .spyOn(tabs, 'navigateTo')
+      .mockImplementation(() => undefined);
+
+    await TestBed.inject(Router).navigateByUrl('/people/M%C3%BCller/notes');
+
+    expect(
+      (component as unknown as ToldItsAddress).reactiveState(),
+    ).toMatchObject({ tab: 'notes', rest: 'notes' });
+
+    surface.navigateWithinTabRoot('people/Müller/files');
+
+    expect(navigateTo).toHaveBeenCalledWith('people/M%C3%BCller/files');
+  });
+
+  it('follows the address below a tab root left as it was written, and may navigate below it', async () => {
+    const { component, surface, tabs } = create(
+      undefined,
+      undefined,
+      undefined,
+      { segments: ['people', '7;x=1'], rest: true },
+    );
+    TestBed.inject(ContributionRegistry).addContentRoute({
+      path: 'people/:id',
+      iframe: '/sandbox/view.html',
+      rest: true,
+    });
+    const navigateTo = vi
+      .spyOn(tabs, 'navigateTo')
+      .mockImplementation(() => undefined);
+
+    await TestBed.inject(Router).navigateByUrl('/people/7;x=1/notes');
+
+    expect(
+      (component as unknown as ToldItsAddress).reactiveState(),
+    ).toMatchObject({ tab: 'notes', rest: 'notes' });
+
+    surface.navigateWithinTabRoot('people/7;x=1/files');
+
+    expect(navigateTo).toHaveBeenCalledWith('people/7;x=1/files');
+  });
+
+  it('leaves no rejection unhandled when a slot or state push is cut off', async () => {
+    const { component } = create();
+    const frame = component as unknown as PushesToItsFrame;
+    const slotPush = Promise.reject(new Error('cut off'));
+    const statePush = Promise.reject(new Error('cut off'));
+    const slotCaught = vi.spyOn(slotPush, 'catch');
+    const stateCaught = vi.spyOn(statePush, 'catch');
+    frame.remote = {
+      slotChanged: () => slotPush,
+      stateChanged: () => statePush,
+    };
+
+    frame.pushSlot('s1', { items: [] });
+    frame.pushState('k', 1, true);
+
+    expect(slotCaught).toHaveBeenCalledTimes(1);
+    expect(stateCaught).toHaveBeenCalledTimes(1);
+    await Promise.allSettled([slotPush, statePush]);
   });
 
   it('tells a permitted surface who is signed in, and nothing it could sign in with', () => {

@@ -67,10 +67,16 @@ export class ContentTabsService {
   readonly activeViewInstance: Signal<string | undefined> =
     this.state.activeViewInstance;
 
-  /** Active content path (no leading slash, no query), including the sub-route, e.g. `doc/abc/preview`. */
+  /**
+   * Active content path (no leading slash, no query), including the sub-route, e.g. `doc/abc/preview`,
+   * in the address's encoded form.
+   */
   readonly activePath: Signal<string> = this.state.activePath;
 
-  /** The active tab root: the leading segments the active route matched, e.g. `doc/abc`. */
+  /**
+   * The active tab root: the leading segments the active route matched, e.g. `doc/abc`, in the
+   * address's encoded form.
+   */
   readonly activeTabRoot: Signal<string> = this.state.activeTabRoot;
 
   /** The active content, as a plugin reads it through `ctx.activeContent`. */
@@ -141,7 +147,7 @@ export class ContentTabsService {
   /**
    * Opens a titled tab for `path` and activates it; opening the same root again restores its sub-route.
    * With `preview`, and preview enabled, a new tab takes the strip's single preview slot and replaces
-   * the preview tab that was there, whose `onClose` runs. Opening a tab that is already open keeps
+   * the preview tab that was there, whose `onClose` runs unless another pane still holds it. Opening a tab that is already open keeps
    * its preview state; {@link keep} promotes it.
    */
   open(input: OpenTabInput): void {
@@ -197,7 +203,8 @@ export class ContentTabsService {
   /**
    * Closes the pane that carries the address, in a split: a neighbour takes the address, is navigated
    * to, and receives the pinned tabs and those that cannot close (every tab while closing is switched
-   * off). Unsaved work in the tabs that really close is asked about first.
+   * off). Unsaved work is asked about first: in the tabs that really close, and in a kept tab the
+   * neighbour cannot take because it already holds that tab.
    */
   closePrimaryPane(): void {
     this.closing.closePrimaryPane(
@@ -214,9 +221,11 @@ export class ContentTabsService {
   }
 
   /**
-   * Runs and clears the close hook of the tab rooted at `path`, for a close outside the pane that
-   * carries the address. Does nothing while the tab is still open there, since closing it there runs
-   * the hook.
+   * Runs and clears the close hook of the tab rooted at `path`, unless a pane still holds that tab.
+   * A pane holds it while it has a tab at or below the same root, in any dock of the arrangement on
+   * screen: the content area and the docks of containers alike. A tab parked with a workspace that
+   * is not shown does not hold it. The workbench does this itself whenever a change to the
+   * arrangement takes a tab out of its last pane; showing another workspace is not such a change.
    */
   runCloseHook(path: string): void {
     this.closing.runCloseHook(path);

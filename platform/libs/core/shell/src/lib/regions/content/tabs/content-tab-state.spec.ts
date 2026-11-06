@@ -76,6 +76,16 @@ describe('The tabs of the pane that carries the address', () => {
     });
   });
 
+  it('exposes the values of an encoded address decoded', async () => {
+    await harness.navigateByUrl('/doc/M%C3%BCller');
+
+    expect(service.activeContent()).toEqual({
+      surfaceId: 'testbed.doc',
+      path: 'doc/M%C3%BCller',
+      params: { id: 'Müller' },
+    });
+  });
+
   it('keeps the open tabs with their title and pin in the pane tree, so they reload', async () => {
     await harness.navigateByUrl('/');
     service.open({ path: 'doc/a', title: 'A.ts', titleIsLiteral: true });
@@ -403,5 +413,29 @@ describe('Tabs that follow the address', () => {
     expect(navPathOf(service, 'k.treaties')).toBe(
       'cedents/US009999/programs/111111/treaties',
     );
+  });
+});
+
+describe('An address nothing declares, beside a home route', () => {
+  it('reads as no active content rather than as the home surface', async () => {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          ...buildContentRoutes(ROUTES),
+          { path: '**', component: TestContent },
+        ]),
+      ],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const route of ROUTES) registry.addContentRoute(route);
+    const service = TestBed.inject(ContentTabsService);
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl('/nowhere/at-all');
+
+    expect(service.activeContent()).toBeNull();
+    expect(service.activeTabRoot()).toBe('nowhere/at-all');
+    expect(service.tabs()).toEqual([]);
   });
 });

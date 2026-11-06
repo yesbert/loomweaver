@@ -194,6 +194,37 @@ describe('Navigating to a content tab', () => {
   });
 });
 
+describe('Following the address to somewhere nothing declares, beside a home route', () => {
+  it('leaves the path of every open tab as it was', async () => {
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          ...buildContentRoutes(ROUTES),
+          { path: '**', component: TestContent },
+        ]),
+      ],
+    });
+    const registry = TestBed.inject(ContributionRegistry);
+    for (const route of ROUTES) registry.addContentRoute(route);
+    TestBed.inject(ContentTabsService);
+    const harness = await RouterTestingHarness.create();
+    const paneTree = TestBed.inject(PaneTreeService);
+    paneTree.setPrimaryTabs(CONTENT_DOCK, [
+      { path: 'gone/1' },
+      { path: 'doc/a' },
+    ]);
+
+    await harness.navigateByUrl('/nowhere');
+    TestBed.inject(ApplicationRef).tick();
+
+    expect(paneTree.primaryTabs(CONTENT_DOCK).map((tab) => tab.path)).toEqual([
+      'gone/1',
+      'doc/a',
+    ]);
+  });
+});
+
 describe('Following the address while the arrangement hydrates', () => {
   it('keeps the auto-opened deep-link tab after the pane tree hydrates', async () => {
     let resolve!: (raw: string | undefined) => void;

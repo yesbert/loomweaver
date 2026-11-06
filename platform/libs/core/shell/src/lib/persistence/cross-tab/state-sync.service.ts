@@ -101,7 +101,8 @@ export class StateSyncService {
    * Reads every registered key again through its port and runs the handlers registered with
    * {@link onNamespaceAdopted}. Called by the shell when the identity behind the stores becomes
    * known after the first read; a distribution that scopes the ports itself calls it when its own
-   * namespace changes under a running application.
+   * namespace changes under a running application. Every registered key is applied with what the
+   * port answers, so state the namespace holds nothing for returns to its default.
    */
   async namespaceAdopted(): Promise<void> {
     for (const [key, registration] of this.exact) {

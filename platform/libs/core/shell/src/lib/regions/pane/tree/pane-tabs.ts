@@ -6,6 +6,7 @@ import {
   tabWithout,
 } from './pane-node';
 import { collapseLeaf, transformLeaf } from './pane-structure';
+import { samePath } from '../../content/content-path';
 
 export function insertTab(
   node: PaneNode,
@@ -15,7 +16,7 @@ export function insertTab(
 ): PaneNode {
   return transformLeaf(node, paneId, (leaf) => {
     const existingIndex = leaf.tabs.findIndex(
-      (existing) => existing.path === tab.path,
+      (existing) => samePath(existing.path, tab.path),
     );
     if (existingIndex !== -1) {
       const tabs = leaf.tabs.map((existing, position) =>

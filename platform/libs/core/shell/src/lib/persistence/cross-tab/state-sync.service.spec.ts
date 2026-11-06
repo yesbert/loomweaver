@@ -238,6 +238,51 @@ describe('StateSyncService', () => {
     expect(apply).toHaveBeenCalledWith(undefined, 'k');
   });
 
+  it('applies a removal another window made', async () => {
+    const sync = configure();
+    const seen: (string | undefined)[] = [];
+    sync.register('settings', 'k', (raw) => void seen.push(raw));
+
+    channel.receive('k');
+    await flush();
+
+    expect(seen).toEqual([undefined]);
+  });
+
+  it('adopting a namespace applies what it holds for a registered key', async () => {
+    localStorage.setItem('k', 'adopted');
+    const sync = configure();
+    const seen: (string | undefined)[] = [];
+    sync.register('settings', 'k', (raw) => void seen.push(raw));
+
+    await sync.namespaceAdopted();
+
+    expect(seen).toEqual(['adopted']);
+  });
+
+  it('a namespace a distribution switches to that holds nothing for a registered key resets it', async () => {
+    const sync = configure();
+    const settings = vi.fn();
+    const workingState = vi.fn();
+    sync.register('settings', 'k', settings);
+    sync.register('working-state', 'w', workingState);
+
+    await sync.namespaceAdopted();
+
+    expect(settings).toHaveBeenCalledExactlyOnceWith(undefined, 'k');
+    expect(workingState).toHaveBeenCalledExactlyOnceWith(undefined, 'w');
+  });
+
+  it('adopting a namespace still tells an external registration to read its own storage again', async () => {
+    const sync = configure();
+    const apply = vi.fn();
+    sync.register('external', 'product.session', apply);
+
+    await sync.namespaceAdopted();
+
+    expect(apply).toHaveBeenCalledExactlyOnceWith(undefined, 'product.session');
+  });
+
   it('a synced service adopts the other window value without writing it back', async () => {
     configure();
     const theme = TestBed.inject(ThemeService);

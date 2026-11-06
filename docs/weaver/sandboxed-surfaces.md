@@ -71,9 +71,11 @@ It receives the same pushed state, with two differences that follow from having 
 confined to the surface's own tab root, and a docked surface has none. To move the user somewhere, go
 through the plugin channel's `ctx.navigateContent` (the `navigation` grant). The pushed state also
 carries an `instanceId`: the pane or named instance this mount belongs to, so two mounts of the same
-surface can keep their own per-instance data apart. It carries `params` as well: the route params for a
-routable surface, and the container's `:id` for a **container child**, which is how an iframe child
-learns which container it is inside. A component child injects the same values off its route.
+surface can keep their own per-instance data apart. It carries `params` as well, decoded: the route
+params for a routable surface, and the container's `:id` for a **container child**, which is how an
+iframe child learns which container it is inside. A component child injects the same values off its
+route. The `tab` and the `rest` stay in the address's encoded form, as
+[Putting a value into an address](content-area.md#putting-a-value-into-an-address) explains.
 
 ## The sandbox bootstrap — how a sandboxed plugin gets `ctx`
 

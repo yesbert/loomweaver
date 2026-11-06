@@ -46,6 +46,24 @@ describe('PaneAdmission', () => {
     expect(admission.canOfferAsPaneTarget('doc/abc')).toBe(false);
   });
 
+  it('offers to duplicate a tab only at an address some content declares, not wherever a home route exists', () => {
+    const { admission, registry } = setup();
+    registry.addContentRoute({ path: '', component: ProbeView });
+    registry.addContentRoute({ path: 'doc/:id', component: ProbeView });
+
+    expect(admission.canDuplicate('doc/abc')).toBe(true);
+    expect(admission.canDuplicate('gone/1')).toBe(false);
+  });
+
+  it('does not offer an address nothing declares as a pane target because a home route exists', () => {
+    const { admission, registry } = setup();
+    registry.addContentRoute({ path: '', component: ProbeView });
+    registry.addContentRoute({ path: 'search', component: ProbeView });
+
+    expect(admission.canOfferAsPaneTarget('search')).toBe(true);
+    expect(admission.canOfferAsPaneTarget('gone')).toBe(false);
+  });
+
   it('a gated route and view become hostable once the session qualifies', () => {
     TestBed.configureTestingModule({
       providers: [

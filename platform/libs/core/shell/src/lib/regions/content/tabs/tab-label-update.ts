@@ -4,7 +4,7 @@ import { RegisteredContentRoute } from '../../../contributions/surface-normalize
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { labelledTabs, PaneNode, withLabel } from '../../pane/tree/pane-node';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
-import { matchRoute, normalizePath, tabRootOf } from '../content-path';
+import { declaringRoute, normalizePath, tabRootOf } from '../content-path';
 
 export function relabelled(
   node: PaneNode,
@@ -24,7 +24,7 @@ export function updateTabLabel(
   change: { path: string; label: ContentTabLabel; pluginId?: string },
 ): void {
   const root = tabRootOf(routes, normalizePath(change.path));
-  const owner = matchRoute(routes, root)?.pluginId;
+  const owner = declaringRoute(routes, root)?.pluginId;
   if (change.pluginId !== undefined && owner !== change.pluginId) {
     if (owner !== undefined && isDevMode()) {
       console.warn(

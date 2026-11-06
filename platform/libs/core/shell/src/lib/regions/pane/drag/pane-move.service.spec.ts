@@ -114,6 +114,27 @@ describe('PaneMoveService (move semantics)', () => {
     expect(other?.path).toBe('dashboard/overview');
   });
 
+  it('a tab dropped on a pane that holds it under its path as it was typed arrives as that one tab', async () => {
+    await harness.navigateByUrl('/dashboard/overview');
+    paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'doc/M%C3%BCller');
+    const from = paneTree.sourceOf('doc/M%C3%BCller');
+    paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'column', 'doc/Müller');
+    const onto = paneTree.sourceOf('doc/Müller');
+    if (from === null || onto === null) {
+      throw new Error('the split panes did not take their tabs');
+    }
+
+    paneMove.moveToStrip(from, 'doc/Müller', onto);
+    await harness.fixture.whenStable();
+
+    expect(
+      findLeaf(paneTree.tree(CONTENT_DOCK), onto.paneId)?.tabs.map(
+        (tab) => tab.path,
+      ),
+    ).toEqual(['doc/M%C3%BCller']);
+    expect(findLeaf(paneTree.tree(CONTENT_DOCK), from.paneId)).toBeNull();
+  });
+
   it('a strip drop into the URL group MOVES the tab there and navigates to it, collapsing the source', async () => {
     await harness.navigateByUrl('/dashboard/overview');
     paneTree.splitPane(CONTENT_DOCK, PRIMARY_PANE, 'row', 'plain');

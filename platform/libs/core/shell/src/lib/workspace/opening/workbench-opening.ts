@@ -132,7 +132,9 @@ export class WorkbenchOpening {
     await this.active.reread();
     const stored = await this.switcher.currentState();
     const found = WORKSPACE_STATE_KEYS.filter(
-      (key) => stored[key] !== undefined,
+      (key) =>
+        stored[key] !== undefined &&
+        stored[key] !== this.switcher.channels[key].serialize(),
     );
     if (found.includes(PANE_TREES_KEY)) {
       this.settlement.forgetWithheld();

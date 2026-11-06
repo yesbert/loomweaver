@@ -147,6 +147,31 @@ describe('ContentRouter', () => {
     });
   });
 
+  it('keeps holding an address only a home route would answer, until its own content registers', async () => {
+    const content = setup('/');
+    registry.addContentRoute({ path: '', component: TestRoute });
+    content.start();
+    content.hold('finance/matching');
+    router.url = '/sales/customers';
+
+    registry.addContentRoute({ path: 'sales/customers', component: TestRoute });
+    tick();
+    await Promise.resolve();
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+
+    registry.addContentRoute({
+      path: 'finance/matching',
+      component: TestRoute,
+    });
+    tick();
+    await Promise.resolve();
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('finance/matching', {
+      onSameUrlNavigation: 'reload',
+    });
+  });
+
   it('lets a held address go once a navigation lands elsewhere, so the user is not pulled back', async () => {
     const content = setup('/');
     registry.addContentRoute({ path: 'people/payroll', component: TestRoute });
@@ -263,6 +288,7 @@ describe('ContentRouter auth re-match', () => {
       resetConfig: vi.fn(),
       initialNavigation: vi.fn(),
       navigateByUrl: vi.fn().mockResolvedValue(true),
+      currentNavigation: () => null,
       url,
       events: new Subject<NavigationEnd>(),
     };

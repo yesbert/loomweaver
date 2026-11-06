@@ -8,6 +8,45 @@ import { IdentityScopedStore } from './identity-scoped-store';
 import { KeyValueStore, LocalStorageStore } from '../key-value-store';
 import { SETTINGS_STORE } from '../settings-store';
 import { WORKING_STATE_STORE } from '../working-state-store';
+import { persistedSetting } from '../stored-values/persisted-setting';
+
+function flush(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function handAnsweredStore(stored: Record<string, string>) {
+  const data = new Map(Object.entries(stored));
+  const asked: string[] = [];
+  let pending: { key: string; answer: () => void }[] = [];
+  const store: KeyValueStore = {
+    get: (key) =>
+      new Promise((resolve) => {
+        asked.push(key);
+        pending.push({ key, answer: () => resolve(data.get(key)) });
+      }),
+    set: (key, value) => {
+      data.set(key, value);
+      return Promise.resolve();
+    },
+    delete: (key) => {
+      data.delete(key);
+      return Promise.resolve();
+    },
+  };
+  const answer = async (namespace: 'nobody' | 'adopted'): Promise<void> => {
+    const scoped = namespace === 'adopted';
+    const mine = (key: string) => key.startsWith('lw.id.') === scoped;
+    while (pending.some((read) => mine(read.key))) {
+      const due = pending.filter((read) => mine(read.key));
+      pending = pending.filter((read) => !mine(read.key));
+      for (const read of due) {
+        read.answer();
+      }
+      await flush();
+    }
+  };
+  return { store, asked, answer };
+}
 
 describe('IdentityScopedStore', () => {
   let identity: string | null;
@@ -242,6 +281,179 @@ describe('IdentityScopedStore while it adopts an identity', () => {
     expect(data.get('lw.id.ada:first')).toBe('carried');
     expect(data.get('lw.id.ada:during')).toBe('changed');
   });
+
+  async function adopting(
+    stored: Record<string, string>,
+    readWhileNobodyWasKnown: readonly string[] = [],
+  ) {
+    let identity: string | null = null;
+    const latch = new BootLatchedIdentity(() => identity);
+    latch.watchAdoption(() => undefined);
+    latch.latch();
+    const data = new Map(Object.entries(stored));
+    const inner: KeyValueStore = {
+      get: (key) => Promise.resolve(data.get(key)),
+      set: (key, value) => {
+        data.set(key, value);
+        return Promise.resolve();
+      },
+      delete: (key) => {
+        data.delete(key);
+        return Promise.resolve();
+      },
+    };
+    const store = new IdentityScopedStore(inner, latch, new Set());
+    for (const key of readWhileNobodyWasKnown) {
+      await store.get(key);
+    }
+    identity = 'ada';
+    latch.latch();
+    return { store, latch, data };
+  }
+
+  it('reads back a write held for a key the adopted namespace holds nothing for', async () => {
+    const { store, data } = await adopting({});
+
+    await store.set('setting', 'built meanwhile');
+
+    await expect(store.get('setting')).resolves.toBe('built meanwhile');
+    expect(data.has('lw.id.ada:setting')).toBe(false);
+  });
+
+  it('reads what the adopted namespace holds rather than a write held before it was read', async () => {
+    const { store } = await adopting({ 'lw.id.ada:setting': 'adas' });
+
+    await store.set('setting', 'built meanwhile');
+
+    await expect(store.get('setting')).resolves.toBe('adas');
+  });
+
+  it('reads back a write that arrived once the adopted namespace had been read', async () => {
+    const { store, data } = await adopting({ 'lw.id.ada:setting': 'adas' });
+    await store.writeWhereTheNamespaceIsEmpty();
+
+    await store.set('setting', 'changed since');
+
+    await expect(store.get('setting')).resolves.toBe('changed since');
+    expect(data.get('lw.id.ada:setting')).toBe('adas');
+  });
+
+  it('answers a read during adoption with what nobody\'s namespace holds where the adopted one holds nothing, and stores it there', async () => {
+    const { store, data } = await adopting({ setting: 'nobodys' }, [
+      'setting',
+    ]);
+
+    await expect(store.get('setting')).resolves.toBe('nobodys');
+    await store.writeWhereTheNamespaceIsEmpty();
+
+    expect(data.get('lw.id.ada:setting')).toBe('nobodys');
+  });
+
+  it('does not bring back from nobody\'s namespace a setting removed while the adoption was under way', async () => {
+    const { store, data } = await adopting({ setting: 'nobodys' }, [
+      'setting',
+    ]);
+
+    await store.delete('setting');
+
+    await expect(store.get('setting')).resolves.toBeUndefined();
+    await store.writeWhereTheNamespaceIsEmpty();
+    expect(data.has('lw.id.ada:setting')).toBe(false);
+  });
+
+  it('removes a setting whose removal arrives while the held writes are being stored', async () => {
+    const { store, latch, data } = await adopting({});
+    await store.set('setting', 'built meanwhile');
+    const writing = store.writeWhereTheNamespaceIsEmpty();
+
+    await store.delete('setting');
+    await writing;
+    latch.settle();
+    await store.writeWhatArrivedDuringAdoption();
+
+    expect(data.has('lw.id.ada:setting')).toBe(false);
+    await expect(store.get('setting')).resolves.toBeUndefined();
+  });
+
+  it('answers a read during adoption without asking nobody\'s namespace again, so a store that no longer answers it holds nothing up', async () => {
+    let identity: string | null = null;
+    const latch = new BootLatchedIdentity(() => identity);
+    latch.watchAdoption(() => undefined);
+    const data = new Map([['lw.id.ada:chosen', 'adas']]);
+    let anonymousAnswers = true;
+    const inner: KeyValueStore = {
+      get: (key) =>
+        key.startsWith('lw.id.') || anonymousAnswers
+          ? Promise.resolve(data.get(key))
+          : new Promise(() => undefined),
+      set: () => Promise.resolve(),
+      delete: () => Promise.resolve(),
+    };
+    const store = new IdentityScopedStore(inner, latch, new Set());
+    await store.get('list');
+    anonymousAnswers = false;
+    identity = 'ada';
+    latch.latch();
+
+    const answers = await Promise.race([
+      Promise.all([store.get('list'), store.get('chosen')]),
+      flush().then(() => 'held up'),
+    ]);
+
+    expect(answers).toEqual([undefined, 'adas']);
+  });
+
+  it('answers a read issued while nobody was known from the namespace adopted since', async () => {
+    let identity: string | null = null;
+    const slow = handAnsweredStore({
+      setting: 'nobodys',
+      'lw.id.ada:setting': 'adas',
+    });
+    const store = new IdentityScopedStore(
+      slow.store,
+      new BootLatchedIdentity(() => identity),
+      new Set(),
+    );
+
+    const early = store.get('setting');
+    identity = 'ada';
+    await slow.answer('nobody');
+    await slow.answer('adopted');
+
+    await expect(early).resolves.toBe('adas');
+  });
+
+  it('answers a read issued while nobody was known with what it read where the adopted namespace holds nothing', async () => {
+    let identity: string | null = null;
+    const slow = handAnsweredStore({ setting: 'nobodys' });
+    const store = new IdentityScopedStore(
+      slow.store,
+      new BootLatchedIdentity(() => identity),
+      new Set(),
+    );
+
+    const early = store.get('setting');
+    identity = 'ada';
+    await slow.answer('nobody');
+    await slow.answer('adopted');
+
+    await expect(early).resolves.toBe('nobodys');
+  });
+
+  it('reads once where the namespace is the one the read was issued in', async () => {
+    const slow = handAnsweredStore({ 'lw.id.ada:setting': 'adas' });
+    const store = new IdentityScopedStore(
+      slow.store,
+      new BootLatchedIdentity(() => 'ada'),
+      new Set(),
+    );
+
+    const read = store.get('setting');
+    await slow.answer('adopted');
+
+    await expect(read).resolves.toBe('adas');
+    expect(slow.asked).toEqual(['lw.id.ada:setting']);
+  });
 });
 
 describe('provideIdentityScopedStores', () => {
@@ -289,5 +501,36 @@ describe('provideIdentityScopedStores', () => {
     ]);
     expect(localStorage.getItem('lw.id.ada:lw.shell.pane-trees')).toBe('{}');
     expect(settings.peek).toBeUndefined();
+  });
+
+  it('keeps the adopted value when a read issued before the adoption answers after it', async () => {
+    let identity: string | null = null;
+    const slow = handAnsweredStore({
+      'lw.test.setting': 'nobodys',
+      'lw.id.ada:lw.test.setting': 'adas',
+    });
+    TestBed.configureTestingModule({
+      providers: [
+        provideIdentityScopedStores({
+          identity: () => identity,
+          settingsStore: slow.store,
+        }),
+      ],
+    });
+    const setting = TestBed.runInInjectionContext(() =>
+      persistedSetting<string>('lw.test.setting', {
+        parse: (raw) => raw ?? 'default',
+        serialize: (value) => value,
+      }),
+    );
+
+    identity = 'ada';
+    await TestBed.inject(WORKING_STATE_STORE).get('lw.shell.active-workspace');
+    await slow.answer('adopted');
+    expect(setting.value()).toBe('adas');
+    await slow.answer('nobody');
+    await slow.answer('adopted');
+
+    expect(setting.value()).toBe('adas');
   });
 });

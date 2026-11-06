@@ -8,7 +8,7 @@ import { AuthContext } from '../../auth/auth-context';
 import { MenuListEntry } from '../../menu/menu.service';
 import { viewPanePath } from '../pane/tree/pane-address';
 import { resolveTitle } from '../pane/chrome/tab-label';
-import { matchRoute } from './content-path';
+import { declaringRoute } from './content-path';
 
 export interface PaneTarget {
   readonly path: string;
@@ -90,7 +90,7 @@ function paneHostableRoute(
   registry: ContributionRegistry,
   path: string,
 ): ContentRoute | null {
-  const route = matchRoute(registry.contentRoutes(), path);
+  const route = declaringRoute(registry.contentRoutes(), path);
   if (
     !route ||
     route.chromeless === true ||

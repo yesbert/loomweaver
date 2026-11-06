@@ -21,7 +21,11 @@ import { insertTab, removeTab } from '../tree/pane-tabs';
 import { PaneTreeService } from '../tree/pane-tree.service';
 import { PaneAdmission } from '../../content/pane-admission';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
-import { matchRoute, tabRootOf } from '../../content/content-path';
+import {
+  declaringRoute,
+  samePath,
+  tabRootOf,
+} from '../../content/content-path';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { LeftOutChildren } from '../container/left-out-children';
@@ -164,8 +168,8 @@ export class PaneMoveService {
         return;
       }
       const follow = this.urlFollowup(move.source, move.tab);
-      for (const [dock, tree] of Object.entries(move.edits)) {
-        this.paneTree.commit(dock, tree);
+      for (const dock of new Set([move.arrival.dock, move.source.dock])) {
+        this.paneTree.commit(dock, move.edits[dock]);
       }
       this.collapseEmptiedPrimary(move.source.dock);
       this.afterArrival(move.arrival, move.moved, follow);
@@ -201,7 +205,7 @@ export class PaneMoveService {
             [arrival.dock]: applyToTarget(this.paneTree.tree(arrival.dock)),
           };
     const arrived = findLeaf(edits[arrival.dock], arrival.paneId)?.tabs.some(
-      (held) => held.path === moved.path,
+      (held) => samePath(held.path, moved.path),
     );
     return arrived ? { source, tab, arrival, moved, edits } : null;
   }
@@ -221,7 +225,7 @@ export class PaneMoveService {
     if (!leaf) {
       return undefined;
     }
-    const exact = leaf.tabs.find((tab) => tab.path === rawPath);
+    const exact = leaf.tabs.find((tab) => samePath(tab.path, rawPath));
     if (exact || !this.paneTree.carriesAddress(source)) {
       return exact;
     }
@@ -318,6 +322,6 @@ export class PaneMoveService {
   private currentUrlContent(): string {
     const routes = this.registry.contentRoutes();
     const root = this.tabs.activeTabRoot();
-    return matchRoute(routes, root) ? root : '';
+    return declaringRoute(routes, root) ? root : '';
   }
 }

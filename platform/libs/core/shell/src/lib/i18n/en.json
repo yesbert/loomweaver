@@ -29,6 +29,7 @@
     "unpinTab": "Unpin tab",
     "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, unsaved changes",
+    "loadFailed": "This view could not be loaded.",
     "split": {
       "open": "Split editor",
       "resize": "Resize split",
@@ -176,7 +177,8 @@
   },
   "route": {
     "unavailableTitle": "View not available",
-    "unavailableMessage": "This view does not exist in this application. The link may come from a different environment."
+    "unavailableMessage": "This view does not exist in this application. The link may come from a different environment.",
+    "pluginFailedMessage": "The plugin that provides this view could not be loaded. Reload the application to try again."
   },
   "settings": {
     "capability": {

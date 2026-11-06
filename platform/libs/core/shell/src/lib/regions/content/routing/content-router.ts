@@ -7,8 +7,16 @@ import {
   Service,
   untracked,
 } from '@angular/core';
-import { NavigationEnd, Router, Routes } from '@angular/router';
-import { filter } from 'rxjs';
+import {
+  Event,
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationSkipped,
+  Router,
+  Routes,
+} from '@angular/router';
+import { filter, first } from 'rxjs';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
 import {
   ContributionRegistry,
@@ -17,10 +25,19 @@ import {
 import { AuthContext } from '../../../auth/auth-context';
 import { BootAddress } from './boot-address';
 import { DISTRIBUTION_ROUTES, isCatchAll } from './distribution-routes';
-import { buildContentRoutes, routePlaceholder } from './content-route-table';
-import { matchRoute, normalizePath, segmentsOf } from '../content-path';
+import { addressPlaceholder, buildContentRoutes } from './content-route-table';
+import { declaringRoute, matchRoute, normalizePath } from '../content-path';
 import { POPOUT_PREFIX } from '../../../popout/popout-path';
 import { PopoutView } from '../../../popout/popout-view';
+
+function navigationSettled(event: Event): boolean {
+  return (
+    event instanceof NavigationEnd ||
+    event instanceof NavigationCancel ||
+    event instanceof NavigationError ||
+    event instanceof NavigationSkipped
+  );
+}
 
 @Service()
 export class ContentRouter {
@@ -46,6 +63,7 @@ export class ContentRouter {
   private parkedOnPlaceholder = false;
   private userNavigated = false;
   private landings = 0;
+  private rematchWaits = false;
   private heldAt = 0;
 
   here(): string {
@@ -124,20 +142,36 @@ export class ContentRouter {
           firstAuthRun = false;
           return;
         }
-        untracked(() => {
-          const current = matchRoute(
-            this.registry.contentRoutes(),
-            this.router.url,
-          );
-          if (!current?.access) {
-            return;
-          }
-          void this.router
-            .navigateByUrl(this.router.url, { onSameUrlNavigation: 'reload' })
-            .catch(() => undefined);
-        });
+        untracked(() => this.rematch());
       },
       { injector: this.injector },
+    );
+  }
+
+  private rematch(): void {
+    if (this.router.currentNavigation() !== null) {
+      this.rematchOnceSettled();
+      return;
+    }
+    const here = this.router.url;
+    if (!matchRoute(this.registry.contentRoutes(), here)?.access) {
+      return;
+    }
+    void this.router
+      .navigateByUrl(here, { onSameUrlNavigation: 'reload' })
+      .catch(() => undefined);
+  }
+
+  private rematchOnceSettled(): void {
+    if (this.rematchWaits) {
+      return;
+    }
+    this.rematchWaits = true;
+    this.router.events.pipe(first(navigationSettled)).subscribe(() =>
+      queueMicrotask(() => {
+        this.rematchWaits = false;
+        this.rematch();
+      }),
     );
   }
 
@@ -188,11 +222,10 @@ export class ContentRouter {
       return [];
     }
     const path = normalizePath(target);
-    const matched = matchRoute(routes, path);
-    if (path === '' || segmentsOf(matched?.path ?? '').length > 0) {
+    if (path === '' || declaringRoute(routes, path) !== undefined) {
       return [];
     }
-    return [routePlaceholder(path)];
+    return [addressPlaceholder(path)];
   }
 
   private landed(url: string): void {
@@ -232,7 +265,7 @@ export class ContentRouter {
       this.heldAddress = null;
       return;
     }
-    if (matchRoute(this.lastRoutes, target) === undefined) {
+    if (declaringRoute(this.lastRoutes, target) === undefined) {
       return;
     }
     this.heldAddress = null;
@@ -252,8 +285,7 @@ export class ContentRouter {
       return;
     }
 
-    const matched = matchRoute(this.lastRoutes, target);
-    if (matched === undefined || segmentsOf(matched.path).length === 0) {
+    if (declaringRoute(this.lastRoutes, target) === undefined) {
       return;
     }
     void this.router

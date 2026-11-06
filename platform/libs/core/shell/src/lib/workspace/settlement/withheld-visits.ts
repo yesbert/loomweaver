@@ -2,7 +2,7 @@ import { effect, inject, Service, untracked } from '@angular/core';
 import { AuthContext } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import {
-  matchRoute,
+  declaringRoute,
   normalizePath,
   tabRootOf,
 } from '../../regions/content/content-path';
@@ -68,7 +68,7 @@ export class WithheldVisits {
 
   private qualifies(root: string): boolean {
     return this.auth.meets(
-      matchRoute(this.registry.contentRoutes(), root)?.access,
+      declaringRoute(this.registry.contentRoutes(), root)?.access,
     );
   }
 

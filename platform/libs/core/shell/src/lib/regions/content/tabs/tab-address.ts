@@ -4,7 +4,12 @@ import {
   makeEnvironmentProviders,
 } from '@angular/core';
 import { ContentRoute } from '@loomweaver/plugin-sdk';
-import { matchRoute, segmentsOf } from '../content-path';
+import {
+  decodeSegment,
+  declaringRoute,
+  encodeSegment,
+  segmentsOf,
+} from '../content-path';
 
 /** What the host knows when it works out where a following tab should point. */
 export interface TabAddressInput {
@@ -12,16 +17,20 @@ export interface TabAddressInput {
   readonly surfaceId?: string;
   /** That surface's route pattern, e.g. `customers/:customerId/orders/:orderId/notes`. */
   readonly pattern: string;
-  /** Parameter values of the address the user is on, by name. */
+  /**
+   * Parameter values of the address the user is on, by name, decoded. Put one into the address you
+   * return with `encodeURIComponent`.
+   */
   readonly params: Readonly<Record<string, string>>;
-  /** The full active content path, for a resolver that needs more than the names. */
+  /** The full active content path, in the address's encoded form, for a resolver that needs more than the names. */
   readonly activePath: string;
 }
 
 /**
  * A distribution's own answer to "where should this following tab point?" — part of the mapping is
  * domain knowledge the platform cannot have (a query parameter on one tab deciding a path segment on
- * another). Return `null` to fall back to the host's substitution.
+ * another). Return the address in its encoded form, each value written with `encodeURIComponent`, or
+ * `null` to fall back to the host's substitution.
  */
 export type TabAddressResolver = (input: TabAddressInput) => string | null;
 
@@ -53,11 +62,11 @@ export function computedTabAddress(
       resolved.push(segment);
       continue;
     }
-    const value = params[segment.slice(1)];
+    const value = params[decodeSegment(segment.slice(1))];
     if (value === undefined) {
       break;
     }
-    resolved.push(value);
+    resolved.push(encodeSegment(value));
   }
   return resolved.join('/');
 }
@@ -115,7 +124,7 @@ function leadsSomewhere(
   routes: readonly ContentRoute[],
   address: string,
 ): boolean {
-  const owner = matchRoute(routes, address);
+  const owner = declaringRoute(routes, address);
   return (
     owner !== undefined &&
     (owner.rest === true ||

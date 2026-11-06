@@ -1,7 +1,12 @@
 import { Methods } from 'penpal';
 import { distributionIcons } from '../../../elements/icon/icon-registry';
 import { LW_TOKENS } from '../../../theme/theme-tokens';
-import { isAtOrBelow, normalizePath } from '../content-path';
+import {
+  decodeSegment,
+  isAtOrBelow,
+  normalizePath,
+  segmentsOf,
+} from '../content-path';
 import type {
   LwSlotView,
   LwSurfaceCaptureRequest,
@@ -28,8 +33,8 @@ export interface SurfaceState {
 export type SurfaceRemote = Methods & {
   render(state: SurfaceState): Promise<void>;
   beforeClose(): Promise<boolean> | boolean;
-  stateChanged(key: string, value: unknown, loaded: boolean): void;
-  slotChanged(subscription: string, view: LwSlotView): void;
+  stateChanged(key: string, value: unknown, loaded: boolean): Promise<void>;
+  slotChanged(subscription: string, view: LwSlotView): Promise<void>;
   capture(request: LwSurfaceCaptureRequest): Promise<unknown>;
 };
 
@@ -49,9 +54,15 @@ export function resolvedLook(
   };
 }
 
+function stepsOut(segment: string): boolean {
+  const plain = decodeSegment(segment);
+  return plain === '.' || plain === '..' || plain.includes('\\');
+}
+
 export function confinedTarget(tabRoot: string, path: string): string {
   const target = normalizePath(path);
-  if (!isAtOrBelow(tabRoot, target)) {
+  const leaves = segmentsOf(target).some((segment) => stepsOut(segment));
+  if (leaves || !isAtOrBelow(tabRoot, target)) {
     throw new Error(
       `Surface navigation is confined to its own tab root "${tabRoot}" — got "${target}". ` +
         `Use the plugin (logic) channel's ctx.navigateContent for anything else ('navigation' grant).`,

@@ -1,5 +1,6 @@
 import { computed, inject, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
+import { TabCloseHooks } from '../regions/content/tabs/tab-close-hooks';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import {
@@ -28,6 +29,7 @@ export class WorkspaceService {
   private readonly stash = inject(RetainedViewStash);
   private readonly discard = inject(WorkspaceDiscard);
   private readonly tabNavigation = inject(TabNavigationService);
+  private readonly closeHooks = inject(TabCloseHooks);
   private readonly workingStateStore = inject(WORKING_STATE_STORE);
   private readonly storedRevision = inject(StoredStateRevision);
 
@@ -191,7 +193,9 @@ export class WorkspaceService {
       return;
     }
     this.stash.endHolds(id);
-    this.switcher.apply(this.switcher.baselineOf(id));
+    this.closeHooks.closing(() =>
+      this.switcher.apply(this.switcher.baselineOf(id)),
+    );
     this.switcher.warnDeclarationGaps(id);
     this.switcher.chooseCurrentAddress();
   }

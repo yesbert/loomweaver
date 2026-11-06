@@ -12,7 +12,7 @@ import { PaneLeaf, activeTab, leafPath } from '../pane/tree/pane-node';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { ContentTabsService } from './tabs/content-tabs.service';
 import { CurrentAddress } from './current-address';
-import { matchRoute, tabRootOf } from './content-path';
+import { declaringRoute, tabRootOf } from './content-path';
 import { opensATab } from './tabs/content-tab-projection';
 
 @Service()
@@ -58,7 +58,7 @@ export class AddressPaneBody {
       (tab) =>
         !isViewPanePath(tab.path) && tabRootOf(routes, tab.path) === root,
     );
-    const untabbed = !opensATab(matchRoute(routes, url), root);
+    const untabbed = !opensATab(declaringRoute(routes, url), root);
     if (held || (!this.settling() && untabbed)) {
       return url;
     }

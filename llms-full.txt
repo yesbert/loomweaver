@@ -132,9 +132,14 @@ interface PluginContext {
 
 interface ActiveContent {           // the read side of the content area (ctx.activeContent)
   readonly surfaceId: string | null;                     // matched surface's id (null if the route carries none)
-  readonly path: string;                                 // full active content path incl. sub-route segment
-  readonly params: Readonly<Record<string, string>>;     // :param values of the matched route pattern
+  readonly path: string;                                 // full active content path incl. sub-route segment, ENCODED (address form)
+  readonly params: Readonly<Record<string, string>>;     // :param values of the matched route pattern, DECODED
 }
+// TWO FORMS: every path (activeContent.path, a tab's path, route url segments, data.sub, a sandboxed surface's
+// `tab`, the rest) is the address's ENCODED form (what the address bar shows: people/M%C3%BCller); every :param
+// value (activeContent.params, paramMap, pushed `params`, TabAddressInput.params) is DECODED (Müller). Build an
+// address from a value with encodeURIComponent: `doc/${encodeURIComponent(id)}` keeps / ? # ; ( ) % and space
+// inside the one segment, finds the same tab again and hands `id` back decoded. Never decode a path to read a value.
 
 interface Command {                 // one behaviour, many triggers (items reference it by id)
   readonly id: string;              // e.g. "notes.add"
@@ -344,7 +349,8 @@ interface StateHandle<T = unknown> { readonly value: () => T | undefined; readon
 // `tab` is always '' and its channel's `navigate` is a NO-OP with a dev warning (the channel is only safe because it
 // is confined to the surface's own tab root; a docked one has none) — use ctx.navigateContent (`navigation` grant).
 // The pushed state carries `instanceId` (the pane / named instance), so two mounts of one surface stay distinguishable,
-// and `params` (route params for a routable surface, the container's :id for a container child).
+// and `params` (route params for a routable surface, the container's :id for a container child), DECODED; its `tab`
+// and `rest` are in the address's ENCODED form.
 type SurfacePresentation = { component: Type<unknown> } | { loadComponent: () => Promise<Type<unknown>> } | { iframe: string }
   | { container: ContainerSpec };
 interface SurfaceRoutable { path: string; chromeless?: boolean; title?: string; icon?: string; titleIsLiteral?: boolean; subRoutes?: readonly string[]; rest?: boolean; follows?: boolean; }
@@ -366,7 +372,7 @@ type Surface = {
                                         // EVERY routable surface (kept or not) is drawn by its pane, the address pane included,
                                         // and keyed to that pane, so handing the address role between split panes leaves each
                                         // pane's instance in place — a split shows two independent instances, deliberately.
-                                        // Its ActivatedRoute is the host's and LIVE: params (param change = different tab =
+                                        // Its ActivatedRoute is the host's and LIVE: params DECODED, url segments ENCODED (param change = different tab =
                                         // different instance), data.sub + firstChild (sub-address/rest; child params = the
                                         // declared sub-route's values), query + fragment while its pane carries the address,
                                         // data.urlDriven = does it (changes when the address moves). NO resolvers; a nested
@@ -481,7 +487,7 @@ type ContentSurface = { component: Type<unknown> } | { loadComponent: () => Prom
 // sub may CARRY A VALUE ('structure/:structureId'); there is NO forced redirect to the first — the bare tab root is a
 // valid address and the surface decides what it shows there.
 // rest: true = own EVERYTHING below `path`: the longest registered prefix wins and the remainder is handed over
-// verbatim, query string included (cedents/:c/programs + rest → "205470/pricing?t=886320"). Without it a deeper
+// in the address's ENCODED form, query string included (cedents/:c/programs + rest → "205470/pricing?t=886320"). Without it a deeper
 // address matches no route and the navigation fails. The prefix stays the tab root ⇒ the whole subtree is ONE tab
 // and moving inside it never rebuilds the surface (a parameter change in the pattern may). A sandboxed surface gets
 // it as state.rest and sets its own via the channel's navigate; a trusted component reads/navigates via the router.
@@ -508,7 +514,7 @@ type ContentRoute = { id?: string; path: string; chromeless?: boolean; subRoutes
 // `id` = the originating surface's id, carried through by registerSurface. It is the OMIT handle
 // ('route:<id>'); `path` stays the OVERRIDE handle. Internal storage form — authors write registerSurface.
 // titleIsLiteral: title is shown verbatim, not looked up as a Transloco key (set for a doc name / dynamic label;
-// avoids a missing-translation dev warning). onClose: runs once when THIS tab closes (free per-tab state; in-process only).
+// avoids a missing-translation dev warning). onClose: runs once when THIS tab has left the LAST pane holding it (its close control, closeContentTab, or that pane closing or merging away; not while a split or container still shows it, not on a workspace switch; free per-tab state; in-process only). path: write a value with encodeURIComponent.
 // preview: open in the one reused italic preview of the main area; a different-path preview open replaces it in
 // place WHEREVER it stands — dragged into another pane it stays a preview, the next preview lands there and that pane
 // takes the address. No preview yet → opens in the pane carrying the address. Moved into a sidebar → permanent. Promote via ctx.keepContentTab(path), or let the user double-click the tab (the
@@ -1166,7 +1172,7 @@ class VersionService { version: WritableSignal<string>; isPreview: Signal<boolea
 class ViewportService { compact: Signal<boolean> }   // below the md breakpoint (767.98px): the fact the chrome folds on, for a control of your own
 const APP_RESET_WORKSPACES: InjectionToken<() => Promise<boolean>>;   // what AppResetService.reset({ workspaces: true }) calls to reset them all
 const LOOM_ICONS;   // the shipped icon map itself (LoomIconName = keyof typeof LOOM_ICONS), for code that reads a glyph rather than draws it
-interface TabAddressInput { surfaceId?; pattern; params: Record<string, string>; activePath }  type TabAddressResolver = (input: TabAddressInput) => string | null;   // provideTabAddressResolver, following tabs
+interface TabAddressInput { surfaceId?; pattern; params: Record<string, string>; activePath }  type TabAddressResolver = (input: TabAddressInput) => string | null;   // provideTabAddressResolver, following tabs; params DECODED, activePath ENCODED, return an ENCODED address (encodeURIComponent each value)
 function provideRequiredPlugins(...pluginIds: string[]): Provider;   // a plugin the application CANNOT RUN WITHOUT: the permissions surface offers no
 // off switch for it, setEnabled() does nothing, and it never appears in PluginEnablementService.disabled whatever is stored. REQUIRED_PLUGINS:
 // InjectionToken<RequiredPlugins> (a readonly string[] of plugin ids, so `.includes(id)`) is the fact behind it. Capabilities are still granted the ordinary way.

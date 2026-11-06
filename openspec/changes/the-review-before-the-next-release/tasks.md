@@ -56,7 +56,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 2.14 Lead, verify first: moving the last child out of a container's primary pane promotes the pane that takes its space, as closing does (`regions/pane/tree/pane-structure.ts`, `withoutEmptyPrimary`)
 - [ ] 2.15 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`)
 - [x] 2.16 Not done, handed to the owner as a decision (see design.md): Lead, verify first: a surface that stays mounted across a workspace switch belongs to the workspace now shown, and is not parked later for the one that built it (`regions/pane/retention/`)
-- [ ] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
+- [x] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
 - [x] 2.18 Not applicable any more: nothing is carried (see 2.2)
 - [x] 2.19 Not done, handed to the owner as a decision (see design.md): An instance in use across a workspace switch belongs to the workspace now shown, so it is parked for that one; and deleting the active workspace leaves nothing parked under an id that no longer exists (`regions/pane/retention/`, `workspace/workspace.service.ts`)
 - [x] 2.20 After the question a move asks, the move is worked out against the tree as it is then: a move whose source or target is gone, or whose workspace changed meanwhile, is abandoned with the tab left where it is (`regions/pane/drag/pane-move.service.ts`)
@@ -66,15 +66,33 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 ## 3. Addresses and tabs
 
-- [ ] 3.1 Address parameters reach a surface decoded, the same in every pane (`regions/content/content-path.ts`)
-- [ ] 3.2 A home route is not the tab root of every undeclared address: no tab's path is overwritten, and closing to the right of a view tab closes only what is right of it (`regions/content/content-path.ts`, `tabs/tab-navigation.service.spec.ts`, `tabs/tab-closing.service.spec.ts`)
-- [ ] 3.3 A retained, hidden isolated surface keeps its own address and is not told another content's query or fragment (`regions/content/surface/iframe-surface.ts`)
-- [ ] 3.4 A tab opened under a path with characters the address encodes is the tab the address finds: no duplicate (`regions/content/tabs/tab-opening.service.ts`)
-- [ ] 3.5 A slot or state push to a frame that fails or is cut off does not leave an unhandled rejection (`regions/content/surface/iframe-surface.ts`)
-- [ ] 3.6 A held address is retried only when its own content registers, not on any registration while a home route exists (`regions/content/routing/content-router.ts`)
-- [ ] 3.7 A frame's navigation target with a dot segment or a backslash is refused (`regions/content/surface/iframe-surface-protocol.ts`)
-- [ ] 3.8 At an address nothing declares, the active content reads as nothing rather than as the home surface (`regions/content/tabs/content-tab-state.ts`)
-- [ ] 3.9 Leads, each verified first: the boot placeholder at an encoded deep link; the session re-match superseding a navigation in flight; the close hook running while the same tab is open in another pane; a failed lazy load leaving the pane blank (`regions/content/routing/content-router.ts`, `tabs/tab-closing.service.ts`, `surface/surface-body.ts`)
+- [x] 3.1 Address parameters reach a surface decoded, the same in every pane (`regions/content/content-path.ts`)
+- [x] 3.2 A home route is not the tab root of every undeclared address: no tab's path is overwritten, and closing to the right of a view tab closes only what is right of it (`regions/content/content-path.ts`, `tabs/tab-navigation.service.spec.ts`, `tabs/tab-closing.service.spec.ts`)
+- [x] 3.3 A retained, hidden isolated surface keeps its own address and is not told another content's query or fragment (`regions/content/surface/iframe-surface.ts`)
+- [x] 3.4 A tab opened under a path with characters the address encodes is the tab the address finds: no duplicate (`regions/content/tabs/tab-opening.service.ts`)
+- [x] 3.5 A slot or state push to a frame that fails or is cut off does not leave an unhandled rejection (`regions/content/surface/iframe-surface.ts`)
+- [x] 3.6 A held address is retried only when its own content registers, not on any registration while a home route exists (`regions/content/routing/content-router.ts`)
+- [x] 3.7 A frame's navigation target with a dot segment or a backslash is refused (`regions/content/surface/iframe-surface-protocol.ts`)
+- [x] 3.8 At an address nothing declares, the active content reads as nothing rather than as the home surface (`regions/content/tabs/content-tab-state.ts`)
+- [x] 3.9 Leads, each verified first: the boot placeholder at an encoded deep link; the session re-match superseding a navigation in flight; the close hook running while the same tab is open in another pane; a failed lazy load leaving the pane blank (`regions/content/routing/content-router.ts`, `tabs/tab-closing.service.ts`, `surface/surface-body.ts`)
+- [x] 3.10 A plugin that registers the home route does not count as the owner of every other address (`plugin/context/plugin-surface-ownership.ts`)
+- [x] 3.11 An address nothing declares is not attributed to the home route when a tab is duplicated or its label updated (`regions/content/pane-admission.ts`, `tabs/tab-label-update.ts`)
+- [x] 3.12 A tab stored under a path as it was typed is recognised by its address in every pane, not only in the one carrying the address (`regions/pane/tree/pane-structure.ts`)
+- [x] 3.13 Replacing the preview tab keeps the teardown while another pane still holds that tab (`regions/content/tabs/preview-slot.service.ts`)
+- [x] 3.14 A lazy surface whose load failed is tried again when its tab is opened again (`regions/pane/component-loader.service.ts`)
+- [x] 3.15 Not done: the routing capability names what an address carries (values, sub-address or owned remainder, query, fragment) and matrix parameters are not among it; no surface can read them and nothing the workbench offers writes them, so matching them the way Angular does would be a new guarantee, not a defect. An address that uses them is left as written (see 3.1). Was: Lead, verify first: an address carrying matrix parameters finds the content route Angular finds for it (`regions/content/content-path.ts`)
+- [x] 3.16 Content whose plugin could not be loaded says that, not that the view does not exist in this application (`regions/content/access/`)
+- [x] 3.17 A kept surface taken over by a re-created pane view goes on hearing its address: sub-address, query and fragment (`regions/content/surface/live-surface-routes.ts`, `surface-injector.ts`)
+- [x] 3.18 A tab's close hook runs once its last holder goes, by whatever path the tab leaves a pane (closed in a pane, a pane closing, an unsplit, the pane carrying the address closing, a withheld visit settling), and the published description of `runCloseHook` says exactly what holds a tab (`regions/pane/tree/pane-tree.service.ts`, `regions/content/tabs/tab-close-hooks.ts`)
+- [x] 3.19 A surface whose address is left as written (`;`, `(`, `)`) follows that address and may navigate below it, in a sandboxed surface and in a container alike (`regions/content/surface/iframe-surface.ts`, `regions/pane/container/container-pane-host.ts`)
+- [x] 3.20 A following tab finds the value of a parameter whose name the address encodes (`regions/content/tabs/tab-address.ts`)
+- [x] 3.21 An encoded slash stays inside its segment in the route table and in the placeholder for an opening address, and a decoded `:x` or `**` in an opened address is not a parameter or a wildcard (`regions/content/routing/content-route-table.ts`)
+- [x] 3.22 A plugin owns an address only where its own route is the one declaring it, not where another plugin declares a more specific route below one of its own (`plugin/context/plugin-surface-ownership.ts`)
+- [x] 3.23 An address nothing declares is not judged by the home route as a pane target, for its retention, for a withheld visit's access, in the audit of a workspace's claims and tabs, or as where a following tab leads (`regions/content/pane-targets.ts`, `regions/pane/retention/retention-policy.ts`, `workspace/settlement/withheld-visits.ts`, `workspace/declaration/definition-audit.ts`, `regions/content/tabs/tab-address.ts`)
+- [x] 3.24 When a session ends during a navigation that is then cancelled, no gated route stays activated for a session that may not see it (`regions/content/routing/content-router.ts`)
+- [x] 3.25 Every published description says whether it carries a value decoded (parameters) or the address's encoded form (paths, a sandboxed surface's `tab`, the rest), and a segment written with `encodeURIComponent` is accepted and found again for `/ ? # ; ( ) %` and a space; the guides and `llms-full.txt` say how to build an address from a value (`plugin-sdk`, `regions/content/tabs/tab-address.ts`, `docs/weaver/content-area.md`)
+- [x] 3.26 A live route nothing reads is forgotten on the next bind as well; a failed lazy surface is tried again when switching between two tabs of the same route; a tab stored under its path as typed is the same tab when inserted or moved; what the browser sends for a typed `Müller%` is the address `open('doc/Müller%')` reaches (`regions/content/surface/live-surface-routes.ts`, `surface-body.ts`, `regions/pane/tree/pane-tabs.ts`, `regions/pane/drag/pane-move.service.ts`, `addressing/address-form.ts`)
+- [x] 3.27 A content tab's teardown runs when its tab really goes and only then: a container tab's own container dock does not count as still holding it, a dock that goes takes its tabs with it as closed (a container dropped once its tab is gone, with a content tab dragged into it), and a reset of the active workspace closes the tabs its baseline does not hold, while a switch only parks them (`regions/content/tabs/tab-close-hooks.ts`, `regions/pane/tree/pane-tree.service.ts`, `workspace/workspace.service.ts`)
 
 ## 4. Persistence, identity and workspaces
 
@@ -84,6 +102,13 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [ ] 4.4 A read issued before adoption that answers after it does not overwrite the adopted value (`persistence/identity-scope/identity-scoped-store.ts`)
 - [ ] 4.5 A picture shows what covers a surface: overlays are not painted over by the surface's drawing (`capture/workbench-capture.service.ts`)
 - [ ] 4.6 A contributed translation bundle named like one of the shell's own groups does not replace that group; reported (`i18n/transloco-loader.ts`)
+
+- [x] 4.1 A session whose subject is the empty string is nobody: no reload at sign-in or sign-out (`auth/identity-change.ts`)
+- [x] 4.2 Adopting a namespace that holds nothing for a setting leaves what the workbench holds (`persistence/cross-tab/state-sync.service.ts`, `identity-scope/adopting-a-namespace.spec.ts`)
+- [ ] 4.3 Resetting a workspace that is not the active one clears its changed and unusable marks at once (`workspace/working-state/unsaved-workspaces.ts`, `usability/unusable-workspaces.service.ts`)
+- [x] 4.4 A read issued before adoption that answers after it does not overwrite the adopted value (`persistence/identity-scope/identity-scoped-store.ts`)
+- [x] 4.5 A picture shows what covers a surface: overlays are not painted over by the surface's drawing (`capture/workbench-capture.service.ts`)
+- [x] 4.6 A contributed translation bundle named like one of the shell's own groups does not replace that group; reported (`i18n/transloco-loader.ts`)
 - [ ] 4.7 A stored choice superseded by a declared start opens that workspace from its baseline at any address (`workspace/opening/workbench-opening.ts`)
 - [ ] 4.8 A stored active workspace nothing lists any more gives way to the starting one (`workspace/opening/workbench-opening.ts`)
 - [x] 4.9 Sidebar state, widths, the user's order and view state survive a write made before an asynchronous store answered (`regions/panel/panel-state.ts`, `panel-size.service.ts`, `regions/reorder/user-order.service.ts`, `views/view-state.service.ts`)
@@ -105,6 +130,21 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.26 A saved list that is malformed counts as one that could not be read: it moves nobody and rewrites nothing; a validly empty list counts as answered (`workspace/catalog/saved-workspaces.ts`)
 - [x] 4.27 Withdrawn: the question covers everything the workspace shows or parked; narrowing it to what the switch destroys left a hole (a tab the start holds but does not show)
 - [x] 4.28 The delta says what the code does: the unreadable-list scenario is narrowed to an address that names content, and every sentence is checked against the code after 4.23 to 4.27
+
+- [ ] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs
+- [x] 4.14 A picture taken on a screen with a device pixel ratio of 2 has the size that was asked for and every surface drawn where it sits (`capture/workbench-capture.service.ts`, `capture/picture-size.ts`)
+- [x] 4.15 Not done: whether a layer is opaque cannot be decided cheaply and reliably, and a miss would leave a visible surface blank in a picture; the picture is right since 4.5. Was: A surface wholly hidden behind an opaque layer is not asked to draw for a picture (`capture/surface-capture-registry.ts`)
+- [x] 4.16 A read during adoption sees the write held for the same key, not the store's older value (`persistence/identity-scope/identity-scoped-store.ts`)
+- [x] 4.17 A surface is pictured at the size it has on the screen: one whose page is shorter than its frame is not stretched, and one that is scrolled is not squashed; the picture shows what the frame shows (`surface-kit/surface-self-capture.ts`)
+- [x] 4.22 What a surface withholds from a picture is covered where it was when the picture was taken, whatever the surface re-renders while it is being drawn (`surface-kit/surface-self-capture.ts`)
+- [x] 4.29 What the workbench holds stands only at the first sign-in of an anonymous session; a distribution that switches its own namespace and announces it starts the next person from the defaults wherever that person has stored nothing (`persistence/identity-scope/identity-scoped-store.ts`, `persistence/cross-tab/state-sync.service.ts`)
+- [x] 4.30 At a first sign-in into an empty namespace, panel widths, collapsed panels and the user's order stand like every other key, and what stands is stored for that person at the adoption, not on their next change (`persistence/identity-scope/identity-scoped-store.ts`)
+- [x] 4.31 A picture redraws a layer over a surface only where the layer is stacked above it: a background fixed beneath the workbench or below the surface covers nothing (`capture/covering-layers.ts`)
+- [x] 4.32 A picture finds every fixed layer, one nested in another (an open submenu) and one in an open shadow root (a tooltip) included (`capture/covering-layers.ts`)
+- [x] 4.33 A surface whose page is taller than the renderer can draw at full scale is pictured at the zoom of its frame (`surface-kit/surface-self-capture.ts`)
+- [x] 4.34 What a surface withholds inside an open shadow root is covered and labelled like the rest (`surface-kit/surface-self-capture.ts`)
+- [x] 4.35 Only the workbench's own translation groups are reserved: a namespace keeps its name where a distribution's host bundle carries a group of the same name (`i18n/transloco-loader.ts`, `i18n/workbench-groups.ts`)
+- [x] 4.36 A removal that arrives while the adoption is storing what it held is the last word for that key (`persistence/identity-scope/identity-scoped-store.ts`)
 
 ## 5. Commands, menus, dialogs and the UI kit
 

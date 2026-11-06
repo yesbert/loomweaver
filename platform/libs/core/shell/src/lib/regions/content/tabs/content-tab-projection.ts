@@ -8,10 +8,10 @@ import { PaneTab } from '../../pane/tree/pane-node';
 import { viewIdOfPanePath } from '../../pane/tree/pane-address';
 import { overlayTabTitle } from '../../pane/chrome/tab-label';
 import {
+  declaringRoute,
   isHomePath,
   matchRoute,
   normalizePath,
-  segmentsOf,
   tabRootOf,
 } from '../content-path';
 
@@ -37,9 +37,9 @@ export interface OpenTab {
 
 /** One rendered tab in the content strip (static or dynamic), as the content-area template consumes it. */
 export interface ContentTabView {
-  /** The tab **root** — stable identity (tracking, active compare, close). */
+  /** The tab **root** in the address's encoded form — stable identity (tracking, active compare, close). */
   readonly path: string;
-  /** The full path to navigate to when the tab is selected (root + remembered sub-route). */
+  /** The full path to navigate to when the tab is selected (root + remembered sub-route), encoded alike. */
   readonly navPath: string;
   readonly title: string;
   /** When true the host shows `title` verbatim; otherwise it is a Transloco key. */
@@ -58,19 +58,6 @@ export interface ContentTabView {
   readonly preview: boolean;
   /** A pinned tab is sorted to the group's front and shows an unpin control instead of close. */
   readonly pinned: boolean;
-}
-
-export function declaringRoute(
-  routes: readonly ContentRoute[],
-  path: string,
-): ContentRoute | undefined {
-  const route = matchRoute(routes, path);
-  if (route === undefined) {
-    return undefined;
-  }
-  return segmentsOf(route.path).length === 0 && segmentsOf(path).length > 0
-    ? undefined
-    : route;
 }
 
 export interface RouteTitle {
@@ -152,8 +139,7 @@ export function toOpenTab(
   onClose: (() => void) | undefined,
 ): OpenTab {
   const route = declaringRoute(routes, tab.path);
-  const root =
-    route === undefined ? normalizePath(tab.path) : tabRootOf(routes, tab.path);
+  const root = tabRootOf(routes, tab.path);
   const effective = overlayTabTitle(tab, {
     ...defaultTabTitle(route, root),
     icon: route?.icon,

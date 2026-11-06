@@ -16,11 +16,14 @@ import {
   leafPath,
 } from './pane-node';
 import {
+  TabsLeftListener,
   collectLeafIds,
+  collectTabPaths,
   findLeaf,
   landingLeaf,
   leavesOf,
   tabHolderOf,
+  tabPathsLeft,
 } from './pane-queries';
 import {
   TabKeep,
@@ -30,7 +33,7 @@ import {
   unsplitWithHandover,
 } from './pane-handover';
 import { clampRatio, withRatio } from './pane-ratio';
-import { DockEntry, healedPrimary } from './stored-pane-tree';
+import { DockEntry, healedPrimary, withoutDock } from './stored-pane-tree';
 import { PaneTreeStorage, isDefault } from './pane-tree-storage';
 import { dethroneLeaf, pruneEmptyLeaves, splitLeaf } from './pane-structure';
 import {
@@ -58,6 +61,7 @@ export class PaneTreeService {
     this.storage.peek(),
   );
   private readonly replacements = signal(0);
+  private readonly tabsLeftListeners: TabsLeftListener[] = [];
   readonly arrangement = this.replacements.asReadonly();
   readonly hydrated = this.storage.hydrated;
   readonly arrangementSettled = this.storage.arrangementSettled;
@@ -170,6 +174,10 @@ export class PaneTreeService {
       dock,
       setTabs(this.tree(dock), paneId, reorderedTabs(leaf.tabs, order)),
     );
+  }
+
+  whenTabsLeave(listener: TabsLeftListener): void {
+    this.tabsLeftListeners.push(listener);
   }
 
   commit(dock: string, next: PaneNode, primary?: string): void {
@@ -304,15 +312,13 @@ export class PaneTreeService {
   }
 
   dropDock(dock: string): void {
-    if (!this.hasDock(dock)) {
+    const dropped = this.docks()[dock]?.node;
+    if (!dropped) {
       return;
     }
-    this.docks.update((docks) => {
-      const next = { ...docks };
-      delete next[dock];
-      return next;
-    });
+    this.docks.update((docks) => withoutDock(docks, dock));
     this.persist();
+    this.reportLeft(collectTabPaths(dropped));
   }
 
   hydrate(raw: string | undefined): void {
@@ -348,6 +354,7 @@ export class PaneTreeService {
   }
 
   private update(dock: string, next: PaneNode, primary?: string): void {
+    const left = tabPathsLeft(this.tree(dock), next);
     this.evacuateRemovedPanes(dock, next);
     this.docks.update((docks) => {
       const updated = { ...docks };
@@ -362,6 +369,13 @@ export class PaneTreeService {
       }
       return updated;
     });
+    this.reportLeft(left);
+  }
+
+  private reportLeft(paths: readonly string[]): void {
+    for (const listener of paths.length > 0 ? this.tabsLeftListeners : []) {
+      listener(paths);
+    }
   }
 
   private evacuateRemovedPanes(dock: string, next: PaneNode): void {

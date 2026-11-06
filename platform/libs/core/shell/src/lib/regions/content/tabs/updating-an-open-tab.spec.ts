@@ -130,6 +130,19 @@ describe('changing the label of an open tab where it stands', () => {
     expect(collectTabs(paneTree.tree(CONTENT_DOCK))).toEqual(before);
   });
 
+  it('leaves a tab at an address nothing declares alone, also for the plugin that registered the home route', () => {
+    TestBed.inject(ContributionRegistry).addContentRoute(ROUTES[0], 'start');
+    paneTree.insertTab(CONTENT_DOCK, PRIMARY_PANE, 'gone/1');
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    tabs.update('gone/1', { badge: SENT }, 'start');
+    tabs.update('gone/1', { badge: SENT }, 'notes');
+
+    expect(stored('gone/1')?.badge).toBeUndefined();
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("leaves another plugin's tab alone", () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 

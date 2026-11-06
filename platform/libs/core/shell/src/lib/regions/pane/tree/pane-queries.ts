@@ -42,6 +42,13 @@ export function collectTabPaths(node: PaneNode): string[] {
   return collectTabs(node).map((tab) => tab.path);
 }
 
+export type TabsLeftListener = (paths: readonly string[]) => void;
+
+export function tabPathsLeft(before: PaneNode, after: PaneNode): string[] {
+  const held = new Set(collectTabPaths(after));
+  return collectTabPaths(before).filter((path) => !held.has(path));
+}
+
 export function tabPathsWhere(
   node: PaneNode,
   match: (path: string) => boolean,

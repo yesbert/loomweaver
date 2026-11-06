@@ -105,7 +105,7 @@ export class TabOpeningService {
       ownLabel: true,
     };
     if (previewSlot && !existing) {
-      this.previewSlot.fill(root, stored);
+      this.previewSlot.fillWith(stored);
     } else {
       this.state.updateOpen((tabs) =>
         existing

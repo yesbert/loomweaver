@@ -1,4 +1,10 @@
-import { collidingParam, computedTabAddress } from './tab-address';
+import { paramsOfPattern } from '../content-path';
+import { ContentRoute } from '@loomweaver/plugin-sdk';
+import {
+  collidingParam,
+  computedTabAddress,
+  followingTabAddress,
+} from './tab-address';
 
 describe('computing a following tab address', () => {
   const params = { cedentId: 'US003950', programId: '205470' };
@@ -21,6 +27,24 @@ describe('computing a following tab address', () => {
     ).toBe('cedents/US003950/programs/205470/reports');
   });
 
+  it('writes a value the way the address holds it, so it stays one segment', () => {
+    expect(
+      computedTabAddress('people/:name/notes', { name: 'Müller & Söhne a/b' }),
+    ).toBe('people/M%C3%BCller%20&%20S%C3%B6hne%20a%2Fb/notes');
+  });
+
+  it('finds the value of a parameter whose name the address encodes', () => {
+    const values = paramsOfPattern('artikel/:größe', 'artikel/42');
+
+    expect(values).toEqual({ größe: '42' });
+    expect(computedTabAddress('artikel/:größe/details', values)).toBe(
+      'artikel/42/details',
+    );
+    expect(computedTabAddress('artikel/:gr%C3%B6%C3%9Fe/details', values)).toBe(
+      'artikel/42/details',
+    );
+  });
+
   it('leaves a pattern without parameters alone', () => {
     expect(computedTabAddress('dashboard/overview', params)).toBe(
       'dashboard/overview',
@@ -29,6 +53,24 @@ describe('computing a following tab address', () => {
 
   it('yields the empty address when the very first value is unknown', () => {
     expect(computedTabAddress(':tenantId/home', {})).toBe('');
+  });
+});
+
+describe('where a following tab leads', () => {
+  it('is nowhere while only a home route that owns everything below it would answer', () => {
+    const routes = [
+      { path: '', rest: true },
+      { path: 'cedents/:cedentId/treaties', follows: true },
+    ] as unknown as ContentRoute[];
+
+    expect(
+      followingTabAddress(routes[1], {
+        routes,
+        params: {},
+        activePath: 'settings',
+        resolver: null,
+      }),
+    ).toBeNull();
   });
 });
 

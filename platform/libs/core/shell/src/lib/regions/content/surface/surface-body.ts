@@ -29,6 +29,7 @@ import { ComponentLoader } from '../../pane/component-loader.service';
 import { PopoutWindow } from '../../../popout/popout-window';
 import { AuthRequiredView } from '../access/auth-required-view';
 import { RouteUnavailableView } from '../access/route-unavailable-view';
+import { surfaceHostClass } from './surface-host-class';
 import { IframeSurface } from './iframe-surface';
 import {
   CONTAINER_CONTEXT,
@@ -152,21 +153,15 @@ export class SurfaceBody {
     effectivePadding(this.declared()?.padded, this.padding),
   );
 
-  protected readonly hostClass = computed(() => {
-    if (this.isContainerSurface()) {
-      return 'flex h-full min-h-0 min-w-0';
-    }
-    if (this.variant() === 'panel') {
-      return this.padded()
-        ? '@container/surface block h-full min-h-0 overflow-auto p-3 text-content'
-        : '@container/surface block h-full min-h-0 overflow-auto text-content';
-    }
-    return this.padded()
-      ? '@container/surface block h-full overflow-auto bg-surface-raised p-6 text-content'
-      : '@container/surface block h-full overflow-auto bg-surface-raised text-content';
-  });
+  protected readonly hostClass = computed(() =>
+    surfaceHostClass({
+      container: this.isContainerSurface(),
+      variant: this.variant(),
+      padded: this.padded(),
+    }),
+  );
 
-  protected readonly unavailableKey = inject(PopoutWindow).active
+  private readonly notHostableKey = inject(PopoutWindow).active
     ? 'popout.unavailable'
     : 'content.split.unavailable';
 
@@ -283,15 +278,25 @@ export class SurfaceBody {
       : null;
   });
 
+  private readonly loadFailed = computed(() => {
+    const route = this.activeRoute();
+    return route !== null && this.componentLoader.failed(route);
+  });
+
   protected readonly loading = computed(() => {
     const route = this.activeRoute();
     return (
       route !== null &&
       route.container === undefined &&
       route.loadComponent !== undefined &&
-      this.surface() === null
+      this.surface() === null &&
+      !this.loadFailed()
     );
   });
+
+  protected readonly unavailableKey = computed(() =>
+    this.loadFailed() ? 'content.loadFailed' : this.notHostableKey,
+  );
 
   constructor() {
     effect(() => {
@@ -306,10 +311,19 @@ export class SurfaceBody {
       this.stash.version();
       untracked(() => this.releaseMountsLetGo(shown));
     });
+    effect(() => {
+      this.surfaceKey();
+      const opened = this.activeRoute() ?? this.view() ?? {};
+      untracked(() => this.componentLoader.retry(opened));
+    });
   }
 
   protected componentFor(view: View): Type<unknown> | null {
     return this.componentLoader.resolve(view);
+  }
+
+  protected failedToLoad(view: View): boolean {
+    return this.componentLoader.failed(view);
   }
 
   protected dockedInjector(view: RegisteredView): Injector {

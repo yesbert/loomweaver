@@ -146,11 +146,17 @@ export class IframeSurface implements DirtySurface {
 
   private readonly currentUrl = inject(CurrentAddress).url;
 
+  private readonly ownUrl = linkedSignal<string | null, string>({
+    source: () =>
+      this.tabs.activeTabRoot() === this.tabRoot ? this.currentUrl() : null,
+    computation: (url, previous) => url ?? previous?.value ?? this.tabRoot,
+  });
+
   private readonly subPath = computed(() => {
     if (this.hostMounted()) {
       return normalizePath(this.hostSub());
     }
-    return restBelow(this.tabRoot, normalizePath(this.currentUrl()));
+    return restBelow(this.tabRoot, normalizePath(this.ownUrl()));
   });
 
   private readonly restPath = computed(() => {
@@ -159,7 +165,7 @@ export class IframeSurface implements DirtySurface {
     }
     return this.hostMounted()
       ? this.hostSub()
-      : restBelow(this.tabRoot, this.currentUrl());
+      : restBelow(this.tabRoot, this.ownUrl());
   });
 
   private connection?: Connection<SurfaceRemote>;
@@ -285,7 +291,7 @@ export class IframeSurface implements DirtySurface {
 
   private pushSlot(subscription: string, view: LwSlotView): void {
     try {
-      this.remote?.slotChanged(subscription, view);
+      this.remote?.slotChanged(subscription, view).catch(() => undefined);
     } catch {
       this.remote = undefined;
     }
@@ -293,7 +299,9 @@ export class IframeSurface implements DirtySurface {
 
   private pushState(key: string, value: unknown, loaded: boolean): void {
     try {
-      this.remote?.stateChanged(key, value, loaded);
+      this.remote
+        ?.stateChanged(key, value, loaded)
+        .catch(() => undefined);
     } catch {
       this.remote = undefined;
     }

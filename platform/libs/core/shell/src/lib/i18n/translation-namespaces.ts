@@ -32,7 +32,9 @@ export const TRANSLATION_NAMESPACES = new InjectionToken<readonly string[]>(
  * its host keys are the whole story.
  *
  * Calls accumulate: a second call further down the composition root adds its names to the first
- * rather than replacing it, and a name declared twice is loaded once.
+ * rather than replacing it, and a name declared twice is loaded once. A name that is one of the
+ * workbench's own top-level groups (`dialog`, `settings`, …) is left out, because its bundle would
+ * replace that group, and is reported in development.
  */
 export function provideTranslationNamespaces(
   ...namespaces: string[]

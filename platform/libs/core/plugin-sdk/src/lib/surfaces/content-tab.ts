@@ -16,7 +16,11 @@ export interface ContentTabLabel {
 
 /** Input to `ctx.openContentTab` — opens a titled **dynamic** tab and navigates to it. */
 export interface OpenTabInput {
-  /** Concrete path to navigate to, e.g. `'doc/abc'` (not a pattern). */
+  /**
+   * Concrete path to navigate to, e.g. `'doc/abc'` (not a pattern). Put a value into a segment with
+   * `encodeURIComponent(value)`, so a `/ ? # ; ( ) %` or a space in it stays inside that segment: the
+   * host keeps the path in the address's encoded form and hands the value back decoded as a parameter.
+   */
   readonly path: string;
   /** Human title for the tab (e.g. the document name) — dynamic, not known from the URL. */
   readonly title: string;
@@ -30,11 +34,13 @@ export interface OpenTabInput {
    */
   readonly titleIsLiteral?: boolean;
   /**
-   * Runs once when **this** tab is closed (the host's close control, or `ctx.closeContentTab`), giving
-   * the plugin a hook to free per-tab state, cancel in-flight work or persist a draft. Not called when
-   * the tab is merely deactivated (still open) or when the whole plugin deactivates. Re-opening the same
-   * path replaces the handler with the latest one. A sandboxed plugin gets no callback; the host calls
-   * the `contentTabClosed(path)` method it exposes on its channel instead.
+   * Runs once when **this** tab has left the last pane that held it (its close control,
+   * `ctx.closeContentTab`, or that pane closing), giving the plugin a hook to free per-tab state,
+   * cancel in-flight work or persist a draft. Not called when the tab is merely deactivated, while
+   * another pane still shows it, when another workspace is shown, or when the whole plugin
+   * deactivates. Re-opening the same path replaces the handler with the latest one. A sandboxed
+   * plugin gets no callback; the host calls the `contentTabClosed(path)` method it exposes on its
+   * channel instead.
    */
   readonly onClose?: () => void;
   /**

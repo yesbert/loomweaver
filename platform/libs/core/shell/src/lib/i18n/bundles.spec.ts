@@ -1,5 +1,6 @@
 import de from './de.json';
 import en from './en.json';
+import { WORKBENCH_GROUPS } from './workbench-groups';
 
 type Bundle = Record<string, unknown>;
 
@@ -27,6 +28,13 @@ function read(bundle: Bundle, path: string): string {
 
 describe('the shipped translation bundles', () => {
   describe.each(BUNDLES)('%s', (language, bundle) => {
+    it('holds exactly the groups the workbench reserves as its own', () => {
+      const byName = (a: string, b: string) => a.localeCompare(b);
+      expect(Object.keys(bundle).toSorted(byName)).toEqual(
+        [...WORKBENCH_GROUPS].toSorted(byName),
+      );
+    });
+
     it('names the two resets for the thing each of them resets', () => {
       const app = read(bundle, 'appReset.title');
       const workspace = read(bundle, 'workspace.reset');

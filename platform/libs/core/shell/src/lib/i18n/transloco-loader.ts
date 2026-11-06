@@ -15,6 +15,7 @@ import {
   mergeTranslation,
   unknownOverrideKeys,
 } from './translation-tree';
+import { WORKBENCH_GROUPS } from './workbench-groups';
 
 const MISSING_OVERLAY: Translation = {};
 
@@ -41,8 +42,28 @@ export class TranslocoHttpLoader implements TranslocoLoader {
       overlay: this.overrides$(lang),
     }).pipe(
       map(({ host, namespaced, overlay }) =>
-        this.applyOverrides({ ...host, ...namespaced }, overlay, lang),
+        this.applyOverrides(
+          { ...host, ...this.besideTheWorkbench(namespaced) },
+          overlay,
+          lang,
+        ),
       ),
+    );
+  }
+
+  private besideTheWorkbench(namespaced: Translation): Translation {
+    return Object.fromEntries(
+      Object.entries(namespaced).filter(([name]) => {
+        if (!WORKBENCH_GROUPS.has(name)) {
+          return true;
+        }
+        this.reportOnce(
+          `namespace ${name}`,
+          `Translation namespace "${name}" is named like one of the workbench's own groups, so it ` +
+            `is left out: its strings would replace the workbench's. Declare it under another name.`,
+        );
+        return false;
+      }),
     );
   }
 
@@ -110,11 +131,11 @@ export class TranslocoHttpLoader implements TranslocoLoader {
     return mergeTranslation(fallback, supplied);
   }
 
-  private reportOnce(lang: string, message: string): void {
-    if (this.reported.has(lang)) {
+  private reportOnce(subject: string, message: string): void {
+    if (this.reported.has(subject)) {
       return;
     }
-    this.reported.add(lang);
+    this.reported.add(subject);
     this.warn(message);
   }
 

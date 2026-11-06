@@ -150,13 +150,7 @@ export class TabClosingService {
   }
 
   runCloseHook(path: string): void {
-    const { routes, root } = this.state.rootFor(path);
-    if (
-      this.state.openTabs().some((tab) => tabRootOf(routes, tab.path) === root)
-    ) {
-      return;
-    }
-    this.closeHooks.runSafely(this.closeHooks.take(root));
+    this.closeHooks.runOnceGone(this.state.rootFor(path).root);
   }
 
   neighbourOf(path: string): string {
@@ -189,9 +183,6 @@ export class TabClosingService {
     this.closeGuard.guarded(candidates, () => {
       for (const tab of tabs) {
         this.paneTree.removeTab(pane.dock, pane.paneId, tab.path);
-        if (!isViewPanePath(tab.path)) {
-          this.runCloseHook(tab.path);
-        }
       }
     });
   }
@@ -206,8 +197,6 @@ export class TabClosingService {
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => tabRootOf(routes, tab.path) !== root),
     );
-    this.closeHooks.runSafely(closing.onClose);
-    this.closeHooks.delete(root);
     if (wasActive) {
       void this.navigateAfterClose(this.collapseOrNeighbour(root));
     }
@@ -268,19 +257,10 @@ export class TabClosingService {
       return;
     }
     const routes = this.registry.contentRoutes();
-    const closing = this.state
-      .openTabs()
-      .filter((tab) => roots.has(tabRootOf(routes, tab.path)));
     const activeWentAway = roots.has(this.state.activeTabRoot());
     this.state.updateOpen((tabs) =>
       tabs.filter((tab) => !roots.has(tabRootOf(routes, tab.path))),
     );
-    for (const tab of closing) {
-      this.closeHooks.runSafely(tab.onClose);
-    }
-    for (const root of roots) {
-      this.closeHooks.delete(root);
-    }
     if (activeWentAway) {
       void this.navigateAfterClose(fallbackPath);
     }

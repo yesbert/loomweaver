@@ -51,6 +51,18 @@ describe('surfaceRetentionMode', () => {
   });
 });
 
+describe('surfaceRetentionMode beside a home route', () => {
+  it('rebuilds at an address nothing declares, rather than taking the mode of the home surface', () => {
+    const routes = [
+      { path: '', iframe: '/home.html' },
+      { path: 'notes', component: ProbeView },
+    ] as unknown as ContentRoute[];
+
+    expect(surfaceRetentionMode(routes, '')).toBe('in-place');
+    expect(surfaceRetentionMode(routes, 'gone/1')).toBe('rebuild');
+  });
+});
+
 describe('retention policy', () => {
   const routes = [
     { path: 'notes', component: ProbeView },

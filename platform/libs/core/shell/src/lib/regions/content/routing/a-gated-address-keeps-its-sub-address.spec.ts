@@ -22,6 +22,7 @@ import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { AUTH_SOURCE } from '../../../auth/auth-context';
 import { ContentRouter } from './content-router';
+import { DISTRIBUTION_ROUTES } from './distribution-routes';
 import { ContentReuseStrategy } from './content-reuse-strategy';
 import { provideLayout, ShellLayout } from '../../../layout/layout';
 import { provideWorkspaces } from '../../../workspace/declaration/provide-workspaces';
@@ -167,6 +168,55 @@ describe('a gated address keeps its sub-address', () => {
 
     expect(router.url).toBe('/doc/7/general');
     expect(heldBack(router)).toBe(false);
+  });
+
+  it('lets a navigation in flight arrive when the session changes on the way out of a gated address', async () => {
+    const auth = signal<AuthSnapshot>(SIGNED_IN);
+    const router = await openAt(
+      '/doc/7/general',
+      [DOCUMENT_WITH_TABS, { path: 'welcome', component: TestContent }],
+      auth,
+    );
+
+    const leaving = router.navigateByUrl('/welcome');
+    auth.set(ANONYMOUS);
+    TestBed.tick();
+    await leaving;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(router.url).toBe('/welcome');
+  });
+
+  it('holds the gated address back when the session ends during a navigation away that is then refused', async () => {
+    const auth = signal<AuthSnapshot>(SIGNED_IN);
+    let refuse: ((allowed: boolean) => void) | undefined;
+    const router = await openAt('/doc/7/general', DOCUMENT_WITH_TABS, auth, [
+      {
+        provide: DISTRIBUTION_ROUTES,
+        useValue: [
+          {
+            path: 'refused',
+            component: TestContent,
+            canActivate: [
+              () => new Promise<boolean>((resolve) => (refuse = resolve)),
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(heldBack(router)).toBe(false);
+
+    const leaving = router.navigateByUrl('/refused');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(refuse).toBeDefined();
+    auth.set(ANONYMOUS);
+    TestBed.tick();
+    refuse?.(false);
+    expect(await leaving).toBe(false);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(router.url).toBe('/doc/7/general');
+    expect(heldBack(router)).toBe(true);
   });
 
   describe('inside the workspace that claims it', () => {

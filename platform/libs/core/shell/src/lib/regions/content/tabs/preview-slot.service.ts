@@ -1,8 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
-import { matchRoute, tabRootOf } from '../content-path';
+import { declaringRoute, tabRootOf } from '../content-path';
 import { OpenTab, toPaneTab } from './content-tab-projection';
-import { TabCloseHooks } from './tab-close-hooks';
 import { ContentTabState } from './content-tab-state';
 import { CONTENT_DOCK } from '../../pane/tree/pane-address';
 import { PaneLeaf } from '../../pane/tree/pane-node';
@@ -16,16 +15,14 @@ export class PreviewSlotService {
 
   private readonly state = inject(ContentTabState);
 
-  private readonly closeHooks = inject(TabCloseHooks);
-
   private readonly paneTree = inject(PaneTreeService);
 
-  fill(root: string, slot: OpenTab): void {
+  fillWith(slot: OpenTab): void {
     const elsewhere = this.state.openTabs().some((tab) => tab.preview)
       ? null
       : this.previewPaneElsewhere();
     if (elsewhere === null) {
-      this.replaceHere(root, slot);
+      this.replaceHere(slot);
     } else {
       this.replaceIn(elsewhere, slot);
     }
@@ -39,7 +36,7 @@ export class PreviewSlotService {
     );
   }
 
-  private replaceHere(root: string, slot: OpenTab): void {
+  private replaceHere(slot: OpenTab): void {
     const routes = this.registry.contentRoutes();
     const previous = this.state.openTabs().find((tab) => tab.preview);
     const previousRoot = previous
@@ -52,17 +49,9 @@ export class PreviewSlotService {
           )
         : [...tabs, slot],
     );
-    if (previousRoot === undefined || previousRoot === root) {
-      return;
-    }
-
-    this.closeHooks.runSafely(previous?.onClose);
-    this.closeHooks.delete(previousRoot);
   }
 
   private replaceIn(pane: PaneLeaf, slot: OpenTab): void {
-    const routes = this.registry.contentRoutes();
-    const previous = pane.tabs.find((tab) => tab.preview);
     const shown = this.shownContent();
     this.paneTree.commit(
       CONTENT_DOCK,
@@ -73,15 +62,10 @@ export class PreviewSlotService {
       ),
     );
     this.paneTree.focusPane(CONTENT_DOCK, pane.id, shown);
-    if (previous !== undefined) {
-      this.closeHooks.runSafely(
-        this.closeHooks.take(tabRootOf(routes, previous.path)),
-      );
-    }
   }
 
   private shownContent(): string {
     const root = this.state.activeTabRoot();
-    return matchRoute(this.registry.contentRoutes(), root) ? root : '';
+    return declaringRoute(this.registry.contentRoutes(), root) ? root : '';
   }
 }
