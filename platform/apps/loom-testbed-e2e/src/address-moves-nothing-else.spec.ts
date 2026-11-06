@@ -93,6 +93,36 @@ test.describe('The address moves and nothing else does', () => {
     expect(await removals(page)).toBe(0);
   });
 
+  test('opening an item through the add-tab button of the pane without the address moves the address there', async ({
+    page,
+  }) => {
+    await entryBesideOverview(page);
+    const stripId = await page
+      .locator(`${otherPane} [role="tablist"][id^="pane-strip:content:"]`)
+      .getAttribute('id');
+    const pane = page
+      .locator(panes)
+      .filter({ has: page.locator(`[id="${stripId}"]`) });
+
+    await pane.getByTestId('pane-add-tab').click();
+    await page.getByRole('menuitem', { name: 'Notes' }).click();
+
+    await expect(page).toHaveURL(/\/notes$/);
+    await expect(pane).toHaveAttribute('data-address-pane');
+  });
+
+  test('maximising the pane without the address leaves the address where it is', async ({
+    page,
+  }) => {
+    await entryBesideOverview(page);
+
+    await page.locator(otherPane).getByTestId('pane-maximize').click();
+
+    await expect(page.locator('lw-content-grid')).toHaveClass(/fixed/);
+    await expect(page).toHaveURL(/\/overview$/);
+    await expect(page.locator(entryAside)).toBeVisible();
+  });
+
   test('a field clicked in the pane without the address keeps its focus', async ({
     page,
   }) => {

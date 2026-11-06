@@ -125,7 +125,9 @@ holds no tabs offers the same buttons on a floating toolbar, under the same swit
 Users can drag or keyboard-reorder the host chrome: content tabs, rail items and view tabs within
 their own band, with the order persisted user-locally. Reordering uses `@angular/cdk/drag-drop` (a
 `@loomweaver/shell` peer dependency) and is **on by default**; `content.reorderTabs`, `rail.reorder`
-and `sidebar.reorderViews` switch it off per container.
+and `sidebar.reorderViews` switch it off per container. With reordering off, the workbench does not
+reorder either: a tab activated while hidden in the overflow keeps its place and the strip scrolls
+to show it.
 
 Sorting and moving are separate on purpose. `reorderViews` and `rail.reorder` govern the order
 **inside** one bar; carrying an item **to the other** bar is `moveViews` and `rail.moveItems`. That

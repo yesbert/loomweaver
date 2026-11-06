@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { runCommand } from './support/helpers';
+import { runCommand, useFeatures } from './support/helpers';
 
 test.describe('Content area', () => {
   test('lands on the home route', async ({ page }) => {
@@ -254,6 +254,48 @@ test.describe('Content area', () => {
 
   test.describe('in a narrow window', () => {
     test.use({ viewport: { width: 1100, height: 800 } });
+
+    test('with reordering switched off, a hidden tab reopened keeps its place and is scrolled into view', async ({
+      page,
+    }) => {
+      await useFeatures(page, 'reorder');
+      await page.goto('/');
+      await page.getByRole('tab', { name: 'Entry list' }).click();
+      for (const name of [
+        'Alpha',
+        'Bravo',
+        'Charlie',
+        'Delta',
+        'Echo',
+        'Foxtrot',
+        'Golf',
+        'Hotel',
+      ]) {
+        await page.getByRole('button', { name }).first().dblclick();
+      }
+      const contentTabs = page.locator(
+        'lw-address-pane-header [role="tab"][data-tab-path]',
+      );
+      const hidden = page.getByRole('tab', { name: 'E-02' });
+      await expect(hidden).not.toBeInViewport();
+      const before = await contentTabs.evaluateAll((tabs) =>
+        tabs.map((tab) => tab.dataset['tabPath']),
+      );
+
+      await page.getByRole('button', { name: 'Bravo' }).first().dblclick();
+
+      await expect(hidden).toHaveAttribute('aria-selected', 'true');
+      await expect(hidden).toBeInViewport({ ratio: 1 });
+      const after = await contentTabs.evaluateAll((tabs) =>
+        tabs.map((tab) => tab.dataset['tabPath']),
+      );
+      expect(after).toEqual(before);
+
+      await page.getByRole('button', { name: 'All open tabs' }).click();
+      await expect(
+        page.getByRole('menu').getByRole('menuitemcheckbox', { name: 'E-02' }),
+      ).toBeVisible();
+    });
 
     test('reopening a scrolled-off file brings its tab back into view', async ({
       page,

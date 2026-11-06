@@ -235,6 +235,37 @@ and `eslint.config.mjs` are never replaced.
 What to do: run `init --dry-run` to see what it would create, replace or change. Wire a developed
 application by hand, as [Manual setup](manual-setup.md) describes.
 
+### `revealSurface` chooses among the copies of a view
+
+Reaches you if a plugin calls `ctx.revealSurface` for a view the person can open in the content
+area as well as in its sidebar.
+
+Where the view stands in several places, the copy that was current most recently is made current.
+Without any such history, the copy in the pane that carries the address wins, and otherwise the
+first in reading order. It used to be whichever copy the workbench found first.
+
+What to do: nothing, unless a test expected the sidebar copy after the person had used the other.
+
+### A strip that may not be reordered keeps its order
+
+Reaches you if a distribution switches `content.reorderTabs` or `sidebar.reorderViews` off.
+
+A tab activated while it is hidden in the strip's overflow keeps its place. The strip scrolls to
+show it, and the list of open tabs marks it. On a strip the user may reorder, it still moves to the
+front of its band.
+
+What to do: nothing, unless a test expected the tab at the front.
+
+### Adding a tab to a pane moves the address there
+
+Reaches you if a test opens an item through the add-tab button of a pane that does not carry the
+address.
+
+The pane takes the address once the item is open, as a click on one of its tabs does. A button that
+only splits, minimises, maximises or closes leaves the address where it was.
+
+What to do: nothing, unless a test expected the address to stay in the other pane.
+
 ## 0.20.0
 
 ### An agent backend calls the tools by the names they were offered under

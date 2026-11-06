@@ -571,6 +571,7 @@ describe('PaneTabStrip — a strip too narrow to show every tab', () => {
     fixture.componentRef.setInput('activeId', 'a');
     fixture.componentRef.setInput('source', { dock: 'content', paneId: 'b' });
     fixture.componentRef.setInput('overflow', true);
+    fixture.componentRef.setInput('reorderable', true);
     revealed = [];
     fixture.componentInstance.revealRequest.subscribe((path) => {
       revealed.push(path);
@@ -608,6 +609,21 @@ describe('PaneTabStrip — a strip too narrow to show every tab', () => {
     });
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
   }
+
+  it('on a strip that may not be reordered, scrolls a clipped tab into view and leaves the order alone', () => {
+    fixture.componentRef.setInput('reorderable', false);
+    const list = fixture.nativeElement.querySelector('[role="tablist"]');
+    let scrolled = 0;
+    Object.defineProperty(list, 'scrollLeft', {
+      get: () => scrolled,
+      set: (value: number) => (scrolled = value),
+    });
+
+    shows(['a', 'dropped'], 'dropped');
+
+    expect(revealed).toEqual([]);
+    expect(scrolled).toBe(40);
+  });
 
   it('leaves a tab where the user dropped it from another pane', async () => {
     await dropped();

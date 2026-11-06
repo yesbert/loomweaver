@@ -179,9 +179,11 @@ Docked (non-routable) surfaces have their own opener: `ctx.revealSurface(id)` ac
 surface's tab **wherever the user has placed it**, its sidebar or a content pane, and puts it in
 view. A collapsed sidebar is expanded, and on a window narrow enough for sidebars to be overlays the
 sidebar's overlay opens, even if the person never opened that sidebar before. So a palette command
-like "Focus Library" works no matter where the view lives. It is a no-op for a view the person or the
-active workspace hid, and for an unknown id; container-only children (`docks: []`) stay inside their
-container. Routable surfaces are reached with `navigateContent` instead. Requires `navigation`.
+like "Focus Library" works no matter where the view lives. Where the person opened the view in the
+content area as well, the copy they had current most recently comes forward. Without that history,
+the copy in the pane carrying the address wins, and otherwise the first in reading order. It is a
+no-op for a view the person or the active workspace hid, and for an unknown id; container-only
+children (`docks: []`) stay inside their container. Routable surfaces are reached with `navigateContent` instead. Requires `navigation`.
 
 A dynamic tab title is usually a runtime **literal** (a document name, an entity label). Set
 `titleIsLiteral: true` so the host renders it verbatim instead of treating it as a translation key.
