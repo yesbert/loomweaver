@@ -62,8 +62,6 @@ workbench SHALL still produce a picture, and SHALL mark the area that surface oc
 content is not in the picture. It SHALL NOT leave that area blank or fill it with anything that
 could be mistaken for what the surface was showing.
 
-A blank area in a picture attached to a fault report is read as evidence about the fault.
-
 #### Scenario: An unanswering surface does not stop the picture
 
 - **WHEN** a surface does not answer the request to render itself

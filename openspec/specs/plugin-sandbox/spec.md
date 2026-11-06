@@ -118,9 +118,9 @@ how it is embedded rather than of where its files come from.
 
 ### Requirement: An embedded plugin is not presented as contained
 
-At the **embedded** level no such guarantee is made, and the workbench SHALL NOT imply one. What
-separates an embedded plugin from the hosting application is its own document and its own
-deployment, which is a separation of concerns rather than of privilege.
+At the **embedded** level no guarantee of being kept from the hosting document is made, and the
+workbench SHALL NOT imply one. What separates an embedded plugin from the hosting application is its
+own document and its own deployment, which is a separation of concerns rather than of privilege.
 
 #### Scenario: An embedded plugin is not claimed to be contained
 
@@ -398,9 +398,6 @@ The workbench SHALL make its element family, its style contracts and its symbol 
 isolated surface, served by the distribution so that their version always matches the workbench's. A
 surface using them SHALL be indistinguishable from the workbench's own chrome.
 
-The served bundle is loaded by reference and installs itself; describing it does not make it
-importable as a module.
-
 #### Scenario: A workbench control inside an isolated surface looks like one
 
 - **WHEN** an isolated surface uses one of the workbench's elements or style classes
@@ -413,11 +410,12 @@ importable as a module.
 
 ### Requirement: What is served to an isolated surface comes with a description of its shape
 
-What the distribution serves SHALL also be **described**: the controls, and the entry point through
-which a surface reaches its symbols, its render state and its own store, SHALL come with a
-machine-readable description of their shape, so that an author writing in a checked language is told
-about a wrong name or argument before the surface runs. The description SHALL be published with the
-thing it describes and carry its version.
+The controls the distribution serves, and the entry point by which a surface reaches its symbols,
+render state and own store, SHALL carry a machine-readable description of their shape, published and
+versioned with them, so a checked language reports a wrong name or argument before the surface runs.
+
+The description covers what the surface reaches through the served entry point. The served bundle is
+loaded by reference and installs itself; describing it does not make it importable as a module.
 
 #### Scenario: A surface author is told about a wrong call before it runs
 

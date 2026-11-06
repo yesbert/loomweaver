@@ -230,8 +230,9 @@ and this SHALL hold whether or not the session qualifies for the child.
 
 ### Requirement: A child left out keeps its place
 
-A child left out SHALL keep its place. What the person arranged SHALL NOT change for it: brought back,
-the child SHALL stand where it stood, and the other children SHALL stay where the person put them.
+A child left out SHALL keep its place. What the person arranged SHALL NOT change for it: brought
+back, the child SHALL stand where it stood, and the other children SHALL stay where the person put
+them.
 
 #### Scenario: A child brought back returns to its place
 

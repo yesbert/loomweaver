@@ -107,8 +107,8 @@ The limit: a key the workbench has no name for is shown as it is written in the 
 
 A word for a key SHALL come from the workbench's own translations, so a product can reword it, and
 SHALL follow a change of language. Every hint the workbench draws SHALL be spelled the way a
-command's shortcut is, whether it shows a command's shortcut or the keys a plugin gives an entry of a
-menu it opens.
+command's shortcut is, whether it shows a command's shortcut or the keys a plugin gives an entry of
+a menu it opens.
 
 The limit: a language that carries no word for a key shows the English one.
 
@@ -125,10 +125,10 @@ The limit: a language that carries no word for a key shows the English one.
 ### Requirement: A neutral delete key stands for the key that deletes on each platform
 
 A shortcut MAY name the platform's delete key in a neutral form, as it names the platform's command
-modifier. The neutral delete key SHALL stand for the backspace key on macOS and for the forward delete
-key on every other platform, alike for binding, for clash detection and for every hint. Its hint SHALL
-be spelled exactly as the key it stands for on that platform. Naming the forward delete key or the
-backspace key directly SHALL keep meaning that physical key on every platform.
+modifier. The neutral delete key SHALL stand for the backspace key on macOS and for the forward
+delete key on every other platform, alike for binding, for clash detection and for every hint. Its
+hint SHALL be spelled exactly as the key it stands for on that platform. Naming the forward delete
+key or the backspace key directly SHALL keep meaning that physical key on every platform.
 
 #### Scenario: The neutral delete key binds to the key that deletes on each platform
 
@@ -152,7 +152,8 @@ backspace key directly SHALL keep meaning that physical key on every platform.
 
 - **WHEN** a product wants one action on both the backspace key and the forward delete key of a
   platform
-- **THEN** the neutral delete key covers only one of them, because it stands for one key per platform
+- **THEN** the neutral delete key covers only one of them, because it stands for one key per
+  platform
 - **AND** the product declares two commands, or handles the keys in its own content
 
 ### Requirement: Typing is not hijacked
@@ -567,9 +568,9 @@ never opened are its own behaviour, and it reaches them whether or not they are 
 ### Requirement: A command may say what an agent's word is enough for
 
 A command SHALL be able to state what running it on an agent's word alone amounts to, as one of four
-statements: that the agent's word is enough; that the person is asked first; that the person is asked
-every time it is called; or that it is not to be run on an agent's word at all. Stating nothing is the
-default and means what the platform does today.
+statements: that the agent's word is enough; that the person is asked first; that the person is
+asked every time it is called; or that it is not to be run on an agent's word at all. Stating
+nothing is the default and means what the platform does today.
 
 #### Scenario: A command that says nothing carries nothing
 
@@ -599,9 +600,9 @@ beside what the command does, what it takes and what it answers.
 
 The platform does not enforce the statement: nothing is asked on the product's behalf, no answer is
 remembered, and no invocation is refused on this account. Asking and remembering an answer belong to
-whoever runs commands on an agent's behalf. A command is put beyond an agent's reach by not opening it
-to foreign callers, which the platform does enforce. The statement SHALL NOT widen anything: an open
-command stating the agent's word is enough is reachable exactly where it was before.
+whoever runs commands on an agent's behalf. A command is put beyond an agent's reach by not opening
+it to foreign callers, which the platform does enforce. The statement SHALL NOT widen anything: an
+open command stating the agent's word is enough is reachable exactly where it was before.
 
 #### Scenario: The statement refuses nothing by itself
 
@@ -629,7 +630,6 @@ number of them can be pending while an unrelated command is invoked.
 - **WHEN** more invocations than the chain limit allows are each waiting for the user, and another
   command is invoked
 - **THEN** it runs
-
 
 ### Requirement: The chain limit stops only a loop that does not wait
 
@@ -685,8 +685,8 @@ it, and it SHALL be answered as refused.
 The connection that runs the workbench's commands for an agent SHALL offer a policy a product may
 choose to apply before each call, acting on what the called command states about an agent's word. A
 product that does not apply it SHALL be asked nothing and SHALL have nothing decided for it, as
-before. The policy SHALL NOT widen anything: a call it lets through is still only as reachable as the
-workbench makes it.
+before. The policy SHALL NOT widen anything: a call it lets through is still only as reachable as
+the workbench makes it.
 
 #### Scenario: A product that does not apply the policy is asked nothing
 
@@ -696,10 +696,10 @@ workbench makes it.
 ### Requirement: The applied policy declines, lets through or asks by what the command states
 
 Applied, the policy SHALL decline a call to a command that is not to be run on an agent's word,
-saying so to the agent; SHALL let a call through where the command states the agent's word is enough,
-or states nothing; and SHALL put the call to the person through a confirmation the product supplies
-where the command asks for the person first or every time. A no SHALL decline the call, saying so to
-the agent.
+saying so to the agent; SHALL let a call through where the command states the agent's word is
+enough, or states nothing; and SHALL put the call to the person through a confirmation the product
+supplies where the command asks for the person first or every time. A no SHALL decline the call,
+saying so to the agent.
 
 #### Scenario: A command not to be run on an agent's word is declined
 
@@ -744,10 +744,10 @@ reach through the connection, as the platform states for every other caller.
 
 ### Requirement: Each tool is named in a form the model interfaces accept
 
-Each tool the connection offers SHALL be named in a form the common model interfaces accept: letters,
-digits, underscores and hyphens, and no longer than they allow. The connection SHALL translate a
-call's tool name back to the command it stands for, and two commands SHALL NOT be offered under the
-same name.
+Each tool the connection offers SHALL be named in a form the common model interfaces accept:
+letters, digits, underscores and hyphens, and no longer than they allow. The connection SHALL
+translate a call's tool name back to the command it stands for, and two commands SHALL NOT be
+offered under the same name.
 
 #### Scenario: A tool name is one the model interfaces accept
 

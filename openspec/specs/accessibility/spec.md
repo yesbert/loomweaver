@@ -28,10 +28,10 @@ end-to-end suite.
 
 ### Requirement: A control is named by every word it shows
 
-A control the workbench draws SHALL carry in its accessible name every word it shows, in the order it
-shows them, and the shortcut it shows. Where the control shows words that are not its purpose, such
-as a person's initials, a person's name or the active view, its name SHALL begin with those words and
-name the purpose after them.
+A control the workbench draws SHALL carry in its accessible name every word it shows, in the order
+it shows them, and the shortcut it shows. Where the control shows words that are not its purpose,
+such as a person's initials, a person's name or the active view, its name SHALL begin with those
+words and name the purpose after them.
 
 The limit: a component a distribution draws itself, in a bar or anywhere else, is named by the
 distribution. The workbench neither reads nor corrects it.
@@ -62,7 +62,8 @@ distribution. The workbench neither reads nor corrects it.
 ### Requirement: A shortcut a control shows follows its purpose and is announced as a shortcut
 
 Where a control the workbench draws shows a shortcut, the shortcut SHALL follow the purpose in its
-accessible name, as it does in a menu row, and the control SHALL announce it as its keyboard shortcut.
+accessible name, as it does in a menu row, and the control SHALL announce it as its keyboard
+shortcut.
 
 #### Scenario: An entry that shows its shortcut says it in its name
 
@@ -73,8 +74,8 @@ accessible name, as it does in a menu row, and the control SHALL announce it as 
 ### Requirement: A declared entry is named by its label before its tooltip
 
 The naming of a control by the words it shows holds for an entry a distribution declares as data and
-the workbench draws. Where such an entry has a visible label and a tooltip, its name SHALL begin with
-the label even though the tooltip says something else.
+the workbench draws. Where such an entry has a visible label and a tooltip, its name SHALL begin
+with the label even though the tooltip says something else.
 
 #### Scenario: A tooltip does not replace a visible label
 
@@ -136,7 +137,8 @@ their kind is the distribution's.
 The landmarks SHALL be these, each named in the interface language:
 
 - the row of bars at the top edge as one banner, and the row at the bottom edge as one content-info
-  region, however many bars a distribution declares there; a single bar is not a landmark of its own;
+  region, however many bars a distribution declares there; a single bar is not a landmark of its
+  own;
 - the rail as navigation;
 - each side panel as a complementary region;
 - the content area as the one main region, holding every pane and every tab strip in it, however it
@@ -159,8 +161,8 @@ The landmarks SHALL be these, each named in the interface language:
 
 #### Scenario: The landmark audit passes over a split workbench
 
-- **WHEN** the automated audit's landmark rules run over a workbench with bars at both edges, a panel
-  on each side and a split content area
+- **WHEN** the automated audit's landmark rules run over a workbench with bars at both edges, a
+  panel on each side and a split content area
 - **THEN** no landmark is reported as duplicated, unnamed among its kind, or missing, and no content
   is reported outside every landmark
 
@@ -210,8 +212,8 @@ name against the mode.
 
 ### Requirement: A tab strip stays a valid tab list
 
-A tab cannot contain another focusable control. Affordances drawn inside a tab, such as closing it or
-unpinning it, SHALL therefore not be focusable, and their function SHALL be reachable from the
+A tab cannot contain another focusable control. Affordances drawn inside a tab, such as closing it
+or unpinning it, SHALL therefore not be focusable, and their function SHALL be reachable from the
 keyboard by another route.
 
 #### Scenario: The close affordance is not a second focus stop
@@ -222,8 +224,8 @@ keyboard by another route.
 ### Requirement: A tab strip is one stop in the focus order
 
 Every tab strip the workbench draws SHALL behave as the tab list it is announced as. It SHALL be a
-single stop in the focus order: moving focus into it SHALL land on its selected tab, and moving focus
-on SHALL leave it.
+single stop in the focus order: moving focus into it SHALL land on its selected tab, and moving
+focus on SHALL leave it.
 
 #### Scenario: A strip is one stop in the focus order
 
@@ -232,12 +234,12 @@ on SHALL leave it.
 
 ### Requirement: The keys move the focus within a tab strip without choosing a tab
 
-Within every tab strip the workbench draws, the left and right arrow keys SHALL move the focus to the
-previous and next tab, wrapping at either end, and Home and End SHALL move it to the first and the
-last tab. Moving the focus SHALL NOT choose a tab; Enter or Space SHALL choose the focused one.
+Within every tab strip the workbench draws, the left and right arrow keys SHALL move the focus to
+the previous and next tab, wrapping at either end, and Home and End SHALL move it to the first and
+the last tab. Moving the focus SHALL NOT choose a tab; Enter or Space SHALL choose the focused one.
 
-The limits of that: a key pressed with a modifier keeps the meaning the workbench gives it elsewhere,
-such as reordering or moving, and a distribution cannot make the focus choose the tab.
+The limits of that: a key pressed with a modifier keeps the meaning the workbench gives it
+elsewhere, such as reordering or moving, and a distribution cannot make the focus choose the tab.
 
 #### Scenario: The arrow keys walk the strip without choosing
 

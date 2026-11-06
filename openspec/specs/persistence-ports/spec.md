@@ -138,8 +138,6 @@ user does next.
 What was read from the anonymous namespace SHALL be superseded by what the adopted namespace holds.
 For a key it holds nothing for, what the workbench holds SHALL stand and may be written.
 
-
-
 #### Scenario: The arrangement stored for a person survives a late sign-in
 
 - **WHEN** a person's arrangement is stored, the application is opened before the identity is known,
@@ -154,9 +152,9 @@ For a key it holds nothing for, what the workbench holds SHALL stand and may be 
 
 ### Requirement: The re-read on adoption needs nothing from the product
 
-The re-read on adoption SHALL reach the state the workbench keeps for the user's arrangement and for anything
-else it restored from the anonymous namespace before the adoption. A product SHALL NOT have to ask
-for it, because a product cannot see the moment the adoption happens.
+The re-read on adoption SHALL reach the state the workbench keeps for the user's arrangement and for
+anything else it restored from the anonymous namespace before the adoption. A product SHALL NOT have
+to ask for it, because a product cannot see the moment the adoption happens.
 
 #### Scenario: Nothing restored before the adoption is left unread
 
@@ -196,10 +194,10 @@ change only from the session the product supplies.
 
 ### Requirement: The reload for a new person opens the application at its start
 
-The reload on a change of person SHALL open the application at its start, under the base it is served from, as opening it
-without a path would. The address the previous person was at SHALL NOT be loaded again, so the next
-person lands in their own arrangement or in the declared start, never on the previous person's
-place. The question about unsaved work SHALL NOT be asked for this reload.
+The reload on a change of person SHALL open the application at its start, under the base it is
+served from, as opening it without a path would. The address the previous person was at SHALL NOT be
+loaded again, so the next person lands in their own arrangement or in the declared start, never on
+the previous person's place. The question about unsaved work SHALL NOT be asked for this reload.
 
 #### Scenario: A distribution served under a path reloads under it
 
@@ -208,8 +206,9 @@ place. The question about unsaved work SHALL NOT be asked for this reload.
 
 ### Requirement: A pop-out window closes when the person changes
 
-On that reload, a pop-out window SHALL close instead, because what it shows belongs to the previous person. Where
-the browser refuses to close it, it SHALL open the application at its start like any other window.
+On that reload, a pop-out window SHALL close instead, because what it shows belongs to the previous
+person. Where the browser refuses to close it, it SHALL open the application at its start like any
+other window.
 
 #### Scenario: A pop-out window closes
 

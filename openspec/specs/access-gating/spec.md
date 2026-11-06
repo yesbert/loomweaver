@@ -129,8 +129,7 @@ because telling a signed-in user to sign in does not help them.
 
 ### Requirement: Every address below gated content is gated the same way
 
-Gating SHALL hold for every address the content answers, not only its root:
- an address below it that
+Gating SHALL hold for every address the content answers, not only its root: an address below it that
 names a sub-address, a child of a container, or a remainder the content owns SHALL be kept and
 explained in the same way, and SHALL open at that sub-address once the session qualifies. A visit
 that arrives before the session is known SHALL be treated no differently from one that arrives

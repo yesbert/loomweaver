@@ -60,8 +60,8 @@ default directory of translation overlays, and the address of a pop-out window.
 
 - **WHEN** a plugin or the distribution builds an address itself, such as the source of an isolated
   plugin
-- **THEN** the workbench does not resolve it under the base, because the guarantee covers only what
-  the workbench requests
+- **THEN** resolving it is the plugin's or the distribution's own affair, outside what the workbench
+  resolves under the base
 
 ### Requirement: A pop-out opened under the base recognises itself
 

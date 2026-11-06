@@ -135,8 +135,8 @@ SHALL NOT be chased once the user has navigated somewhere else themselves.
 ### Requirement: Waiting for a deep link is quiet
 
 Waiting for an address opened directly SHALL be quiet: while it is remembered the workbench SHALL
-NOT report it as unreachable, because a plugin that has not registered yet is the expected case rather than a
-fault.
+NOT report it as unreachable, because a plugin that has not registered yet is the expected case
+rather than a fault.
 
 #### Scenario: Waiting is not reported as a failure
 
@@ -145,11 +145,11 @@ fault.
 
 ### Requirement: An address that is never answered is not remembered in the arrangement
 
-Where an address opened directly is never answered, whatever the workbench shows instead SHALL be shown only.
-It SHALL NOT become part of a workspace's remembered arrangement, because an arrangement is what the
-product declared and what the user chose, and a navigation that did not succeed is neither. The
-limit of this guarantee is what is remembered, not what is displayed: the workbench MAY show
-fallback content, and MAY leave the address in the address bar.
+Where an address opened directly is never answered, whatever the workbench shows instead SHALL be
+shown only. It SHALL NOT become part of a workspace's remembered arrangement, because an arrangement
+is what the product declared and what the user chose, and a navigation that did not succeed is
+neither. The limit of this guarantee is what is remembered, not what is displayed: the workbench MAY
+show fallback content, and MAY leave the address in the address bar.
 
 #### Scenario: An address that is never answered leaves the workspace as it was
 
@@ -507,9 +507,8 @@ content that address names becomes reachable.
 It SHALL NOT do so once the user has navigated somewhere else. An opening that is finished after the
 user has moved SHALL be abandoned rather than taken up, however it was started.
 
-This holds for the whole life of the application: the address the
-
-application was opened with SHALL stop being a destination as soon as the user has chosen one.
+This holds for the whole life of the application: the address the application was opened with SHALL
+stop being a destination as soon as the user has chosen one.
 
 #### Scenario: A late arrival does not pull the user back
 

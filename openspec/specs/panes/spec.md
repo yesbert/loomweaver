@@ -35,11 +35,11 @@ entries that act on the view's region SHALL act on the region the tab stands in.
 
 ### Requirement: A content tab's menu acts on the pane the tab stands in
 
-A content tab SHALL offer the tab menu on the right-click in every pane of the main area, whether or
-not that pane carries the address. Its entries SHALL act on the pane the tab stands in: closing
-one, the others, those to the right or all SHALL apply to that pane's tabs and keep its pinned and
-unclosable ones; pinning SHALL anchor the tab in that pane; splitting SHALL make the sibling beside
-that pane. The tab's menu context SHALL name the pane and say whether it carries the address.
+A content tab SHALL offer the tab menu on right-click in every pane, address-carrying or not, and
+its entries SHALL act on its own pane: closing one, the others, those to the right or all applies to
+its tabs and keeps its pinned and unclosable ones; pinning anchors the tab there; splitting puts the
+sibling beside it. The menu context SHALL name the pane and say whether it carries the address, so
+that a contributed entry can act on that pane or confine itself to the address-carrying one.
 
 #### Scenario: A content tab in a split pane offers its menu and acts on that pane
 
@@ -80,10 +80,10 @@ arrangement SHALL survive a restart.
 ### Requirement: Whether a pane can be split depends on the item it shows
 
 Whether a pane can be split SHALL depend on the item it is showing, never on the shape of that
-item's address. Content that cannot be duplicated into a sibling is content the workbench has nothing
-to show for: an address no surface answers for, or one the signed-in user may not see. Splitting the
-empty screen SHALL be allowed and SHALL produce an empty sibling rather than a tab standing for
-nothing.
+item's address. Content that cannot be duplicated into a sibling is content the workbench has
+nothing to show for: an address no surface answers for, or one the signed-in user may not see.
+Splitting the empty screen SHALL be allowed and SHALL produce an empty sibling rather than a tab
+standing for nothing.
 
 #### Scenario: An address of several segments splits like any other
 
@@ -200,10 +200,10 @@ work, stored state) is never orphaned by a change of focus.
 
 ### Requirement: Moving the address leaves every surface where it is
 
-Moving the address from pane to pane SHALL leave every surface where it is drawn: no surface SHALL be moved in the
-page, rebuilt or restarted because its pane gained or lost the address, whether or not the surface is
-kept. An interaction the user began inside a pane (a press that becomes a click, a field that took
-focus) SHALL complete, even when that same interaction moved the address.
+Moving the address from pane to pane SHALL leave every surface where it is drawn: no surface SHALL
+be moved in the page, rebuilt or restarted because its pane gained or lost the address, whether or
+not the surface is kept. An interaction the user began inside a pane (a press that becomes a click,
+a field that took focus) SHALL complete, even when that same interaction moved the address.
 
 #### Scenario: A click that moves the address still lands
 
@@ -300,12 +300,10 @@ reconstructed from its address.
 ### Requirement: The arrangement of the content area is reachable to the distribution
 
 The distribution SHALL be able to perform on the content area's panes, from its own code, what the
-pane controls perform: split a pane that shows something to the right or downwards, duplicating
-it; close a pane;
- undo the split; make a pane fill the area and restore it;
-collapse a pane into its strip and bring it back; move the address to a pane; move an open item into
-a pane. Each action SHALL be the same action the corresponding control performs, with the same
-guards and the same outcome.
+pane controls perform: split a pane that shows something to the right or downwards, duplicating what
+it shows; close a pane; undo the split; make a pane fill the area and restore it; collapse a pane
+into its strip and bring it back; move the address to a pane; move an open item into a pane. Each
+SHALL be the action the corresponding control performs, with the same guards and the same outcome.
 
 #### Scenario: Splitting from code duplicates like the toolbar
 

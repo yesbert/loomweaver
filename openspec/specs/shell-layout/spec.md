@@ -46,9 +46,9 @@ slot within that fixed vocabulary, and SHALL NOT invent sub-slots.
 
 ### Requirement: A toolbar placed in a plugin's own content is not a region
 
-A toolbar a plugin places in its own content SHALL NOT be a region: the distribution does not declare
-it, the frame does not draw it, and it SHALL be neither reported against the layout nor curated with
-the rails and sidebars. It is a menu slot drawn open, and is governed where menus are.
+A toolbar a plugin places in its own content SHALL NOT be a region: the distribution does not
+declare it, the frame does not draw it, and it SHALL be neither reported against the layout nor
+curated with the rails and sidebars. It is a menu slot drawn open, and is governed where menus are.
 
 #### Scenario: A placed toolbar is not a region
 
@@ -300,9 +300,10 @@ panel as an overlay that can be dismissed, rather than shrinking the content awa
 
 ### Requirement: The top bar's own entries compact on a narrow viewport
 
-On a narrow viewport, the workbench's own top-bar entries SHALL take a compact form: the product's mark SHALL stand alone without the product's name, and the language switcher
-SHALL show the language by its symbol without its name. The width at which this happens SHALL be the
-one at which the side panels become overlays, and a tablet held upright counts as narrow.
+On a narrow viewport, the workbench's own top-bar entries SHALL take a compact form: the product's
+mark SHALL stand alone without the product's name, and the language switcher SHALL show the language
+by its symbol without its name. The width at which this happens SHALL be the one at which the side
+panels become overlays, and a tablet held upright counts as narrow.
 
 The compacting is presentation only: the product's name and the language's name SHALL remain the
 accessible names of those entries.
@@ -359,8 +360,8 @@ the bar is shown at its natural width.
 ### Requirement: Folding follows the bar's width
 
 Folding SHALL follow the bar's width as it changes, in both directions: an entry folded on a narrow
-window SHALL return to the bar once the window is wide enough for it. A bar in which every entry fits
-SHALL look and behave as it does today, with no fold control shown.
+window SHALL return to the bar once the window is wide enough for it. A bar in which every entry
+fits SHALL look and behave as it does today, with no fold control shown.
 
 #### Scenario: Folding follows the width
 
@@ -377,8 +378,8 @@ SHALL look and behave as it does today, with no fold control shown.
 An entry contributed to a rail, and a button contributed to a bar, MAY carry a picture of what it
 stands for, and the workbench SHALL draw that picture in its place. Where the entry carries none, or
 where the one it carries cannot be shown, the workbench SHALL fall back to the short mark the entry
-declares, and to its icon where it declares no mark. Falling back SHALL be the workbench's own doing,
-so a product that declares a picture never has to handle the picture's absence.
+declares, and to its icon where it declares no mark. Falling back SHALL be the workbench's own
+doing, so a product that declares a picture never has to handle the picture's absence.
 
 #### Scenario: An entry stands for a person and shows their picture
 
@@ -393,9 +394,9 @@ so a product that declares a picture never has to handle the picture's absence.
 
 ### Requirement: A short mark in a picture's place takes the picture's shape
 
-Where the workbench draws a short mark in place of a picture, in a rail entry, a bar button or a menu
-heading, the mark SHALL take the shape the picture takes in that place, at the same size. Where the
-same letters are drawn in a list rather than in such a slot, they SHALL keep their plain form.
+Where the workbench draws a short mark in place of a picture, in a rail entry, a bar button or a
+menu heading, the mark SHALL take the shape the picture takes in that place, at the same size. Where
+the same letters are drawn in a list rather than in such a slot, they SHALL keep their plain form.
 
 #### Scenario: The mark stands where the picture would have stood
 
@@ -409,8 +410,8 @@ same letters are drawn in a list rather than in such a slot, they SHALL keep the
 
 ### Requirement: A picture in the chrome is decoration, and fetching it is the product's business
 
-A picture an entry carries SHALL be decoration: the entry SHALL still be announced by its title, so that what the
-picture stands for is not read a second time.
+A picture an entry carries SHALL be decoration: the entry SHALL still be announced by its title, so
+that what the picture stands for is not read a second time.
 
 Whether a picture can be fetched at all SHALL stay the product's business, since the workbench
 neither serves it nor knows where it comes from.
@@ -525,9 +526,9 @@ brought into the current bounds when it is read. The bounds of one panel SHALL N
 
 Widths SHALL be declarable on panel regions only. A declared width that is not a positive number, a
 declaration whose narrowest width exceeds its widest, or one whose start width lies outside its own
-bounds after the workbench's values are filled in, SHALL be refused when the distribution is composed,
-with a message naming the region. A declared overlay width that is not a positive number SHALL be
-refused in the same way.
+bounds after the workbench's values are filled in, SHALL be refused when the distribution is
+composed, with a message naming the region. A declared overlay width that is not a positive number
+SHALL be refused in the same way.
 
 #### Scenario: Contradictory widths are refused
 
@@ -543,17 +544,17 @@ refused in the same way.
 
 #### Scenario: An overlay width that is not a positive number is refused
 
-- **WHEN** a panel region declares an overlay width of zero, a negative number or something not finite
+- **WHEN** a panel region declares an overlay width of zero, a negative number or something not
+  finite
 - **THEN** the distribution is refused at composition time with a message naming the region
 
 ### Requirement: A panel presented as an overlay takes its overlay width
 
-On a viewport narrow enough
- for a panel to be presented as an overlay, the overlay SHALL take the overlay width the
-panel region declares, and the workbench's own overlay width where it declares none. The overlay width
-SHALL never exceed the viewport's width less a margin that leaves room to dismiss the overlay beside
-it. It is not resized by the user, not stored, and not changed by a width set from code, and the
-widths beside the content SHALL NOT reach the overlay.
+On a viewport narrow enough for a panel to be presented as an overlay, the overlay SHALL take the
+overlay width the panel region declares, and the workbench's own overlay width where it declares
+none. The overlay width SHALL never exceed the viewport's width less a margin that leaves room to
+dismiss the overlay beside it. It is not resized by the user, not stored, and not changed by a width
+set from code, and the widths beside the content SHALL NOT reach the overlay.
 
 #### Scenario: A narrow viewport keeps the overlay's width
 

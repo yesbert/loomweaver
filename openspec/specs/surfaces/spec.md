@@ -391,7 +391,8 @@ contributes to that slot, and SHALL keep working declared as they are today.
 #### Scenario: Declared actions are the owner's entries in the surface's slot
 
 - **WHEN** a plugin registers a surface that declares actions
-- **THEN** those actions are drawn as entries of the slot named for that surface, contributed by that plugin
+- **THEN** those actions are drawn as entries of the slot named for that surface, contributed by
+  that plugin
 
 ### Requirement: Another plugin may contribute to a surface's actions
 

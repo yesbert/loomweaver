@@ -75,10 +75,10 @@ default.
 
 ### Requirement: A kept surface parked by a workspace switch is found alive
 
-Being hidden by a switch of workspace SHALL count as being hidden, so a kept surface parked by such a
-switch SHALL be found alive when its workspace is chosen again. Where the surface is an isolated one,
-that also means its channel SHALL still be the one it had, so no handshake is repeated and nothing it
-was told has to be pushed again.
+Being hidden by a switch of workspace SHALL count as being hidden, so a kept surface parked by such
+a switch SHALL be found alive when its workspace is chosen again. Where the surface is an isolated
+one, that also means its channel SHALL still be the one it had, so no handshake is repeated and
+nothing it was told has to be pushed again.
 
 #### Scenario: A workspace switch parks a kept surface rather than ending it
 
@@ -303,10 +303,9 @@ A docked surface running in the page SHALL be able to switch on, for its own ins
 workbench leaves its rendered nodes where they are, so that a product can keep the one live instance
 running somewhere the workbench does not draw.
 
-While an instance is held, the workbench SHALL NOT take its nodes out of the document, hide, move
-or put them back in their place,
- whatever it does to the panel, pane or workspace the
-surface belongs to, and SHALL NOT destroy the instance for being hidden.
+While an instance is held, the workbench SHALL NOT take its nodes out of the document, hide, move or
+put them back in their place, whatever it does to the panel, pane or workspace the surface belongs
+to, and SHALL NOT destroy the instance for being hidden.
 
 #### Scenario: Collapsing the panel leaves a held surface where it is
 
@@ -349,9 +348,9 @@ SHALL be the one the instance belongs to from then on.
 
 ### Requirement: Turning holding off treats the instance as if it had never been held
 
-When an instance's hold is switched off, the workbench SHALL treat the instance as it would have if it had
-never been held: if the place it belongs to is visible, its nodes are put back there; if not, the
-ordinary rules for a hidden surface apply.
+When an instance's hold is switched off, the workbench SHALL treat the instance as it would have if
+it had never been held: if the place it belongs to is visible, its nodes are put back there; if not,
+the ordinary rules for a hidden surface apply.
 
 #### Scenario: A moved held surface is placed where its view now is
 

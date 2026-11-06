@@ -54,7 +54,6 @@ A caller SHALL be able to ask for the narrow form, in which the mark stands for 
 whatever the width of the frame around it. Where a caller asks for nothing, the form SHALL follow
 the frame.
 
-
 #### Scenario: The identity is drawn the same way outside the chrome
 
 - **WHEN** a distribution places the identity block in its own interface
@@ -218,10 +217,10 @@ that is not a preview SHALL say so just as plainly; there is no third answer.
 
 ### Requirement: Announcing a preview is the distribution's decision
 
-Announcing a preview remains the distribution's, as showing the version already is. The workbench SHALL NOT
-decide how prominently a preview is marked, or mark it anywhere the distribution did not ask for,
-because how loudly a product tells its users that it is unfinished is a product's judgement and not
-the workbench's.
+Announcing a preview remains the distribution's, as showing the version already is. The workbench
+SHALL NOT decide how prominently a preview is marked, or mark it anywhere the distribution did not
+ask for, because how loudly a product tells its users that it is unfinished is a product's judgement
+and not the workbench's.
 
 #### Scenario: The workbench marks nothing on its own
 
@@ -285,11 +284,10 @@ same state.
 
 ### Requirement: Without a word from the distribution, the workbench announces updates
 
-Where a distribution says nothing, the workbench SHALL announce exactly as it does today. The default
-is the supported case rather than a fallback for the unconfigured one.
+Where a distribution says nothing, the workbench SHALL announce exactly as it does today. The
+default is the supported case rather than a fallback for the unconfigured one.
 
 #### Scenario: Saying nothing keeps the workbench's own notices
-
 
 - **WHEN** a distribution says nothing about announcing
 - **THEN** the workbench announces as it always has

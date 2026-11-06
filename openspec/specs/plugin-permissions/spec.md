@@ -134,9 +134,10 @@ active, whatever the user chose before the declaration was made.
 
 ### Requirement: A not-optional plugin with nothing to withdraw is left out
 
-Where such a plugin holds nothing that can be withdrawn, the surface SHALL leave it out rather than
-draw a section in which nothing can be operated. A page about what may be permitted SHALL NOT carry
-a part with nothing to permit, and SHALL NOT describe controls it does not contain.
+Where a plugin the distribution declared not optional holds nothing that can be withdrawn, the
+surface SHALL leave it out rather than draw a section in which nothing can be operated. A page about
+what may be permitted SHALL NOT carry a part with nothing to permit, and SHALL NOT describe controls
+it does not contain.
 
 #### Scenario: A plugin with nothing to permit is not drawn
 
@@ -170,9 +171,10 @@ that would answer to nobody.
 
 ### Requirement: A not-optional plugin's capabilities stay revocable
 
-Withholding the switch SHALL withhold only that switch. The capabilities such a plugin was granted
-SHALL remain revocable, because needing a plugin says nothing about needing everything it asked for.
-This is narrower than the treatment of a plugin the operator deployed, which withholds both.
+Withholding the switch SHALL withhold only that switch. The capabilities a plugin declared not
+optional was granted SHALL remain revocable, because needing a plugin says nothing about needing
+everything it asked for. This is narrower than the treatment of a plugin the operator deployed,
+which withholds both.
 
 #### Scenario: Its capabilities can still be withdrawn
 

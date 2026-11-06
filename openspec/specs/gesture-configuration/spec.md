@@ -31,8 +31,8 @@ own name as well, whatever that route's own switch says.
 ### Requirement: A switch removes the user's routes, not the capability
 
 A switch removes the user's routes, not the capability. The distribution that switched a capability
-off SHALL still be able to perform it from its own code, so that it can offer the capability again in
-its own place and its own shape.
+off SHALL still be able to perform it from its own code, so that it can offer the capability again
+in its own place and its own shape.
 
 #### Scenario: The distribution still reaches what it switched off
 

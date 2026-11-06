@@ -59,7 +59,6 @@ behaviour for its own bubble exactly as before.
 - **WHEN** a product applies the tooltip class to an element of its own
 - **THEN** showing, hiding, delaying and placing that element remain the container's
 
-
 #### Scenario: The workbench's own tooltip is unchanged
 
 - **WHEN** a trigger carrying the workbench's tooltip element is hovered or focused
@@ -67,14 +66,14 @@ behaviour for its own bubble exactly as before.
 
 ### Requirement: A badge inside the tooltip look takes colours that suit it
 
-A badge placed inside an element carrying the tooltip look SHALL take colours that suit it, readable at the
-AA contrast ratio in both appearances, without a class of its own. A badge with a tone keeps the fill
-of its tone.
+A badge placed inside an element carrying the tooltip look SHALL take colours that suit it, readable
+at the AA contrast ratio in both appearances, without a class of its own. A badge with a tone keeps
+the fill of its tone.
 
 #### Scenario: A badge inside the tooltip look stays readable
 
-- **WHEN** a neutral badge is placed inside an element carrying the tooltip look, in the light and in
-  the dark appearance
+- **WHEN** a neutral badge is placed inside an element carrying the tooltip look, in the light and
+  in the dark appearance
 - **THEN** its text meets the AA contrast ratio against its own background in both
 
 ### Requirement: A plugin may re-colour the application, once granted that

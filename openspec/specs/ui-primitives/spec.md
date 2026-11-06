@@ -597,11 +597,11 @@ choice, draw a mark of its own, or take part in a form's validation.
 ### Requirement: The choice control's list is driven from the keyboard with focus on the control
 
 While the choice control's list is open, focus SHALL stay on the control, and the option moved to
-SHALL be announced from there. The arrow keys, Home and End SHALL move
-through the options and skip none that can be chosen; Enter and Space SHALL choose the option moved
-to and close the list; the dismiss key SHALL close it without changing the choice. On the closed
-control the arrow keys, Enter, Space, Home, End and a typed letter SHALL open the list, a typed letter
-at the first option it begins.
+SHALL be announced from there. The arrow keys, Home and End SHALL move through the options and skip
+none that can be chosen; Enter and Space SHALL choose the option moved to and close the list; the
+dismiss key SHALL close it without changing the choice. On the closed control the arrow keys, Enter,
+Space, Home, End and a typed letter SHALL open the list, a typed letter at the first option it
+begins.
 
 #### Scenario: Moving through the list keeps focus on the control
 

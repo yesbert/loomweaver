@@ -187,9 +187,9 @@ so closing a pane joins all of its tabs to the neighbour that takes its space.
 
 ### Requirement: A spared tab is asked about before its pane closes
 
-Where a tab spared by closing a pane holds unsaved work, or its surface may refuse a close, the close
-SHALL ask about it as it asks about a tab that closes, and a refusal SHALL leave the pane and its
-tabs as they were.
+Where a tab spared by closing a pane holds unsaved work, or its surface may refuse a close, the
+close SHALL ask about it as it asks about a tab that closes, and a refusal SHALL leave the pane and
+its tabs as they were.
 
 #### Scenario: A spared tab that would lose unsaved work is asked about
 
@@ -471,10 +471,10 @@ kept like one the tab was opened with.
 
 ### Requirement: A label change reaches the tab wherever it stands, without bringing it forward
 
-A change to an open tab's label SHALL reach the tab in whichever pane of the main area it stands, the pane carrying the
-address or another, and SHALL NOT bring the tab forward, move the focus or change the address. This
-SHALL hold for a plugin that runs isolated from the workbench as it does for one that runs in the
-page.
+A change to an open tab's label SHALL reach the tab in whichever pane of the main area it stands,
+the pane carrying the address or another, and SHALL NOT bring the tab forward, move the focus or
+change the address. This SHALL hold for a plugin that runs isolated from the workbench as it does
+for one that runs in the page.
 
 #### Scenario: A tab behind another follows without coming forward
 
@@ -490,8 +490,8 @@ page.
 
 ### Requirement: A label change reaches only an open tab of the plugin's own content
 
-A change to a tab's label reaches an open tab only. For content with no open tab it SHALL change nothing and open
-nothing, and a change for content another plugin registered SHALL change nothing.
+A change to a tab's label reaches an open tab only. For content with no open tab it SHALL change
+nothing and open nothing, and a change for content another plugin registered SHALL change nothing.
 
 #### Scenario: Content with no open tab is left alone
 

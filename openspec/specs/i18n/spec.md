@@ -49,9 +49,9 @@ ships, whatever it is called.
 
 ### Requirement: Declarations of translation bundles accumulate
 
-Declarations of translation bundles SHALL accumulate. A distribution that declares bundles in more than one place loads
-every bundle named in any of them, in the order they were declared. A later declaration MUST NOT
-replace an earlier one. A name declared twice is loaded once.
+Declarations of translation bundles SHALL accumulate. A distribution that declares bundles in more
+than one place loads every bundle named in any of them, in the order they were declared. A later
+declaration MUST NOT replace an earlier one. A name declared twice is loaded once.
 
 #### Scenario: Two declarations load both bundles
 
@@ -343,7 +343,8 @@ the product does not supply SHALL be shown in English rather than as its key or 
 developer SHALL be told which strings those are. This SHALL NOT prevent the language from being
 served.
 
-This concerns the workbench's own strings; a named bundle and an overlay keep their stated behaviour.
+This concerns the workbench's own strings; a named bundle and an overlay keep their stated
+behaviour.
 
 #### Scenario: A partly translated language shows the rest in English
 
@@ -360,9 +361,9 @@ This concerns the workbench's own strings; a named bundle and an overlay keep th
 
 ### Requirement: A served language with none of the workbench's strings is shown in English throughout
 
-Where the product supplies none of the workbench's strings for a served language, the workbench SHALL
-be shown in English throughout while that language is active, and the developer SHALL be told that
-this is what happened. This SHALL NOT prevent the language from being served.
+Where the product supplies none of the workbench's strings for a served language, the workbench
+SHALL be shown in English throughout while that language is active, and the developer SHALL be told
+that this is what happened. This SHALL NOT prevent the language from being served.
 
 #### Scenario: A language with no workbench strings is still served
 
@@ -441,4 +442,3 @@ anything.
 - **WHEN** the strings of the chosen language cannot be loaded
 - **THEN** the interface shows what the translation library falls back to
 - **AND** the choice is still remembered, so the next visit tries it again
-

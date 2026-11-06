@@ -215,10 +215,10 @@ that boundary.
 
 ### Requirement: Reading one's own unsaved work needs no grant and tells nothing of another plugin's
 
-Reading whether a plugin's own work is unsaved SHALL need no granted capability, on the same ground that a
-plugin needs none to run a command it registered itself: it is asking about its own contribution. It
-SHALL answer nothing about a surface another plugin registered, so that no plugin learns from it
-what another is working on.
+Reading whether a plugin's own work is unsaved SHALL need no granted capability, on the same ground
+that a plugin needs none to run a command it registered itself: it is asking about its own
+contribution. It SHALL answer nothing about a surface another plugin registered, so that no plugin
+learns from it what another is working on.
 
 #### Scenario: Another plugin's work stays private
 

@@ -47,10 +47,11 @@ require a consumer to fix it before it works.
 
 ### Requirement: Generated output comes with the configuration it needs
 
-Producing sources alone does not satisfy this. Where generated output needs configuration elsewhere
-in the workspace before it runs, a generator with access to that workspace SHALL produce that
-configuration too. A build that reports success while the generated product does not work SHALL be
-treated as the same defect as a build that fails, because it hides rather than reports.
+Producing sources alone does not make generated output work without the consumer fixing it. Where
+generated output needs configuration elsewhere in the workspace before it runs, a generator with
+access to that workspace SHALL produce that configuration too. A build that reports success while
+the generated product does not work SHALL be treated as the same defect as a build that fails,
+because it hides rather than reports.
 
 #### Scenario: The styles the chrome relies on are actually produced
 
@@ -94,7 +95,8 @@ itself put in place SHALL contradict anything else it put in place.
 
 #### Scenario: A generated distribution runs without further wiring
 
-- **WHEN** a distribution is generated into an application workspace and served without further edits
+- **WHEN** a distribution is generated into an application workspace and served without further
+  edits
 - **THEN** the workbench chrome renders laid out and styled
 - **AND** its own strings resolve rather than showing their keys
 - **AND** nothing it registers for itself fails to load
