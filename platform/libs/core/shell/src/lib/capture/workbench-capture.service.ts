@@ -112,7 +112,7 @@ export class WorkbenchCaptureService {
         plan.passes.map((pass) =>
           pass.covers.length > 0
             ? renderer.toCanvas(pass.layer.element, size)
-            : undefined,
+            : Promise.resolve(undefined),
         ),
       ),
     ]);
