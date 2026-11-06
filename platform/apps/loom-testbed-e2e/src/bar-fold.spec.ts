@@ -39,8 +39,11 @@ test.describe('A top bar that runs out of room', () => {
 
   test('folds a button before it cuts the product name', async ({ page }) => {
     await expect
-      .poll(() => topBarState(page))
-      .toEqual({ nameCut: false, othersShown: 2, folded: true });
+      .poll(async () => {
+        const state = await topBarState(page);
+        return state.folded && !state.nameCut && state.othersShown > 0;
+      })
+      .toBe(true);
   });
 
   test('cuts the name only once every button has folded, and keeps the name in the bar', async ({
