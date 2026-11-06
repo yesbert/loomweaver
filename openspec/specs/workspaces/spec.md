@@ -16,7 +16,25 @@ returning finds it as it was left. Neither a switch nor a reset SHALL carry the 
 was looking at into the arrangement it restores: that arrangement holds what the workspace held, and
 the content it then shows is the one it names.
 
-The choice of workspace SHALL survive a restart.
+The choice of workspace SHALL survive a restart. A remembered choice that names a workspace which is
+neither declared nor saved any more SHALL give way to the default workspace for the session once
+the saved workspaces have been read. Giving way SHALL NOT rewrite the remembered choice and SHALL NOT
+remove anything stored for the workspace that gave way, so a remembered choice of a workspace that
+is really gone gives way again at each opening until the user chooses a workspace. The opening SHALL
+NOT wait for the saved workspaces, and a person's choice that arrives after sign-in SHALL be judged
+the same way, by that person's saved workspaces.
+
+Before giving way, the unsaved-work question SHALL be asked for every surface the workspace shows
+and every surface parked under it, except the surface at the address the opening keeps. Declining
+SHALL leave the user in that workspace for the session. Once the answer allows it, the surfaces
+parked under that workspace SHALL be let go, except the one at the kept address.
+
+The limit: saved workspaces whose first read was rejected, or which are stored in a form that is not
+wholly a list of workspaces, are no answer, and the remembered workspace SHALL then stay active. The
+valid entries of such a list SHALL stay listed. A store that reports a failed read as nothing stored
+is taken at its word, and so is a read at sign-in that fails: either is an empty list, and an
+answer. None of this holds back a distribution's declared start: at the address that names no
+content it is entered as at every opening there.
 
 #### Scenario: Switching and returning finds the arrangement unchanged
 
@@ -30,8 +48,44 @@ The choice of workspace SHALL survive a restart.
 
 #### Scenario: The active workspace survives a restart
 
-- **WHEN** the application restarts
+- **WHEN** the application restarts and the workspace the user was in still exists
 - **THEN** the workspace the user was in is active
+
+#### Scenario: A remembered workspace that no longer exists gives way to the default one
+
+- **WHEN** the application is opened at an address naming content, the saved workspaces have been
+  read, and the remembered workspace is neither declared nor saved any more
+- **THEN** the default workspace is active
+- **AND** the content the address names is shown
+- **AND** the remembered choice, and what is stored for the workspace that gave way, are unchanged
+- **AND** the next opening gives way again
+
+#### Scenario: Saved workspaces that could not be read move nobody
+
+- **WHEN** the application is opened at an address naming content, and the first read of the saved
+  workspaces is rejected or they are not stored as a list of workspaces
+- **THEN** the remembered workspace stays active and the remembered choice is unchanged
+
+#### Scenario: Saved workspaces that never answer do not hold the opening
+
+- **WHEN** the application is opened without naming content, a start with content is declared, and
+  the saved workspaces are never answered
+- **THEN** the declared start is active and its content is shown
+
+#### Scenario: Giving way asks before it destroys unsaved work
+
+- **WHEN** the saved workspaces are read while the user already has unsaved work in a workspace
+  that is neither declared nor saved, shown or parked in a tab other than the one the address names
+- **THEN** the unsaved-work question is asked for every surface that workspace shows or parked,
+  except the one at the address
+- **AND** declining leaves the user in that workspace for the session
+
+#### Scenario: A choice that arrives after sign-in is judged by that person's workspaces
+
+- **WHEN** a person signs in after the application was opened, and the workspace they last chose is
+  neither declared nor among their saved workspaces
+- **THEN** the default workspace is active for the session
+- **AND** the choice remembered for that person is unchanged
 
 #### Scenario: A switch does not bring the content the user left
 
@@ -592,11 +646,25 @@ is no address to move to and moving would be a switch the user did not ask for.
 A reset discards an arrangement the user may have built, and SHALL therefore be confirmed before it
 takes effect wherever it is offered without the workspace first being entered.
 
+Resetting a workspace the user is not in also discards the surfaces parked under it. Where one of
+them holds unsaved work, the reset SHALL ask the unsaved-work question for those surfaces first, and
+SHALL leave the workspace and what is parked under it as they were if the answer does not allow it.
+It SHALL NOT ask about work outside that workspace.
+
 #### Scenario: A workspace is reset without being entered
 
-- **WHEN** the user resets a workspace they are not in
+- **WHEN** the user resets a workspace they are not in, and nothing parked under it holds unsaved
+  work
 - **THEN** that workspace returns to its baseline
 - **AND** the user is still in the workspace they were in
+
+#### Scenario: A reset of a workspace the user is not in asks about what is parked under it
+
+- **WHEN** the user resets a workspace they are not in while a surface parked under it holds unsaved
+  work
+- **THEN** the unsaved-work question is asked for that surface, and for no surface of another
+  workspace
+- **AND** declining leaves that surface and the workspace's arrangement as they were
 
 #### Scenario: Resetting where nothing is named still means here
 
@@ -713,9 +781,17 @@ asked by the service wherever the action would destroy work.
 
 #### Scenario: Resetting a workspace the user is not in asks no unsaved-work question
 
-- **WHEN** the distribution resets a workspace that is not active
-- **THEN** it returns to its baseline without the unsaved-work question, because no live work is in
-  it; whether a control confirms the reset first remains that control's decision
+- **WHEN** the distribution resets a workspace that is not active, and nothing parked under it holds
+  unsaved work
+- **THEN** it returns to its baseline without the unsaved-work question; whether a control confirms
+  the reset first remains that control's decision
+
+#### Scenario: Resetting a workspace the user is not in from code asks about what is parked under it
+
+- **WHEN** the distribution resets a workspace that is not active while a surface parked under it
+  holds unsaved work
+- **THEN** the same question is asked that the reset command would ask, and the workspace is reset
+  only if the answer allows it
 
 #### Scenario: The facts follow a switch
 
@@ -745,9 +821,12 @@ everything as it was.
 
 ### Requirement: Removing a workspace asks about the work parked under it
 
-Removing a saved workspace destroys the retained work parked under it. Wherever a removal is asked
-for, the workbench SHALL ask the unsaved-work question for the surfaces parked under that workspace
-before removing it, and SHALL leave the workspace in place if the answer does not allow it.
+Removing a saved workspace destroys the retained work parked under it, and removing the one the user
+is in can also destroy the work its surfaces show. Wherever a removal is asked for, the workbench
+SHALL ask the unsaved-work question before removing the workspace: for the surfaces parked under it
+and, where it is the workspace the user is in, for every surface it shows as well, once for both. It
+SHALL leave the workspace in place if the answer does not allow it, and SHALL leave nothing parked
+under it once it is removed.
 
 #### Scenario: Removal with unsaved parked work asks first
 
@@ -757,8 +836,17 @@ before removing it, and SHALL leave the workspace in place if the answer does no
 
 #### Scenario: Removal with nothing parked asks nothing
 
-- **WHEN** a saved workspace holds no parked work and its removal is asked for
+- **WHEN** a saved workspace holds no parked work, shows no unsaved work, and its removal is asked
+  for
 - **THEN** it is removed without the unsaved-work question
+
+#### Scenario: Removing the workspace in use asks about what it shows
+
+- **WHEN** the saved workspace the user is in shows unsaved work, and its removal is asked for, even
+  in a tab the default workspace also holds
+- **THEN** the unsaved-work question is asked once, for that work and for the surfaces parked under
+  the workspace
+- **AND** the workspace is removed only if the answer allows it
 
 ### Requirement: The application reset is reachable to the distribution
 
