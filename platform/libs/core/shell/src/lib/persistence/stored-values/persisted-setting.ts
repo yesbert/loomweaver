@@ -108,16 +108,10 @@ function storedValue<T>(
     setting: {
       value: state.asReadonly(),
       answered: answered.asReadonly(),
+      unreadable: unreadable.asReadonly(),
       set: (next) => change({ clear: false, change: () => next }),
       update: (next) => change({ clear: false, change: next }),
       clear: () => change({ clear: true }),
     },
-
-    value: state.asReadonly(),
-    answered: answered.asReadonly(),
-    unreadable: unreadable.asReadonly(),
-    set: (next) => change({ clear: false, change: () => next }),
-    update: (next) => change({ clear: false, change: next }),
-    clear: () => change({ clear: true }),
   };
 }
