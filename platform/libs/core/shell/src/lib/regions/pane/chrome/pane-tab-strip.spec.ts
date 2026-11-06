@@ -9,6 +9,7 @@ import {
 import { Observable, Subject } from 'rxjs';
 import { RetainedViewStash } from '../retention/retained-view-stash';
 import { MenuTriggerDirective } from '../../../menu/menu-trigger.directive';
+import { PaneMoveService } from '../drag/pane-move.service';
 import { PaneTabStrip } from './pane-tab-strip';
 import { StripTab } from './strip-tab';
 
@@ -470,5 +471,100 @@ describe('PaneTabStrip — what a tab tells its menu about where it stands', () 
       expect.objectContaining({ inContent: false, sole: false }),
       expect.objectContaining({ inContent: false, sole: false }),
     ]);
+  });
+});
+
+describe('PaneTabStrip — a strip too narrow to show every tab', () => {
+  let fixture: ComponentFixture<PaneTabStrip>;
+  let revealed: string[];
+
+  function rect(left: number, right: number): DOMRect {
+    return { left, right, top: 0, bottom: 10, width: right - left } as DOMRect;
+  }
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideTransloco({
+          config: { availableLangs: ['en'], defaultLang: 'en' },
+          loader: PendingLoader,
+        }),
+        { provide: RetainedViewStash, useValue: stashOf([]) },
+        {
+          provide: PaneMoveService,
+          useValue: { moveToStrip: vi.fn().mockResolvedValue(true) },
+        },
+      ],
+    });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
+      function (this: HTMLElement) {
+        if (this.getAttribute('role') === 'tablist') {
+          return rect(0, 100);
+        }
+        return this.querySelector('[data-tab-path="dropped"]')
+          ? rect(90, 140)
+          : rect(0, 40);
+      },
+    );
+    fixture = TestBed.createComponent(PaneTabStrip);
+    fixture.componentRef.setInput('tabs', [tab({ path: 'a' })]);
+    fixture.componentRef.setInput('activeId', 'a');
+    fixture.componentRef.setInput('source', { dock: 'content', paneId: 'b' });
+    fixture.componentRef.setInput('overflow', true);
+    revealed = [];
+    fixture.componentInstance.revealRequest.subscribe((path) => {
+      revealed.push(path);
+    });
+    fixture.detectChanges();
+    TestBed.tick();
+  });
+
+  function shows(tabs: string[], active: string): void {
+    fixture.componentRef.setInput(
+      'tabs',
+      tabs.map((path) => tab({ path })),
+    );
+    fixture.componentRef.setInput('activeId', active);
+    fixture.detectChanges();
+    TestBed.tick();
+  }
+
+  it('brings a clipped tab into view when it becomes the active one', () => {
+    shows(['a', 'dropped'], 'dropped');
+
+    expect(revealed).toEqual(['dropped']);
+  });
+
+  async function dropped(): Promise<void> {
+    const strip = fixture.componentInstance as unknown as {
+      onDrop(event: unknown): void;
+    };
+    strip.onDrop({
+      previousContainer: { id: 'pane-strip:content:main' },
+      container: { id: 'pane-strip:content:b' },
+      previousIndex: 0,
+      currentIndex: 1,
+      item: { data: 'dropped' },
+    });
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
+
+  it('leaves a tab where the user dropped it from another pane', async () => {
+    await dropped();
+
+    shows(['a', 'dropped'], 'dropped');
+
+    expect(revealed).toEqual([]);
+  });
+
+  it('brings the tab into view later where the drop did not move it', async () => {
+    vi.mocked(TestBed.inject(PaneMoveService).moveToStrip).mockResolvedValue(
+      false,
+    );
+    await dropped();
+
+    shows(['a', 'dropped'], 'dropped');
+
+    expect(revealed).toEqual(['dropped']);
   });
 });

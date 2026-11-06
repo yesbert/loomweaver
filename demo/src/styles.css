@@ -17,3 +17,7 @@ demo-look-switch .lw-select-trigger {
 @utility demo-list-card {
   @apply flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface-raised;
 }
+
+@utility demo-caution-mark {
+  @apply inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-caution align-middle;
+}

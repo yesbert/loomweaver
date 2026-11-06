@@ -20,8 +20,11 @@
             <span
               class="text-xs"
               [class.text-content-faint]="row.daysLeft > 7"
-              [class.text-caution]="row.daysLeft <= 7"
+              [class.text-content]="row.daysLeft <= 7"
             >
+              @if (row.daysLeft <= 7) {
+                <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+              }
               {{ 'quotes.awaitingAnswer.daysLeft' | transloco: { days: row.daysLeft } }}
             </span>
           </button>

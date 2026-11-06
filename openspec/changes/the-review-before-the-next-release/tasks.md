@@ -63,12 +63,12 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 2.21 Covered by 2.2: nothing is re-keyed any more, so every instance whose tab leaves its pane counts as destroyed and is asked about (`regions/pane/retention/open-tabs.ts`, `regions/pane/unsaved-work/unsaved-work.ts`)
 - [x] 2.22 A container emptied of its last child shows its initial children again; an area declared empty stays (`regions/pane/container/container-pane-host.ts`)
 - [x] 2.23 A move that merges a tab away asks a surface that may refuse its close even when it holds no unsaved work, as closing the same tab does (`regions/pane/unsaved-work/unsaved-work.ts`)
-- [ ] 2.25 A view or tab moved to another sidebar is announced, and its panel expanded and focused, only once the move has happened, not while the user is still being asked; a cancelled move announces nothing (`regions/panel/view-move.service.ts`, `regions/panel/shell-sidebar-header.ts`)
-- [ ] 2.26 The published description of a surface's close veto says that it is also consulted when its tab changes panes or is handed to a neighbour, and the wording a slow veto shows speaks of the gesture under way (`plugin-sdk` `surfaces/dirty-surface.ts`, the guides, `llms-full.txt`, `retention.vetoPendingMessage`)
-- [ ] 2.28 A move dropped after a late answer tells the user it did not happen (`regions/pane/drag/pane-move.service.ts`)
-- [ ] 2.30 Bringing a hidden tab into view on a pane strip writes no reorder where the strip is not reorderable, and does not override where a tab was just dropped (`regions/pane/pane-view.ts`)
-- [ ] 2.31 Lead, verify first: a pop-out window evicts what it parked, as the main window's sweep does (`regions/pane/retention/parked-view-sweep.ts`)
-- [ ] 2.32 Lead, verify first: after "Open in content", the reveal command activates the copy in content, not the one left in the sidebar
+- [x] 2.25 A view or tab moved to another sidebar is announced, and its panel expanded and focused, only once the move has happened, not while the user is still being asked; a cancelled move announces nothing (`regions/panel/view-move.service.ts`, `regions/panel/shell-sidebar-header.ts`)
+- [x] 2.26 The published description of a surface's close veto says that it is also consulted when its tab changes panes or is handed to a neighbour, and the wording a slow veto shows speaks of the gesture under way (`plugin-sdk` `surfaces/dirty-surface.ts`, the guides, `llms-full.txt`, `retention.vetoPendingMessage`)
+- [x] 2.28 A move dropped after a late answer tells the user it did not happen (`regions/pane/drag/pane-move.service.ts`)
+- [x] 2.30 Bringing a hidden tab into view on a pane strip writes no reorder where the strip is not reorderable, and does not override where a tab was just dropped (`regions/pane/pane-view.ts`). Dropped tab: fixed, a tab dropped on a strip from another pane is noted as placed by the user, so it stays where it was dropped; a drop that did not move it is forgotten again. Not reorderable: struck, the content-tabs capability requires it ("WHEN a tab that is not visible is activated THEN it is moved to the front of its band so that it can be seen", with no exception for a strip the user may not reorder), and the address pane does the same
+- [x] 2.31 Lead, verify first: a pop-out window evicts what it parked, as the main window's sweep does (`regions/pane/retention/parked-view-sweep.ts`). Verified: a container opened in a window of its own draws its inner panes with split, close and minimise, and closing or minimising one parks a kept or unsaved surface in the holding area; fixed, the sweep runs in a pop-out too
+- [x] 2.32 Lead, verify first: after "Open in content", the reveal command activates the copy in content, not the one left in the sidebar. Struck: the surfaces capability says the workbench "SHALL make that surface current where it stands, in a side panel or in the content area"; after "Open in content" it stands in both, and the requirement names neither as the one meant, so preferring the content copy is a new behaviour for the owner to decide
 
 ## 3. Addresses and tabs
 
@@ -248,7 +248,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 9.17 The assistant translates the "model is gone" sentence only when the answer says so (`assistant-agent.ts`)
 - [x] 9.18 The guide says what is true of an isolated plugin offline: the worker cannot serve it; whether the browser's own HTTP cache does depends on the headers the host sends, and that is not something to rely on (`docs/distribution/pwa.md`, `frame-plugins.md`, `distribution-api/capture.md`)
 - [x] 9.19 A chart is not announced twice and says what it shows: the canvas takes its name from the card's heading by reference, and the quoted-per-month chart has a text alternative with its values, as the pipeline chart has its list (`demo/src/insights/`)
-- [ ] 9.20 The demo uses no fill tone as a text colour: its fifteen uses of `text-caution` on text take a text-safe tone or an icon beside content-coloured text (`demo/src`)
+- [x] 9.20 The demo uses no fill tone as a text colour: its fifteen uses of `text-caution` on text take a text-safe tone or an icon beside content-coloured text (`demo/src`)
 
 ## 10. Tests that could not fail
 

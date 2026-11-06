@@ -48,6 +48,17 @@ describe('the shipped translation bundles', () => {
       expect(read(bundle, 'appReset.action')).toBe(read(bundle, 'appReset.title'));
     });
 
+    it('lets the user go ahead past a slow plugin in words that fit a move as well as a close', () => {
+      const escape = [
+        read(bundle, 'retention.vetoPendingTitle'),
+        read(bundle, 'retention.vetoPendingMessage'),
+        read(bundle, 'retention.goAheadAnyway'),
+      ];
+
+      expect(escape.every((text) => text.length > 0)).toBe(true);
+      expect(escape.filter((text) => /clos|schließ/i.test(text))).toEqual([]);
+    });
+
     it(`says "Workspace" wherever it says it at all, in ${language}`, () => {
       const translated = keysOf(bundle)
         .map((key) => read(bundle, key))

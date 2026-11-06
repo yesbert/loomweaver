@@ -165,22 +165,27 @@ export class ShellSidebarHeader {
       return;
     }
     event.preventDefault();
-    this.moveToPanel(path, target.id);
-    const strip = CSS.escape(sidebarStripId(target.id));
-    focusMovedEntry(
-      `#${strip} [data-tab-path="${CSS.escape(path)}"]`,
-      this.injector,
-    );
+    void this.moveToPanel(path, target.id).then((moved) => {
+      if (!moved) {
+        return;
+      }
+      const strip = CSS.escape(sidebarStripId(target.id));
+      focusMovedEntry(
+        `#${strip} [data-tab-path="${CSS.escape(path)}"]`,
+        this.injector,
+      );
+    });
   }
 
-  private moveToPanel(path: string, targetRegion: string): void {
+  private moveToPanel(path: string, targetRegion: string): Promise<boolean> {
     const viewId = viewIdOfPanePath(path);
-    const tab = this.stripTabs().find((one) => one.path === path);
     if (viewId !== null) {
-      this.viewMove.move(viewId, targetRegion);
-    } else if (tab) {
-      this.viewMove.moveTab(this.source(), tab, targetRegion);
+      return this.viewMove.move(viewId, targetRegion);
     }
+    const tab = this.stripTabs().find((one) => one.path === path);
+    return tab
+      ? this.viewMove.moveTab(this.source(), tab, targetRegion)
+      : Promise.resolve(false);
   }
 
   private panelOn(side: 'left' | 'right'): LayoutRegion | undefined {

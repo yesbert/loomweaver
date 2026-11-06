@@ -26,7 +26,10 @@
           <span class="min-w-0 truncate text-content-muted">
             {{ row.descriptionKey | transloco }}
           </span>
-          <span class="shrink-0 tabular-nums" [class]="row.thin ? 'text-caution' : 'text-content'">
+          <span class="shrink-0 text-content tabular-nums">
+            @if (row.thin) {
+              <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+            }
             {{ row.margin }} {{ 'quotes.margin.percent' | transloco: { percent: row.percent } }}
           </span>
         </li>

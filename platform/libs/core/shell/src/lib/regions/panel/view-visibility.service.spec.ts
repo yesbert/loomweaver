@@ -19,11 +19,15 @@ class GuardStub {
   candidates: readonly unknown[] = [];
   allow = true;
 
-  guarded(candidates: readonly unknown[], proceed: () => void): void {
+  guarded(
+    candidates: readonly unknown[],
+    proceed: () => void,
+  ): Promise<boolean> {
     this.candidates = candidates;
     if (this.allow) {
       proceed();
     }
+    return Promise.resolve(this.allow);
   }
 }
 

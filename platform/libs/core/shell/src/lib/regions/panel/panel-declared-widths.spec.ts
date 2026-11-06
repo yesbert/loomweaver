@@ -99,7 +99,12 @@ describe('a width set from the distribution for a panel with declared bounds', (
         layout,
         {
           provide: SurfaceCloseGuard,
-          useValue: { guarded: (_: unknown, run: () => void) => run() },
+          useValue: {
+            guarded: (_: unknown, run: () => void) => {
+              run();
+              return Promise.resolve(true);
+            },
+          },
         },
         { provide: TranslocoService, useValue: { translate: (key: string) => key } },
       ],

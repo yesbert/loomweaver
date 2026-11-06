@@ -39,7 +39,7 @@
               <span class="text-content-muted tabular-nums">
                 {{ row.expected }}
                 @if (row.late > 0) {
-                  <span class="ml-2 text-xs text-caution" data-testid="order-late">{{
+                  <span class="ml-2 text-xs text-content" data-testid="order-late"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{
                     'procurement.late' | transloco: { days: row.late }
                   }}</span>
                 }
@@ -65,7 +65,7 @@
                 <span class="text-xs text-content-faint">
                   {{ row.order.number }} · {{ row.expected }}
                   @if (row.late > 0) {
-                    · <span class="text-caution">{{ 'procurement.late' | transloco: { days: row.late } }}</span>
+                    · <span class="text-content"><span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>{{ 'procurement.late' | transloco: { days: row.late } }}</span>
                   }
                 </span>
               </span>

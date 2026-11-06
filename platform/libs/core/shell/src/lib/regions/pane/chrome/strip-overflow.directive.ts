@@ -55,6 +55,12 @@ export class StripOverflow {
     }
   }
 
+  forgetPicked(path: string): void {
+    if (this.pickedHere === path) {
+      this.pickedHere = null;
+    }
+  }
+
   private observeResize(): void {
     if (typeof ResizeObserver === 'undefined') {
       return;

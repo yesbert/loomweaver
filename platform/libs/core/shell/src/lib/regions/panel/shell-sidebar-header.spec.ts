@@ -11,6 +11,8 @@ import { View } from '../../views/view';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { PaneTreeService } from '../pane/tree/pane-tree.service';
 import { FeatureSwitches } from '../../features/feature-switches.service';
+import { DialogService } from '../../dialog/dialog.service';
+import { UnsavedWork } from '../pane/unsaved-work/unsaved-work';
 
 @Component({ selector: 'lw-stub', template: '' })
 class Stub {}
@@ -128,7 +130,7 @@ describe('ShellSidebarHeader (the primary tab group as icon strip)', () => {
 });
 
 describe('ShellSidebarHeader moving a view with the keyboard', () => {
-  it('announces the view it moved to the other sidebar, as the context menu does', () => {
+  it('announces the view it moved to the other sidebar, as the context menu does', async () => {
     const { fixture } = render();
     const announce = vi
       .spyOn(TestBed.inject(LiveAnnouncer), 'announce')
@@ -145,6 +147,8 @@ describe('ShellSidebarHeader moving a view with the keyboard', () => {
         bubbles: true,
       }),
     );
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
     expect(TestBed.inject(PaneTreeService).sourceOf('view:nav')?.dock).toBe(
       'secondary',
@@ -190,6 +194,34 @@ describe('ShellSidebarHeader moving a view with the keyboard', () => {
     moveRight(fixture, 'doc/a');
 
     expect(paneTree.sourceOf('doc/a')?.dock).toBe('secondary');
+  });
+
+  it('focuses the moved view in the other sidebar once the question about it was answered', async () => {
+    const { fixture } = render();
+    const other = TestBed.createComponent(ShellSidebarHeader);
+    other.componentRef.setInput('region', {
+      id: 'secondary',
+      type: 'panel',
+      dock: 'right',
+    });
+    vi.spyOn(TestBed.inject(LiveAnnouncer), 'announce').mockResolvedValue();
+    vi.spyOn(TestBed.inject(UnsavedWork), 'lostBy').mockReturnValue([
+      { surfaceDirty: () => true },
+    ]);
+
+    moveRight(fixture, 'view:nav');
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    TestBed.tick();
+    TestBed.inject(DialogService).dialogs().at(-1)?.ref.close('discard');
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    TestBed.tick();
+
+    expect(document.activeElement?.closest('#panel-views-secondary')).not.toBe(
+      null,
+    );
+    expect(
+      (document.activeElement as HTMLElement | null)?.dataset['tabPath'],
+    ).toBe('view:nav');
   });
 
   it('leaves a view where it is while moving a view is switched off', () => {

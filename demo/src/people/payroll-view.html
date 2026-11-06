@@ -29,9 +29,12 @@
               </span>
               <span
                 [attr.data-state]="row.run.state"
-                [class.text-caution]="row.run.state === 'open'"
+                [class.text-content]="row.run.state === 'open'"
                 [class.text-content-faint]="row.run.state !== 'open'"
               >
+                @if (row.run.state === 'open') {
+                  <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+                }
                 {{ 'people.state.' + row.run.state | transloco }}
               </span>
               <span class="text-right font-medium text-content tabular-nums">{{ row.gross }}</span>
@@ -41,9 +44,12 @@
                 <span class="truncate text-content">{{ row.month }}</span>
                 <span class="text-xs text-content-faint">
                   {{ 'people.headcount' | transloco: { count: row.run.headcount } }} ·
-                  <span [class.text-caution]="row.run.state === 'open'">{{
-                    'people.state.' + row.run.state | transloco
-                  }}</span>
+                  <span [class.text-content]="row.run.state === 'open'">
+                    @if (row.run.state === 'open') {
+                      <span aria-hidden="true" class="mr-1.5 demo-caution-mark"></span>
+                    }
+                    {{ 'people.state.' + row.run.state | transloco }}
+                  </span>
                 </span>
               </span>
               <span class="shrink-0 text-sm font-medium text-content tabular-nums">{{ row.gross }}</span>

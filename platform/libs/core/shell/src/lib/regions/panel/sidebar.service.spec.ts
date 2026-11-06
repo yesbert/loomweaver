@@ -20,11 +20,15 @@ class CapturingCloseGuard {
   readonly captured: unknown[][] = [];
   proceed = true;
 
-  guarded(candidates: readonly unknown[], run: () => void): void {
+  guarded(
+    candidates: readonly unknown[],
+    run: () => void,
+  ): Promise<boolean> {
     this.captured.push([...candidates]);
     if (this.proceed) {
       run();
     }
+    return Promise.resolve(this.proceed);
   }
 }
 

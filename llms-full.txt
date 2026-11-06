@@ -418,11 +418,13 @@ interface DirtySurface {
   surfaceDirty(): boolean;              // unsaved changes? read reactively by the host
   surfaceSave?(): Promise<void>;        // optional: enables "Save" in the close dialog + the saveOn:'hide' target
   surfaceBeforeClose?(): boolean | Promise<boolean>; // optional veto for USER-initiated closes: false cancels;
+                                        // also consulted when the tab moves to another pane or is handed to a
+                                        // neighbour (pane closed, split undone) — it is built anew there;
                                         // runs BEFORE the unsaved-changes dialog and never bypasses it for a
-                                        // still-dirty instance; host-enforced timeout + guaranteed "Close anyway"
-                                        // escape (throw/reject = approve — a broken veto can't make a tab
-                                        // unclosable). NOT consulted for plugin disable/uninstall or workspace
-                                        // reset — those run only the unsaved-changes ask.
+                                        // still-dirty instance; host-enforced timeout + guaranteed "go ahead
+                                        // anyway" escape (throw/reject = approve — a broken veto can't make a tab
+                                        // unclosable or unmovable). NOT consulted for plugin disable/uninstall or
+                                        // workspace reset — those run only the unsaved-changes ask.
 }
 // Programmatic destruction is guarded too: disabling, uninstalling or UPDATING a plugin and
 // resetting a workspace show the unsaved-changes dialog over the affected dirty instances first.

@@ -172,8 +172,9 @@
     "saveFailed": "Saving failed — your changes are kept and the surface stays open",
     "stillDirty": "The surface still reports unsaved changes after saving — closing was cancelled",
     "vetoPendingTitle": "Waiting for the plugin",
-    "vetoPendingMessage": "This tab's plugin has not finished its close check yet. You can close the tab anyway.",
-    "closeAnyway": "Close anyway"
+    "vetoPendingMessage": "This tab's plugin has not finished its check yet. You can go ahead without waiting for it.",
+    "goAheadAnyway": "Go ahead anyway",
+    "moveDropped": "The tab was not moved, because the panes changed while you were answering."
   },
   "route": {
     "unavailableTitle": "View not available",

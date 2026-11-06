@@ -14,6 +14,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DirtySurface } from '@loomweaver/plugin-sdk';
 import { ContributionRegistry } from '../../../contributions/contribution-registry';
 import { DialogService } from '../../../dialog/dialog.service';
+import { NotificationService } from '../../../notifications/notification.service';
 import { ActiveWorkspaceService } from '../../../workspace/active-workspace.service';
 import { ContentTabsService } from '../../content/tabs/content-tabs.service';
 import { PaneMoveService } from '../drag/pane-move.service';
@@ -324,6 +325,12 @@ describe('a tab that changes panes asks first where the change would destroy uns
       return fixture;
     }
 
+    function notices(): string[] {
+      return TestBed.inject(NotificationService)
+        .notifications()
+        .map((one) => one.message);
+    }
+
     it('is abandoned, with the tab left where it is, when the pane it was going to is gone', async () => {
       const fixture = await asked();
 
@@ -332,6 +339,25 @@ describe('a tab that changes panes asks first where the change would destroy uns
       await settled(fixture);
 
       expect(tabsOf('main')).toEqual(['notes', 'other']);
+    });
+
+    it('tells the user that the move did not happen', async () => {
+      const fixture = await asked();
+
+      paneTree.closePane('left', 'b');
+      answer('discard');
+      await settled(fixture);
+
+      expect(notices()).toEqual(['retention.moveDropped']);
+    });
+
+    it('says nothing when the user cancelled the move', async () => {
+      const fixture = await asked();
+
+      answer('cancel');
+      await settled(fixture);
+
+      expect(notices()).toEqual([]);
     });
 
     it('is abandoned when another workspace is shown', async () => {
@@ -343,6 +369,7 @@ describe('a tab that changes panes asks first where the change would destroy uns
 
       expect(tabsOf('main')).toEqual(['notes', 'other']);
       expect(tabsOf('b')).toEqual(['third']);
+      expect(notices()).toEqual(['retention.moveDropped']);
     });
 
     it('is abandoned when the arrangement was replaced, though it is the same workspace', async () => {
@@ -387,6 +414,7 @@ describe('a tab that changes panes asks first where the change would destroy uns
       await settled(fixture);
 
       expect(tabsOf('main')).toEqual(['notes', 'other']);
+      expect(notices()).toEqual(['retention.moveDropped']);
     });
   });
 
