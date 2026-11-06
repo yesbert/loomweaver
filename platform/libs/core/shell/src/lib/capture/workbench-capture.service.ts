@@ -108,13 +108,7 @@ export class WorkbenchCaptureService {
     const [images, canvas, covers] = await Promise.all([
       this.drawSurfaces(placements, drawRequest, view),
       renderer.toCanvas(root, size),
-      Promise.all(
-        plan.passes.map((pass) =>
-          pass.covers.length > 0
-            ? renderer.toCanvas(pass.layer.element, size)
-            : undefined,
-        ),
-      ),
+      this.drawCovers(renderer, plan, size),
     ]);
 
     return this.assemble(
@@ -122,6 +116,22 @@ export class WorkbenchCaptureService {
       { origin, placements, images, plan, covers },
       drawRequest,
     );
+  }
+
+  private async drawCovers(
+    renderer: Renderer,
+    plan: PaintPlan,
+    size: DrawingSize,
+  ): Promise<(HTMLCanvasElement | undefined)[]> {
+    const covers: (HTMLCanvasElement | undefined)[] = [];
+    for (const pass of plan.passes) {
+      covers.push(
+        pass.covers.length > 0
+          ? await renderer.toCanvas(pass.layer.element, size)
+          : undefined,
+      );
+    }
+    return covers;
   }
 
   private window(): Window {

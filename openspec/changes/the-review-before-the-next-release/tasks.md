@@ -54,7 +54,7 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 2.12 A surface holding unsaved work that did not ask to be kept survives its pane being taken down: workspace switch, pane removal, minimise, blow-up (`regions/pane/retention/retained-view-stash.ts`, `evacuate`)
 - [x] 2.13 Not done, handed to the owner as a decision (see design.md): An instance parked by one workspace is not claimed by another workspace showing the same address in a pane of the same id (`retained-view-stash.ts`, `claimableEntry`)
 - [x] 2.14 Lead, verify first: moving the last child out of a container's primary pane promotes the pane that takes its space, as closing does (`regions/pane/tree/pane-structure.ts`, `withoutEmptyPrimary`)
-- [ ] 2.15 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`)
+- [x] 2.15 Done as 2.25. Was: A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`)
 - [x] 2.16 Not done, handed to the owner as a decision (see design.md): Lead, verify first: a surface that stays mounted across a workspace switch belongs to the workspace now shown, and is not parked later for the one that built it (`regions/pane/retention/`)
 - [x] 2.17 The published description of closing the address pane says that a kept tab the neighbour cannot take is asked about too (`ContentTabsService.closePrimaryPane`)
 - [x] 2.18 Not applicable any more: nothing is carried (see 2.2)
@@ -115,8 +115,8 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.8 A stored active workspace nothing lists any more gives way to the starting one (`workspace/opening/workbench-opening.ts`)
 - [x] 4.10 Leads, each verified first: resetting a workspace that is not active destroys parked unsaved work without asking; an isolated surface with a page scroll is squashed in a picture; accessible names in the workspace and settings dialogs The lead on the picture of a scrolled surface is task 4.17.
 - [x] 4.11 Deleting the workspace in use asks about unsaved work in the surfaces it shows, not only about what it parked (`workspace/workspace.service.ts`, `remove`)
-- [ ] 4.12 A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`; was 2.15)
-- [ ] 4.13 Lead, verify first: choosing a view from a secondary pane's add-tab control moves the address to that pane, as a click that moves the address does (`regions/pane/`)
+- [x] 4.12 Done as 2.25. Was: A view or tab moved to another sidebar is announced, and its panel expanded, only once the move has happened, not while the user is still being asked (`regions/panel/view-move.service.ts`; was 2.15)
+- [x] 4.13 Not reproduced as a defect: "the address follows to what that pane is showing" (panes, *Focusing another pane moves the address to it*); a view such as Outline has no address to follow, so the pane hosting it keeps the address where it is, which the tree enforces by refusing to hand the address to a pane whose shown item is a view and the end-to-end test *adds a sidebar view as a tab in a content pane* pins by finding Outline in the pane that does not carry the address. Was: Lead, verify first: choosing a view from a secondary pane's add-tab control moves the address to that pane, as a click that moves the address does (`regions/pane/`)
 - [x] 4.18 The guarded-workspace tests seed their arrangement after the storage is cleared, so their assertions that it is gone can fail (`workspace/guarded-workspace-actions.spec.ts`, `compose()`); calibrate each of the four by taking the reset out once
 - [x] 4.19 Lead, verify first: after the workspace in use is removed and its work discarded, nothing of it stays parked under the removed id (`workspace/workspace.service.ts`, `remove`)
 - [x] 4.20 The changed mark and the unusable mark of a workspace reach a screen reader: they are part of the entry's name or description, not only a dot and an icon with a hover tooltip (`workspace/workspace-dialog.html`)
@@ -281,11 +281,11 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 
 Each of these is a review. What it finds is added to the group it belongs to and fixed there.
 
-- [ ] 12.1 The end-to-end specs read only by pattern, for tests that cannot fail or that assert a defect
-- [ ] 12.2 The templates of panes, tab strips, the address header and the access views against the accessibility capability
-- [ ] 12.3 The plugin SDK's commands, surfaces and chrome declarations against what the host delivers, and the frame side of the surface kit
-- [ ] 12.4 The shell's stylesheets, and the product-identity, host-services and platform-composition capabilities against the code
-- [ ] 12.5 The generator schemas, the tooling READMEs, the unit specs of the testbed weaver and the AG-UI adapter, and `platform/tools/media/`
+- [x] 12.1 Reviewed; what it found is group 16. Was: The end-to-end specs read only by pattern, for tests that cannot fail or that assert a defect
+- [x] 12.2 Reviewed; what it found is group 17. Was: The templates of panes, tab strips, the address header and the access views against the accessibility capability
+- [x] 12.3 Reviewed; what it found is group 14. Was: The plugin SDK's commands, surfaces and chrome declarations against what the host delivers, and the frame side of the surface kit
+- [x] 12.4 Reviewed; what it found is group 15. Was: The shell's stylesheets, and the product-identity, host-services and platform-composition capabilities against the code
+- [x] 12.5 Reviewed; nothing found in the schemas and READMEs, the tour script is 15.3. Was: The generator schemas, the tooling READMEs, the unit specs of the testbed weaver and the AG-UI adapter, and `platform/tools/media/`
 
 ## 17. Accessibility of panes and tabs, and what the last reads left
 
@@ -307,10 +307,10 @@ What review 12.2 and the reads of the last branches found. Paths are under `plat
 
 ## 13. Hand-over
 
-- [ ] 13.1 The merge gate's steps pass locally on `main` after the last group merged
-- [ ] 13.2 The end-to-end suite passes on `main` at that commit, started by hand rather than waited for
-- [ ] 13.3 SonarQube passes on `main` at that commit with no open issue
-- [ ] 13.4 `docs/updating.md` says what the next release asks of a product, if anything here does
+- [x] 13.1 The merge gate ran on main after every merge and passed at daee6f71 (Build, run on the push). Was: The merge gate's steps pass locally on `main` after the last group merged
+- [x] 13.2 The nightly suite, started by hand on main at daee6f71, passed. Was: The end-to-end suite passes on `main` at that commit, started by hand rather than waited for
+- [x] 13.3 SonarQube passed with no new finding once the last one (S4123) was fixed in #867. Was: SonarQube passes on `main` at that commit with no open issue
+- [x] 13.4 Done in #864. Was: `docs/updating.md` says what the next release asks of a product, if anything here does
 
 ## 14. The published contract and the frame kit
 
@@ -322,7 +322,7 @@ What review 12.3 found. Paths are under `platform/libs/core/`.
 - [x] 14.4 A state push that arrives after its last handle was disposed starts no new watch (`shell/src/lib/surface-kit/surface-state-mirror.ts`, `apply`)
 - [x] 14.5 A toolbar cell with an access requirement is hidden while the session does not meet it, whatever its mode, as its description says (`shell/src/lib/regions/toolbar/toolbar-host.service.ts`)
 - [x] 14.6 A component in a bar with an access requirement is hidden while the session does not meet it, whatever its mode (`shell/src/lib/regions/bar/shell-bar.ts`)
-- [ ] 14.7 What a surface withholds from a picture is covered where it was when the picture was taken: the areas are read before the drawing starts (`shell/src/lib/surface-kit/surface-self-capture.ts`)
+- [x] 14.7 Done as 4.22. Was: What a surface withholds from a picture is covered where it was when the picture was taken: the areas are read before the drawing starts (`shell/src/lib/surface-kit/surface-self-capture.ts`)
 - [x] 14.8 A bar entry's menu context names its region, as its description says and as a rail entry's does (`shell/src/lib/regions/bar/bar-context.ts`)
 - [x] 14.9 The frame kit's declarations describe its elements: their properties and a tag-name map, so a typed surface can set `context` on a toolbar (`frame-kit/build.mjs`)
 - [x] 14.10 A command that declares what it answers and ends without a value has run: it is answered without a value, not reported as failed (`shell/src/lib/commands/command-invocation.service.ts`)
