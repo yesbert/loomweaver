@@ -81,6 +81,13 @@ function eventually(assertion: () => void): Promise<void> {
 }
 
 async function connectedMethods() {
+  TestBed.tick();
+  await Promise.resolve();
+  console.log('DIAG', JSON.stringify({
+    isMock: vi.isMockFunction(connect),
+    calls: connectMock.mock.calls.length,
+    frames: [...document.querySelectorAll('iframe')].map((f) => f.getAttribute('src')),
+  }));
   await eventually(() => expect(connectMock).toHaveBeenCalled());
   return connectMock.mock.calls.at(-1)?.[0].methods as Record<
     string,
