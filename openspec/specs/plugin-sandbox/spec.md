@@ -43,23 +43,27 @@ At the **isolated** level the plugin SHALL be stripped of an origin of its own, 
 it the hosting document, any storage and any session the browser would otherwise carry for it. This
 SHALL remain the default: a plugin whose level was not stated SHALL run isolated.
 
-At the **embedded** level the plugin SHALL keep an origin, and with it whatever the browser grants
-that origin — its storage, its cookies and the session they carry. The workbench SHALL NOT claim
-that such a plugin is held back from the hosting application; the level exists to separate teams and
-deployments, not privileges.
-
-Both levels SHALL reach the same contract, be brokered by the same permissions, and be told the same
-things about their surroundings. Only what the browser enforces around them differs.
-
 #### Scenario: An unstated level is the isolated one
 
 - **WHEN** a plugin is registered without a level
 - **THEN** it runs isolated
 
+### Requirement: An embedded plugin keeps its origin
+
+At the **embedded** level the plugin SHALL keep an origin, and with it whatever the browser grants
+that origin: its storage, its cookies and the session they carry. The workbench SHALL NOT claim that
+such a plugin is held back from the hosting application; the level exists to separate teams and
+deployments, not privileges.
+
 #### Scenario: An embedded plugin keeps what its origin carries
 
 - **WHEN** a plugin composed at the embedded level runs
 - **THEN** it reaches the storage and the session of the origin it was served from
+
+### Requirement: Both frame levels reach the same contract
+
+Both levels SHALL reach the same contract, be brokered by the same permissions, and be told the same
+things about their surroundings. Only what the browser enforces around them differs.
 
 #### Scenario: The contract does not change with the level
 
@@ -73,24 +77,28 @@ The composition SHALL decide the highest level a plugin may run at, and where pl
 catalogue SHALL decide it for that catalogue as a whole. Nothing a plugin or an entry says SHALL be
 able to exceed that cap.
 
+#### Scenario: A request above the cap is refused
+
+- **WHEN** a plugin or an entry asks for a level beyond the cap
+- **THEN** it is refused, rather than run at the cap or below it
+
+### Requirement: A level asked for at or below the cap is honoured, and above it refused
+
 A plugin or an entry MAY ask for a level. A request at or below the cap SHALL be honoured, so that
 something needing no privilege can limit itself. A request above the cap SHALL be refused outright
-rather than quietly satisfied at a lower one: a plugin running below what it needs fails in ways
-nobody can diagnose, and a silent demotion hides the misconfiguration that caused it.
-
-The level SHALL NOT be revocable, because withdrawing it does not reduce a plugin but breaks it —
-the same reasoning that already keeps the right to contribute off the switches. It SHALL be shown
-wherever what a plugin may do is shown, because it is the most consequential thing about it.
+rather than quietly satisfied at a lower one, because a silent demotion hides the misconfiguration
+that caused it.
 
 #### Scenario: A request below the cap is honoured
 
 - **WHEN** a plugin asks for a level lower than the cap
 - **THEN** it runs at the level it asked for
 
-#### Scenario: A request above the cap is refused
+### Requirement: The level is shown and not revocable
 
-- **WHEN** a plugin or an entry asks for a level beyond the cap
-- **THEN** it is refused, rather than run at the cap or below it
+The level SHALL NOT be revocable, because withdrawing it does not reduce a plugin but breaks it. It
+SHALL be shown wherever what a plugin may do is shown, because it is the most consequential thing
+about it.
 
 #### Scenario: The level is not among the switches
 
@@ -99,28 +107,32 @@ wherever what a plugin may do is shown, because it is the most consequential thi
 
 ### Requirement: Isolation comes from the boundary, not from where the code is served
 
-A plugin running at the **isolated** level SHALL be executed with no access to the hosting document —
+A plugin running at the **isolated** level SHALL be executed with no access to the hosting document:
 no shared globals, no reach into its storage, no ability to navigate it. That SHALL be a property of
 how it is embedded rather than of where its files come from.
-
-At the **embedded** level no such guarantee is made, and the workbench SHALL NOT imply one. What
-separates an embedded plugin from the hosting application is its own document and its own
-deployment, which is a separation of concerns rather than of privilege.
-
-Separating a plugin's deployment does not separate the plugin. Where its document is served at the
-application's own address, the browser treats it as the application, whatever produced the bytes and
-however many hops away that was. A separation the browser cannot see is a separation of operations,
-not of privilege, and SHALL NOT be presented as one.
 
 #### Scenario: An isolated plugin cannot reach the hosting document
 
 - **WHEN** an isolated plugin runs
 - **THEN** it cannot read or change the hosting document, its storage or its address
 
+### Requirement: An embedded plugin is not presented as contained
+
+At the **embedded** level no such guarantee is made, and the workbench SHALL NOT imply one. What
+separates an embedded plugin from the hosting application is its own document and its own
+deployment, which is a separation of concerns rather than of privilege.
+
 #### Scenario: An embedded plugin is not claimed to be contained
 
 - **WHEN** a plugin runs at the embedded level
 - **THEN** nothing presents it as restricted from the hosting application
+
+### Requirement: A plugin served at the application's address is not separated from it
+
+Separating a plugin's deployment does not separate the plugin. Where its document is served at the
+application's own address, the browser treats it as the application, whatever produced the bytes and
+however many hops away that was. A separation the browser cannot see is a separation of operations,
+not of privilege, and SHALL NOT be presented as one.
 
 #### Scenario: A separately deployed plugin at the application's address is not separated
 
@@ -132,17 +144,24 @@ not of privilege, and SHALL NOT be presented as one.
 ### Requirement: What a plugin reaches beyond the workbench follows from its level
 
 The workbench decides what a plugin reaches **through** it. What a plugin obtains for itself, by
-asking the network directly, is decided by the browser instead, and follows from the level the
-plugin runs at. The workbench SHALL NOT claim otherwise, and SHALL NOT be described as governing it.
+asking the network directly, is decided by the browser and follows from the plugin's level. The
+workbench SHALL NOT claim otherwise or be described as governing it.
+
+At the **embedded** level, and in the application's own context, requests carry whatever the browser
+grants the origin that served the plugin's document, any session included. No guarantee is made
+about what such a plugin may read.
+
+#### Scenario: An embedded plugin is not claimed to be held back from data
+
+- **WHEN** a plugin runs at the embedded level
+- **THEN** nothing presents it as restricted in what it may obtain for itself
+
+### Requirement: An isolated plugin obtains only what needs no session
 
 At the **isolated** level the plugin has no origin of its own, so its requests carry no origin the
 answering service can recognise and no session the browser would keep for it. It SHALL therefore be
 able to obtain only what that service makes readable without one. A plugin whose data is not public
 cannot be served at this level by fetching it, and the workbench offers no way around that.
-
-At the **embedded** level, and in the application's own context, requests carry whatever the browser
-grants the origin the plugin's document was served from — including any session that origin carries.
-No guarantee is made about what such a plugin may read.
 
 #### Scenario: An isolated plugin reaches only what needs no session
 
@@ -154,11 +173,6 @@ No guarantee is made about what such a plugin may read.
 
 - **WHEN** an isolated plugin asks a service for something that service releases to any caller
 - **THEN** it receives it
-
-#### Scenario: An embedded plugin is not claimed to be held back from data
-
-- **WHEN** a plugin runs at the embedded level
-- **THEN** nothing presents it as restricted in what it may obtain for itself
 
 ### Requirement: Everything crossing the boundary is validated as data
 
@@ -204,29 +218,6 @@ A notice raised by an isolated plugin SHALL always leave by itself. A statement 
 stays SHALL NOT cross the boundary, a lifetime longer than a bound the workbench sets SHALL be
 shortened to it, and a notice of the error kind SHALL leave after that bound rather than stay.
 
-An isolated plugin SHALL hold no more than a bounded number of notices at once, counting those
-shown and those waiting to be shown. A notice raised beyond that SHALL be refused and reported to
-the developer as any other refused call is, and the notices the plugin already holds SHALL be left
-as they are. A repeat that is counted on an existing notice is not a further notice, and neither is
-a notice that replaces one of the plugin's own.
-
-Neither SHALL buy time. Where an isolated plugin repeats a notice, or replaces one of its own, the
-count and the content follow, and the lifetime that is already running SHALL keep running: the
-notice leaves when it would have left had nothing been raised again.
-
-A notice of an isolated plugin that is still waiting to be shown SHALL give way to a notice raised
-by the workbench, by the distribution or by a plugin composed into the page: such a notice is shown
-before it, whichever was raised first. A notice that is already shown is never moved for this.
-
-Together these mean that an isolated plugin cannot keep a notice of the workbench's own, or of a
-plugin composed into the page, from being shown for longer than the bound on a lifetime: what such
-a notice can still wait for is a place taken by an isolated plugin's notice that is already shown,
-and that place is free within the bound. A place taken by a notice that is not an isolated
-plugin's is outside this guarantee.
-
-The symbol a notice names SHALL cross as a name and be resolved by the workbench. An action a
-notice offers is a function, and does not cross.
-
 This is verified for a plugin running in a sandboxed frame. A plugin composed into the page is not
 bounded this way.
 
@@ -245,11 +236,25 @@ bounded this way.
 - **WHEN** an isolated plugin states a lifetime longer than the bound
 - **THEN** the notice leaves when the bound is reached
 
+### Requirement: An isolated plugin holds a bounded number of notices
+
+An isolated plugin SHALL hold no more than a bounded number of notices at once, counting those shown
+and those waiting to be shown. A notice raised beyond that SHALL be refused and reported to the
+developer as any other refused call is, and the notices the plugin already holds SHALL be left as
+they are. A repeat that is counted on an existing notice is not a further notice, and neither is a
+notice that replaces one of the plugin's own.
+
 #### Scenario: A plugin cannot fill the line
 
 - **WHEN** an isolated plugin raises a notice while it already holds the bounded number
 - **THEN** the further notice is refused and the developer is told
 - **AND** the notices it already holds are unchanged
+
+### Requirement: Repeating or replacing a notice buys no time
+
+Neither a repeat nor a replacement SHALL buy time. Where an isolated plugin repeats a notice, or
+replaces one of its own, the count and the content follow, and the lifetime that is already running
+SHALL keep running: the notice leaves when it would have left had nothing been raised again.
 
 #### Scenario: Repeating a notice does not keep it
 
@@ -263,11 +268,25 @@ bounded this way.
   would have left
 - **THEN** the notice shows the newest content, and leaves when its first lifetime runs out
 
+### Requirement: A waiting notice of an isolated plugin gives way
+
+A notice of an isolated plugin that is still waiting to be shown SHALL give way to a notice raised
+by the workbench, by the distribution or by a plugin composed into the page: such a notice is shown
+before it, whichever was raised first. A notice that is already shown is never moved for this.
+
 #### Scenario: A waiting notice of an isolated plugin gives way
 
 - **WHEN** notices of an isolated plugin are waiting to be shown and the workbench raises one of
   its own
 - **THEN** the workbench's notice is shown before the plugin's waiting ones
+
+### Requirement: An isolated plugin cannot hold back another notice beyond the bound on a lifetime
+
+Together these rules SHALL keep an isolated plugin from holding back a notice of the workbench's
+own, or of a plugin composed into the page, for longer than the bound on a lifetime: what such a
+notice can still wait for is a place taken by an isolated plugin's notice that is already shown, and
+that place is free within the bound. A place taken by a notice that is not an isolated plugin's is
+outside this guarantee.
 
 #### Scenario: Several isolated plugins do not add up
 
@@ -280,6 +299,17 @@ bounded this way.
 - **WHEN** an isolated plugin keeps raising, repeating and replacing notices, and the workbench
   raises one of its own
 - **THEN** the workbench's notice is shown no later than the bound on a lifetime after it was raised
+
+### Requirement: A notice's symbol crosses as a name and its action does not cross
+
+The symbol a notice names SHALL cross as a name and be resolved by the workbench. An action a notice
+offers is a function, and does not cross.
+
+#### Scenario: A notice's symbol is resolved by the workbench
+
+- **WHEN** an isolated plugin raises a notice naming a symbol and offering an action
+- **THEN** the notice shows the symbol the workbench resolves for that name
+- **AND** the action does not cross with it
 
 ### Requirement: An isolated plugin's own surface must be same-origin
 
@@ -315,27 +345,31 @@ language, the current presentation, the resolved design tokens, the interface si
 in the address, whether it is currently being shown, and the session where the plugin is permitted
 it.
 
-The values sent SHALL be the resolved ones, so that a product's or a tenant's overrides travel
-without a mechanism of their own.
-
-Whether a surface is being shown SHALL follow from the workbench, not from the browser's own idea of
-visibility, so that a surface the user has switched away from is told so even while the window
-remains in front.
-
 #### Scenario: An isolated surface follows the application's appearance
 
 - **WHEN** the application's presentation or tokens change
 - **THEN** the isolated surface receives the new values and re-renders in place
+
+#### Scenario: A surface is not sent what its plugin may not have
+
+- **WHEN** the plugin lacks the permission for the session
+- **THEN** no session is sent at all, rather than an empty one
+
+### Requirement: The values sent to an isolated surface are the resolved ones
+
+The values sent SHALL be the resolved ones, so that a product's or a tenant's overrides travel
+without a mechanism of their own.
 
 #### Scenario: The values sent are the effective ones
 
 - **WHEN** a product or a plugin has overridden a token
 - **THEN** the isolated surface receives the overridden value, not the platform default
 
-#### Scenario: A surface is not sent what its plugin may not have
+### Requirement: Whether an isolated surface is shown follows the workbench
 
-- **WHEN** the plugin lacks the permission for the session
-- **THEN** no session is sent at all, rather than an empty one
+Whether a surface is being shown SHALL follow from the workbench, not from the browser's own idea of
+visibility, so that a surface the user has switched away from is told so even while the window
+remains in front.
 
 #### Scenario: A retained surface is told it is no longer shown
 
@@ -361,18 +395,11 @@ move within its own address space and SHALL NOT be able to navigate the applicat
 ### Requirement: The workbench's own controls are available inside an isolated surface
 
 The workbench SHALL make its element family, its style contracts and its symbol set available to an
-isolated surface, served by the distribution so that their version always matches the workbench's.
-A surface using them SHALL be indistinguishable from the workbench's own chrome.
+isolated surface, served by the distribution so that their version always matches the workbench's. A
+surface using them SHALL be indistinguishable from the workbench's own chrome.
 
-What the distribution serves SHALL also be **described**: the controls, and the entry point through
-which a surface reaches its symbols, its render state and its own store, SHALL come with a
-machine-readable description of their shape, so that an author writing against them in a checked
-language is told about a wrong name or a wrong argument before the surface runs. The description
-SHALL be published with the thing it describes and carry its version, so the two cannot drift apart.
-
-The description covers what the surface reaches through the served entry point. It does not make the
-served bundle importable as a module: it is loaded by reference and installs itself, and that does
-not change.
+The served bundle is loaded by reference and installs itself; describing it does not make it
+importable as a module.
 
 #### Scenario: A workbench control inside an isolated surface looks like one
 
@@ -383,6 +410,14 @@ not change.
 
 - **WHEN** an isolated surface uses a symbol its plugin contributed
 - **THEN** it renders alongside the workbench's own
+
+### Requirement: What is served to an isolated surface comes with a description of its shape
+
+What the distribution serves SHALL also be **described**: the controls, and the entry point through
+which a surface reaches its symbols, its render state and its own store, SHALL come with a
+machine-readable description of their shape, so that an author writing in a checked language is told
+about a wrong name or argument before the surface runs. The description SHALL be published with the
+thing it describes and carry its version.
 
 #### Scenario: A surface author is told about a wrong call before it runs
 
@@ -477,41 +512,6 @@ registered commands, the session and the translations, so that the surface redra
 changes, without asking again. The surface draws the toolbar or menu itself with the elements the
 workbench already serves to it; the workbench SHALL NOT draw into the surface.
 
-The answer SHALL be data and nothing but data: for each entry its identity, its title as worded for
-the language in effect, its icon, its shortcut as spelled for the platform, its group and order,
-whether it represents a state and whether that state is on, whether activating it opens a
-further slot, and the look of a button it is drawn with. The answer SHALL already be narrowed by
-every rule that would refuse the entry — the command's access requirement, the window the surface is
-in, and the entry's own matching against the description — so that everything the surface is told
-it may draw, and nothing it is not told exists for it. The look SHALL already be narrowed by the
-same rule that keeps primary to the slot's owner in the page, so that the surface draws what it is
-told and cannot promote an entry another plugin contributed. The elements the workbench serves to
-the surface SHALL draw each look as the same element draws it in the page. A cell a plugin in the
-page draws itself SHALL NOT be in the answer.
-
-The description the surface supplies SHALL be validated as data at the boundary, and a description
-that is not SHALL be refused rather than matched.
-
-Activating an entry SHALL be reported to the workbench, which runs the entry as it runs the same
-entry in a toolbar drawn in the page: through the one place every trigger runs through, with the
-description as the command's context. The answer is what a toolbar in the page would draw for that
-slot and description, no more and no less: an entry the workbench would refuse to run is not in it,
-and an entry another plugin contributed is in it whether or not the surface's plugin may invoke that
-plugin's commands itself, because activating a drawn control is the user's act, not the plugin's. An
-entry SHALL run only under the subscription it was told in, so that a surface cannot name an entry
-it was never shown.
-
-An entry whose activation opens a further slot SHALL NOT be answered with that slot's identity.
-The surface SHALL report that it opened the entry, under the subscription that showed it, and SHALL
-be answered with the menu the page opens for the same entry: matched against the description the
-entry was shown against, narrowed by the same rules as a menu in the page, so that an entry with
-nothing to label it is not in it, and carrying the heading the entry declares, worded for the
-language in effect. Activating an entry of that menu, or a heading that leads somewhere, SHALL run
-it as the page runs it. Asking to open an entry that opens nothing SHALL be refused.
-
-The surface SHALL be able to stop asking, and a surface that is torn down SHALL be told nothing
-further.
-
 #### Scenario: A sandboxed surface draws a toolbar from what it is told
 
 - **WHEN** an isolated surface asks what a slot offers against a description, and a plugin in the
@@ -524,6 +524,43 @@ further.
 - **WHEN** an isolated plugin registers a toolbar through its channel
 - **THEN** the slot is declared, a plugin in the page may fill it, and the plugin's own surface draws
   it from what it is told
+
+#### Scenario: The answer follows the words
+
+- **WHEN** the language changes while the surface is listening
+- **THEN** the surface is told the entries worded in the new language
+
+### Requirement: A slot answer is data and nothing but data
+
+The answer SHALL be data and nothing but data: for each entry its identity, its title as worded for
+the language in effect, its icon, its shortcut as spelled for the platform, its group and order,
+whether it represents a state and whether that state is on, whether activating it opens a further
+slot, and the look of a button it is drawn with. A cell a plugin in the page draws itself SHALL NOT
+be in the answer.
+
+#### Scenario: A cell is not in the answer
+
+- **WHEN** a plugin in the page has registered a cell against the slot
+- **THEN** the surface is told the slot's declarative entries and nothing of the cell
+
+### Requirement: A slot answer is narrowed by every rule that would refuse an entry
+
+The answer SHALL already be narrowed by every rule that would refuse the entry (the command's access
+requirement, the window the surface is in, and the entry's own matching against the description), so
+that everything the surface is told it may draw, and nothing it is not told exists for it.
+
+#### Scenario: The answer follows the session
+
+- **WHEN** the session comes to qualify for a command an entry names while the surface is listening
+- **THEN** the surface is told the entry without asking again, and is told it is gone when the
+  session no longer qualifies
+
+### Requirement: The look in a slot answer is narrowed to the slot's owner
+
+The look SHALL already be narrowed by the same rule that keeps primary to the slot's owner in the
+page, so that the surface draws what it is told and cannot promote an entry another plugin
+contributed. The elements the workbench serves to the surface SHALL draw each look as the same
+element draws it in the page.
 
 #### Scenario: The look crosses with the entry
 
@@ -538,16 +575,10 @@ further.
 - **THEN** the entry is drawn with that variant, under the same owner rule as an entry from a plugin
   in the page
 
-#### Scenario: The answer follows the session
+### Requirement: A description an isolated surface supplies is validated as data
 
-- **WHEN** the session comes to qualify for a command an entry names while the surface is listening
-- **THEN** the surface is told the entry without asking again, and is told it is gone when the
-  session no longer qualifies
-
-#### Scenario: The answer follows the words
-
-- **WHEN** the language changes while the surface is listening
-- **THEN** the surface is told the entries worded in the new language
+The description the surface supplies SHALL be validated as data at the boundary, and a description
+that is not SHALL be refused rather than matched.
 
 #### Scenario: A description that is not data is refused
 
@@ -555,10 +586,24 @@ further.
   data
 - **THEN** the request is refused, and nothing is matched against it
 
-#### Scenario: A cell is not in the answer
+### Requirement: Activating an entry in an isolated surface runs it as the page runs it
 
-- **WHEN** a plugin in the page has registered a cell against the slot
-- **THEN** the surface is told the slot's declarative entries and nothing of the cell
+Activating an entry SHALL be reported to the workbench, which runs the entry as it runs the same
+entry in a toolbar drawn in the page: through the one place every trigger runs through, with the
+description as the command's context. An entry SHALL run only under the subscription it was told in,
+so that a surface cannot name an entry it was never shown.
+
+#### Scenario: An entry runs only under the subscription that showed it
+
+- **WHEN** a surface activates a key under a subscription whose answer never held that key
+- **THEN** nothing runs
+
+### Requirement: A slot answer is what a toolbar in the page would draw
+
+The answer SHALL be what a toolbar in the page would draw for that slot and description, no more and
+no less: an entry the workbench would refuse to run is not in it, and an entry another plugin
+contributed is in it whether or not the surface's plugin may invoke that plugin's commands itself,
+because activating a drawn control is the user's act, not the plugin's.
 
 #### Scenario: The answer is what the page would draw
 
@@ -567,15 +612,13 @@ further.
 - **THEN** the surface is told the entry, and activating it runs the command with the description,
   exactly as the same entry runs in a toolbar drawn in the page
 
-#### Scenario: An entry runs only under the subscription that showed it
+### Requirement: An entry that opens a further slot is answered with the menu the page opens
 
-- **WHEN** a surface activates a key under a subscription whose answer never held that key
-- **THEN** nothing runs
-
-#### Scenario: A torn-down surface is told nothing
-
-- **WHEN** an isolated surface that was listening is torn down and an entry is then contributed
-- **THEN** nothing is sent to it
+An entry whose activation opens a further slot SHALL NOT be answered with that slot's identity. The
+surface SHALL report that it opened the entry, under the subscription that showed it, and SHALL be
+answered with the menu the page opens for the same entry: matched against the description the entry
+was shown against, and narrowed by the same rules as a menu in the page, so that an entry with
+nothing to label it is not in it.
 
 #### Scenario: A menu opened in the surface is the menu the page opens
 
@@ -583,6 +626,12 @@ further.
   matching the opening entry's description and an entry matching only its own identity
 - **THEN** the surface is told the first and not the second, as a menu opened from the same entry in
   the page would show
+
+### Requirement: A menu opened in an isolated surface carries its heading and runs as the page runs it
+
+The menu answered for an opened entry SHALL carry the heading the entry declares, worded for the
+language in effect. Activating an entry of that menu, or a heading that leads somewhere, SHALL run
+it as the page runs it. Asking to open an entry that opens nothing SHALL be refused.
 
 #### Scenario: The heading crosses with the menu
 
@@ -594,3 +643,13 @@ further.
 - **WHEN** an isolated surface asks to open an entry that opens no further slot, or one it was never
   shown
 - **THEN** nothing is answered and nothing runs
+
+### Requirement: An isolated surface can stop asking what a slot offers
+
+The surface SHALL be able to stop asking, and a surface that is torn down SHALL be told nothing
+further.
+
+#### Scenario: A torn-down surface is told nothing
+
+- **WHEN** an isolated surface that was listening is torn down and an entry is then contributed
+- **THEN** nothing is sent to it

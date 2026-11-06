@@ -72,9 +72,7 @@ be supplied by the caller, which MAY refuse with a reason shown to the user, or 
 
 While a dialog is open, keyboard focus SHALL stay within it in both directions, and on closing it
 SHALL return to what had focus before. The return SHALL hold however the dialog closes, whether by
-the user, by its content or by whoever opened it, and SHALL take effect once the dialog is gone, so
-that nothing the dialog still covers can swallow it. A dialog SHALL be able to align itself to the
-top of the viewport rather than the centre, for content whose height changes as the user types.
+the user, by its content or by whoever opened it, and SHALL take effect once the dialog is gone.
 
 The limit of that: focus returns to what had it only while that is still on the page and can take
 focus.
@@ -90,6 +88,11 @@ focus.
   closed by Escape, by its close control, or by its content closing it
 - **THEN** after the dialog has left the page, focus is on that control and not on the page body
 
+### Requirement: A dialog may align itself to the top
+
+A dialog SHALL be able to align itself to the top of the viewport rather than the centre, for
+content whose height changes as the user types.
+
 #### Scenario: A dialog whose content grows does not jump
 
 - **WHEN** a dialog declares itself top-aligned
@@ -100,19 +103,10 @@ focus.
 Whoever opens a dialog with content of its own SHALL be able to choose which of the user's ways of
 closing it work, from three: every way, only the deliberate ways, or none. The deliberate ways are
 Escape, the dialog's close control and a cancel it offers; a click beside the dialog is the one way
-that is not deliberate. Where nothing is chosen, every way SHALL work.
+not deliberate. Where nothing is chosen, every way SHALL work.
 
-An Escape that closes a list or a menu open inside the dialog SHALL close that alone and SHALL NOT
-count as a way of closing the dialog; the next Escape, with nothing open inside, closes the dialog
-as the choice allows.
-
-Where the workbench draws the dialog's frame, the close control SHALL be drawn whenever the
-deliberate ways work, so that refusing a click beside the dialog does not cost the dialog its frame.
-A dialog whose content draws its own frame draws its own close control, and the choice still governs
-Escape and a click beside it.
-
-The limit of that: the choice governs the user and nothing else. The dialog's own content and
-whoever opened it SHALL always be able to close it, whatever was chosen.
+The limit of that: the choice governs the user alone. The dialog's own content and whoever opened
+it SHALL always be able to close it.
 
 #### Scenario: A form ignores a click beside it and still closes deliberately
 
@@ -131,6 +125,12 @@ whoever opened it SHALL always be able to close it, whatever was chosen.
 - **THEN** the dialog stays open, no close control is drawn, and it closes when its content or its
   opener closes it
 
+### Requirement: An Escape that closes a list inside a dialog closes that alone
+
+An Escape that closes a list or a menu open inside the dialog SHALL close that alone and SHALL NOT
+count as a way of closing the dialog; the next Escape, with nothing open inside, closes the dialog
+as the choice allows.
+
 #### Scenario: Escape in an open list closes the list, not the dialog
 
 - **WHEN** a dialog allowing Escape holds a select or a menu, the user opens its list, and presses
@@ -138,30 +138,26 @@ whoever opened it SHALL always be able to close it, whatever was chosen.
 - **THEN** the list closes and the dialog stays open, without asking about unsaved work
 - **AND** a second Escape closes the dialog as the choice allows
 
+### Requirement: The close control is drawn whenever the deliberate ways work
+
+Where the workbench draws the dialog's frame, the close control SHALL be drawn whenever the
+deliberate ways work, so that refusing a click beside the dialog does not cost the dialog its frame.
+A dialog whose content draws its own frame draws its own close control, and the choice still governs
+Escape and a click beside it.
+
+#### Scenario: Refusing a click beside the dialog keeps its close control
+
+- **WHEN** the workbench draws a dialog's frame and the dialog allows only the deliberate ways
+- **THEN** the close control is drawn
+
 ### Requirement: A dialog holding unsaved work asks before the user closes it
 
 A dialog's content SHALL be able to report that it holds unsaved work, to offer to save it and to
-veto closing, in the same way a tab's content can. While the content reports unsaved work, each way
+veto closing, as a tab's content can. While the content reports unsaved work, each way
 of closing the user is allowed SHALL first ask the question closing a tab with unsaved work asks:
 save, discard, or cancel, with save offered only where the content can save. Saving that fails SHALL
-keep the dialog open. A content that is saving SHALL count as holding unsaved work until the save
+keep the dialog open. Content that is saving SHALL count as holding unsaved work until the save
 has succeeded.
-
-A veto SHALL be consulted before that question, and a veto that throws, rejects or does not answer
-in time SHALL NOT make the dialog impossible to close, exactly as for a tab.
-
-The content SHALL also be able to ask for the close the person would make, from a control of its
-own such as a cancel beside its other buttons. That request SHALL run the veto and ask the same
-question the close control asks, whatever the opener chose for the person's ways of closing, and
-SHALL answer whether the dialog closed: yes once it has closed, no where the person cancelled, a
-save failed or the veto held. A request made while the question is already asked SHALL NOT ask a
-second time.
-
-The limits of that: the content or the opener closing the dialog SHALL never ask, because whoever
-closes it from code knows what it closes. A button the opener declared that closes the dialog with a
-result is the content's deliberate outcome and SHALL NOT ask; one that closes it with no result is a
-cancel and SHALL ask like any other. Content that reports nothing is never asked about, so a dialog
-whose changes take effect as they are made closes as it does today.
 
 #### Scenario: Every way of closing asks while work is unsaved
 
@@ -180,27 +176,29 @@ whose changes take effect as they are made closes as it does today.
 - **WHEN** content that takes part reports no unsaved work, and the user closes the dialog
 - **THEN** it closes at once, without a question
 
-#### Scenario: A dialog that applies changes as they are made closes as before
+#### Scenario: What is not allowed is not asked about
 
-- **WHEN** a dialog whose content reports nothing, such as one whose changes take effect as they are
-  made, is closed by any way the user is allowed
-- **THEN** it closes at once, without a question
+- **WHEN** a dialog allowing only the deliberate ways holds content reporting unsaved work, and the
+  user clicks beside it
+- **THEN** nothing happens, and no question is asked
 
-#### Scenario: The content closing the dialog itself does not ask
+### Requirement: A dialog's veto cannot make it impossible to close
 
-- **WHEN** content reporting unsaved work closes its own dialog
-- **THEN** it closes without a question
+A veto SHALL be consulted before the question about unsaved work, and a veto that throws, rejects or
+does not answer in time SHALL NOT make the dialog impossible to close, exactly as for a tab.
 
 #### Scenario: A hanging veto cannot trap the user
 
 - **WHEN** the content's veto neither answers nor fails, and the user closes the dialog
 - **THEN** the user is offered to close it anyway, as for a tab
 
-#### Scenario: What is not allowed is not asked about
+### Requirement: A dialog's content may ask for the close the person would make
 
-- **WHEN** a dialog allowing only the deliberate ways holds content reporting unsaved work, and the
-  user clicks beside it
-- **THEN** nothing happens, and no question is asked
+The content SHALL be able to ask for the close the person would make, from a control of its own such
+as a cancel beside its other buttons. That request SHALL run the veto and ask the same question the
+close control asks, whatever the opener chose for the person's ways of closing, and SHALL answer
+whether the dialog closed: yes once it has closed, no where the person cancelled, a save failed or
+the veto held. A request made while the question is already asked SHALL NOT ask a second time.
 
 #### Scenario: The content's own cancel asks like the close control
 
@@ -228,17 +226,30 @@ whose changes take effect as they are made closes as it does today.
   person's close
 - **THEN** the request is handled as if the close control had been used
 
+### Requirement: A dialog closed from code or by a declared result does not ask
+
+The content or the opener closing the dialog SHALL never ask, because whoever closes it from code
+knows what it closes. A button the opener declared that closes the dialog with a result is the
+content's deliberate outcome and SHALL NOT ask; one that closes it with no result is a cancel and
+SHALL ask like any other. Content that reports nothing is never asked about, so a dialog whose
+changes take effect as they are made closes as it does today.
+
+#### Scenario: A dialog that applies changes as they are made closes as before
+
+- **WHEN** a dialog whose content reports nothing, such as one whose changes take effect as they are
+  made, is closed by any way the user is allowed
+- **THEN** it closes at once, without a question
+
+#### Scenario: The content closing the dialog itself does not ask
+
+- **WHEN** content reporting unsaved work closes its own dialog
+- **THEN** it closes without a question
+
 ### Requirement: A plugin can raise a notice without owning where notices appear
 
 A plugin SHALL be able to raise a transient notice with a kind, and the workbench SHALL place and
 announce it. A notice raised by a plugin SHALL be identified in a way that cannot collide with the
 workbench's own or with another plugin's.
-
-A notice SHALL show its kind by a symbol and by colour, so that the kind is not carried by colour
-alone. A raiser SHALL be able to name another symbol, named the way every other symbol in the
-workbench is named and resolved through the same registry. The kind SHALL keep deciding the colour
-and the urgency of the announcement whatever symbol is named, and the symbol SHALL be decoration:
-what the notice says stays its wording.
 
 #### Scenario: Two plugins raising notices do not collide
 
@@ -250,6 +261,14 @@ what the notice says stays its wording.
 - **WHEN** a plugin's own name and the identity it chooses together spell the identity of a notice
   the workbench or another plugin raised
 - **THEN** that notice is left as it is, and the plugin's is shown as a notice of its own
+
+### Requirement: A notice shows its kind by a symbol and by colour
+
+A notice SHALL show its kind by a symbol and by colour, so that the kind is not carried by colour
+alone. A raiser SHALL be able to name another symbol, named the way every other symbol in the
+workbench is named and resolved through the same registry. The kind SHALL keep deciding the colour
+and the urgency of the announcement whatever symbol is named, and the symbol SHALL be decoration:
+what the notice says stays its wording.
 
 #### Scenario: The kind is visible without telling colours apart
 
@@ -294,12 +313,10 @@ crosses.
 Once the user moves the pointer on the notices, and for as long as it stays on them, or while
 keyboard focus is in one, no notice SHALL leave by itself. When neither holds any longer, every
 notice that would have left in the meantime SHALL stay a short remainder rather than leaving at
-once, so that the notices do not move under the pointer and an action offered by a notice can be
-reached without racing it.
+once.
 
 The limit: a notice that appears under a pointer that is not moving is not attended to, and SHALL
-leave as if the pointer were elsewhere. Otherwise a notice raised by the control the user just
-activated, and drawn over that control, would stay for as long as the pointer rested there.
+leave as if the pointer were elsewhere.
 
 #### Scenario: Moving the pointer onto the notices holds them
 
@@ -326,11 +343,7 @@ activated, and drawn over that control, would stay for as long as the pointer re
 
 A distribution SHALL be able to choose where notices appear: at the top or the bottom edge of the
 window, and there to the left, in the centre or to the right. Where it chooses nothing, notices
-SHALL appear at the bottom right, as they did before there was a choice.
-
-The newest notice SHALL sit nearest the chosen edge, with older ones further from it. On a narrow
-viewport, the one at which the side panels become overlays, notices SHALL be centred at the chosen
-edge whichever side was chosen, because a column at one side would cover most of the width anyway.
+SHALL appear at the bottom right.
 
 The choice is the distribution's and is made once for the application; a raiser SHALL NOT be able
 to place its own notice.
@@ -344,6 +357,12 @@ to place its own notice.
 
 - **WHEN** a distribution chooses nothing
 - **THEN** notices appear at the bottom right
+
+### Requirement: Notices stack from the chosen edge and are centred on a narrow viewport
+
+The newest notice SHALL sit nearest the chosen edge, with older ones further from it. On a narrow
+viewport, the one at which the side panels become overlays, notices SHALL be centred at the chosen
+edge whichever side was chosen.
 
 #### Scenario: The newest is at the edge
 
@@ -359,8 +378,7 @@ to place its own notice.
 
 The workbench SHALL show no more than a small bounded number of notices at once. A notice raised
 beyond that SHALL wait, and SHALL be shown, in the order raised, as a shown notice leaves or is
-dismissed. The lifetime of a waiting notice SHALL NOT run until it is shown, so that no notice
-leaves without having been shown.
+dismissed. The lifetime of a waiting notice SHALL NOT run until it is shown.
 
 The limit: the order raised is not kept for an isolated plugin's notice that is still waiting. It
 gives way to a notice raised by anybody else, which is stated with the boundary it crosses.
@@ -384,11 +402,8 @@ gives way to a notice raised by anybody else, which is stated with the boundary 
 
 Where a raiser raises a notice with the kind, the wording and the symbol of one it raised before,
 and that earlier notice is still shown or waiting, the workbench SHALL NOT add a second. The
-earlier notice SHALL show how often it was raised, and its lifetime SHALL start over.
-
-A notice its raiser gave an identity SHALL keep replacing the notice of that identity, as before,
-and SHALL NOT be counted: naming a notice says it is one thing being updated, not a thing
-happening again. Notices of two different raisers SHALL never be counted together.
+earlier notice SHALL show how often it was raised, and its lifetime SHALL start over. Notices of two
+different raisers SHALL never be counted together.
 
 The limit: a repeat by an isolated plugin is counted and does not start the lifetime over. That is
 stated with the boundary it crosses.
@@ -403,39 +418,46 @@ stated with the boundary it crosses.
 - **WHEN** a notice is repeated shortly before it would have left
 - **THEN** it stays for a whole lifetime from the repeat
 
-#### Scenario: A named notice is replaced, not counted
-
-- **WHEN** a raiser raises a notice under an identity it used before
-- **THEN** the earlier notice is replaced and no count is shown
-
 #### Scenario: Two raisers saying the same are two notices
 
 - **WHEN** two plugins raise notices with the same kind and wording
 - **THEN** each is shown as its own notice
 
+### Requirement: A named notice is replaced, not counted
+
+A notice its raiser gave an identity SHALL keep replacing the notice of that identity, as before,
+and SHALL NOT be counted.
+
+#### Scenario: A named notice is replaced, not counted
+
+- **WHEN** a raiser raises a notice under an identity it used before
+- **THEN** the earlier notice is replaced and no count is shown
+
 ### Requirement: A distribution may draw notices itself
 
-A distribution SHALL be able to take over drawing notices. Where it does, the workbench SHALL draw
-none, and the notices to be shown SHALL be readable as state: for each its kind, its wording, its
-symbol where one was named, how often it was raised, and the action it offers. The distribution
-SHALL be able to dismiss a notice, to run its action, and to tell the workbench that the user is
-attending to the notices and when that ends.
-
-Taking the drawing over SHALL take away nothing else. Which notices are to be shown, when one
-leaves, how many are shown at once and how a repeat is counted are not the drawing's, and SHALL
-hold exactly as they do where the workbench draws.
-
-The limit: where a distribution draws notices itself, announcing them to assistive technology is
-the distribution's.
-
-Where a distribution says nothing, the workbench SHALL draw notices itself. The default is the
-supported case rather than a fallback for the unconfigured one.
+A distribution SHALL be able to take over drawing notices. The workbench then SHALL draw none, and
+the notices to be shown SHALL be readable as state: for each its kind, its wording, its symbol where
+one was named, how often it was raised, and the action it offers. The distribution SHALL be able to
+dismiss a notice, to run its action, and to tell the workbench that the user is attending to the
+notices and when that ends. Announcing them to assistive technology is then the distribution's.
 
 #### Scenario: The workbench draws nothing where the product draws
 
 - **WHEN** a distribution draws notices itself and a notice is raised
 - **THEN** the workbench shows no notice of its own
 - **AND** the distribution can read the notice and what it offers
+
+#### Scenario: The product can hold the notices
+
+- **WHEN** a distribution tells the workbench the user is attending to the notices
+- **THEN** none leaves by itself until the distribution says that has ended, or the last notice is
+  dismissed
+
+### Requirement: Taking over the drawing of notices takes away nothing else
+
+Taking the drawing of notices over SHALL take away nothing else. Which notices are to be shown, when
+one leaves, how many are shown at once and how a repeat is counted are not the drawing's, and SHALL
+hold exactly as they do where the workbench draws.
 
 #### Scenario: A notice still leaves by itself
 
@@ -447,11 +469,10 @@ supported case rather than a fallback for the unconfigured one.
 - **WHEN** a distribution draws notices itself and more notices are raised than are shown at once
 - **THEN** the distribution reads only the bounded number as to be shown
 
-#### Scenario: The product can hold the notices
+### Requirement: Where a distribution says nothing, the workbench draws notices
 
-- **WHEN** a distribution tells the workbench the user is attending to the notices
-- **THEN** none leaves by itself until the distribution says that has ended, or the last notice is
-  dismissed
+Where a distribution says nothing, the workbench SHALL draw notices itself. The default is the
+supported case rather than a fallback for the unconfigured one.
 
 #### Scenario: Saying nothing keeps the workbench's drawing
 
@@ -464,12 +485,6 @@ The workbench SHALL offer its visual vocabulary as elements usable by tag from a
 as named style classes for controls that already exist natively. A plugin SHALL be able to use them
 without depending on the workbench's own framework, including from a surface running isolated from
 it.
-
-Every element the workbench offers by tag SHALL be registrable by whoever renders it, from the
-published surface, and not only by a running workbench. An element nobody registered draws nothing
-and raises no error, so an element that cannot be registered outside the workbench fails its
-consumer's tests without saying so. This holds for host-rendered content; an isolated surface
-receives the elements from the workbench and registers nothing itself.
 
 #### Scenario: A plugin uses a workbench control by tag
 
@@ -485,6 +500,14 @@ receives the elements from the workbench and registers nothing itself.
 
 - **WHEN** a plugin needs a control the browser already provides
 - **THEN** the workbench offers a style class for it rather than an element that reimplements it
+
+### Requirement: Every element offered by tag can be registered without a running workbench
+
+Every element the workbench offers by tag SHALL be registrable by whoever renders it, from the
+published surface, and not only by a running workbench. An element nobody registered draws nothing
+and raises no error, so an element that cannot be registered outside the workbench fails its
+consumer's tests without saying so. This holds for host-rendered content; an isolated surface
+receives the elements from the workbench and registers nothing itself.
 
 #### Scenario: Content using an element renders without a running workbench
 
@@ -516,22 +539,6 @@ shows the choice as text or as a symbol alone. The name SHALL NOT repeat the cho
 not announced twice. Where nothing is chosen, the placeholder SHALL be announced in place of the
 choice. The announcement SHALL follow the choice when it changes.
 
-A consumer SHALL be able to name the control by the workbench's own label attribute, by an
-accessible name on the element, or by pointing at a label of its own on the page. A consumer that
-marks the element as required SHALL have the control announced as required. A consumer that marks
-the element as invalid, or ties a description to it, SHALL have that announced with the control.
-
-While the list is open, focus SHALL stay on the control, and the option the user moves to SHALL be
-announced from there. The arrow keys, Home and End SHALL move through the options and skip none that
-can be chosen; Enter and Space SHALL choose the option moved to and close the list; the dismiss key
-SHALL close it without changing the choice. On the closed control the arrow keys, Enter, Space, Home,
-End and a typed letter SHALL open the list, a typed letter at the first option it begins.
-
-The limits: marking a choice as required only announces it; the control does not prevent an empty
-choice, draw a mark of its own, or take part in a form's validation. This is verified on
-host-rendered content; an isolated surface runs the same element and is not tested separately. A
-label a consumer points at must be in the same document as the control.
-
 #### Scenario: A labelled select announces label and choice
 
 - **WHEN** a select labelled "Language" has "English" chosen
@@ -548,10 +555,33 @@ label a consumer points at must be in the same document as the control.
 - **WHEN** a labelled select has no choice and carries a placeholder
 - **THEN** its control is announced with the label as its name and the placeholder as its value
 
+#### Scenario: Changing the choice changes the announcement
+
+- **WHEN** the choice changes while the select is on screen
+- **THEN** the control is announced with the new choice as its value
+
+### Requirement: A consumer may name the choice control in three ways
+
+A consumer SHALL be able to name the workbench's choice control by the workbench's own label
+attribute, by an accessible name on the element, or by pointing at a label of its own on the page.
+
+The limits: a label a consumer points at must be in the same document as the control. What this
+capability states of the choice control is verified on host-rendered content; an isolated surface
+runs the same element and is not tested separately.
+
 #### Scenario: A select named by a label of the consumer's own
 
 - **WHEN** a consumer points the element at a visible label elsewhere on the page
 - **THEN** the control is announced with that label's text as its name and the choice as its value
+
+### Requirement: A choice control marked required or invalid is announced so
+
+A consumer that marks the workbench's choice control as required SHALL have the control announced as
+required. A consumer that marks the element as invalid, or ties a description to it, SHALL have that
+announced with the control.
+
+The limit: marking a choice as required only announces it; the control does not prevent an empty
+choice, draw a mark of its own, or take part in a form's validation.
 
 #### Scenario: A required select says so
 
@@ -564,10 +594,14 @@ label a consumer points at must be in the same document as the control.
 - **WHEN** a consumer marks the element as invalid and ties an error message to it
 - **THEN** the control is announced as invalid, with the message as its description
 
-#### Scenario: Changing the choice changes the announcement
+### Requirement: The choice control's list is driven from the keyboard with focus on the control
 
-- **WHEN** the choice changes while the select is on screen
-- **THEN** the control is announced with the new choice as its value
+While the choice control's list is open, focus SHALL stay on the control, and the option moved to
+SHALL be announced from there. The arrow keys, Home and End SHALL move
+through the options and skip none that can be chosen; Enter and Space SHALL choose the option moved
+to and close the list; the dismiss key SHALL close it without changing the choice. On the closed
+control the arrow keys, Enter, Space, Home, End and a typed letter SHALL open the list, a typed letter
+at the first option it begins.
 
 #### Scenario: Moving through the list keeps focus on the control
 
@@ -584,13 +618,11 @@ label a consumer points at must be in the same document as the control.
 
 The workbench's style classes for a switch, a radio and a checkbox SHALL draw a control that is marked
 as unavailable while staying reachable exactly as they draw a control that is natively disabled. The
-control SHALL stay in the tab order and keep its visible focus, so that a reason tied to it is reached
-and announced with it.
+control SHALL stay in the tab order and keep its visible focus.
 
-The limit: the class changes the look only. A control marked this way still changes when it is
-activated, and whoever owns it SHALL refuse the change itself. A control that is natively disabled
-keeps behaving as the browser makes it behave, and is still the right choice where there is no reason
-to give.
+The limit: the class changes only the look. A control marked this way still changes when it is
+activated, and whoever owns it SHALL refuse the change itself. A natively disabled control keeps
+behaving as the browser makes it behave.
 
 #### Scenario: Marked unavailable looks like disabled
 
@@ -608,16 +640,9 @@ to give.
 
 The workbench SHALL offer a style class that draws a group of native radios, each labelled with words,
 as one segmented control: every option visible, the chosen one marked, the group drawn as a single
-control. Because the options are native radios, the group SHALL behave as the browser makes any group
-of radios behave: one tab stop, the arrow keys moving the choice, and a name given to the group the
-usual way. The workbench SHALL draw visible focus on the option that has it.
-
-An option that is unavailable but must stay reachable SHALL be drawn as the workbench draws any choice
-control in that state.
-
-The limits: the class draws and adds no behaviour; naming the group, and refusing a change to an
-unavailable option, stay with whoever writes the markup. It is meant for a few short options; a long
-list belongs in a select.
+control. The group SHALL behave as the browser makes any group of radios behave: one tab stop, the
+arrow keys moving the choice, and a name given to the group the usual way. The workbench SHALL draw
+visible focus on the option that has it.
 
 #### Scenario: Every option is visible and the chosen one is marked
 
@@ -629,6 +654,15 @@ list belongs in a select.
 - **WHEN** a person tabs into the group and presses an arrow key
 - **THEN** focus enters the group once, the choice moves to the next option, and focus is visible on it
 
+### Requirement: An unavailable segment is drawn as any unavailable choice is
+
+An option of a segmented control that is unavailable but must stay reachable SHALL be drawn as the
+workbench draws any choice control in that state.
+
+The limits: the segmented class draws and adds no behaviour; naming the group, and refusing a change
+to an unavailable option, stay with whoever writes the markup. It is meant for a few short options;
+a long list belongs in a select.
+
 #### Scenario: An unavailable option looks unavailable and stays reachable
 
 - **WHEN** one option is marked as unavailable without being natively disabled
@@ -639,28 +673,11 @@ list belongs in a select.
 The workbench SHALL offer a navigation tree among its elements: a consumer declares destinations and
 the workbench draws them, marks where the user is, and reports what the user chose.
 
-The tree SHALL take its shape from the declaration rather than from a rule of thumb. A destination
-MAY stand on its own, outside any group, and a group that is declared SHALL be drawn as a group even
-where it holds a single destination. Nothing SHALL be promoted, merged or flattened on the
-workbench's judgement, because a sidebar whose shape shifts with its contents is one the user cannot
-learn.
-
 Text SHALL arrive ready to display. The tree SHALL NOT translate what it is given, and a consumer
 that changes language supplies the changed text.
 
-The limit of that: the tree draws destinations and knows nothing of what they mean. It carries no
-vocabulary of the products built on it, and choosing a destination is reported rather than acted on,
-so nothing the tree does can move the user on its own.
-
-#### Scenario: A group holding one destination is still a group
-
-- **WHEN** a consumer declares a group with exactly one destination in it
-- **THEN** the tree draws it as a group with one destination, not as a destination on its own
-
-#### Scenario: A destination may stand outside every group
-
-- **WHEN** a consumer declares a destination that belongs to no group
-- **THEN** the tree draws it at the top level, beside the groups
+The limit of that: the tree carries no vocabulary of the products built on it, and choosing a
+destination is reported rather than acted on.
 
 #### Scenario: Choosing a destination is reported, not acted on
 
@@ -672,16 +689,29 @@ so nothing the tree does can move the user on its own.
 - **WHEN** a consumer adds, removes or renames a destination while the tree is on screen
 - **THEN** the tree draws the new declaration
 
+### Requirement: The navigation tree takes its shape from the declaration
+
+The tree SHALL take its shape from the declaration rather than from a rule of thumb. A destination
+MAY stand on its own, outside any group, and a group that is declared SHALL be drawn as a group even
+where it holds a single destination. Nothing SHALL be promoted, merged or flattened on the
+workbench's judgement.
+
+#### Scenario: A group holding one destination is still a group
+
+- **WHEN** a consumer declares a group with exactly one destination in it
+- **THEN** the tree draws it as a group with one destination, not as a destination on its own
+
+#### Scenario: A destination may stand outside every group
+
+- **WHEN** a consumer declares a destination that belongs to no group
+- **THEN** the tree draws it at the top level, beside the groups
+
 ### Requirement: The navigation tree marks the destination the current address lies under
 
 A consumer SHALL be able to tell the navigation tree which address is currently shown, and the tree
 SHALL mark the destination that address lies at or under, applying the same segment rule the
 workbench applies when a plugin asks the question directly. An address is under a destination only
 where the destination's address is a whole prefix of it and not merely the start of its text.
-
-The tree SHALL mark at most one destination, and SHALL mark none where the current address lies
-under no destination it was given. The marking SHALL be announced to assistive technology as the
-current item and not by appearance alone.
 
 #### Scenario: A deeper address marks the destination it lies under
 
@@ -694,28 +724,29 @@ current item and not by appearance alone.
   between them
 - **THEN** that destination is not marked
 
-#### Scenario: An address under nothing marks nothing
-
-- **WHEN** the address shown lies under no destination the tree holds
-- **THEN** no destination is marked
-
 #### Scenario: Moving marks the destination moved to
 
 - **WHEN** the address the consumer reports changes while the tree is on screen
 - **THEN** the marking moves with it
 
+### Requirement: The navigation tree marks at most one destination, and announces it
+
+The tree SHALL mark at most one destination, and SHALL mark none where the current address lies
+under no destination it was given. The marking SHALL be announced to assistive technology as the
+current item and not by appearance alone.
+
+#### Scenario: An address under nothing marks nothing
+
+- **WHEN** the address shown lies under no destination the tree holds
+- **THEN** no destination is marked
+
 ### Requirement: A group folds, and stays as the user left it for the session
 
 A group SHALL fold open and shut on the user's command, and the declaration SHALL be able to say
-whether a group starts open or shut. Where the declaration says nothing, a group SHALL start open,
-because a sidebar that hides everything until it is opened tells a first-time user nothing.
+whether a group starts open or shut. Where the declaration says nothing, a group SHALL start open.
 
 What the user folded SHALL survive for as long as the session lasts, including the tree being drawn
-again after being taken off screen, so that following a link does not undo the shape the user made.
-
-A group holding no destinations SHALL still be drawn, because the consumer declared it, and SHALL
-offer no fold: a control that opens nothing is a promise the group cannot keep. Where destinations
-arrive later, the fold SHALL be offered from then on.
+again after being taken off screen.
 
 The limit of that: nothing is kept beyond the session. The tree stores nothing of its own, so a
 reload starts from what the declaration says.
@@ -735,15 +766,20 @@ reload starts from what the declaration says.
 - **WHEN** the user shuts a group, the tree is taken off screen, and it is drawn again
 - **THEN** the group is still shut
 
-#### Scenario: A group with nothing in it offers no fold
-
-- **WHEN** a consumer declares a group holding no destinations
-- **THEN** the group is drawn and its heading offers nothing to fold
-
 #### Scenario: A reload starts from the declaration again
 
 - **WHEN** the session ends and the consumer draws the tree again
 - **THEN** every group is as the declaration says, not as the user last left it
+
+### Requirement: A group holding no destinations is drawn and offers no fold
+
+A group holding no destinations SHALL still be drawn, because the consumer declared it, and SHALL
+offer no fold. Where destinations arrive later, the fold SHALL be offered from then on.
+
+#### Scenario: A group with nothing in it offers no fold
+
+- **WHEN** a consumer declares a group holding no destinations
+- **THEN** the group is drawn and its heading offers nothing to fold
 
 ### Requirement: Anything a plugin supplies for rendering is sanitised
 
@@ -946,20 +982,26 @@ container's decision.
 
 A distribution SHALL be able to replace one row of a settings section by supplying a row under the
 same identity. The replacement SHALL take the replaced row's place in its section, and the section,
-its other rows and their order SHALL stay as they were contributed.
-
-A replacement SHALL be lasting, as a removal is: it applies to a row of that identity whenever a
-section carrying one is contributed, including a section contributed again later. A removal of the
-same identity SHALL win over a replacement, so that something a distribution removed stays removed.
-
-Replacing what the workbench ships is a distribution's right. A plugin contributes sections of its
-own and SHALL NOT be able to replace a row it did not contribute.
+its other rows and their order SHALL stay as they were contributed. A plugin SHALL NOT be able to
+replace a row it did not contribute.
 
 #### Scenario: A replaced row keeps its place and its neighbours
 
 - **WHEN** a distribution replaces one row of a section that has several
 - **THEN** the replacement is drawn where the replaced row was
 - **AND** every other row of that section is drawn as contributed, in the same order
+
+#### Scenario: A row in Settings and a control in a bar can differ
+
+- **WHEN** a distribution replaces the workbench's language row in Settings with one control and
+  the workbench's language item in a bar with another
+- **THEN** each place shows the control the distribution supplied for it
+
+### Requirement: A row replacement is lasting, and a removal wins over it
+
+A replacement SHALL be lasting, as a removal is: it applies to a row of that identity whenever a
+section carrying one is contributed, including a section contributed again later. A removal of the
+same identity SHALL win over a replacement.
 
 #### Scenario: A replacement outlasts a later contribution of its section
 
@@ -970,9 +1012,3 @@ own and SHALL NOT be able to replace a row it did not contribute.
 
 - **WHEN** a distribution both replaces and removes the same row
 - **THEN** the row is not drawn
-
-#### Scenario: A row in Settings and a control in a bar can differ
-
-- **WHEN** a distribution replaces the workbench's language row in Settings with one control and
-  the workbench's language item in a bar with another
-- **THEN** each place shows the control the distribution supplied for it

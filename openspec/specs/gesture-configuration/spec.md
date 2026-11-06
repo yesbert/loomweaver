@@ -13,20 +13,8 @@ never has to discover that a capability it thought it had removed is still reach
 Where a distribution switches a capability off, the workbench SHALL remove every route by which the
 user could reach it: the control that offers it, the menu entry that names it, the drag target that
 performs it and the keyboard shortcut that triggers it. A capability MUST NOT remain reachable to
-the user by any route once switched off.
-
-A switch removes the user's routes, not the capability. The distribution that switched a capability
-off SHALL still be able to perform it from its own code, so that it can offer the capability again in
-its own place and its own shape. The switch is a decision about what the user is shown, and the
-distribution cannot be surprised by a route it took itself.
-
-Where the workbench offers a capability through a route that has no handle of its own — chrome the
-workbench draws rather than a contribution a distribution could hide by naming it — the distribution
-SHALL be able to switch that one route off by its own name, while the capability and its other
-routes stay. Only such a route SHALL be switchable this way: a route a distribution can already
-remove by naming the contribution behind it SHALL NOT be given a second handle, so that each
-decision has one place. Switching the capability off SHALL keep its plain meaning and remove every
-route, the separately named one included, whatever that one says.
+the user by any route once switched off. This SHALL hold for a route that can be switched off by its
+own name as well, whatever that route's own switch says.
 
 #### Scenario: A switched-off capability has no remaining route
 
@@ -34,10 +22,30 @@ route, the separately named one included, whatever that one says.
 - **THEN** its button, its menu entry, its drop target and its shortcut are all gone, and no route
   the user can take reaches it
 
+#### Scenario: Naming the route separately does not weaken switching off
+
+- **WHEN** a distribution switches splitting off while the switch for its button says the button is
+  offered
+- **THEN** the toolbar button, the drop edges, the shortcut and the menu entry are all gone
+
+### Requirement: A switch removes the user's routes, not the capability
+
+A switch removes the user's routes, not the capability. The distribution that switched a capability
+off SHALL still be able to perform it from its own code, so that it can offer the capability again in
+its own place and its own shape.
+
 #### Scenario: The distribution still reaches what it switched off
 
 - **WHEN** a distribution has switched a capability off and performs it from its own code
 - **THEN** the capability is performed as it would have been from the control that is gone
+
+### Requirement: A route without a handle of its own can be switched off by name
+
+Where the workbench offers a capability through a route that has no handle of its own (chrome the
+workbench draws rather than a contribution a distribution could hide by naming it), the distribution
+SHALL be able to switch that one route off by its own name, while the capability and its other
+routes stay. Only such a route SHALL be switchable this way: a route a distribution can already
+remove by naming the contribution behind it SHALL NOT be given a second handle.
 
 #### Scenario: A capability is offered by dragging alone
 
@@ -46,12 +54,6 @@ route, the separately named one included, whatever that one says.
 - **THEN** no split button is drawn in any pane toolbar
 - **AND** dragging a tab to a pane's edge still splits, and the shortcut and the menu entry still
   reach it
-
-#### Scenario: Naming the route separately does not weaken switching off
-
-- **WHEN** a distribution switches splitting off while the switch for its button says the button is
-  offered
-- **THEN** the toolbar button, the drop edges, the shortcut and the menu entry are all gone
 
 ### Requirement: Everything is on unless the product says otherwise
 
@@ -197,15 +199,17 @@ the user built with it. A pane that was split stays split, a window that was det
 detached, a sidebar that was collapsed stays collapsed, a tab that was pinned stays pinned. The
 workbench does not tidy up after a switch; it only stops offering the way.
 
-Because the switch does not change state, a capability that toggles between two positions and is
-switched off while in the less convenient one leaves the user there with no way back. The
-distribution puts the state where it wants it before it takes the way away; the workbench SHALL NOT
-do that on its behalf.
-
 #### Scenario: What was built stays when the way is removed
 
 - **WHEN** the user has split a pane and the distribution turns splitting off
 - **THEN** the pane stays split, and the split controls, drop edges and shortcut are gone
+
+### Requirement: The distribution sets the state before it takes the way away
+
+Because a switch does not change state, a capability that toggles between two positions and is
+switched off while in the less convenient one leaves the user there with no way back. The
+distribution puts the state where it wants it before it takes the way away; the workbench SHALL NOT
+do that on its behalf.
 
 #### Scenario: A collapsed sidebar stays collapsed
 

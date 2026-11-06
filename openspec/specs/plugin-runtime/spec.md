@@ -32,12 +32,6 @@ The workbench SHALL activate each composed plugin independently. A plugin that f
 SHALL NOT prevent the others from activating, its own partial contributions SHALL be undone, and
 what it was granted SHALL be released.
 
-A failure SHALL be attributed to the activation that produced it, not to the plugin's id. Where a
-plugin was deactivated and activated again while an earlier activation was still pending, a
-failure arriving from that earlier activation SHALL NOT undo the newer one: the contributions of
-the current activation stay, and the failure is reported as belonging to an activation that is no
-longer current.
-
 #### Scenario: One failing plugin does not take down the workbench
 
 - **WHEN** one composed plugin throws while activating
@@ -49,6 +43,19 @@ longer current.
 - **WHEN** activation runs again for a plugin that is already active
 - **THEN** it is not activated a second time and its contributions are not duplicated
 
+#### Scenario: A plugin that fails to activate holds no grant
+
+- **WHEN** a composed plugin throws while activating
+- **THEN** it holds no grant, and the permissions surface does not list it
+
+### Requirement: A failure from an earlier activation does not undo a newer one
+
+A failure SHALL be attributed to the activation that produced it, not to the plugin's id. Where a
+plugin was deactivated and activated again while an earlier activation was still pending, a failure
+arriving from that earlier activation SHALL NOT undo the newer one: the contributions of the current
+activation stay, and the failure is reported as belonging to an activation that is no longer
+current.
+
 #### Scenario: A late failure does not reach a newer activation
 
 - **WHEN** a plugin's activation is still pending, the plugin is deactivated and activated again,
@@ -56,22 +63,11 @@ longer current.
 - **THEN** the contribution of the second activation is still registered
 - **AND** the failure is reported
 
-#### Scenario: A plugin that fails to activate holds no grant
-
-- **WHEN** a composed plugin throws while activating
-- **THEN** it holds no grant, and the permissions surface does not list it
-
 ### Requirement: Contributions live and die with their plugin
 
 Every contribution a plugin makes SHALL be revocable, and deactivating a plugin SHALL undo all of
 them and run the plugin's own teardown. After deactivation the workbench MUST show nothing the
 plugin contributed.
-
-A teardown that throws SHALL NOT leave the plugin half unloaded: its contributions are still undone,
-what it was granted is still released, and it is no longer counted as active. Where several plugins
-are unloaded together, one plugin's throwing teardown SHALL NOT stop the others from being unloaded.
-The failure is reported after everything has been undone, so that the report never stands in for
-the work.
 
 #### Scenario: Deactivation removes everything the plugin added
 
@@ -83,6 +79,14 @@ the work.
 
 - **WHEN** a plugin releases the handle it received for one contribution
 - **THEN** that contribution is removed and the plugin's others are untouched
+
+### Requirement: A throwing teardown does not leave a plugin half unloaded
+
+A teardown that throws SHALL NOT leave the plugin half unloaded: its contributions are still undone,
+what it was granted is still released, and it is no longer counted as active. Where several plugins
+are unloaded together, one plugin's throwing teardown SHALL NOT stop the others from being unloaded.
+The failure is reported after everything has been undone, so that the report never stands in for the
+work.
 
 #### Scenario: A throwing teardown still unloads the plugin
 
@@ -144,15 +148,9 @@ restart.
 
 ### Requirement: A contribution aimed at a place that cannot render it is reported
 
-Where a plugin contributes something to a region that the distribution's layout does not declare,
-or to a region of the wrong kind, the contribution SHALL be reported to the developer rather than
+Where a plugin contributes something to a region that the distribution's layout does not declare, or
+to a region of the wrong kind, the contribution SHALL be reported to the developer rather than
 silently doing nothing.
-
-Where a plugin contributes a menu entry to a slot that nothing declares — no menu the workbench
-draws, no contributed control that names the slot, no toolbar a plugin registered — the entry SHALL
-likewise be reported. Because the plugin that fills a slot may activate before the plugin that
-declares it, this report SHALL be made once every composed plugin has activated, and SHALL NOT be
-made at the moment of registration. An entry whose slot is declared by then SHALL NOT be reported.
 
 #### Scenario: An item names a region that does not exist
 
@@ -168,6 +166,14 @@ made at the moment of registration. An entry whose slot is declared by then SHAL
 
 - **WHEN** a plugin contributes an item to a region that exists and can host it
 - **THEN** nothing is reported
+
+### Requirement: A menu entry for a slot nothing declares is reported once every plugin has activated
+
+Where a plugin contributes a menu entry to a slot that nothing declares (no menu the workbench
+draws, no contributed control that names the slot, no toolbar a plugin registered), the entry SHALL
+likewise be reported. Because the plugin that fills a slot may activate before the plugin that
+declares it, this report SHALL be made once every composed plugin has activated, and SHALL NOT be
+made at the moment of registration. An entry whose slot is declared by then SHALL NOT be reported.
 
 #### Scenario: A menu entry names a slot nothing declares
 
@@ -193,13 +199,9 @@ MUST NOT be able to present itself as another.
 
 ### Requirement: A plugin may read whether its own work is unsaved
 
-A plugin SHALL be able to read whether the work in a surface it registered is unsaved, reactively, so
-that it can show that in its own views: the list a document was opened from is the natural place, and
-it is a place the workbench cannot reach because it does not know what the list is about.
-
-This read SHALL need no granted capability, on the same ground that a plugin needs none to run a
-command it registered itself: it is asking about its own contribution. It SHALL answer nothing about
-a surface another plugin registered, so that no plugin learns from it what another is working on.
+A plugin SHALL be able to read whether the work in a surface it registered is unsaved, reactively,
+so that it can show that in its own views, such as the list a document was opened from, which the
+workbench cannot reach because it does not know what the list is about.
 
 The read is offered to a plugin the workbench renders itself. A plugin in a sandbox reports its own
 unsaved work over its channel and is told about its own surface there; nothing of this shape crosses
@@ -210,6 +212,13 @@ that boundary.
 - **WHEN** a plugin reads whether one of its own surfaces holds unsaved work, and the work is then
   saved
 - **THEN** the reading follows, and a view bound to it re-renders
+
+### Requirement: Reading one's own unsaved work needs no grant and tells nothing of another plugin's
+
+Reading whether a plugin's own work is unsaved SHALL need no granted capability, on the same ground that a
+plugin needs none to run a command it registered itself: it is asking about its own contribution. It
+SHALL answer nothing about a surface another plugin registered, so that no plugin learns from it
+what another is working on.
 
 #### Scenario: Another plugin's work stays private
 

@@ -16,10 +16,6 @@ The workbench SHALL be able to produce a picture of what it is currently showing
 any browser facility that asks the user for permission or presents a choice of what to capture. The
 picture SHALL be handed only to the caller that asked for it.
 
-The picture is assembled from what the workbench is rendering, not photographed from the screen. It
-SHALL therefore be understood as a faithful depiction rather than an exact one, and where a surface
-draws by means the workbench cannot re-render, that part of the picture MAY differ from the screen.
-
 #### Scenario: No permission is asked
 
 - **WHEN** a distribution asks the workbench for a picture of itself
@@ -29,6 +25,17 @@ draws by means the workbench cannot re-render, that part of the picture MAY diff
 
 - **WHEN** the workbench has produced a picture
 - **THEN** it is returned to the caller, and the workbench sends it nowhere and stores it nowhere
+
+### Requirement: The picture is faithful rather than exact
+
+The picture is assembled from what the workbench is rendering, not photographed from the screen. It
+SHALL therefore be understood as a faithful depiction rather than an exact one, and where a surface
+draws by means the workbench cannot re-render, that part of the picture MAY differ from the screen.
+
+#### Scenario: A part the workbench cannot re-render may differ
+
+- **WHEN** a surface draws by means the workbench cannot re-render and a picture is made
+- **THEN** that part of the picture may differ from the screen
 
 ### Requirement: A plugin's surface appears in the picture
 
@@ -55,8 +62,7 @@ workbench SHALL still produce a picture, and SHALL mark the area that surface oc
 content is not in the picture. It SHALL NOT leave that area blank or fill it with anything that
 could be mistaken for what the surface was showing.
 
-A blank area in a picture attached to a fault report is read as evidence about the fault. Saying
-plainly that the content is absent misleads nobody; leaving it empty misleads everybody.
+A blank area in a picture attached to a fault report is read as evidence about the fault.
 
 #### Scenario: An unanswering surface does not stop the picture
 
@@ -94,8 +100,7 @@ obtained. The marking SHALL take effect for a picture made at any time after it 
 plugin being told that a picture is being made.
 
 A plugin SHALL NOT be able to prevent a picture from being made, nor to withhold its surface as a
-whole. What is on the screen is already in front of the user, who may record it by other means; a
-refusal would withhold nothing from them while denying the product the one thing the picture is for.
+whole.
 
 #### Scenario: A marked part is withheld
 
@@ -159,10 +164,6 @@ for, the workbench SHALL draw at the screen's own density, which is what it does
 A picture SHALL be drawn once at the size asked for, rather than drawn at one size and reduced
 afterwards, so that what a surface contributes is as sharp as the picture around it.
 
-The workbench SHALL bound what can be asked for. A request outside that bound SHALL produce the
-nearest picture the workbench can draw rather than a refusal, because a caller asking for something
-unreasonable wants a picture more than it wants an error.
-
 #### Scenario: A plainer picture is drawn plainer
 
 - **WHEN** a caller asks for a picture at a plainer density than the screen's
@@ -178,6 +179,12 @@ unreasonable wants a picture more than it wants an error.
 
 - **WHEN** a caller asks for a picture without saying how large
 - **THEN** it is drawn at the density of the screen
+
+### Requirement: A size outside the bound still produces a picture
+
+The workbench SHALL bound what can be asked for. A request outside that bound SHALL produce the
+nearest picture the workbench can draw rather than a refusal, because a caller asking for something
+unreasonable wants a picture more than it wants an error.
 
 #### Scenario: An unreasonable request still answers
 

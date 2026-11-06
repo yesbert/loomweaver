@@ -16,12 +16,6 @@ implementation, so that the same action is reachable from the menu and from anyw
 An entry MAY instead carry an inline implementation, for a menu a plugin opens against its own
 content.
 
-A slot SHALL be **declared** before it is drawn: by the workbench for the slots it draws itself, by
-a contributed control that names the slot as its menu, or by a toolbar a plugin registers. An entry
-contributed to a slot nothing declares SHALL be kept, so that it appears once the slot is declared,
-and SHALL be reported to the developer once the composition is complete rather than at the moment
-of registration, because the plugin that fills a slot may activate before the plugin that owns it.
-
 #### Scenario: A plugin adds to a menu the workbench draws
 
 - **WHEN** a plugin contributes an entry to the workbench's own tab menu
@@ -31,6 +25,14 @@ of registration, because the plugin that fills a slot may activate before the pl
 
 - **WHEN** a menu slot has no matching entries
 - **THEN** nothing opens
+
+### Requirement: A slot is declared before it is drawn
+
+A slot SHALL be **declared** before it is drawn: by the workbench for the slots it draws itself, by
+a contributed control that names the slot as its menu, or by a toolbar a plugin registers. An entry
+contributed to a slot nothing declares SHALL be kept, so that it appears once the slot is declared,
+and SHALL be reported to the developer once the composition is complete rather than at the moment
+of registration.
 
 #### Scenario: An entry registered before its slot is declared is kept
 
@@ -75,15 +77,9 @@ which plugins registered.
 
 ### Requirement: An entry that cannot work is not drawn
 
-An entry naming a command that nothing registers — or that a distribution has removed — SHALL be
+An entry naming a command that nothing registers, or that a distribution has removed, SHALL be
 dropped rather than drawn as a dead control showing its raw identity. An entry with nothing to
 label it SHALL likewise be dropped.
-
-An entry naming a command the current session may not run SHALL be dropped too, whether the session
-does not meet what the command requires or the window is one the command does not belong in. It
-SHALL appear once the session qualifies. A menu left with no entry by this SHALL NOT open. An entry
-that carries behaviour of its own rather than a command is not affected, since nothing declares who
-it is for.
 
 #### Scenario: An entry whose command was removed disappears with it
 
@@ -94,6 +90,14 @@ it is for.
 
 - **WHEN** an entry carries neither a command to take a label from nor one of its own
 - **THEN** it is not drawn
+
+### Requirement: An entry whose command the session may not run is not drawn
+
+An entry naming a command the current session may not run SHALL be dropped, whether the session
+does not meet what the command requires or the window is one the command does not belong in. It
+SHALL appear once the session qualifies. A menu left with no entry by this SHALL NOT open. An entry
+that carries behaviour of its own rather than a command is not affected, since nothing declares who
+it is for.
 
 #### Scenario: An entry whose command the session may not run is not drawn
 
@@ -170,12 +174,10 @@ for the leading icon SHALL be reserved only where some entry uses one.
 ### Requirement: An entry with a state keeps its icon
 
 An entry that represents something on or off SHALL still show the icon of the command behind it.
-Where some entry of a menu shows both a check and an icon, the check SHALL have a place of its own,
-leading, and the icon SHALL follow it, so that a menu offering a choice among things that each have
-a symbol can mark the one in effect without losing the symbols. Where no entry needs both, the check
-SHALL stand in the place the icons stand in, so the names start after one leading place, not two. A
-menu in which no entry carries a check SHALL reserve no space for one, and a menu in which no entry
-carries an icon SHALL reserve no space for that, so a plain menu stays as it is.
+Where some entry of a menu shows both a check and an icon, the check SHALL have a leading place of its
+own and the icon SHALL follow it. Where no entry needs both, the check SHALL stand in the place the
+icons stand in, so names start after one leading place. A menu in which no entry carries a check
+SHALL reserve no space for one, and one in which no entry carries an icon SHALL reserve none for it.
 
 #### Scenario: A checked entry shows its check and its icon
 
@@ -215,32 +217,10 @@ carries an icon SHALL reserve no space for that, so a plain menu stays as it is.
 
 ### Requirement: Any contributed control may carry a menu of its own
 
-An item a plugin contributes to the chrome — a launcher entry, a bar button, a view's tab, a
-surface's action — MAY name a menu slot, and right-clicking it SHALL open that slot against that
+An item a plugin contributes to the chrome, such as a launcher entry, a bar button, a view's tab or a
+surface's action, MAY name a menu slot, and right-clicking it SHALL open that slot against that
 item. Where several such controls are nested, the innermost SHALL win. The browser's own menu SHALL
 be suppressed where the workbench opens one.
-
-A launcher entry, a bar button or a surface's action that names a menu slot MAY declare that
-activating it opens that slot instead, or that both gestures do. An item that declares nothing SHALL
-keep the right-click alone, so an item written before this choice existed behaves exactly as it did.
-
-Activating such an item SHALL offer its own slot alone, without the entries the workbench itself
-contributes for that item; those stay on the right-click. Activating SHALL mean the pointer and the
-keyboard alike, and the menu SHALL open against the item either way.
-
-An item whose activation opens its menu SHALL be drawn even though it names no other action, since
-opening the menu is its purpose, for as long as its slot offers at least one entry to the person
-looking at it. While the slot offers none, the item SHALL NOT be drawn, and it SHALL appear and
-disappear as entries come and go, so that whoever owns a slot others fill never has to ask what is
-in it.
-
-Where such an item also names an action of its own, it SHALL be drawn whether or not its slot offers
-an entry. While the slot offers none, activation SHALL run the item's own action, and the item SHALL
-be announced as a plain control rather than as one that opens a menu. While the slot offers an
-entry, activation SHALL open the menu and SHALL NOT run the action. A heading the item declares for
-its menu SHALL NOT count as an entry for this, so an item can lead its menu with its own action and
-still run it directly while nothing else is offered. The change from one to the other SHALL follow
-the slot without a reload.
 
 #### Scenario: A launcher entry carries its own menu
 
@@ -251,6 +231,21 @@ the slot without a reload.
 
 - **WHEN** a control carrying a menu sits inside another that also carries one
 - **THEN** the inner one's menu opens
+
+#### Scenario: A surface's action carries its own menu
+
+- **WHEN** a plugin names a menu slot on a surface's action and the user right-clicks the action
+- **THEN** that slot opens against that action
+
+### Requirement: Activating a control may open its menu
+
+A launcher entry, a bar button or a surface's action that names a menu slot MAY declare that
+activating it opens that slot instead, or that both gestures do. An item that declares nothing SHALL
+keep the right-click alone.
+
+Activating such an item SHALL offer its own slot alone, without the entries the workbench itself
+contributes for that item; those stay on the right-click. Activating SHALL mean the pointer and the
+keyboard alike, and the menu SHALL open against the item either way.
 
 #### Scenario: An entry opens its menu when it is activated
 
@@ -269,22 +264,24 @@ the slot without a reload.
 - **THEN** only the entries contributed to the entry's own slot are offered
 - **AND** right-clicking the same entry still offers the workbench's entries for it as well
 
-#### Scenario: An entry that exists to open a menu is drawn
-
-- **WHEN** an entry names a menu slot and an opening gesture but no action of its own, and the slot
-  offers at least one entry
-- **THEN** it appears in the chrome and opens its menu
-
-#### Scenario: A surface's action carries its own menu
-
-- **WHEN** a plugin names a menu slot on a surface's action and the user right-clicks the action
-- **THEN** that slot opens against that action
-
 #### Scenario: A surface's action opens its menu when it is activated
 
 - **WHEN** a surface's action declares that activation opens its menu and the user activates it,
   by pointer or by keyboard
 - **THEN** that slot opens beside the action
+
+### Requirement: A control that exists to open its menu is drawn while the menu has an entry
+
+An item whose activation opens its menu SHALL be drawn even though it names no other action, for as
+long as its slot offers at least one entry to the person looking at it. While the slot offers none,
+the item SHALL NOT be drawn, and it SHALL appear and disappear as entries come and go, so that
+whoever owns a slot others fill never has to ask what is in it.
+
+#### Scenario: An entry that exists to open a menu is drawn
+
+- **WHEN** an entry names a menu slot and an opening gesture but no action of its own, and the slot
+  offers at least one entry
+- **THEN** it appears in the chrome and opens its menu
 
 #### Scenario: A control with an empty menu is not drawn
 
@@ -296,6 +293,14 @@ the slot without a reload.
 
 - **WHEN** another plugin contributes an entry to that slot while the workbench is running
 - **THEN** the item appears, and disappears again when the entry is withdrawn
+
+### Requirement: An item with an action of its own runs it while its menu is empty
+
+Where an item whose activation opens its menu also names an action of its own, it SHALL be drawn
+whether or not its slot offers an entry. While the slot offers none, activation SHALL run that action
+and the item SHALL be announced as a plain control rather than one that opens a menu; while it offers
+an entry, activation SHALL open the menu and SHALL NOT run the action. A heading the item declares
+SHALL NOT count as an entry for this. The change SHALL follow the slot without a reload.
 
 #### Scenario: A control with an action of its own runs it while its menu is empty
 
@@ -382,48 +387,40 @@ menu and for the workbench's own controls that open one alike.
 
 An item whose activation opens its menu MAY declare a heading for that menu: a name, an optional
 second line, and optionally an icon, a short mark or a picture drawn in their place. The workbench
-SHALL draw the heading above the first entry.
+SHALL draw the heading above the first entry. Where the heading carries a picture that cannot be
+shown, the workbench SHALL fall back to the short mark, and to the icon where there is no mark, the
+same way an entry in the chrome does.
 
-Where the heading carries a picture that cannot be shown, the workbench SHALL fall back to the short
-mark, and to the icon where there is no mark, the same way an entry in the chrome does.
-
-A heading MAY name a command, so that it leads to what it names. Where the command can run, the
-heading SHALL be the menu's first entry: the keyboard SHALL reach it first, a click, Enter or Space
-SHALL run the command with the menu's context and close the menu, and it SHALL show under the pointer
-and in focus the way an entry does. A menu whose only entry is such a heading SHALL still open.
-
-A heading that names no command SHALL NOT be an entry, and neither SHALL one that names a command
-nothing registers, a command the distribution removed, or a command the current session may not
-run: it SHALL NOT be focusable, SHALL be passed over by keyboard navigation the way a separator is,
-and SHALL NOT be activatable by any gesture.
-
-The menu SHALL be announced by what the heading names, and what the heading shows SHALL NOT be read a
-second time as content, so the name reaches the user exactly once. A heading that is an entry SHALL
-be announced by what its command does.
-
-A menu opened at a pointer SHALL carry no heading, since the thing it was opened against is under the
-pointer.
+A menu opened at a pointer SHALL carry no heading.
 
 #### Scenario: The menu names the account it belongs to
 
 - **WHEN** an item that opens its menu on activation declares a heading and the user opens it
 - **THEN** the name and its second line are shown above the first entry
 
-#### Scenario: The keyboard passes over the heading
+#### Scenario: A heading picture that cannot be shown gives way
 
-- **WHEN** the heading names no command and the user moves through that menu with the arrow keys
-- **THEN** the first entry is reached directly, and no gesture activates the heading
+- **WHEN** the picture a heading carries fails to load
+- **THEN** the heading draws its short mark or its icon instead
+- **AND** the name and the second line are unchanged
+
+### Requirement: A menu with a heading is announced by its name once
+
+The menu SHALL be announced by what the heading names, and what the heading shows SHALL NOT be read a
+second time as content, so the name reaches the user exactly once.
 
 #### Scenario: The name is announced once
 
 - **WHEN** assistive technology reaches a menu that carries a heading
 - **THEN** the menu is announced by that name, and the heading is not read again as the name
 
-#### Scenario: A heading picture that cannot be shown gives way
+### Requirement: A heading that names a command the session may run is the menu's first entry
 
-- **WHEN** the picture a heading carries fails to load
-- **THEN** the heading draws its short mark or its icon instead
-- **AND** the name and the second line are unchanged
+A heading MAY name a command, so that it leads to what it names. Where the command can run, the
+heading SHALL be the menu's first entry: the keyboard SHALL reach it first, a click, Enter or Space
+SHALL run the command with the menu's context and close the menu, and it SHALL show under the pointer
+and in focus the way an entry does. A menu whose only entry is such a heading SHALL still open. A
+heading that is an entry SHALL be announced by what its command does.
 
 #### Scenario: A heading that names a command leads to what it names
 
@@ -442,15 +439,27 @@ pointer.
 - **THEN** it is announced as an entry by what the command does, while the menu is still announced
   by the name
 
-#### Scenario: A heading whose command cannot run stays a heading
-
-- **WHEN** the heading names a command that nothing registers
-- **THEN** it is drawn as a plain heading, the keyboard passes over it, and nothing activates it
-
 #### Scenario: A menu that only leads somewhere still opens
 
 - **WHEN** the heading names a command the session may run and the menu has no other entry
 - **THEN** the menu opens with the heading as its only entry
+
+### Requirement: Any other heading is passed over
+
+A heading that names no command SHALL NOT be an entry, and neither SHALL one that names a command
+nothing registers, a command the distribution removed, or a command the current session may not
+run: it SHALL NOT be focusable, SHALL be passed over by keyboard navigation the way a separator is,
+and SHALL NOT be activatable by any gesture.
+
+#### Scenario: The keyboard passes over the heading
+
+- **WHEN** the heading names no command and the user moves through that menu with the arrow keys
+- **THEN** the first entry is reached directly, and no gesture activates the heading
+
+#### Scenario: A heading whose command cannot run stays a heading
+
+- **WHEN** the heading names a command that nothing registers
+- **THEN** it is drawn as a plain heading, the keyboard passes over it, and nothing activates it
 
 #### Scenario: A heading whose command the session may not run stays a heading
 
@@ -460,24 +469,12 @@ pointer.
 
 ### Requirement: An open menu follows its strings
 
-The workbench paints before the translations have arrived, so a menu can be opened while its words
-are not there yet. Every menu the workbench draws SHALL therefore be worded again, in place and
-without closing, when a translation bundle for the language in effect arrives and when the language
-changes to one whose strings are there, keeping the words it has until then:
-a declared menu, a menu opened from a control, the heading of either, and a menu a plugin opens
-against its own content. The entry that has the focus SHALL keep it, and a menu whose words changed
-SHALL be placed again once the chrome around it has been redrawn, so it stays within the window and
-beside the control it was opened from, wherever that control now is and however wide its own words
-made it. A control that is no longer on the page, or is hidden, leaves the menu where it last stood,
-still kept within the window.
-
-The entries of a menu a plugin opens against its own content SHALL take a translation key or a
-literal, like every other piece of chrome text that takes either. Every entry SHALL be looked up as
-a key and follow the strings; an entry no bundle knows SHALL be shown as it is. The limit: a literal
-that happens to equal a key a bundle knows shows that key's text, and development reports a literal
-with the shape of a key, such as a file name with a dot, as missing.
-
-The limit: a menu a plugin draws inside its own surface is the plugin's to word, and is not covered.
+Every menu the workbench draws SHALL be worded again, in place and without closing, when a
+translation bundle for the language in effect arrives and when the language changes to one whose
+strings are there, keeping the words it has until then: a declared menu, a menu opened from a
+control, the heading of either, and a menu a plugin opens against its own content. The entry that has
+the focus SHALL keep it. A menu a plugin draws inside its own surface is the plugin's to word, and is
+not covered.
 
 #### Scenario: A menu opened before the strings is worded once they arrive
 
@@ -492,12 +489,12 @@ The limit: a menu a plugin draws inside its own surface is the plugin's to word,
   application
 - **THEN** the open menu is worded in the new language without closing
 
-#### Scenario: A plugin's menu entry may be a key
+### Requirement: A re-worded menu is placed again
 
-- **WHEN** a plugin opens a menu against its own content with one entry labelled by a key of its own
-  bundle and one labelled with a literal
-- **THEN** the first shows the translation and follows a language change, and the second is shown as
-  it is
+A menu whose words changed SHALL be placed again once the chrome around it has been redrawn, so it
+stays within the window and beside the control it was opened from, wherever that control now is and
+however wide its own words made it. A control that is no longer on the page, or is hidden, leaves the
+menu where it last stood, still kept within the window.
 
 #### Scenario: A menu that grows with its words stays in the window
 
@@ -509,43 +506,43 @@ The limit: a menu a plugin draws inside its own surface is the plugin's to word,
 - **WHEN** a menu opened from a control is re-worded and the language change moved the control
 - **THEN** the menu is placed beside the control where it now is
 
+### Requirement: An entry of a plugin's own menu may be a translation key
+
+The entries of a menu a plugin opens against its own content SHALL take a translation key or a
+literal, like every other piece of chrome text that takes either. Every entry SHALL be looked up as
+a key and follow the strings; an entry no bundle knows SHALL be shown as it is. The limit: a literal
+that happens to equal a key a bundle knows shows that key's text, and development reports a literal
+with the shape of a key, such as a file name with a dot, as missing.
+
+#### Scenario: A plugin's menu entry may be a key
+
+- **WHEN** a plugin opens a menu against its own content with one entry labelled by a key of its own
+  bundle and one labelled with a literal
+- **THEN** the first shows the translation and follows a language change, and the second is shown as
+  it is
+
 ### Requirement: A slot may be drawn as a toolbar wherever a plugin places it
 
 A plugin SHALL be able to register a toolbar under a slot of its own and place it in its own
 content, as many times as it likes, with the workbench's element for it. Each placement SHALL carry
 a description of what it stands beside, of the same shape a menu is opened against, and a name,
 given by the plugin, by which assistive technology announces the toolbar. A placement without a
-name SHALL take the name the toolbar was registered with, so that no toolbar is announced as a
-nameless group of controls.
+name SHALL take the name the toolbar was registered with.
+
+#### Scenario: A toolbar is announced by the name its plugin gave
+
+- **WHEN** assistive technology reaches a placed toolbar
+- **THEN** it is announced as a toolbar by the name given on the placement, or by the name the
+  toolbar was registered with where the placement gives none
+
+### Requirement: A toolbar draws its slot's entries as a menu would offer them
 
 A toolbar SHALL draw the entries of its slot the way a menu would offer them, open and side by
 side: the same contributions, by the same registration any plugin uses for a menu, matched against
-the placement's description by the same comparison of named values, grouped and ordered the same
-way with a separator between groups, labelled and iconed from the command where the entry names
+the placement's description by the same comparison of named values, grouped, ordered and separated
+the same way, labelled and iconed from the command where the entry names
 one, and dropped where the command is unregistered, removed, or one the session may not run or that
-does not belong in the window. An entry that represents a state SHALL be drawn and announced as
-pressed or not. An entry with no icon SHALL show its title; an entry with an icon SHALL show the
-icon and offer its title as a tooltip, and SHALL show its command's shortcut there where it has one.
-An entry drawn as primary is the exception, and SHALL show its title whether or not it has an icon.
-An entry that shows its title and opens a slot SHALL show visibly that it opens a menu, not only to
-assistive technology.
-
-Activating an entry SHALL run its command with the placement's description as the command's
-context, through the one place every trigger runs through. An entry that names a menu slot and an
-opening gesture SHALL open that slot beside itself, as a bar button does, so a toolbar carries
-nested menus without a mechanism of its own.
-
-A toolbar whose slot offers nothing to the person looking at it SHALL take no space, and SHALL
-appear and disappear as entries come and go without the plugin that placed it asking what is in
-it. The toolbar SHALL be operable from the keyboard as a single stop, with the arrow keys moving
-between its entries.
-
-The slot a toolbar is registered under belongs to the plugin that registered it and is part of what
-it publishes to the plugins meant to fill it. A toolbar registered under a slot another plugin
-already registered a toolbar for SHALL be refused and reported, naming both.
-
-This is held for a toolbar placed by a plugin the workbench renders in the page. A toolbar drawn
-inside an isolated surface is covered where that boundary is specified.
+does not belong in the window.
 
 #### Scenario: A toolbar shows what a second plugin contributed
 
@@ -565,16 +562,13 @@ inside an isolated surface is covered where that boundary is specified.
 - **WHEN** an entry of a toolbar names a command the session does not qualify for
 - **THEN** it is not drawn, and it appears once the session qualifies, without a reload
 
-#### Scenario: An empty toolbar takes no space
+### Requirement: A toolbar entry shows its title or its icon, and its state
 
-- **WHEN** a toolbar is placed and its slot offers no entry the current session may see
-- **THEN** nothing is drawn where it stands, and the toolbar appears once an entry is contributed
-
-#### Scenario: A toolbar entry opens a nested menu
-
-- **WHEN** an entry declares that activation opens a menu slot, that slot has an entry, and the user
-  activates it by pointer or keyboard
-- **THEN** that slot opens beside the entry, against the placement's description
+An entry that represents a state SHALL be drawn and announced as pressed or not. An entry with no
+icon SHALL show its title; an entry with an icon SHALL show the icon and offer its title as a
+tooltip, and SHALL show its command's shortcut there where it has one. An entry drawn as primary is
+the exception, and SHALL show its title whether or not it has an icon. An entry that shows its title
+and opens a slot SHALL show visibly that it opens a menu, not only to assistive technology.
 
 #### Scenario: A labelled entry shows that it opens a menu
 
@@ -589,46 +583,95 @@ inside an isolated surface is covered where that boundary is specified.
   state is on
 - **THEN** the entry is drawn and announced as pressed
 
-#### Scenario: Two owners cannot claim one slot
+### Requirement: Activating a toolbar entry runs its command against the placement
 
-- **WHEN** a plugin registers a toolbar under a slot another plugin already registered a toolbar for
-- **THEN** the second registration is refused and the developer is told which two plugins collided
+Activating an entry SHALL run its command with the placement's description as the command's
+context, through the one place every trigger runs through. An entry that names a menu slot and an
+opening gesture SHALL open that slot beside itself, as a bar button does, so a toolbar carries
+nested menus without a mechanism of its own.
 
-#### Scenario: A toolbar is announced by the name its plugin gave
+#### Scenario: A toolbar entry opens a nested menu
 
-- **WHEN** assistive technology reaches a placed toolbar
-- **THEN** it is announced as a toolbar by the name given on the placement, or by the name the
-  toolbar was registered with where the placement gives none
+- **WHEN** an entry declares that activation opens a menu slot, that slot has an entry, and the user
+  activates it by pointer or keyboard
+- **THEN** that slot opens beside the entry, against the placement's description
+
+### Requirement: An empty toolbar takes no space, and a toolbar is one keyboard stop
+
+A toolbar whose slot offers nothing to the person looking at it SHALL take no space, and SHALL
+appear and disappear as entries come and go without the plugin that placed it asking what is in
+it. The toolbar SHALL be operable from the keyboard as a single stop, with the arrow keys moving
+between its entries.
+
+#### Scenario: An empty toolbar takes no space
+
+- **WHEN** a toolbar is placed and its slot offers no entry the current session may see
+- **THEN** nothing is drawn where it stands, and the toolbar appears once an entry is contributed
 
 #### Scenario: The keyboard moves through a toolbar
 
 - **WHEN** focus reaches a toolbar and the user presses the arrow keys
 - **THEN** focus moves between its entries, and the toolbar is one stop in the page's tab order
 
-### Requirement: A toolbar entry may carry the look of a button
+### Requirement: A toolbar's slot belongs to the plugin that registered it
 
-A menu entry SHALL be able to name one variant of the vocabulary the workbench's button offers:
-primary, default, success, danger, warning, info or ghost. Where the entry is drawn in a toolbar, it
-SHALL be drawn as the workbench's button of that variant is drawn, at the toolbar's size, so that a
-toolbar entry and a button of the same variant read the same. An entry that names no variant SHALL
-be drawn as every toolbar entry is drawn today. The variant SHALL be a name from that vocabulary and
-nothing else: an entry SHALL NOT carry a class, a style or a colour of its own into a toolbar, and a
-name outside the vocabulary SHALL be drawn as no variant and reported to the developer.
-
-An entry drawn as primary SHALL show its title, with its icon before it where it has one.
-
-Primary SHALL belong to the plugin that owns the slot the toolbar draws: the plugin that registered
-the toolbar, or for a surface's actions the plugin that owns the surface. An entry asking for primary
-that any other plugin contributed, or that no plugin contributed, SHALL be drawn as no variant, and
-the developer SHALL be told once per entry which plugin asked and whose slot it was. Every other
-variant SHALL be open to every contributor, so that a contributed destructive entry can look
-dangerous in a toolbar it does not own.
-
-The variant SHALL be honoured only where the entry is drawn in a toolbar. Where the same entry is
-offered in a menu, the variant SHALL be ignored, as a nested slot is.
+The slot a toolbar is registered under belongs to the plugin that registered it and is part of what
+it publishes to the plugins meant to fill it. A toolbar registered under a slot another plugin
+already registered a toolbar for SHALL be refused and reported, naming both.
 
 This is held for a toolbar placed by a plugin the workbench renders in the page. A toolbar drawn
 inside an isolated surface is covered where that boundary is specified.
+
+#### Scenario: Two owners cannot claim one slot
+
+- **WHEN** a plugin registers a toolbar under a slot another plugin already registered a toolbar for
+- **THEN** the second registration is refused and the developer is told which two plugins collided
+
+### Requirement: A toolbar entry may carry the look of a button
+
+A menu entry SHALL be able to name one variant of the workbench's button vocabulary: primary,
+default, success, danger, warning, info or ghost. In a toolbar, the entry SHALL be drawn as the
+workbench's button of that variant is drawn, at the toolbar's size. An entry that names no variant
+SHALL be drawn as every toolbar entry is drawn today.
+
+This is held for a toolbar placed by a plugin the workbench renders in the page; one inside an
+isolated surface is covered where that boundary is specified.
+
+#### Scenario: Without a variant nothing changes
+
+- **WHEN** an entry names no variant
+- **THEN** it is drawn exactly as a toolbar entry without a variant was drawn before
+
+### Requirement: A variant is a name from the button's vocabulary, honoured only in a toolbar
+
+The variant SHALL be a name from the button's vocabulary and nothing else: an entry SHALL NOT carry a
+class, a style or a colour of its own into a toolbar, and a name outside the vocabulary SHALL be
+drawn as no variant and reported to the developer. The variant SHALL be honoured only where the
+entry is drawn in a toolbar. Where the same entry is offered in a menu, the variant SHALL be ignored,
+as a nested slot is. Every variant other than primary SHALL be open to every contributor.
+
+#### Scenario: A name outside the vocabulary is not drawn
+
+- **WHEN** an entry names a variant the vocabulary does not hold
+- **THEN** the entry is drawn as no variant and the developer is told
+
+#### Scenario: A menu ignores the variant
+
+- **WHEN** an entry naming danger is contributed to a slot that is opened as a menu
+- **THEN** the menu offers the entry as it offers any other
+
+#### Scenario: A contributed destructive entry reads as dangerous
+
+- **WHEN** a plugin contributes an entry naming danger to a toolbar another plugin registered
+- **THEN** the entry is drawn as a danger button is drawn
+
+### Requirement: Primary belongs to the plugin that owns the slot
+
+An entry drawn as primary SHALL show its title, with its icon before it where it has one. Primary
+SHALL belong to the plugin that owns the slot the toolbar draws: the plugin that registered the
+toolbar, or for a surface's actions the plugin that owns the surface. An entry asking for primary
+that any other plugin contributed, or that no plugin contributed, SHALL be drawn as no variant, and
+the developer SHALL be told once per entry which plugin asked and whose slot it was.
 
 #### Scenario: The owner marks its main action
 
@@ -648,26 +691,6 @@ inside an isolated surface is covered where that boundary is specified.
 - **WHEN** a plugin contributes an entry naming primary to a toolbar another plugin registered
 - **THEN** the entry is drawn as an entry without a variant, and the developer is told once which
   plugin asked and whose toolbar it was
-
-#### Scenario: A contributed destructive entry reads as dangerous
-
-- **WHEN** a plugin contributes an entry naming danger to a toolbar another plugin registered
-- **THEN** the entry is drawn as a danger button is drawn
-
-#### Scenario: Without a variant nothing changes
-
-- **WHEN** an entry names no variant
-- **THEN** it is drawn exactly as a toolbar entry without a variant was drawn before
-
-#### Scenario: A name outside the vocabulary is not drawn
-
-- **WHEN** an entry names a variant the vocabulary does not hold
-- **THEN** the entry is drawn as no variant and the developer is told
-
-#### Scenario: A menu ignores the variant
-
-- **WHEN** an entry naming danger is contributed to a slot that is opened as a menu
-- **THEN** the menu offers the entry as it offers any other
 
 ### Requirement: A toolbar folds what it cannot show
 
@@ -696,13 +719,6 @@ plugin by registering a cell against the slot. A cell SHALL carry an order and M
 requirement, which SHALL only ever hide it, since the workbench does not draw its inside. A cell
 SHALL be told the description of the placement it stands in.
 
-The workbench SHALL NOT look inside a cell: it has no command, matches no description, shows no
-shortcut and is folded whole when the toolbar is too narrow for it.
-
-The limit of this: a cell is code, and code does not cross the boundary to an isolated surface. A
-cell registered against the slot of a toolbar drawn inside an isolated surface SHALL NOT appear
-there, and a plugin running isolated SHALL NOT be able to register one.
-
 #### Scenario: The owner places its own control in the toolbar
 
 - **WHEN** a plugin places a control of its own inside the toolbar element it placed
@@ -718,10 +734,21 @@ there, and a plugin running isolated SHALL NOT be able to register one.
 - **WHEN** a cell carries an access requirement the session does not meet
 - **THEN** it is absent, whatever the requirement asked for
 
+### Requirement: The workbench does not look inside a cell
+
+The workbench SHALL NOT look inside a cell: it has no command, matches no description, shows no
+shortcut and is folded whole when the toolbar is too narrow for it.
+
 #### Scenario: A cell folds whole
 
 - **WHEN** a toolbar is too narrow to show a cell
 - **THEN** the cell is absent from the row and presented by the fold control in the form it has
+
+### Requirement: A cell stays out of an isolated surface
+
+A cell is code, and code does not cross the boundary to an isolated surface. A cell registered
+against the slot of a toolbar drawn inside an isolated surface SHALL NOT appear there, and a plugin
+running isolated SHALL NOT be able to register one.
 
 #### Scenario: A cell does not reach an isolated surface
 
@@ -734,47 +761,15 @@ there, and a plugin running isolated SHALL NOT be able to register one.
 An entry of any menu the workbench draws SHALL be able to open a submenu instead of acting: an entry
 contributed to a slot that names another slot to open, an entry of a menu a plugin opens against its
 own content that carries entries of its own, and an entry of a menu a plugin draws itself with the
-workbench's menu element that holds such an element. A contributed entry that names a slot SHALL be
-drawn while that slot offers it an entry, as in a toolbar; with a command as well, it SHALL run the
-command while the slot offers nothing.
+workbench's menu element that holds such an element.
 
-An entry that opens a submenu SHALL show it visibly, by a mark at its trailing end, SHALL be announced
-as opening a menu and whether that menu is open, and SHALL be drawn as current while its submenu is
-open. It SHALL be named by its own words, whether its submenu is open or closed: the entries of an
-open submenu SHALL NOT count among the words the entry shows. A plugin drawing its own menu SHALL keep
-writing a submenu inside the entry it belongs to; how the entry is presented to assistive technology
-is the workbench's. The submenu SHALL be placed beside the entry, lined up with it, and on the other side where the
-preferred side has no room, kept within the window like every menu. Entries of a submenu SHALL show
-icons, shortcuts, states, separators and words exactly as the menu it opens from, and SHALL follow the
-strings the same way.
-
-A submenu SHALL be part of the menu it opens from: opening it SHALL NOT close that menu, and a click
-inside either SHALL NOT count as a click outside. Choosing an entry in a submenu SHALL close every
-level and return focus to what the menu was opened from.
-
-Resting the pointer on the entry SHALL open its submenu after a short pause, resting on another entry
-of the same menu SHALL close it after the same pause, and moving the pointer into the submenu SHALL
-keep it open. Activating the entry by click or tap SHALL open the submenu at once.
-
-From the keyboard, the right arrow, Enter and Space on the entry SHALL open the submenu and move focus
-to its first entry that can be used. In the submenu, the left arrow and the dismiss key SHALL close
-it and return focus to the entry, and Tab SHALL close the whole menu. The arrow keys, Home and End
-SHALL move within the menu that has the focus only.
-
-The limits: the mark, the placement and the keyboard are verified on host-rendered menus; a menu drawn
-inside an isolated surface runs the same element and is not tested separately. A submenu that would
-lead back to a slot already open above it is not drawn.
+The limit: a submenu that would lead back to a slot already open above it is not drawn.
 
 #### Scenario: A contributed entry opens its slot as a submenu
 
 - **WHEN** an entry of a menu names another slot to open, and that slot offers an entry
 - **THEN** the entry shows that it opens a menu, and activating it opens that slot beside it with the
   same context the menu was opened with
-
-#### Scenario: An entry whose slot is empty runs its command
-
-- **WHEN** an entry names a slot to open and a command, and the slot offers nothing to the session
-- **THEN** the entry is drawn as an ordinary entry and choosing it runs the command
 
 #### Scenario: A plugin's menu entry carries entries of its own
 
@@ -783,21 +778,22 @@ lead back to a slot already open above it is not drawn.
 - **THEN** that entry opens a submenu with the four entries, their icons and their shortcuts, and
   choosing one runs it and closes both menus
 
-#### Scenario: The keyboard walks into a submenu and back out
+### Requirement: An entry that names a slot to open is drawn while the slot offers it an entry
 
-- **WHEN** the user moves to an entry that opens a submenu and presses the right arrow
-- **THEN** the submenu opens with focus on its first entry
-- **AND** the left arrow closes it and puts focus back on the entry, with the menu still open
+A contributed entry that names a slot to open SHALL be drawn while that slot offers it an entry, as
+in a toolbar; with a command as well, it SHALL run the command while the slot offers nothing.
 
-#### Scenario: The pointer opens a submenu by resting on its entry
+#### Scenario: An entry whose slot is empty runs its command
 
-- **WHEN** the user rests the pointer on an entry that opens a submenu
-- **THEN** the submenu opens beside it, and stays open while the pointer moves into it
+- **WHEN** an entry names a slot to open and a command, and the slot offers nothing to the session
+- **THEN** the entry is drawn as an ordinary entry and choosing it runs the command
 
-#### Scenario: A submenu near the window edge opens on the other side
+### Requirement: An entry that opens a submenu shows it and is named by its own words
 
-- **WHEN** a menu stands so close to the right edge that its submenu has no room on the right
-- **THEN** the submenu opens on the left of the menu, fully visible
+An entry that opens a submenu SHALL show it visibly, by a mark at its trailing end, SHALL be announced
+as opening a menu and whether that menu is open, and SHALL be drawn as current while its submenu is
+open. It SHALL be named by its own words, whether its submenu is open or closed: the entries of an
+open submenu SHALL NOT count among the words the entry shows.
 
 #### Scenario: An open submenu is not part of its entry's name
 
@@ -805,11 +801,67 @@ lead back to a slot already open above it is not drawn.
 - **THEN** the entry is named by its own words alone, and is announced as opening a menu that is open
 - **AND** the automated accessibility audit reports no violation with the submenu open
 
+### Requirement: A plugin drawing its own menu writes a submenu inside its entry
+
+A plugin drawing its own menu SHALL keep writing a submenu inside the entry it belongs to; how the
+entry is presented to assistive technology is the workbench's.
+
+The limit: the mark, the placement and the keyboard are verified on host-rendered menus; a menu drawn
+inside an isolated surface runs the same element and is not tested separately.
+
 #### Scenario: A submenu written inside its entry keeps working
 
 - **WHEN** a plugin draws its own menu with the workbench's menu element and puts a menu element
   inside one of its entries
 - **THEN** that entry opens it as its submenu, and choosing an entry in it reaches the outer menu
+
+### Requirement: A submenu is placed beside its entry and drawn as its menu is
+
+The submenu SHALL be placed beside the entry, lined up with it, and on the other side where the
+preferred side has no room, kept within the window like every menu. Entries of a submenu SHALL show
+icons, shortcuts, states, separators and words exactly as the menu it opens from, and SHALL follow the
+strings the same way.
+
+#### Scenario: A submenu near the window edge opens on the other side
+
+- **WHEN** a menu stands so close to the right edge that its submenu has no room on the right
+- **THEN** the submenu opens on the left of the menu, fully visible
+
+### Requirement: A submenu is part of the menu it opens from
+
+A submenu SHALL be part of the menu it opens from: opening it SHALL NOT close that menu, and a click
+inside either SHALL NOT count as a click outside. Choosing an entry in a submenu SHALL close every
+level and return focus to what the menu was opened from.
+
+#### Scenario: Choosing in a submenu closes every level
+
+- **WHEN** the user chooses an entry in an open submenu
+- **THEN** the submenu and the menu it opens from both close, and focus returns to what the menu was
+  opened from
+
+### Requirement: The pointer opens a submenu after a pause, and a click at once
+
+Resting the pointer on the entry SHALL open its submenu after a short pause, resting on another entry
+of the same menu SHALL close it after the same pause, and moving the pointer into the submenu SHALL
+keep it open. Activating the entry by click or tap SHALL open the submenu at once.
+
+#### Scenario: The pointer opens a submenu by resting on its entry
+
+- **WHEN** the user rests the pointer on an entry that opens a submenu
+- **THEN** the submenu opens beside it, and stays open while the pointer moves into it
+
+### Requirement: The keyboard opens and leaves a submenu
+
+From the keyboard, the right arrow, Enter and Space on the entry SHALL open the submenu and move focus
+to its first entry that can be used. In the submenu, the left arrow and the dismiss key SHALL close
+it and return focus to the entry, and Tab SHALL close the whole menu. The arrow keys, Home and End
+SHALL move within the menu that has the focus only.
+
+#### Scenario: The keyboard walks into a submenu and back out
+
+- **WHEN** the user moves to an entry that opens a submenu and presses the right arrow
+- **THEN** the submenu opens with focus on its first entry
+- **AND** the left arrow closes it and puts focus back on the entry, with the menu still open
 
 ### Requirement: An entry of a plugin's own menu may show a shortcut
 

@@ -34,10 +34,6 @@ named slots, a launcher rail has an anchored top and bottom band, a panel has a 
 and a body, and the content area has its own strip and body. A plugin SHALL choose a region and a
 slot within that fixed vocabulary, and SHALL NOT invent sub-slots.
 
-A toolbar a plugin places in its own content is not a region: the distribution does not declare it,
-the frame does not draw it, and it is neither reported against the layout nor curated with the
-rails and sidebars. It is a menu slot drawn open, and is governed where menus are.
-
 #### Scenario: A contribution names a region and a place within its anatomy
 
 - **WHEN** a plugin contributes to a bar
@@ -47,6 +43,12 @@ rails and sidebars. It is a menu slot drawn open, and is governed where menus ar
 
 - **WHEN** a plugin contributes an item to a region whose kind cannot hold it
 - **THEN** the developer is told, naming the kind
+
+### Requirement: A toolbar placed in a plugin's own content is not a region
+
+A toolbar a plugin places in its own content SHALL NOT be a region: the distribution does not declare
+it, the frame does not draw it, and it SHALL be neither reported against the layout nor curated with
+the rails and sidebars. It is a menu slot drawn open, and is governed where menus are.
 
 #### Scenario: A placed toolbar is not a region
 
@@ -60,9 +62,8 @@ A rail SHALL be able to show each entry's name alongside its icon, and the user 
 it does. The decision SHALL be offered once per rail the frame declares, each offer carrying that
 rail's own name, and SHALL start switched off. It SHALL survive a restart.
 
-Where an entry's name is on screen, the workbench SHALL NOT repeat it as a tooltip. The limit of
-that: a name the rail cannot show in full SHALL be shortened, and for a shortened name the tooltip
-SHALL remain, because an entry the user cannot read is not identifiable by the name it was given.
+Where an entry's name is on screen, the workbench SHALL NOT repeat it as a tooltip. A name the rail
+cannot show in full SHALL be shortened, however, and for a shortened name the tooltip SHALL remain.
 
 #### Scenario: The user turns names on for one side only
 
@@ -157,13 +158,13 @@ from.
 
 The user SHALL be able to collapse a panel and expand it again, and to change its width by dragging
 or from the keyboard. Both SHALL survive a restart, the width SHALL be constrained to that panel's
-usable range, and an unreadable stored value SHALL be ignored rather than propagated.
+usable range, and an unreadable stored value SHALL be ignored.
 
 Every width the user releases SHALL be remembered as chosen, including a width equal to the panel's
-default, so that the choice is kept if the panel's default later changes.
+default.
 
-A collapsed panel on a side that has no launcher rail SHALL leave its column entirely, so the
-content reaches the edge, and SHALL offer a way back.
+A collapsed panel on a side that has no launcher rail SHALL leave its column entirely and SHALL
+offer a way back.
 
 #### Scenario: Width changes persist, and mid-drag changes do not
 
@@ -291,21 +292,20 @@ is *drawn* is decided when it is drawn.
 On a viewport too narrow for side panels, the workbench SHALL keep the launcher rail and present a
 panel as an overlay that can be dismissed, rather than shrinking the content away.
 
-On that same viewport the workbench's own top-bar entries SHALL take a compact form: the product's
-mark SHALL stand alone without the product's name, and the language switcher SHALL show the
-language by its symbol without its name. The width at which this happens SHALL be the one at which
-the side panels become overlays, so that a narrow viewport is one condition and not two, and a
-tablet held upright counts as narrow.
-
-What is compacted is presentation only. The product's name and the language's name SHALL remain
-the accessible names of those entries, so that nothing is lost to a screen reader that a sighted
-user can still infer from the mark.
-
 #### Scenario: A narrow viewport keeps the content usable
 
 - **WHEN** the viewport is too narrow for a side panel beside the content
 - **THEN** the panel is presented over the content and can be dismissed
 - **AND** the launcher rail remains
+
+### Requirement: The top bar's own entries compact on a narrow viewport
+
+On a narrow viewport, the workbench's own top-bar entries SHALL take a compact form: the product's mark SHALL stand alone without the product's name, and the language switcher
+SHALL show the language by its symbol without its name. The width at which this happens SHALL be the
+one at which the side panels become overlays, and a tablet held upright counts as narrow.
+
+The compacting is presentation only: the product's name and the language's name SHALL remain the
+accessible names of those entries.
 
 #### Scenario: The top bar's own entries compact on a narrow viewport
 
@@ -328,23 +328,9 @@ user can still infer from the mark.
 
 Where a bar cannot show every entry contributed to it at that entry's natural width, the workbench
 SHALL fold the entries that do not fit into a control at the end of the bar, and that control SHALL
-present the folded entries so that each can still be read and used. An entry SHALL NOT be drawn
-over another, and SHALL NOT be cut off at the bar's edge.
-
-Entries SHALL fold from the end of the bar backwards, the entry nearest the fold control first, so
-that what a product placed first stays visible longest; within a slot the entry that declared the
-highest order folds first. An entry that may shorten itself, such as the product's name, SHALL be
-given the room to do so, but shortening SHALL NOT stand in for folding: folding happens so that
-every entry that remains in the bar is shown at its natural width.
-
-Folding SHALL follow the bar's width as it changes, in both directions: an entry folded on a
-narrow window SHALL return to the bar once the window is wide enough for it. A bar in which every
-entry fits SHALL look and behave as it does today, with no fold control shown.
-
-The limit of this guarantee is the bar: a folded entry is presented by the fold control in the
-form it has, and the workbench makes no attempt to abbreviate an entry it did not draw. This was
-verified for entries the workbench draws from a declaration and for entries a product renders
-itself, in the host-rendered chrome.
+present the folded entries, each in the form it has, so that each can still be read and used. An
+entry SHALL NOT be drawn over another, and SHALL NOT be cut off at the bar's edge. The workbench
+makes no attempt to abbreviate a folded entry it did not draw.
 
 #### Scenario: Entries that do not fit are folded, not overlapped
 
@@ -357,10 +343,24 @@ itself, in the host-rendered chrome.
 - **WHEN** the user opens the fold control
 - **THEN** every folded entry is presented and can be used as it could in the bar
 
+### Requirement: A bar folds its last entries first
+
+Entries SHALL fold from the end of the bar backwards, the entry nearest the fold control first, so
+that what a product placed first stays visible longest; within a slot the entry that declared the
+highest order folds first. An entry that may shorten itself, such as the product's name, SHALL be
+given the room to do so, but shortening SHALL NOT stand in for folding: every entry that remains in
+the bar is shown at its natural width.
+
 #### Scenario: The last entry folds first
 
 - **WHEN** a bar has to fold one entry
 - **THEN** it is the entry nearest the bar's end, the one with the highest order in the end slot
+
+### Requirement: Folding follows the bar's width
+
+Folding SHALL follow the bar's width as it changes, in both directions: an entry folded on a narrow
+window SHALL return to the bar once the window is wide enough for it. A bar in which every entry fits
+SHALL look and behave as it does today, with no fold control shown.
 
 #### Scenario: Folding follows the width
 
@@ -375,22 +375,10 @@ itself, in the host-rendered chrome.
 ### Requirement: A chrome entry may be drawn as a picture of what it stands for
 
 An entry contributed to a rail, and a button contributed to a bar, MAY carry a picture of what it
-stands for, and the workbench SHALL draw that picture in its place. Where the entry carries none, or where the one it carries cannot be
-shown, the workbench SHALL fall back to the short mark the entry declares, and to its icon where it
-declares no mark. Falling back SHALL be the workbench's own doing, so a product that declares a
-picture never has to handle the picture's absence, which is the ordinary case rather than the
-exception.
-
-Where the workbench draws a short mark in place of a picture — in a rail entry, in a bar button, in
-a menu heading — the mark SHALL take the shape the picture takes in that place, at the same size, so
-that the two alternatives for one slot read as the same kind of thing. Where the same letters are
-drawn in a list rather than in such a slot, they SHALL keep their plain form.
-
-The picture SHALL be decoration: the entry SHALL still be announced by its title, so that what the
-picture stands for is not read a second time.
-
-Whether a picture can be fetched at all SHALL stay the product's business, since the workbench
-neither serves it nor knows where it comes from.
+stands for, and the workbench SHALL draw that picture in its place. Where the entry carries none, or
+where the one it carries cannot be shown, the workbench SHALL fall back to the short mark the entry
+declares, and to its icon where it declares no mark. Falling back SHALL be the workbench's own doing,
+so a product that declares a picture never has to handle the picture's absence.
 
 #### Scenario: An entry stands for a person and shows their picture
 
@@ -403,6 +391,12 @@ neither serves it nor knows where it comes from.
 - **THEN** the control draws its short mark instead, or its icon where it declares no mark
 - **AND** the control stays usable, with no broken image in the chrome
 
+### Requirement: A short mark in a picture's place takes the picture's shape
+
+Where the workbench draws a short mark in place of a picture, in a rail entry, a bar button or a menu
+heading, the mark SHALL take the shape the picture takes in that place, at the same size. Where the
+same letters are drawn in a list rather than in such a slot, they SHALL keep their plain form.
+
 #### Scenario: The mark stands where the picture would have stood
 
 - **WHEN** a rail entry or a bar button draws its short mark because it carries no picture
@@ -412,6 +406,14 @@ neither serves it nor knows where it comes from.
 
 - **WHEN** the workbench draws a short mark in a list rather than in a chrome slot
 - **THEN** the letters are drawn plain, without the slot's shape
+
+### Requirement: A picture in the chrome is decoration, and fetching it is the product's business
+
+A picture an entry carries SHALL be decoration: the entry SHALL still be announced by its title, so that what the
+picture stands for is not read a second time.
+
+Whether a picture can be fetched at all SHALL stay the product's business, since the workbench
+neither serves it nor knows where it comes from.
 
 #### Scenario: The picture is not announced
 
@@ -424,12 +426,7 @@ The distribution SHALL be able to do with the sidebars, from its own code, what 
 the splitter and the view menu do: collapse a panel, expand it, toggle it, set its width, hide a view
 and show a view again, naming the panel by the region id it declared and the view by the id it
 registered. Each action SHALL be the same action the control performs, with the same guards and the
-same outcome: a width set from code SHALL be brought into that panel's usable range and remembered
-like a released drag, and hiding a view SHALL ask about unsaved work exactly as the view menu does. A
-region id that names no declared panel SHALL do nothing.
-
-These actions SHALL stay available while the distribution has switched the corresponding sidebar
-capabilities off for its users.
+same outcome. A region id that names no declared panel SHALL do nothing.
 
 #### Scenario: A distribution's own control collapses a panel
 
@@ -451,6 +448,11 @@ capabilities off for its users.
 
 - **WHEN** the distribution names a region id no declared panel carries
 - **THEN** nothing changes
+
+### Requirement: The sidebar actions stay available while their capabilities are switched off
+
+The sidebar actions available to the distribution SHALL stay available while the distribution has
+switched the corresponding sidebar capabilities off for its users.
 
 #### Scenario: Reachable while switched off
 
@@ -481,24 +483,6 @@ the narrowest and widest the panel may be made. Each of the three SHALL be optio
 not declared SHALL take the workbench's own value, so that a panel declaring none behaves as every
 panel does today.
 
-The declared start width SHALL be what the panel shows until the user resizes it, and what resetting
-the application's layout returns it to. The declared bounds SHALL constrain every way the width is
-set for that panel: dragging, the keyboard, a width set from code, and a stored width, which is
-brought into the current bounds when it is read. The bounds of one panel SHALL NOT affect another.
-
-Widths SHALL be declarable on panel regions only. A declared width that is not a positive number, a
-declaration whose narrowest width exceeds its widest, or one whose start width lies outside its own
-bounds after the workbench's values are filled in, SHALL be refused when the distribution is composed,
-with a message naming the region.
-
-The declared start width and bounds apply where a panel stands beside the content. On a viewport
-narrow enough for a panel to be presented as an overlay, the overlay SHALL take the overlay width the
-panel region declares, and the workbench's own overlay width where it declares none. The overlay width
-SHALL never exceed the viewport's width less a margin that leaves room to dismiss the overlay beside
-it. It is not resized by the user, not stored, and not changed by a width set from code, and the widths
-beside the content SHALL NOT reach the overlay. A declared overlay width that is not a positive number
-SHALL be refused when the distribution is composed, with a message naming the region.
-
 #### Scenario: A panel starts at its declared width
 
 - **WHEN** a distribution declares a start width for a panel and the user has never resized it
@@ -508,6 +492,13 @@ SHALL be refused when the distribution is composed, with a message naming the re
 
 - **WHEN** a panel region declares no widths
 - **THEN** it starts, and may be resized, exactly as a panel does without this declaration
+
+### Requirement: A panel's declared widths govern every way its width is set
+
+The declared start width SHALL be what the panel shows until the user resizes it, and what resetting
+the application's layout returns it to. The declared bounds SHALL constrain every way the width is
+set for that panel: dragging, the keyboard, a width set from code, and a stored width, which is
+brought into the current bounds when it is read. The bounds of one panel SHALL NOT affect another.
 
 #### Scenario: Declared bounds constrain every way of setting the width
 
@@ -530,6 +521,14 @@ SHALL be refused when the distribution is composed, with a message naming the re
 - **WHEN** the user resets the application's layout
 - **THEN** a panel with a declared start width shows that width immediately, without a reload
 
+### Requirement: Unusable panel widths are refused when the distribution is composed
+
+Widths SHALL be declarable on panel regions only. A declared width that is not a positive number, a
+declaration whose narrowest width exceeds its widest, or one whose start width lies outside its own
+bounds after the workbench's values are filled in, SHALL be refused when the distribution is composed,
+with a message naming the region. A declared overlay width that is not a positive number SHALL be
+refused in the same way.
+
 #### Scenario: Contradictory widths are refused
 
 - **WHEN** a panel region declares a narrowest width above its widest, or a start width outside its
@@ -541,6 +540,20 @@ SHALL be refused when the distribution is composed, with a message naming the re
 - **WHEN** a panel region declares a start, narrowest or widest width of zero, a negative number or
   something not finite
 - **THEN** the distribution is refused at composition time with a message naming the region
+
+#### Scenario: An overlay width that is not a positive number is refused
+
+- **WHEN** a panel region declares an overlay width of zero, a negative number or something not finite
+- **THEN** the distribution is refused at composition time with a message naming the region
+
+### Requirement: A panel presented as an overlay takes its overlay width
+
+On a viewport narrow enough
+ for a panel to be presented as an overlay, the overlay SHALL take the overlay width the
+panel region declares, and the workbench's own overlay width where it declares none. The overlay width
+SHALL never exceed the viewport's width less a margin that leaves room to dismiss the overlay beside
+it. It is not resized by the user, not stored, and not changed by a width set from code, and the
+widths beside the content SHALL NOT reach the overlay.
 
 #### Scenario: A narrow viewport keeps the overlay's width
 
@@ -565,8 +578,3 @@ SHALL be refused when the distribution is composed, with a message naming the re
 - **WHEN** a panel was resized beside the content, or given a width from code
 - **AND** the viewport becomes narrow enough for panels to be overlays
 - **THEN** the overlay takes its declared or the workbench's overlay width, not that width
-
-#### Scenario: An overlay width that is not a positive number is refused
-
-- **WHEN** a panel region declares an overlay width of zero, a negative number or something not finite
-- **THEN** the distribution is refused at composition time with a message naming the region

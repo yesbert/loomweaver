@@ -12,29 +12,9 @@ safe to experiment with.
 
 There SHALL always be exactly one active workspace, and the arrangement the user works in SHALL
 belong to it. Switching SHALL store what the user had and restore what the target had, so that
-returning finds it as it was left. Neither a switch nor a reset SHALL carry the content the user
-was looking at into the arrangement it restores: that arrangement holds what the workspace held, and
-the content it then shows is the one it names.
-
-The choice of workspace SHALL survive a restart. A remembered choice that names a workspace which is
-neither declared nor saved any more SHALL give way to the default workspace for the session once
-the saved workspaces have been read. Giving way SHALL NOT rewrite the remembered choice and SHALL NOT
-remove anything stored for the workspace that gave way, so a remembered choice of a workspace that
-is really gone gives way again at each opening until the user chooses a workspace. The opening SHALL
-NOT wait for the saved workspaces, and a person's choice that arrives after sign-in SHALL be judged
-the same way, by that person's saved workspaces.
-
-Before giving way, the unsaved-work question SHALL be asked for every surface the workspace shows
-and every surface parked under it, except the surface at the address the opening keeps. Declining
-SHALL leave the user in that workspace for the session. Once the answer allows it, the surfaces
-parked under that workspace SHALL be let go, except the one at the kept address.
-
-The limit: saved workspaces whose first read was rejected, or which are stored in a form that is not
-wholly a list of workspaces, are no answer, and the remembered workspace SHALL then stay active. The
-valid entries of such a list SHALL stay listed. A store that reports a failed read as nothing stored
-is taken at its word, and so is a read at sign-in that fails: either is an empty list, and an
-answer. None of this holds back a distribution's declared start: at the address that names no
-content it is entered as at every opening there.
+returning finds it as it was left. Neither a switch nor a reset SHALL carry the content the user was
+looking at into the arrangement it restores: that arrangement holds what the workspace held, and the
+content it then shows is the one it names.
 
 #### Scenario: Switching and returning finds the arrangement unchanged
 
@@ -45,6 +25,25 @@ content it is entered as at every opening there.
 
 - **WHEN** the user switches to a workspace they have not changed
 - **THEN** it opens in the state it was defined with
+
+#### Scenario: A switch does not bring the content the user left
+
+- **WHEN** the user is on content in one workspace and switches to another that does not hold it
+- **THEN** the workspace switched to does not gain a tab for that content, however long its own
+  content takes to appear
+
+#### Scenario: A reset does not keep the content the user left
+
+- **WHEN** the user is on content their workspace's baseline does not hold and resets the workspace
+- **THEN** the reset arrangement does not hold a tab for that content
+
+### Requirement: The choice of workspace survives a restart
+
+The choice of workspace SHALL survive a restart. A remembered choice that names a workspace which is
+neither declared nor saved any more SHALL give way to the default workspace for the session once the
+saved workspaces have been read. Giving way SHALL NOT rewrite the remembered choice and SHALL NOT
+remove anything stored for the workspace that gave way, so it gives way again at each opening until
+the user chooses a workspace.
 
 #### Scenario: The active workspace survives a restart
 
@@ -60,17 +59,32 @@ content it is entered as at every opening there.
 - **AND** the remembered choice, and what is stored for the workspace that gave way, are unchanged
 - **AND** the next opening gives way again
 
-#### Scenario: Saved workspaces that could not be read move nobody
+### Requirement: The opening does not wait for the saved workspaces
 
-- **WHEN** the application is opened at an address naming content, and the first read of the saved
-  workspaces is rejected or they are not stored as a list of workspaces
-- **THEN** the remembered workspace stays active and the remembered choice is unchanged
+The opening SHALL NOT wait for the saved workspaces, and a person's choice that arrives after
+sign-in SHALL be judged the same way, by that person's saved workspaces. Neither an unanswered nor
+an unreadable read of them holds back a distribution's declared start, which is entered at the
+address that names no content as at every opening there.
 
 #### Scenario: Saved workspaces that never answer do not hold the opening
 
 - **WHEN** the application is opened without naming content, a start with content is declared, and
   the saved workspaces are never answered
 - **THEN** the declared start is active and its content is shown
+
+#### Scenario: A choice that arrives after sign-in is judged by that person's workspaces
+
+- **WHEN** a person signs in after the application was opened, and the workspace they last chose is
+  neither declared nor among their saved workspaces
+- **THEN** the default workspace is active for the session
+- **AND** the choice remembered for that person is unchanged
+
+### Requirement: Giving way to the default workspace asks about unsaved work
+
+Before giving way, the unsaved-work question SHALL be asked for every surface the workspace shows
+and every surface parked under it, except the surface at the address the opening keeps. Declining
+SHALL leave the user in that workspace for the session. Once the answer allows it, the surfaces
+parked under that workspace SHALL be let go, except the one at the kept address.
 
 #### Scenario: Giving way asks before it destroys unsaved work
 
@@ -80,23 +94,18 @@ content it is entered as at every opening there.
   except the one at the address
 - **AND** declining leaves the user in that workspace for the session
 
-#### Scenario: A choice that arrives after sign-in is judged by that person's workspaces
+### Requirement: Saved workspaces that cannot be read leave the remembered workspace active
 
-- **WHEN** a person signs in after the application was opened, and the workspace they last chose is
-  neither declared nor among their saved workspaces
-- **THEN** the default workspace is active for the session
-- **AND** the choice remembered for that person is unchanged
+Saved workspaces whose first read was rejected, or which are stored in a form that is not wholly a
+list of workspaces, are no answer, and the remembered workspace SHALL then stay active. The valid
+entries of such a list SHALL stay listed. A store that reports a failed read as nothing stored, and
+a read at sign-in that fails, each give an empty list, which is an answer.
 
-#### Scenario: A switch does not bring the content the user left
+#### Scenario: Saved workspaces that could not be read move nobody
 
-- **WHEN** the user is on content in one workspace and switches to another that does not hold it
-- **THEN** the workspace switched to does not gain a tab for that content, however long its own
-  content takes to appear
-
-#### Scenario: A reset does not keep the content the user left
-
-- **WHEN** the user is on content their workspace's baseline does not hold and resets the workspace
-- **THEN** the reset arrangement does not hold a tab for that content
+- **WHEN** the application is opened at an address naming content, and the first read of the saved
+  workspaces is rejected or they are not stored as a list of workspaces
+- **THEN** the remembered workspace stays active and the remembered choice is unchanged
 
 ### Requirement: A workspace has a baseline it can be put back to
 
@@ -155,12 +164,8 @@ A distribution SHALL be able to define workspaces in code, alongside the ones a 
 baseline SHALL be the code's and SHALL NOT be overwritable by the user, who may still change and
 reset their working copy.
 
-A definition SHALL describe its arrangement declaratively — nested rows and columns with
-proportions, the content of each area, and which sidebar views it hides.
-
-A definition MAY leave the arrangement out. The workspace then holds nothing in the content area,
-and switching to it SHALL leave the content at the address that names nothing — which is how a
-product offers a screen that owns the whole content area as a workspace of its own.
+A definition SHALL describe its arrangement declaratively: nested rows and columns with proportions,
+the content of each area, and the sidebar views it hides.
 
 #### Scenario: A defined workspace opens as its definition describes
 
@@ -172,45 +177,32 @@ product offers a screen that owns the whole content area as a workspace of its o
 - **WHEN** the user rearranges a defined workspace and resets it
 - **THEN** it returns to the definition's arrangement
 
-#### Scenario: A workspace without an arrangement shows what the bare address shows
-
-- **WHEN** the user switches to a workspace whose definition declares no arrangement
-- **THEN** the content area holds nothing of that workspace's own
-- **AND** the address is the one that names no content
-
 #### Scenario: An unusable part of a definition is dropped and named
 
 - **WHEN** a definition contains a part the workbench cannot use
 - **THEN** that part is dropped, the rest is used, and the developer is told what was dropped and
   what it would have cost
 
+### Requirement: A definition may leave the arrangement out
+
+A definition MAY leave the arrangement out. The workspace then holds nothing in the content area,
+and switching to it SHALL leave the content at the address that names nothing, which is how a
+product offers a screen that owns the whole content area as a workspace of its own.
+
+#### Scenario: A workspace without an arrangement shows what the bare address shows
+
+- **WHEN** the user switches to a workspace whose definition declares no arrangement
+- **THEN** the content area holds nothing of that workspace's own
+- **AND** the address is the one that names no content
+
 ### Requirement: A distribution may say where an opening starts
 
 A distribution SHALL be able to name the workspace the application opens in, and every opening at an
-address that names no content SHALL land there — the first one and every one after it. Landing there
+address that names no content SHALL land there, the first one and every one after it. Landing there
 SHALL show what the workspace holds, not merely make it the active one.
 
 What the workspace holds SHALL be what the user left in it, and its declaration only where they left
 nothing: an opening restores a workspace, it does not reset one.
-
-Taking the declared start SHALL NOT leave a step behind in the user's history, so that going back
-does not return to the address that named no content.
-
-Where the declaration names no content of its own, there is nothing to land on, and the opening
-SHALL do nothing at all: the address is left as it is, so is the workspace the visitor would
-otherwise have been left in, and what a distribution serves at the address that names no content is
-what the visitor sees.
-
-Where the distribution itself declares what the address naming no content leads to, that declaration
-SHALL answer and the opening SHALL stand down: a product that says where its bare address goes is not
-overruled by the workbench.
-
-An address that names content SHALL win over the declaration. Where that address is claimed by a
-workspace, winning SHALL extend to the active workspace and not only to what is shown: the visitor
-starts in the claiming workspace rather than in the declared one.
-
-The address the application is opened at without a path SHALL NOT count as naming content, whatever
-a product serves there: opening the application is not the same as following a link into it.
 
 #### Scenario: A first visit lands in the declared workspace
 
@@ -240,10 +232,35 @@ a product serves there: opening the application is not the same as following a l
 - **THEN** they start in the declared workspace
 - **AND** switching back to the one they left shows it as they left it
 
+### Requirement: Taking the declared start leaves no step in the history
+
+Taking the declared start SHALL NOT leave a step behind in the user's history, so that going back
+does not return to the address that named no content.
+
 #### Scenario: Going back does not return to the address that named nothing
 
 - **WHEN** the application is opened without naming content and lands in the declared workspace
 - **THEN** the address that named no content is not a step the user can go back to
+
+### Requirement: A declared start without content of its own leaves the opening alone
+
+Where the declaration names no content of its own, there is nothing to land on, and the opening
+SHALL do nothing at all: the address is left as it is, so is the workspace the visitor would
+otherwise have been left in, and what a distribution serves at the address that names no content is
+what the visitor sees.
+
+#### Scenario: A declaration with no content of its own leaves the address alone
+
+- **WHEN** a distribution declares a starting workspace that names no content of its own, and the
+  application is opened without naming content
+- **THEN** the address is unchanged and what the distribution serves there is shown
+- **AND** the workspace that was active stays active
+
+### Requirement: A distribution's own answer for the bare address overrules the declared start
+
+Where the distribution itself declares what the address naming no content leads to, that declaration
+SHALL answer and the opening SHALL stand down: a product that says where its bare address goes is
+not overruled by the workbench.
 
 #### Scenario: A route the distribution owns for the bare address answers
 
@@ -252,12 +269,14 @@ a product serves there: opening the application is not the same as following a l
 - **THEN** the distribution's own answer is what happens
 - **AND** the workspace the visitor was last in stays active
 
-#### Scenario: A declaration with no content of its own leaves the address alone
+### Requirement: An address that names content wins over the declared start
 
-- **WHEN** a distribution declares a starting workspace that names no content of its own, and the
-  application is opened without naming content
-- **THEN** the address is unchanged and what the distribution serves there is shown
-- **AND** the workspace that was active stays active
+An address that names content SHALL win over the declaration. Where that address is claimed by a
+workspace, winning SHALL extend to the active workspace and not only to what is shown: the visitor
+starts in the claiming workspace rather than in the declared one.
+
+The address the application is opened at without a path SHALL NOT count as naming content, whatever
+a product serves there.
 
 #### Scenario: A surface served at the bare address does not displace the declaration
 
@@ -330,37 +349,6 @@ distinguishable by a short marker derived from its name, so that a list of them 
 The marker SHALL be derived rather than stored, so renaming takes effect at once; where two would
 collide only the newcomer SHALL change, so an established marker never moves.
 
-A workspace the user saved is offered for switching by the workbench itself, which is the only party
-that knows its name. A workspace the product declared is offered by the product, which names it and
-gives it an appearance of its own; where a declared workspace is offered by nothing, the workbench
-SHALL report it to the developer rather than leaving it reachable only through the dialog.
-
-Where the product has switched the workspace controls off for its users, there is no dialog and no
-launcher entry the workbench draws, and a declared workspace is reachable from the product's own code
-alone. The workbench SHALL then report nothing about a declared workspace that nothing offers,
-because its absence from every launcher is the product's decision rather than an omission.
-
-The launcher SHALL mark where the user is. While a workspace is active, the entry offering that
-workspace SHALL be marked as the current one. While a saved workspace is active whose own entry is
-drawn in no launcher, the entry offering its origin SHALL be marked instead, because the saved
-workspace is a variant of that one and the user is, for the launcher's purposes, there. Where the
-saved workspace's own entry is drawn, in whichever launcher, that entry alone SHALL be marked, so
-that never more than one entry is marked at once. A saved workspace without an origin marks
-nothing, because no entry is its own.
-
-Marking the origin SHALL NOT change the entry otherwise: its icon, its name and what it says when
-pointed at remain the origin's, and choosing it switches to the origin as it always does.
-
-A product MAY decide that the workbench does not offer saved workspaces for the one-gesture path at
-all, so that what stands alongside its own entries is its decision rather than the user's. Where it
-does, the user SHALL NOT be able to place one there, an entry placed before the decision SHALL stop
-being offered while the placement itself SHALL be kept, and saving, renaming, resetting and switching
-SHALL all still work with the dialog as the way to them. The workbench SHALL report nothing about
-their absence, because it is then a decision rather than an omission. This SHALL NOT affect
-workspaces the product declared, which it offers itself and which are still reported where nothing
-offers them. Because no saved workspace then has an entry of its own, the origin's entry SHALL be
-marked while any of its variants is active.
-
 #### Scenario: Switching takes one gesture
 
 - **WHEN** the user chooses a workspace from the launcher
@@ -370,6 +358,46 @@ marked while any of its variants is active.
 
 - **WHEN** a workspace is added whose marker would collide with an existing one
 - **THEN** the newcomer's marker changes and the existing one is unchanged
+
+### Requirement: A declared workspace that nothing offers is reported
+
+The workbench offers the workspaces a user saved, being the only party that knows their names. The
+product offers the workspaces it declared, with a name and an appearance of its own; where a
+declared workspace is offered by nothing, the workbench SHALL report it to the developer rather than
+leaving it reachable only through the dialog.
+
+#### Scenario: A declared workspace nothing offers is reported
+
+- **WHEN** a product declares a workspace and offers no way to switch to it besides the dialog
+- **THEN** the developer is told, and the workspace is named
+- **AND** the application runs, because the workspace still works and is still reachable
+
+#### Scenario: A workspace the product offers is not reported
+
+- **WHEN** a product offers a way to switch to a workspace it declared
+- **THEN** nothing is reported about it
+
+### Requirement: With the workspace controls off, an unoffered declared workspace is not reported
+
+Where the product has switched the workspace controls off for its users, there is no dialog and no
+launcher entry the workbench draws, and a declared workspace is reachable from the product's own
+code alone. The workbench SHALL then report nothing about a declared workspace that nothing offers,
+because its absence from every launcher is the product's decision rather than an omission.
+
+#### Scenario: A product that switched the workspace controls off is not told to offer one
+
+- **WHEN** a product switches the workspace controls off, declares a workspace and offers no way to
+  switch to it
+- **THEN** nothing is reported about that workspace
+- **AND** the product's own code can still switch to it
+
+### Requirement: The launcher marks where the user is
+
+The launcher SHALL mark where the user is: while a workspace is active, the entry offering that
+workspace SHALL be marked as the current one. While a saved workspace is active whose own entry is
+drawn in no launcher, the entry offering its origin SHALL be marked instead. Where the saved
+workspace's own entry is drawn, in whichever launcher, that entry alone SHALL be marked, so that
+never more than one entry is marked at once. A saved workspace without an origin marks nothing.
 
 #### Scenario: A saved workspace nobody placed marks its origin
 
@@ -384,27 +412,28 @@ marked while any of its variants is active.
 - **THEN** its own entry is marked as the current one
 - **AND** the entry offering its origin is not marked
 
+#### Scenario: A saved workspace without an origin marks nothing
+
+- **WHEN** the user switches to a saved workspace that has no origin
+- **THEN** no entry in any launcher is marked as the current one
+
+### Requirement: Marking the origin leaves its entry unchanged
+
+Marking the origin SHALL NOT change the entry otherwise: its icon, its name and what it says when
+pointed at remain the origin's, and choosing it switches to the origin as it always does.
+
 #### Scenario: Choosing the marked origin leaves the variant
 
 - **WHEN** a saved workspace is active, its origin's entry is marked, and the user chooses that
   entry
 - **THEN** the origin becomes the active workspace
 
-#### Scenario: A saved workspace without an origin marks nothing
+### Requirement: A product may keep saved workspaces out of the launcher
 
-- **WHEN** the user switches to a saved workspace that has no origin
-- **THEN** no entry in any launcher is marked as the current one
-
-#### Scenario: A declared workspace nothing offers is reported
-
-- **WHEN** a product declares a workspace and offers no way to switch to it besides the dialog
-- **THEN** the developer is told, and the workspace is named
-- **AND** the application runs, because the workspace still works and is still reachable
-
-#### Scenario: A workspace the product offers is not reported
-
-- **WHEN** a product offers a way to switch to a workspace it declared
-- **THEN** nothing is reported about it
+A product MAY decide that the workbench does not offer saved workspaces for the one-gesture path at
+all. Where it does, the user SHALL NOT be able to place one there, an entry placed before the
+decision SHALL stop being offered while the placement itself SHALL be kept, and saving, renaming,
+resetting and switching SHALL all still work with the dialog as the way to them.
 
 #### Scenario: A product may keep its own entries alone in the rail
 
@@ -420,11 +449,12 @@ marked while any of its variants is active.
 - **THEN** the rail no longer shows it
 - **AND** deciding the other way again shows it where the user had put it
 
-#### Scenario: A saved workspace that is not offered still marks its origin
+### Requirement: Saved workspaces kept out of the launcher are not reported
 
-- **WHEN** a product decides the workbench does not offer saved workspaces for switching, and the
-  user switches to one they had placed before
-- **THEN** the entry offering its origin is marked as the current one
+Where a product keeps saved workspaces out of the launcher, the workbench SHALL report nothing about
+their absence, because it is then a decision rather than an omission. This SHALL NOT affect
+workspaces the product declared, which it offers itself and which are still reported where nothing
+offers them.
 
 #### Scenario: A saved workspace that is not offered is not reported
 
@@ -432,53 +462,26 @@ marked while any of its variants is active.
 - **THEN** nothing is reported about the saved workspaces
 - **AND** a declared workspace nothing offers is still reported
 
-#### Scenario: A product that switched the workspace controls off is not told to offer one
+### Requirement: A saved workspace kept out of the launcher marks its origin
 
-- **WHEN** a product switches the workspace controls off, declares a workspace and offers no way to
-  switch to it
-- **THEN** nothing is reported about that workspace
-- **AND** the product's own code can still switch to it
+Where a product keeps saved workspaces out of the launcher, no saved workspace has an entry of its
+own, so the origin's entry SHALL be marked while any of its variants is active.
+
+#### Scenario: A saved workspace that is not offered still marks its origin
+
+- **WHEN** a product decides the workbench does not offer saved workspaces for switching, and the
+  user switches to one they had placed before
+- **THEN** the entry offering its origin is marked as the current one
 
 ### Requirement: A workspace may claim the content that belongs to it
 
 A workspace definition MAY claim content addresses, including a family of addresses that differ only
 by which document they name.
 
-Where content is reached at an address the active workspace claims, nothing SHALL move: the user is
-already where that content belongs. Otherwise the address SHALL decide, and the workbench SHALL
-activate the workspace that claims it and SHALL then show the content there, so that a document is
-never laid over an arrangement built for something else.
-
-Only a workspace the product declared SHALL be a destination. A workspace a user saved SHALL never
-be one, however it came by its claim, because it exists on one machine only and an address that led
-somewhere different for every user would not be an address at all.
-
-The claim SHALL hold however the address is reached — a link followed into the application, a
-restart, a command, a programmatic navigation, a tab a plugin opened. There SHALL be no exception for
-an address the user reached from inside the application, because a rule that holds only sometimes
-cannot be predicted by the person it moves.
-
-Claiming SHALL be a declaration of the product that composes the workspaces. Nothing a plugin does
-SHALL be able to claim an address or name a workspace, because workspace ids belong to the product
-and a plugin that had to know them could not be installed into a second one. Nothing the user does
-SHALL create a claim either; what a user decides is which workspace they save and from where.
-
-An address no workspace claims SHALL behave as it does without any claim: it is shown where the user
-already is.
-
-Where claimed content asks for a session the person does not yet have, the visit SHALL wait where the
-person is and explain itself, and once the session qualifies the claim SHALL hold as for any other
-visit. The waiting SHALL leave nothing behind: the workspace the visit waited in SHALL hold afterwards
-what it held before, so a visit before the session is known ends as one after it would. What that
-workspace held at the address before the visit SHALL stay.
-
-Where an address is claimed by more than one declared workspace and one claim is narrower than the
-others, the narrowest SHALL win, as the workbench already resolves a more specific address against a
-more general one. Where none is narrower the claim SHALL be dropped, the developer SHALL be told and
-the competing workspaces SHALL be named, and the application SHALL run: the address then behaves as
-an unclaimed one. The workbench SHALL NOT pick a winner among equals, because a product that declared
-two homes for one document has not decided where it belongs, and choosing for it would hide the
-mistake.
+Where content is reached at an address the active workspace claims, nothing SHALL move. Otherwise
+the address SHALL decide: the workbench SHALL activate the workspace that claims it and SHALL then
+show the content there. An address no workspace claims SHALL behave as it does without any claim: it
+is shown where the user already is.
 
 #### Scenario: Following a link into claimed content lands in its workspace
 
@@ -493,12 +496,6 @@ mistake.
 - **THEN** the claiming workspace becomes active
 - **AND** the content is shown within it
 
-#### Scenario: A plugin opening a document reaches the same place as a link
-
-- **WHEN** a plugin opens a content tab at an address a declared workspace claims, from a workspace
-  that does not claim it
-- **THEN** the claiming workspace becomes active and holds the tab
-
 #### Scenario: Content the active workspace claims does not move anything
 
 - **WHEN** content is reached at an address the active workspace itself claims
@@ -509,11 +506,71 @@ mistake.
 - **WHEN** content is reached at an address no workspace claims
 - **THEN** the active workspace is unchanged and the content is shown there
 
+### Requirement: Only a declared workspace is where a claimed address leads
+
+Only a workspace the product declared SHALL be a destination. A workspace a user saved SHALL never
+be one, however it came by its claim, because it exists on one machine only and an address that led
+somewhere different for every user would not be an address at all.
+
+#### Scenario: A saved workspace is never the destination of an address
+
+- **WHEN** content is reached at a claimed address from a workspace that does not claim it
+- **THEN** the workspace that becomes active is one the product declared, never one a user saved
+
+### Requirement: A claim holds however the address is reached
+
+The claim SHALL hold however the address is reached: a link followed into the application, a
+restart, a command, a programmatic navigation, a tab a plugin opened. There SHALL be no exception
+for an address the user reached from inside the application, because a rule that holds only
+sometimes cannot be predicted by the person it moves.
+
+#### Scenario: A plugin opening a document reaches the same place as a link
+
+- **WHEN** a plugin opens a content tab at an address a declared workspace claims, from a workspace
+  that does not claim it
+- **THEN** the claiming workspace becomes active and holds the tab
+
 #### Scenario: A restart at a claimed address lands where the claim points
 
 - **WHEN** the application restarts at an address a workspace claims
 - **THEN** the workspace that was active stays active if it claims that address
 - **AND** otherwise the declared workspace claiming it becomes active
+
+### Requirement: Only the product that composes the workspaces makes a claim
+
+Claiming SHALL be a declaration of the product that composes the workspaces. Nothing a plugin does
+SHALL be able to claim an address or name a workspace, because workspace ids belong to the product.
+Nothing the user does SHALL create a claim either; what a user decides is which workspace they save
+and from where.
+
+#### Scenario: Neither a plugin nor the user creates a claim
+
+- **WHEN** a plugin or the user opens content at an address no declared workspace claims
+- **THEN** that address is still claimed by no workspace
+
+### Requirement: Claimed content that waits for a session leaves nothing where it waited
+
+Where claimed content asks for a session the person does not yet have, the visit SHALL wait where
+the person is and explain itself, and once the session qualifies the claim SHALL hold as for any
+other visit. The waiting SHALL leave nothing behind: the workspace the visit waited in SHALL hold
+afterwards what it held before, so a visit before the session is known ends as one after it would.
+What that workspace held at the address before the visit SHALL stay.
+
+#### Scenario: Content that waited for the session leaves nothing where it waited
+
+- **WHEN** the application is opened at a claimed address whose content asks for a session, before
+  the session is known, in a workspace that does not claim it
+- **AND** the session then qualifies, so the claiming workspace becomes active
+- **THEN** the workspace the visit waited in holds no tab for that content, now or after a restart
+- **AND** this holds whether or not an arrangement was stored for the person who signed in
+
+### Requirement: The narrowest of competing claims wins
+
+Where an address is claimed by more than one declared workspace and one claim is narrower than the
+others, the narrowest SHALL win. Where none is narrower the claim SHALL be dropped, the developer
+SHALL be told and the competing workspaces SHALL be named, and the application SHALL run: the
+address then behaves as an unclaimed one. The workbench SHALL NOT pick a winner among equals,
+because choosing for a product that declared two homes for one document would hide the mistake.
 
 #### Scenario: A narrower claim wins over a wider one
 
@@ -529,35 +586,14 @@ mistake.
 - **THEN** the developer is told, and both workspaces are named
 - **AND** the application runs, and that address behaves as though nothing claimed it
 
-#### Scenario: Content that waited for the session leaves nothing where it waited
-
-- **WHEN** the application is opened at a claimed address whose content asks for a session, before
-  the session is known, in a workspace that does not claim it
-- **AND** the session then qualifies, so the claiming workspace becomes active
-- **THEN** the workspace the visit waited in holds no tab for that content, now or after a restart
-- **AND** this holds whether or not an arrangement was stored for the person who signed in
-
 ### Requirement: Stored content that contradicts a current declaration is kept and recognised
 
-A workspace's arrangement outlives the declarations it was built against. What a product declares
-can change between one release and the next, and content stored under a workspace SHALL therefore be
-read against the declarations in force now, not against the ones in force when it was written.
-
-Reading SHALL NOT rewrite. Where a workspace holds stored content at an address another declared
-workspace claims, that content SHALL be restored as it was stored, and the contradiction SHALL be
-recognised. It SHALL NOT be moved to the claiming workspace: the user never chose to have it there.
-The developer SHALL be told which workspace holds it and which address is contested, in development,
-and that message SHALL NOT reach the user, who did nothing about it.
-
-An address no declared workspace claims SHALL NOT be recognised as a contradiction, wherever it is
-stored. Content that belongs nowhere in particular belongs where the user left it.
+What is stored under a workspace SHALL be read against the declarations in force now, not against
+the ones in force when it was written. Reading SHALL NOT rewrite. Where a workspace holds stored
+content at an address another declared workspace claims, that content SHALL be restored as it was
+stored, and the contradiction SHALL be recognised. It SHALL NOT be moved to the claiming workspace.
 
 This holds for every product, whether its working state reads back at once or only after a wait.
-Recognition needs no synchronous read and carries no risk of emptying an arrangement on a guess, so
-no product is exempt from it.
-
-Stored content that cannot be read as an arrangement at all SHALL be dropped without a message,
-because there is nothing to keep and it names nothing anyone could act on.
 
 #### Scenario: A tab another workspace now claims stays where it is
 
@@ -566,6 +602,18 @@ because there is nothing to keep and it names nothing anyone could act on.
 - **THEN** the workspace comes up with that content still in it
 - **AND** the claiming workspace has not gained it
 
+#### Scenario: A product whose working state reads back asynchronously is treated alike
+
+- **WHEN** a workspace's arrangement is restored from working state that cannot be read back at once
+- **THEN** it is restored as it was stored, and a contradiction in it is recognised as it would be
+  for any other product
+
+### Requirement: The developer is told of a contradiction and the user is not
+
+Where stored content contradicts a current declaration, the developer SHALL be told which workspace
+holds it and which address is contested, in development, and that message SHALL NOT reach the user,
+who did nothing about it.
+
 #### Scenario: The developer is told what contradicts the declarations
 
 - **WHEN** stored content is recognised as contradicting a current declaration
@@ -573,21 +621,25 @@ because there is nothing to keep and it names nothing anyone could act on.
   contested
 - **AND** nothing is shown to the user on that account
 
+### Requirement: Unclaimed stored content is not a contradiction
+
+An address no declared workspace claims SHALL NOT be recognised as a contradiction, wherever it is
+stored. Content that belongs nowhere in particular belongs where the user left it.
+
 #### Scenario: Unclaimed content is left where it was
 
 - **WHEN** a workspace's stored arrangement holds content at an address no declared workspace claims
 - **THEN** it is restored unchanged, and nothing is recognised
 
+### Requirement: Stored content that is not an arrangement is dropped quietly
+
+Stored content that cannot be read as an arrangement at all SHALL be dropped without a message,
+because there is nothing to keep and it names nothing anyone could act on.
+
 #### Scenario: A malformed record goes quietly
 
 - **WHEN** stored content cannot be read as an arrangement at all
 - **THEN** it is dropped without a message, because it names nothing anyone could act on
-
-#### Scenario: A product whose working state reads back asynchronously is treated alike
-
-- **WHEN** a workspace's arrangement is restored from working state that cannot be read back at once
-- **THEN** it is restored as it was stored, and a contradiction in it is recognised as it would be
-  for any other product
 
 ### Requirement: A workspace that cannot work as declared is entered and named
 
@@ -597,17 +649,6 @@ Entering such a workspace SHALL leave the user in it. The workbench SHALL NOT ha
 workspace that claims the starting address, which would put the workspace out of reach and leave no
 way to repair it.
 
-Where a workspace cannot work as its declaration describes, the workbench SHALL say so to the user
-and SHALL offer the reset that puts it back to its baseline. This announcement reaches the user
-because the user can act on it, which is what distinguishes it from a contradiction the developer is
-told about.
-
-The product that composes the workspaces SHALL be able to turn the announcement off, once for the
-product rather than for each workspace, and it SHALL be on where the product says nothing. Turning
-it off SHALL NOT change what is stored, restored or reachable: the user is still left in the
-workspace, and the product SHALL be able to learn which workspaces cannot work as declared, so that
-turning the announcement off buys the freedom to answer differently rather than only silence.
-
 #### Scenario: A workspace with no content of its own is still entered
 
 - **WHEN** the user enters a workspace that declares content and whose stored arrangement leaves it
@@ -615,11 +656,30 @@ turning the announcement off buys the freedom to answer differently rather than 
 - **THEN** that workspace is the active one
 - **AND** the workbench has not settled into the workspace that claims the starting address
 
+### Requirement: The user is told when a workspace cannot work as declared
+
+Where a workspace cannot work as its declaration describes, the workbench SHALL say so to the user
+and SHALL offer the reset that puts it back to its baseline.
+
+The product that composes the workspaces SHALL be able to turn the announcement off, once for the
+product rather than for each workspace, and it SHALL be on where the product says nothing.
+
 #### Scenario: The user is told, and offered the reset
 
 - **WHEN** a workspace cannot work as its declaration describes
 - **THEN** the user is told so
 - **AND** is offered the reset that returns the workspace to its baseline
+
+#### Scenario: Saying nothing is not the default
+
+- **WHEN** a product declares its workspaces without saying anything about the announcement
+- **THEN** the announcement is made
+
+### Requirement: Turning the announcement off leaves the workspace reachable and known
+
+Turning the announcement off SHALL NOT change what is stored, restored or reachable: the user is
+still left in the workspace, and the product SHALL be able to learn which workspaces cannot work as
+declared, so that it can answer differently.
 
 #### Scenario: A product can answer for itself
 
@@ -628,11 +688,6 @@ turning the announcement off buys the freedom to answer differently rather than 
 - **AND** the user is still left in that workspace
 - **AND** the product can learn that the workspace cannot work as declared
 
-#### Scenario: Saying nothing is not the default
-
-- **WHEN** a product declares its workspaces without saying anything about the announcement
-- **THEN** the announcement is made
-
 ### Requirement: A reset acts on the workspace it names
 
 Resetting SHALL be able to name the workspace it acts on, and SHALL act on the active workspace
@@ -640,16 +695,7 @@ where none is named. A workspace SHALL be resettable without being entered first
 workspace which cannot work as declared can be repaired at all.
 
 Resetting a workspace the user is not in SHALL NOT move the user into it. The rule that a reset also
-navigates to the content the baseline names holds for the workspace the user is in; elsewhere there
-is no address to move to and moving would be a switch the user did not ask for.
-
-A reset discards an arrangement the user may have built, and SHALL therefore be confirmed before it
-takes effect wherever it is offered without the workspace first being entered.
-
-Resetting a workspace the user is not in also discards the surfaces parked under it. Where one of
-them holds unsaved work, the reset SHALL ask the unsaved-work question for those surfaces first, and
-SHALL leave the workspace and what is parked under it as they were if the answer does not allow it.
-It SHALL NOT ask about work outside that workspace.
+navigates to the content the baseline names holds for the workspace the user is in.
 
 #### Scenario: A workspace is reset without being entered
 
@@ -658,6 +704,28 @@ It SHALL NOT ask about work outside that workspace.
 - **THEN** that workspace returns to its baseline
 - **AND** the user is still in the workspace they were in
 
+#### Scenario: Resetting where nothing is named still means here
+
+- **WHEN** a reset is asked for without naming a workspace
+- **THEN** the active workspace is the one reset
+
+### Requirement: A reset offered without entering the workspace is confirmed
+
+A reset discards an arrangement the user may have built, and SHALL therefore be confirmed before it
+takes effect wherever it is offered without the workspace first being entered.
+
+#### Scenario: Discarding is confirmed
+
+- **WHEN** the user asks to reset a workspace they are not in
+- **THEN** it is confirmed before the arrangement is discarded
+
+### Requirement: Resetting a workspace the user is not in asks about the work parked under it
+
+Resetting a workspace the user is not in also discards the surfaces parked under it. Where one of
+them holds unsaved work, the reset SHALL ask the unsaved-work question for those surfaces first, and
+SHALL leave the workspace and what is parked under it as they were if the answer does not allow it.
+It SHALL NOT ask about work outside that workspace.
+
 #### Scenario: A reset of a workspace the user is not in asks about what is parked under it
 
 - **WHEN** the user resets a workspace they are not in while a surface parked under it holds unsaved
@@ -665,16 +733,6 @@ It SHALL NOT ask about work outside that workspace.
 - **THEN** the unsaved-work question is asked for that surface, and for no surface of another
   workspace
 - **AND** declining leaves that surface and the workspace's arrangement as they were
-
-#### Scenario: Resetting where nothing is named still means here
-
-- **WHEN** a reset is asked for without naming a workspace
-- **THEN** the active workspace is the one reset
-
-#### Scenario: Discarding is confirmed
-
-- **WHEN** the user asks to reset a workspace they are not in
-- **THEN** it is confirmed before the arrangement is discarded
 
 ### Requirement: An application reset may be asked to include every workspace
 
@@ -704,23 +762,10 @@ because it describes the reset being asked for rather than a preference the user
 
 When the user saves the arrangement they are working in as a workspace of their own, the workbench
 SHALL record which workspace declared by the product it came from, and SHALL show that origin
-wherever workspaces are listed for switching or managing. The origin is not decoration: it is what
-explains why one saved workspace keeps a kind of content and another does not, and a rule whose
-reason is nowhere on screen is met as an accident.
+wherever workspaces are listed for switching or managing.
 
-The origin SHALL be the nearest workspace the product declared, so that saving from a variant
-produces another variant of the same declared workspace and the relation is always one step deep.
-
-A variant SHALL claim whatever its origin claims, read through the origin rather than copied at the
-moment of saving, so that a claim the product adds later reaches every variant of that workspace.
-
-A variant MAY have no origin: saving from a workspace the product did not declare SHALL leave it
-without one, and a variant SHALL lose its origin where the product stops declaring it. A variant
-without an origin SHALL claim nothing and SHALL be shown without one, rather than being hidden or
-reported as broken.
-
-The origin SHALL NOT be changeable after saving. A user who wants their arrangement to belong
-somewhere else saves it again from there.
+The origin SHALL be the nearest workspace the product declared, so that the relation is always one
+step deep. The origin SHALL NOT be changeable after saving.
 
 #### Scenario: Saving records where the arrangement came from, and it is shown
 
@@ -732,6 +777,11 @@ somewhere else saves it again from there.
 
 - **WHEN** the user saves their arrangement while a variant is active
 - **THEN** the new workspace has the same origin as that variant
+
+### Requirement: A variant claims what its origin claims
+
+A variant SHALL claim whatever its origin claims, read through the origin rather than copied at the
+moment of saving, so that a claim the product adds later reaches every variant of that workspace.
 
 #### Scenario: A variant keeps the content its origin claims
 
@@ -749,6 +799,13 @@ somewhere else saves it again from there.
   claiming workspace exists
 - **THEN** the declared workspace becomes active, not the variant
 
+### Requirement: A variant may have no origin
+
+A variant MAY have no origin: saving from a workspace the product did not declare SHALL leave it
+without one, and a variant SHALL lose its origin where the product stops declaring it. A variant
+without an origin SHALL claim nothing and SHALL be shown without one, rather than being hidden or
+reported as broken.
+
 #### Scenario: A variant whose origin is gone still works
 
 - **WHEN** the product stops declaring the workspace a variant came from
@@ -757,21 +814,41 @@ somewhere else saves it again from there.
 ### Requirement: Workspaces are reachable to the distribution
 
 The distribution SHALL be able to do with workspaces, from its own code, what the workspace dialog
-and the rail do: read which workspaces exist, which is active and which carry unapplied changes, as
-reactive values; switch to a workspace; save the current arrangement as a new workspace; declare the
+and the rail do: switch to a workspace; save the current arrangement as a new workspace; declare the
 current arrangement the active workspace's baseline; reset a named or the active workspace; reset
 every workspace; rename and remove a saved workspace. Each action SHALL be the same action the
-control performs, with the same guards and the same outcome, and SHALL stay available while the
-distribution has switched the workspace controls off for its users.
-
-A confirmation that a control asks before it acts ("really reset?") belongs to the control and SHALL
-NOT be asked by the service; the question about unsaved work belongs to the action and SHALL be
-asked by the service wherever the action would destroy work.
+control performs, with the same guards and the same outcome.
 
 #### Scenario: A distribution's own control switches workspaces
 
 - **WHEN** a component the distribution wrote asks to switch to a declared workspace
 - **THEN** that workspace becomes active exactly as if chosen from the rail, and no prompt appears
+
+### Requirement: The workspace facts are reactive values to the distribution
+
+The distribution SHALL be able to read, from its own code and as reactive values, which workspaces
+exist, which is active and which carry unapplied changes.
+
+#### Scenario: The facts follow a switch
+
+- **WHEN** a distribution binds its own control to the active workspace and the user switches
+- **THEN** the control re-renders with the new workspace without further wiring
+
+### Requirement: Workspace actions stay reachable while the controls are switched off
+
+Each workspace action SHALL stay available to the distribution's own code while the distribution has
+switched the workspace controls off for its users.
+
+#### Scenario: Reachable while switched off
+
+- **WHEN** the distribution has switched workspaces off and switches to one from its own code
+- **THEN** the switch happens, and the user meets no workspace control
+
+### Requirement: A workspace action asks about unsaved work and leaves confirmation to the control
+
+A confirmation that a control asks before it acts ("really reset?") belongs to the control and SHALL
+NOT be asked by the service. The question about unsaved work belongs to the action and SHALL be
+asked by the service wherever the action would destroy work.
 
 #### Scenario: Resetting from code asks about unsaved work like the command
 
@@ -793,16 +870,6 @@ asked by the service wherever the action would destroy work.
 - **THEN** the same question is asked that the reset command would ask, and the workspace is reset
   only if the answer allows it
 
-#### Scenario: The facts follow a switch
-
-- **WHEN** a distribution binds its own control to the active workspace and the user switches
-- **THEN** the control re-renders with the new workspace without further wiring
-
-#### Scenario: Reachable while switched off
-
-- **WHEN** the distribution has switched workspaces off and switches to one from its own code
-- **THEN** the switch happens, and the user meets no workspace control
-
 ### Requirement: A guarded action answers whether it ran
 
 An action that asks about unsaved work before it acts SHALL report whether it went through, so that
@@ -821,12 +888,12 @@ everything as it was.
 
 ### Requirement: Removing a workspace asks about the work parked under it
 
-Removing a saved workspace destroys the retained work parked under it, and removing the one the user
-is in can also destroy the work its surfaces show. Wherever a removal is asked for, the workbench
-SHALL ask the unsaved-work question before removing the workspace: for the surfaces parked under it
-and, where it is the workspace the user is in, for every surface it shows as well, once for both. It
-SHALL leave the workspace in place if the answer does not allow it, and SHALL leave nothing parked
-under it once it is removed.
+Removing a saved workspace destroys the work parked under it and, for the one the user is in, the
+work its surfaces show. Wherever a removal is asked for, the workbench SHALL ask the unsaved-work
+question before removing the workspace: for the surfaces parked under it and, where it is the
+workspace the user is in, for every surface it shows as well, once for both. It SHALL leave the
+workspace in place if the answer does not allow it, and SHALL leave nothing parked under it once it
+is removed.
 
 #### Scenario: Removal with unsaved parked work asks first
 
@@ -868,21 +935,13 @@ to be included. The question SHALL be asked once for the pair, not once per part
 
 ### Requirement: A declared starting workspace is the default one
 
-Where a distribution names the workspace the application opens in, that workspace SHALL be the
-application's default workspace, and the workbench SHALL NOT offer a workspace of its own beside it:
-no empty, undeclared workspace SHALL appear wherever workspaces are listed for switching or managing,
-nor be counted among them.
+Where a distribution names the workspace the application opens in, it SHALL be the application's
+default workspace, and the workbench SHALL NOT offer a workspace of its own beside it: no empty,
+undeclared workspace SHALL be listed or counted wherever workspaces are listed for switching or
+managing.
 
 Wherever the workbench returns the user to the default workspace without their naming one, it SHALL
 return them to the declared one. Removing the workspace the user is in SHALL move them there.
-
-A user whose stored choice is the workbench's own workspace, from a time when the distribution named
-no starting workspace, SHALL be in the declared one at the next opening. What they had arranged in
-the workbench's own workspace is not carried over into the declared one and is no longer shown.
-
-Where a distribution names no starting workspace, the workbench's own workspace SHALL remain the
-default: it SHALL be offered, it SHALL be where a new installation starts and where a removal leads,
-and it SHALL behave as every other requirement of this capability describes.
 
 #### Scenario: No empty workspace is offered beside a declared start
 
@@ -897,6 +956,12 @@ and it SHALL behave as every other requirement of this capability describes.
   they are in
 - **THEN** the declared starting workspace is active
 
+### Requirement: A stored choice of the workbench's own workspace leads to the declared start
+
+A user whose stored choice is the workbench's own workspace, from a time when the distribution named
+no starting workspace, SHALL be in the declared one at the next opening. What they had arranged in
+the workbench's own workspace is not carried over into the declared one and is no longer shown.
+
 #### Scenario: A stored choice of the empty workspace leads to the declared start
 
 - **WHEN** a user's stored choice is the workbench's own workspace and the distribution now declares
@@ -904,6 +969,12 @@ and it SHALL behave as every other requirement of this capability describes.
   claims
 - **THEN** the declared starting workspace is active
 - **AND** the content the address names is shown
+
+### Requirement: Without a declared start the workbench's own workspace is the default
+
+Where a distribution names no starting workspace, the workbench's own workspace SHALL remain the
+default: it SHALL be offered, it SHALL be where a new installation starts and where a removal leads,
+and it SHALL behave as every other requirement of this capability describes.
 
 #### Scenario: Without a declared start the empty workspace stays
 

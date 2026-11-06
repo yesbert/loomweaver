@@ -62,15 +62,23 @@ A declaration MAY ask that its surface always be kept while hidden, or never be.
 change the default for everything it composes, and a surface's own declaration SHALL win over that
 default.
 
-Being hidden by a switch of workspace SHALL count as being hidden, so a kept surface parked by such a
-switch SHALL be found alive when its workspace is chosen again. Where the surface is an isolated one,
-that also means its channel SHALL still be the one it had, so no handshake is repeated and nothing it
-was told has to be pushed again.
-
 #### Scenario: A surface that asks to be kept is kept
 
 - **WHEN** a surface whose declaration asks to be kept is hidden
 - **THEN** it is not destroyed
+
+#### Scenario: A distribution's default applies where nothing is declared
+
+- **WHEN** a distribution sets the default and a surface declares nothing
+- **THEN** the default applies
+- **AND** a surface that declares its own is unaffected
+
+### Requirement: A kept surface parked by a workspace switch is found alive
+
+Being hidden by a switch of workspace SHALL count as being hidden, so a kept surface parked by such a
+switch SHALL be found alive when its workspace is chosen again. Where the surface is an isolated one,
+that also means its channel SHALL still be the one it had, so no handshake is repeated and nothing it
+was told has to be pushed again.
 
 #### Scenario: A workspace switch parks a kept surface rather than ending it
 
@@ -82,12 +90,6 @@ was told has to be pushed again.
 
 - **WHEN** an isolated surface that asks to be kept is parked by a workspace switch and shown again
 - **THEN** it was neither reloaded nor reconnected
-
-#### Scenario: A distribution's default applies where nothing is declared
-
-- **WHEN** a distribution sets the default and a surface declares nothing
-- **THEN** the default applies
-- **AND** a surface that declares its own is unaffected
 
 ### Requirement: What is kept is kept per pane
 
@@ -125,16 +127,11 @@ declared state SHALL still be restored.
 
 Work that is unsaved SHALL be distinguishable on the tab that holds it, so that a user can tell what
 is waiting to be saved without closing anything to find out. The distinction SHALL appear wherever a
-tab is drawn, in the work area and in a sidebar alike, since a tab is one kind of thing everywhere.
-
-A tab holding an arrangement of other work SHALL be distinguished when anything in that arrangement
-is unsaved. The arrangement closes as a unit and the tab is what the user closes, so it is what has
-to show what closing would cost.
+tab is drawn, in the work area and in a sidebar alike.
 
 The distinction SHALL be conveyed to assistive technology as well as drawn, and SHALL NOT rest on
 colour alone.
 
-Two limits. Work shown in a window of its own carries no tab strip, so nothing there is marked.
 Work whose surface has been released is not unsaved, because a surface holding unsaved work is never
 released.
 
@@ -143,12 +140,6 @@ released.
 - **WHEN** a surface reports that its work is unsaved
 - **THEN** its tab is distinguishable from a tab whose work is saved
 - **AND** the distinction goes away once the surface reports itself clean again
-
-#### Scenario: An arrangement is marked for what is inside it
-
-- **WHEN** one view inside an arrangement holds unsaved work
-- **THEN** the arrangement's own tab is distinguished as well, whether or not that view is the one
-  on top
 
 #### Scenario: A sidebar tab is marked like any other
 
@@ -163,7 +154,19 @@ released.
 #### Scenario: Work in a window of its own is not marked
 
 - **WHEN** work is shown in a window of its own
-- **THEN** no tab carries it, and nothing is marked
+- **THEN** no tab carries it, because such a window carries no tab strip, and nothing is marked
+
+### Requirement: A tab holding an arrangement shows unsaved work inside it
+
+A tab holding an arrangement of other work SHALL be distinguished when anything in that arrangement
+is unsaved. The arrangement closes as a unit and the tab is what the user closes, so it is what has
+to show what closing would cost.
+
+#### Scenario: An arrangement is marked for what is inside it
+
+- **WHEN** one view inside an arrangement holds unsaved work
+- **THEN** the arrangement's own tab is distinguished as well, whether or not that view is the one
+  on top
 
 ### Requirement: Whether work is unsaved is readable, not only visible
 
@@ -240,8 +243,7 @@ once, turning a plugin off, resetting an arrangement, and leaving the applicatio
 ### Requirement: A surface may refuse its own close
 
 A surface MAY refuse a close of its own accord, so that it can ask its own question first. A refusal
-SHALL abort the close and SHALL NOT raise the workbench's own dialog; an approval SHALL NOT skip it,
-because the two answer different questions.
+SHALL abort the close and SHALL NOT raise the workbench's own dialog; an approval SHALL NOT skip it.
 
 A surface that fails to answer SHALL NOT be able to make something unclosable: after a bounded wait
 the workbench SHALL offer to close anyway, and an answer that arrives while that offer stands SHALL
@@ -298,34 +300,13 @@ per mounted instance.
 ### Requirement: A surface may hold its nodes where it put them
 
 A docked surface running in the page SHALL be able to switch on, for its own instance, that the
-workbench leaves its rendered nodes where they are. A product uses this while it shows the surface
-somewhere the workbench does not draw, such as a window of its own, so that the one live instance
-goes on running there.
+workbench leaves its rendered nodes where they are, so that a product can keep the one live instance
+running somewhere the workbench does not draw.
 
-While an instance is held, the workbench SHALL NOT take its nodes out of the document, hide them,
-move them or put them back in their place, whatever it does to the panel, pane or workspace the
+While an instance is held, the workbench SHALL NOT take its nodes out of the document, hide, move
+or put them back in their place,
+ whatever it does to the panel, pane or workspace the
 surface belongs to, and SHALL NOT destroy the instance for being hidden.
-
-Moving the view of a held instance to another panel or pane SHALL keep that instance. The workbench
-SHALL NOT build a second one for the place the view arrives at while the hold lasts, and that place
-SHALL be the one the instance belongs to from then on.
-
-When the switch is turned off, the workbench SHALL treat the instance as it would have if it had
-never been held: if the place it belongs to is visible, its nodes are put back there; if not, the
-ordinary rules for a hidden surface apply.
-
-Holding SHALL NOT prevent closing. Closing the view or turning off the plugin that contributed it
-SHALL end a held instance as it ends any other, with its nodes leaving the document wherever they
-are. Ending an instance SHALL end its hold, so that a view opened again after it was closed starts
-unheld until it switches holding on itself.
-
-Resetting the arrangement a held instance belongs to SHALL end its hold before the reset takes
-effect, so that the reset ends or keeps the instance exactly as it would one that was never held.
-
-The workbench SHALL NOT detect on its own that nodes were moved, nor offer any gesture, window or
-presentation for showing a surface elsewhere; the switch is the whole of what it provides. A
-routable surface has no such switch, and neither has an isolated surface, which cannot be moved into
-another window without being reloaded.
 
 #### Scenario: Collapsing the panel leaves a held surface where it is
 
@@ -349,11 +330,28 @@ another window without being reloaded.
 - **WHEN** a held surface with nothing unsaved and no request to be kept is hidden
 - **THEN** it is not destroyed
 
+#### Scenario: A surface that never holds is unaffected
+
+- **WHEN** a surface never switches holding on
+- **THEN** it is hidden, released, moved and repaired exactly as before
+
+### Requirement: Moving the view of a held surface keeps its instance
+
+Moving the view of a held instance to another panel or pane SHALL keep that instance. The workbench
+SHALL NOT build a second one for the place the view arrives at while the hold lasts, and that place
+SHALL be the one the instance belongs to from then on.
+
 #### Scenario: Moving the view keeps a held surface running
 
 - **WHEN** the view of a held surface is moved to the other sidebar or into another pane
 - **THEN** the same instance keeps running where the product put it
 - **AND** nothing is shown for it at the new place while it is held
+
+### Requirement: Turning holding off treats the instance as if it had never been held
+
+When an instance's hold is switched off, the workbench SHALL treat the instance as it would have if it had
+never been held: if the place it belongs to is visible, its nodes are put back there; if not, the
+ordinary rules for a hidden surface apply.
 
 #### Scenario: A moved held surface is placed where its view now is
 
@@ -371,6 +369,13 @@ another window without being reloaded.
 - **WHEN** holding is switched off while the panel the surface belongs to is collapsed
 - **THEN** the surface is treated as a hidden surface, kept or destroyed by the ordinary rules
 
+### Requirement: Holding does not prevent closing
+
+Holding SHALL NOT prevent closing. Closing the view or turning off the plugin that contributed it
+SHALL end a held instance as it ends any other, with its nodes leaving the document wherever they
+are. Ending an instance SHALL end its hold, so that a view opened again after it was closed starts
+unheld until it switches holding on itself.
+
 #### Scenario: Closing still closes a held surface
 
 - **WHEN** the view of a held surface is closed, or the plugin that contributed it is turned off
@@ -381,13 +386,25 @@ another window without being reloaded.
 - **WHEN** a held surface was closed and its view is opened again
 - **THEN** the new surface is not held and its nodes are placed where the view is shown
 
+### Requirement: Resetting the arrangement ends a hold first
+
+Resetting the arrangement a held instance belongs to SHALL end its hold before the reset takes
+effect, so that the reset ends or keeps the instance exactly as it would one that was never held.
+
 #### Scenario: Resetting the workspace ends a hold
 
 - **WHEN** the workspace a held surface belongs to is reset
 - **THEN** the surface is no longer held
 - **AND** it is ended or kept exactly as a surface that never held would be by the same reset
 
-#### Scenario: A surface that never holds is unaffected
+### Requirement: The switch is all the workbench provides for showing a surface elsewhere
 
-- **WHEN** a surface never switches holding on
-- **THEN** it is hidden, released, moved and repaired exactly as before
+The workbench SHALL NOT detect on its own that nodes were moved, nor offer any gesture, window or
+presentation for showing a surface elsewhere; the switch is the whole of what it provides. A
+routable surface has no such switch, and neither has an isolated surface, which cannot be moved into
+another window without being reloaded.
+
+#### Scenario: A routable or isolated surface has no switch to hold
+
+- **WHEN** a surface is routable, or runs isolated from the workbench
+- **THEN** it is offered no switch to hold its nodes where they are

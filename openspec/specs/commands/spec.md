@@ -36,8 +36,7 @@ showing a single piece of work and failure reporting cannot differ by route. A c
 SHALL be reported rather than leaving an unhandled failure, and a command refused for lack of
 permission SHALL surface to the user rather than only to the console.
 
-What the seam makes uniform is what it decides. It does not decide what the search remembers, and
-that record is therefore not uniform across routes; the requirement covering the search says who
+What the search remembers is not decided there; the requirement covering the search says who
 writes it.
 
 #### Scenario: A failing command is reported
@@ -61,27 +60,8 @@ A command MAY declare a keyboard shortcut in a platform-neutral form, and the wo
 and display it in the spelling of the platform it is running on. Bindings SHALL follow the registered
 commands, so a shortcut appears and disappears with the plugin that owns it.
 
-Displaying a shortcut SHALL name every key in it the way the platform names it: as the platform's
-symbol where it has one, and otherwise as a word in the language the interface is shown in. A word
-SHALL come from the workbench's own translations, so a product can reword it, and SHALL follow a change
-of language. Every hint the workbench draws SHALL be spelled this way, whether it shows a command's
-shortcut or the keys a plugin gives an entry of a menu it opens. The hint SHALL name the key the
-binding is for, not a neighbouring key the platform happens to label alike.
-
-The limit: a key the workbench has no name for is shown as it is written in the declaration. A
-language that carries no word for a key shows the English one.
-
 Matching SHALL use the physical key, so that a shortcut combining a modifier with a digit or a
 letter still matches where the modifier changes the character produced.
-
-A shortcut MAY name the platform's delete key in a neutral form, as it names the platform's command
-modifier. The neutral delete key SHALL stand for the backspace key on macOS and for the forward delete
-key on every other platform, alike for binding, for clash detection and for every hint. Its hint SHALL
-be spelled exactly as the key it stands for on that platform. Naming the forward delete key or the
-backspace key directly SHALL keep meaning that physical key on every platform.
-
-The limit: the neutral delete key stands for one key per platform. A product that wants a command to
-fire on both keys of a platform declares two commands, or handles the keys in its own content.
 
 #### Scenario: One declaration works on every platform
 
@@ -104,6 +84,14 @@ fire on both keys of a platform declares two commands, or handles the keys in it
 - **WHEN** two commands declare the same shortcut
 - **THEN** the developer is told, and the later registration wins
 
+### Requirement: A shortcut hint names each key the way the platform names it
+
+Displaying a shortcut SHALL name every key in it the way the platform names it: as the platform's
+symbol where it has one, and otherwise as a word in the language the interface is shown in. The hint
+SHALL name the key the binding is for, not a neighbouring key the platform happens to label alike.
+
+The limit: a key the workbench has no name for is shown as it is written in the declaration.
+
 #### Scenario: A named key is shown in the interface language
 
 - **WHEN** the interface is shown in German on a platform that names keys with words, and a hint shows
@@ -115,6 +103,15 @@ fire on both keys of a platform declares two commands, or handles the keys in it
 - **WHEN** a hint on macOS shows a shortcut on the forward delete key, the backspace key or the tab key
 - **THEN** it shows ⌦, ⌫ or ⇥, whatever the language
 
+### Requirement: Every hint takes its words for keys from the translations
+
+A word for a key SHALL come from the workbench's own translations, so a product can reword it, and
+SHALL follow a change of language. Every hint the workbench draws SHALL be spelled the way a
+command's shortcut is, whether it shows a command's shortcut or the keys a plugin gives an entry of a
+menu it opens.
+
+The limit: a language that carries no word for a key shows the English one.
+
 #### Scenario: A plugin's menu entry is spelled like a command's hint
 
 - **WHEN** a plugin opens a menu whose entry carries a shortcut
@@ -124,6 +121,14 @@ fire on both keys of a platform declares two commands, or handles the keys in it
 
 - **WHEN** the language changes while hints are shown
 - **THEN** the hints are spelled in the new language
+
+### Requirement: A neutral delete key stands for the key that deletes on each platform
+
+A shortcut MAY name the platform's delete key in a neutral form, as it names the platform's command
+modifier. The neutral delete key SHALL stand for the backspace key on macOS and for the forward delete
+key on every other platform, alike for binding, for clash detection and for every hint. Its hint SHALL
+be spelled exactly as the key it stands for on that platform. Naming the forward delete key or the
+backspace key directly SHALL keep meaning that physical key on every platform.
 
 #### Scenario: The neutral delete key binds to the key that deletes on each platform
 
@@ -142,6 +147,13 @@ fire on both keys of a platform declares two commands, or handles the keys in it
 - **WHEN** one command declares the neutral delete key and another declares the key it stands for on
   the running platform
 - **THEN** the developer is told of the clash, as for two commands with the same shortcut
+
+#### Scenario: Both delete keys of a platform take two declarations
+
+- **WHEN** a product wants one action on both the backspace key and the forward delete key of a
+  platform
+- **THEN** the neutral delete key covers only one of them, because it stands for one key per platform
+- **AND** the product declares two commands, or handles the keys in its own content
 
 ### Requirement: Typing is not hijacked
 
@@ -189,15 +201,11 @@ thing the user right-clicked.
 
 ### Requirement: Two commands a user can reach are told apart by their names
 
-Where the workbench offers more than one command in the same list, no two of the commands it ships
-SHALL present the same name in any language it ships. A name SHALL say what its own command does, so
-that two commands whose effects differ do not differ only by a word one of them leaves out.
+No two commands the workbench ships SHALL present the same name in the same list, in any language it
+ships. A name SHALL say what its own command does, so that commands whose effects differ do not
+differ only by a word one leaves out.
 
-One command SHALL present one name. Where the same command is reached from more than one control,
-every control SHALL label it alike, because a second label for one command cannot be told, by the
-person reading it, from a second command.
-
-The limit of this guarantee: it holds for the commands the workbench itself registers and for the
+The limit: this holds for the commands the workbench itself registers and for the
 languages it ships. A product that registers its own commands, or rewords the shipped ones, owns
 whatever collision it creates, and the workbench does not police it at runtime.
 
@@ -208,24 +216,27 @@ whatever collision it creates, and the workbench does not police it at runtime.
 - **THEN** each name says which of the two it resets
 - **AND** neither carries a name the other could equally have
 
-#### Scenario: One command is labelled the same wherever it is offered
-
-- **WHEN** the same command is reachable from a settings control and from the command search
-- **THEN** both present the same name
-
 #### Scenario: A collision is caught before it ships
 
 - **WHEN** two of the shipped commands would present the same name in a shipped language
 - **THEN** that is a defect the repository's own checks report, rather than something a user
   discovers by running the wrong one
 
+### Requirement: One command presents one name
+
+One command SHALL present one name. Where the same command is reached from more than one control,
+every control SHALL label it alike.
+
+#### Scenario: One command is labelled the same wherever it is offered
+
+- **WHEN** the same command is reachable from a settings control and from the command search
+- **THEN** both present the same name
+
 ### Requirement: The search remembers what was used, unless the product says otherwise
 
 Commands the user picked **in the search** SHALL be offered first there under their own heading, and
 no other trigger SHALL add to that record. It is a memory of what the user reached for in that one
-place, not a count of how often a command ran: a command driven by its shortcut is one the user can
-already reach without searching, and putting it at the top of the search would crowd out the entries
-the search exists to surface.
+place, not a count of how often a command ran.
 
 A distribution MAY switch the record off, in which case no history SHALL be kept at all. With no
 history yet, no headings SHALL be shown.
@@ -338,12 +349,10 @@ product may offer either, both, or neither, and may put each in a different bar.
 
 A visible entry point to a search SHALL be shown only while that search is reachable for the current
 user. Where the distribution has removed the search, or the session may not run it, the entry point
-SHALL be absent rather than present and inert, so that no control offers a route the workbench has
-already closed.
+SHALL be absent rather than present and inert.
 
 The limit of this guarantee: switching off the shortcut layer does not close the route. The entry
-point SHALL remain, because activating it still opens the search; it SHALL simply advertise no
-chord, in keeping with nothing advertising a key that does nothing.
+point SHALL remain, because activating it still opens the search, and SHALL advertise no chord.
 
 #### Scenario: Removing the search removes its entry point
 
@@ -366,20 +375,12 @@ chord, in keeping with nothing advertising a key that does nothing.
 
 A command MAY declare the arguments it accepts and MAY answer with a result. What it declares SHALL
 be discoverable without running it: each argument SHALL carry a name, the kind of value it takes,
-whether it is required, and a description of what it means.
+whether it is required, and what it means.
 
-Both the arguments and the answer SHALL be plain data, because they cross the boundary between a
-plugin and the workbench unchanged. A value that cannot be carried as data SHALL be refused rather
-than arriving stripped of what it was.
+The arguments and the answer SHALL be plain data. A value that cannot be carried as data SHALL be
+refused rather than arriving stripped of what it was.
 
-A command that declares no arguments SHALL keep working exactly as it does today, invoked with none.
-
-An argument MAY offer a set of choices, and a value outside them SHALL be refused before the command
-runs. For a command registered by a plugin running in the page, the choices SHALL be read each time
-the command is described or its arguments are checked, so that a choice which exists only after the
-command was registered is offered and accepted. A command registered by an isolated plugin SHALL
-carry the choices it declared when it registered, because its declaration crosses the boundary once;
-it offers new choices by registering the command again.
+A command that declares no arguments SHALL keep working as it does today, invoked with none.
 
 #### Scenario: What a command takes is discoverable before it runs
 
@@ -407,6 +408,15 @@ it offers new choices by registering the command again.
 - **WHEN** a sandboxed plugin invokes a command with an argument that cannot be carried as data
 - **THEN** the invocation is refused, rather than the command running against a value that lost
   what it was
+
+### Requirement: An argument may offer a set of choices
+
+An argument MAY offer a set of choices, and a value outside them SHALL be refused before the command
+runs. For a command registered by a plugin running in the page, the choices SHALL be read each time
+the command is described or its arguments are checked, so that a choice added after registration is
+offered and accepted. A command registered by an isolated plugin SHALL
+carry the choices it declared when it registered; it offers new choices by registering the command
+again.
 
 #### Scenario: A choice that appears after registration is offered and accepted
 
@@ -445,54 +455,40 @@ A command SHALL declare whether a caller other than the plugin that registered i
 default SHALL be that it may not: an undeclared command is unreachable to a foreign caller, by every
 route, and is absent from anything that lists what such a caller may reach.
 
-The plugin that registered a command SHALL always be able to invoke its own, and SHALL need no
-declaration and no grant to do so.
-
-The declaration SHALL open nothing further. A command that declares itself open is still subject to
-every rule that already governs it, so a session that does not qualify for it cannot reach it that
-way either.
+The declaration SHALL open nothing further: a command that declares itself open is still subject to
+every rule that already governs it.
 
 #### Scenario: An undeclared command is unreachable to a foreign caller
 
 - **WHEN** a plugin invokes a command registered by another plugin that has not declared itself open
 - **THEN** it is refused and the command does not run
 
-#### Scenario: A plugin reaches its own commands regardless
-
-- **WHEN** a plugin invokes a command it registered itself, which declares nothing
-- **THEN** it runs
-
 #### Scenario: Declaring openness does not bypass access gating
 
 - **WHEN** a command declares itself open and the session does not meet its access requirement
 - **THEN** a foreign caller naming it is refused, exactly as every other trigger would be
 
+### Requirement: The plugin that registered a command always reaches it
+
+The plugin that registered a command SHALL always be able to invoke its own, and SHALL need no
+declaration and no grant to do so.
+
+#### Scenario: A plugin reaches its own commands regardless
+
+- **WHEN** a plugin invokes a command it registered itself, which declares nothing
+- **THEN** it runs
+
 ### Requirement: A command invoked by identity answers the caller that invoked it
 
 A caller MAY invoke a command by its identity and SHALL receive what it answered. The invocation
-SHALL run through the one place every trigger already runs through, so access gating, the rule about
-a window showing a single piece of work and failure reporting apply to it unchanged.
-
-A refusal SHALL reach the caller as a refusal, and a failure SHALL reach the caller as a failure,
-distinguishable from each other and from an answer. Reaching the caller SHALL NOT replace the
-existing duty to surface a refusal to the user.
-
-Naming a command nothing registered SHALL be refused rather than silently doing nothing.
+SHALL run through the one place every trigger already runs through, so the rules of that place apply
+to it unchanged. Naming a command nothing registered SHALL be refused rather than silently doing
+nothing.
 
 #### Scenario: The answer reaches the caller
 
 - **WHEN** a caller invokes a command that answers with a result
 - **THEN** it receives that result
-
-#### Scenario: A refusal and a failure are told apart
-
-- **WHEN** a caller invokes a command it may not reach, and separately invokes one that throws
-- **THEN** it can tell the refusal from the failure, and neither is presented as an answer
-
-#### Scenario: A refusal still reaches the user
-
-- **WHEN** a caller is refused a command for lack of permission
-- **THEN** the user is told, as they already are for every other route
 
 #### Scenario: A command that does not belong in a detached window is not reachable there
 
@@ -505,27 +501,41 @@ Naming a command nothing registered SHALL be refused rather than silently doing 
 - **WHEN** a caller invokes a command nothing registered
 - **THEN** it is refused, rather than the call appearing to succeed
 
+### Requirement: A refusal and a failure reach the caller as such
+
+A refusal SHALL reach a caller that invoked a command by its identity as a refusal, and a failure as
+a failure, distinguishable from each other and from an answer. Reaching the caller SHALL NOT replace
+the existing duty to surface a refusal to the user.
+
+#### Scenario: A refusal and a failure are told apart
+
+- **WHEN** a caller invokes a command it may not reach, and separately invokes one that throws
+- **THEN** it can tell the refusal from the failure, and neither is presented as an answer
+
+#### Scenario: A refusal still reaches the user
+
+- **WHEN** a caller is refused a command for lack of permission
+- **THEN** the user is told, as they already are for every other route
+
 ### Requirement: What a caller may reach can be enumerated, already narrowed
 
-The workbench SHALL be able to list the commands a given caller may invoke, in a predictable order,
-so that a caller can offer them onward without keeping a list of its own. The list SHALL hold the
+The workbench SHALL be able to list the commands a given caller may invoke, in a predictable order.
+The list SHALL hold the
 commands that declared themselves open, whoever registered them, and SHALL already be narrowed by
 every rule that would refuse the invocation: whether the session meets the command's access
-requirement, whether it belongs in the window the caller is in, and — for a command the caller does
-not own — what the calling plugin has been granted.
+requirement, whether it belongs in the window the caller is in, and, for a command the caller does
+not own, what the calling plugin has been granted.
 
-The list SHALL follow the registered commands, so an entry appears and disappears with the plugin
-that owns it, and SHALL follow the session, so an entry appears once the session qualifies for it.
+#### Scenario: A detached window lists only what belongs there
 
-Everything the list holds SHALL run when invoked, and anything the seam would refuse SHALL be absent
-from it, so that the list is never a wider account than the seam. The reverse is not guaranteed: a
-plugin's commands that it never opened are its own behaviour, and it reaches them whether or not
-they are listed.
+- **WHEN** a caller in a window showing a single piece of work lists what it may invoke
+- **THEN** only commands that declared themselves suitable there are listed
 
-#### Scenario: The list holds only what would actually run
+### Requirement: The list follows the registered commands and the session
 
-- **WHEN** a caller lists the commands it may invoke
-- **THEN** every entry is one that would run if invoked, and nothing that would be refused is listed
+The list of what a caller may invoke SHALL follow the registered commands, so an entry appears and
+disappears with the plugin that owns it, and SHALL follow the session, so an entry appears once the
+session qualifies for it.
 
 #### Scenario: A command the session does not qualify for is absent, and appears when it does
 
@@ -537,10 +547,16 @@ they are listed.
 - **WHEN** the plugin that registered a listed command is deactivated
 - **THEN** the command is no longer listed
 
-#### Scenario: A detached window lists only what belongs there
+### Requirement: The list is never a wider account than the seam
 
-- **WHEN** a caller in a window showing a single piece of work lists what it may invoke
-- **THEN** only commands that declared themselves suitable there are listed
+Everything the list of what a caller may invoke holds SHALL run when invoked, and anything the seam
+would refuse SHALL be absent from it. The reverse is not guaranteed: a plugin's commands that it
+never opened are its own behaviour, and it reaches them whether or not they are listed.
+
+#### Scenario: The list holds only what would actually run
+
+- **WHEN** a caller lists the commands it may invoke
+- **THEN** every entry is one that would run if invoked, and nothing that would be refused is listed
 
 #### Scenario: A command that never opened itself is not listed to its own plugin either
 
@@ -552,24 +568,20 @@ they are listed.
 
 A command SHALL be able to state what running it on an agent's word alone amounts to, as one of four
 statements: that the agent's word is enough; that the person is asked first; that the person is asked
-every time it is called; or that it is not to be run on an agent's word at all. A command that states
-nothing states nothing, which is the default and means what the platform does today.
+every time it is called; or that it is not to be run on an agent's word at all. Stating nothing is the
+default and means what the platform does today.
+
+#### Scenario: A command that says nothing carries nothing
+
+- **WHEN** a caller lists a command that states nothing about an agent's word
+- **THEN** the entry carries no such statement, and the command is offered as it is today
+
+### Requirement: The statement travels wherever a command is accounted for to something other than the person
 
 The statement SHALL travel with the command wherever the workbench accounts for it to something other
 than the person at the keyboard: a caller that enumerates the commands it may invoke SHALL read it
 there, and a description of a command written for an agent choosing between actions SHALL carry it
 beside what the command does, what it takes and what it answers.
-
-**The platform states this and does not enforce it**, exactly as a command's access requirement is a
-statement about presentation rather than protection. Nothing is asked on the product's behalf, no
-answer is remembered, and no invocation is refused on this account: a command that says the person is
-asked first still runs when invoked, whoever invoked it. Asking, and remembering an answer, belong to
-whoever runs commands on an agent's behalf, because only a product knows how it talks to its users. A
-command that must be beyond an agent's reach is put there by not opening it to foreign callers at
-all, which the platform does enforce.
-
-The statement SHALL NOT widen anything. A command that opens itself to foreign callers and states
-that the agent's word is enough is reachable exactly where it was reachable before.
 
 #### Scenario: What a command says is read back where a caller enumerates commands
 
@@ -577,16 +589,19 @@ that the agent's word is enough is reachable exactly where it was reachable befo
   enough for
 - **THEN** the listed entry carries that statement
 
-#### Scenario: A command that says nothing carries nothing
-
-- **WHEN** a caller lists a command that states nothing about an agent's word
-- **THEN** the entry carries no such statement, and the command is offered as it is today
-
 #### Scenario: A description written for an agent carries the statement
 
 - **WHEN** a command that states something about an agent's word is described for an agent to choose
   from
 - **THEN** the description carries that statement beside what the command does
+
+### Requirement: The platform states what an agent's word is enough for and does not enforce it
+
+The platform does not enforce the statement: nothing is asked on the product's behalf, no answer is
+remembered, and no invocation is refused on this account. Asking and remembering an answer belong to
+whoever runs commands on an agent's behalf. A command is put beyond an agent's reach by not opening it
+to foreign callers, which the platform does enforce. The statement SHALL NOT widen anything: an open
+command stating the agent's word is enough is reachable exactly where it was before.
 
 #### Scenario: The statement refuses nothing by itself
 
@@ -609,15 +624,18 @@ another command's run before that run first waits for anything. Invocations that
 each waiting for something such as the user's answer, SHALL NOT count towards the limit, so that any
 number of them can be pending while an unrelated command is invoked.
 
-The limit stops a command that invokes itself, directly or through others, without waiting in
-between. It SHALL NOT be relied on to stop a loop whose steps each wait before invoking the next;
-such a loop is the invoking plugin's own behaviour.
-
 #### Scenario: Pending invocations do not block an unrelated one
 
 - **WHEN** more invocations than the chain limit allows are each waiting for the user, and another
   command is invoked
 - **THEN** it runs
+
+
+### Requirement: The chain limit stops only a loop that does not wait
+
+The limit on a chain of invocations stops a command that invokes itself, directly or through others,
+without waiting in between. It SHALL NOT be relied on to stop a loop whose steps each wait before
+invoking the next; such a loop is the invoking plugin's own behaviour.
 
 #### Scenario: A command that keeps invoking itself is stopped
 
@@ -628,15 +646,11 @@ such a loop is the invoking plugin's own behaviour.
 ### Requirement: The connection an agent drives answers every call it opened
 
 The connection that runs the workbench's commands for an agent SHALL answer every call the agent
-opened, including the calls still open when the agent's run ends, because an agent that sent calls
-expects an answer to each and most agents will not continue without them. When a run ends, the
-connection SHALL answer the calls left open one at a time, each time it is asked, until none is left,
-so that a consumer which asks until nothing is answered has answered all of them.
+opened, including the calls still open when the agent's run ends. When a run ends, the connection
+SHALL answer the calls left open one at a time, each time it is asked, until none is left.
 
-A call still open when the run ends never received all of its arguments. It SHALL be answered as
-refused, saying why, and the command it named SHALL NOT run. The one exception is a call carried in
-the protocol's shorter form, which has no closing of its own: a run that finishes closes it, and it
-runs; a run that fails does not, and it is refused.
+Apart from a call in the protocol's shorter form, a call still open when the run ends SHALL be
+answered as refused, saying why, and the command it named SHALL NOT run.
 
 #### Scenario: Every call left open is answered
 
@@ -649,37 +663,59 @@ runs; a run that fails does not, and it is refused.
 - **WHEN** a run ends with a call whose closing never arrived
 - **THEN** it is answered as refused, and the command it named does not run
 
+#### Scenario: A call that closed runs as before
+
+- **WHEN** a call closes before the run ends
+- **THEN** its command runs and its outcome is the answer, as before
+
+### Requirement: A call in the protocol's shorter form is closed by the run
+
+A call carried in the protocol's shorter form has no closing of its own. Where it is still open when
+the run ends, a run that finishes SHALL close it, and it SHALL run; a run that fails does not close
+it, and it SHALL be answered as refused.
+
 #### Scenario: A call without a closing of its own is closed by the run
 
 - **WHEN** a call arrives in the protocol's shorter form, which has no closing event, and the run
   finishes
 - **THEN** it runs, and it is refused instead where the run fails
 
-#### Scenario: A call that closed runs as before
-
-- **WHEN** a call closes before the run ends
-- **THEN** its command runs and its outcome is the answer, as before
-
 ### Requirement: The agent connection can act on a command's statement when the product asks it to
 
 The connection that runs the workbench's commands for an agent SHALL offer a policy a product may
 choose to apply before each call, acting on what the called command states about an agent's word. A
 product that does not apply it SHALL be asked nothing and SHALL have nothing decided for it, as
-before.
-
-Applied, the policy SHALL decline a call to a command that is not to be run on an agent's word,
-saying so to the agent; SHALL let a call through where the command states the agent's word is enough,
-or states nothing; and SHALL put the call to the person through a confirmation the product supplies
-where the command asks for the person first or every time. For a command that asks for the person
-first, a yes SHALL be remembered for the rest of that connection and SHALL NOT be asked again; for a
-command that asks every time, nothing SHALL be remembered. A no SHALL decline the call, saying so to
-the agent. The policy SHALL NOT widen anything: a call it lets through is still only as reachable as
-the workbench makes it.
+before. The policy SHALL NOT widen anything: a call it lets through is still only as reachable as the
+workbench makes it.
 
 #### Scenario: A product that does not apply the policy is asked nothing
 
 - **WHEN** an agent calls a command that asks for the person first, and the product applied no policy
 - **THEN** nothing is asked and the command runs as it did before
+
+### Requirement: The applied policy declines, lets through or asks by what the command states
+
+Applied, the policy SHALL decline a call to a command that is not to be run on an agent's word,
+saying so to the agent; SHALL let a call through where the command states the agent's word is enough,
+or states nothing; and SHALL put the call to the person through a confirmation the product supplies
+where the command asks for the person first or every time. A no SHALL decline the call, saying so to
+the agent.
+
+#### Scenario: A command not to be run on an agent's word is declined
+
+- **WHEN** the policy is applied and an agent calls a command that is not to be run on an agent's word
+- **THEN** the call is declined with a reason the agent receives, and nobody is asked
+
+#### Scenario: A no declines the call
+
+- **WHEN** the person answers no to the confirmation
+- **THEN** the call is declined with a reason the agent receives, and the command does not run
+
+### Requirement: The applied policy remembers a yes only for a command that asks first
+
+For a command that asks for the person first, a yes SHALL be remembered for the rest of that
+connection and SHALL NOT be asked again; for a command that asks every time, nothing SHALL be
+remembered.
 
 #### Scenario: A command that asks first is asked once per connection
 
@@ -692,16 +728,6 @@ the workbench makes it.
 - **WHEN** the policy is applied and an agent calls a command that asks every time twice
 - **THEN** the person is asked twice
 
-#### Scenario: A command not to be run on an agent's word is declined
-
-- **WHEN** the policy is applied and an agent calls a command that is not to be run on an agent's word
-- **THEN** the call is declined with a reason the agent receives, and nobody is asked
-
-#### Scenario: A no declines the call
-
-- **WHEN** the person answers no to the confirmation
-- **THEN** the call is declined with a reason the agent receives, and the command does not run
-
 ### Requirement: The connection an agent drives runs only what it offered
 
 The connection that runs the workbench's commands for an agent SHALL run a call only where the
@@ -710,15 +736,18 @@ answered as refused, saying why, and SHALL NOT run, even where the plugin holdin
 run that command itself. A command its plugin did not open to callers is therefore beyond an agent's
 reach through the connection, as the platform states for every other caller.
 
-Each tool SHALL be named in a form the common model interfaces accept: letters, digits, underscores
-and hyphens, and no longer than they allow. The connection SHALL translate a call's tool name back to
-the command it stands for, and two commands SHALL NOT be offered under the same name.
-
 #### Scenario: A command the plugin never opened is refused
 
 - **WHEN** an agent calls a command that the plugin holding the connection registered without opening
   it to callers
 - **THEN** the call is answered as refused, saying why, and the command does not run
+
+### Requirement: Each tool is named in a form the model interfaces accept
+
+Each tool the connection offers SHALL be named in a form the common model interfaces accept: letters,
+digits, underscores and hyphens, and no longer than they allow. The connection SHALL translate a
+call's tool name back to the command it stands for, and two commands SHALL NOT be offered under the
+same name.
 
 #### Scenario: A tool name is one the model interfaces accept
 

@@ -30,30 +30,6 @@ What a generator produces SHALL compile against the published contract and SHALL
 platform's own conventions impose, including its own naming and its own style rules. It SHALL NOT
 require a consumer to fix it before it works.
 
-Producing sources alone does not satisfy this. Where generated output needs configuration elsewhere in
-the workspace before it runs, a generator with access to that workspace SHALL produce that
-configuration too. A build that reports success while the generated product does not work SHALL be
-treated as the same defect as a build that fails, because it hides rather than reports.
-
-Where generated output needs a package the consumer's project does not already carry, that need SHALL
-be met rather than assumed. A route that can reach the workspace SHALL record the dependency there; a
-route that cannot SHALL name it among the steps that remain. Output naming a package nobody installs
-does not compile, which is the same defect as output that does not build.
-
-This holds for the generated product as it is served, not only as it is compiled: the workbench's
-chrome SHALL render with its own styles applied and its own strings resolved, and nothing the
-generator itself put in place SHALL contradict anything else it put in place.
-
-It holds for the generated product's tests as well. Where the workspace runs unit tests, the tests
-present after a distribution is generated SHALL pass without further edits, including any starter
-test the workspace carried before the generator ran that the generated output made false; the
-generator SHALL replace such a test rather than leave the consumer to delete it.
-
-A limit the generator itself replaces SHALL remain a limit. Where a default the generated output
-invalidates is a threshold, the generator SHALL set one the generated output fits and a consumer's
-own growth can still exceed, rather than one placed beyond reach; a threshold nothing can cross
-reports nothing.
-
 #### Scenario: A generated project passes its own lint
 
 - **WHEN** a project is generated with a non-default naming prefix
@@ -69,20 +45,12 @@ reports nothing.
 - **WHEN** a project is generated in a workspace that runs no unit tests
 - **THEN** no test wiring and no starter test are emitted
 
-#### Scenario: A generated distribution's tests pass without further edits
+### Requirement: Generated output comes with the configuration it needs
 
-- **WHEN** a distribution is generated into a fresh application workspace that runs unit tests, and
-  the workspace's tests are run without further edits
-- **THEN** every test passes
-- **AND** the application's starter test now boots the workbench rather than the page the
-  application had before
-
-#### Scenario: A generated distribution runs without further wiring
-
-- **WHEN** a distribution is generated into an application workspace and served without further edits
-- **THEN** the workbench chrome renders laid out and styled
-- **AND** its own strings resolve rather than showing their keys
-- **AND** nothing it registers for itself fails to load
+Producing sources alone does not satisfy this. Where generated output needs configuration elsewhere
+in the workspace before it runs, a generator with access to that workspace SHALL produce that
+configuration too. A build that reports success while the generated product does not work SHALL be
+treated as the same defect as a build that fails, because it hides rather than reports.
 
 #### Scenario: The styles the chrome relies on are actually produced
 
@@ -91,6 +59,45 @@ reports nothing.
 - **THEN** the generator produces that pipeline's configuration as well as the stylesheet that needs
   it
 - **AND** the served styles contain those classes
+
+#### Scenario: A style configuration the generator cannot amend is named
+
+- **WHEN** a distribution is generated into a workspace whose style pipeline configuration the
+  generator cannot amend safely, such as one written as code
+- **THEN** that configuration is left untouched
+- **AND** whichever route generated it names what to add, and that the workbench renders unstyled
+  until it is added
+
+### Requirement: A package the generated output needs is recorded or named
+
+Where generated output needs a package the consumer's project does not already carry, that need
+SHALL be met rather than assumed. A route that can reach the workspace SHALL record the dependency
+there; a route that cannot SHALL name it among the steps that remain. Output naming a package nobody
+installs does not compile, which is the same defect as output that does not build.
+
+#### Scenario: A package the generated output needs is installed where that is possible
+
+- **WHEN** generated output needs a package the consumer's project does not carry, and the route can
+  reach the workspace
+- **THEN** the dependency is recorded there rather than left to the consumer
+
+#### Scenario: A route that cannot install names the package instead
+
+- **WHEN** the same output is produced by a route that cannot reach the workspace
+- **THEN** the package is named among the steps that remain, together with what fails if it is skipped
+
+### Requirement: The generated product works as it is served
+
+The generated product SHALL work as it is served, not only as it is compiled: the workbench's chrome
+SHALL render with its own styles applied and its own strings resolved, and nothing the generator
+itself put in place SHALL contradict anything else it put in place.
+
+#### Scenario: A generated distribution runs without further wiring
+
+- **WHEN** a distribution is generated into an application workspace and served without further edits
+- **THEN** the workbench chrome renders laid out and styled
+- **AND** its own strings resolve rather than showing their keys
+- **AND** nothing it registers for itself fails to load
 
 #### Scenario: What the generator emits does not contradict itself
 
@@ -104,16 +111,35 @@ reports nothing.
 - **WHEN** a generated stylesheet is served
 - **THEN** it contains no build-time directive left unprocessed
 
-#### Scenario: A package the generated output needs is installed where that is possible
+#### Scenario: The generated notes agree with what was generated
 
-- **WHEN** generated output needs a package the consumer's project does not carry, and the route can
-  reach the workspace
-- **THEN** the dependency is recorded there rather than left to the consumer
+- **WHEN** a consumer reads the notes generated beside a weaver
+- **THEN** every region they name is one the generated contributions target and the generated
+  layout declares, with the kind the notes give it
+- **AND** where they tell the consumer to install a package, they ask for the version range the
+  generator records in the workspace or names as a remaining step
 
-#### Scenario: A route that cannot install names the package instead
+### Requirement: The generated product's tests pass without further edits
 
-- **WHEN** the same output is produced by a route that cannot reach the workspace
-- **THEN** the package is named among the steps that remain, together with what fails if it is skipped
+Where the workspace runs unit tests, the tests present after a distribution is generated SHALL pass
+without further edits, including any starter test the workspace carried before the generator ran
+that the generated output made false; the generator SHALL replace such a test rather than leave the
+consumer to delete it.
+
+#### Scenario: A generated distribution's tests pass without further edits
+
+- **WHEN** a distribution is generated into a fresh application workspace that runs unit tests, and
+  the workspace's tests are run without further edits
+- **THEN** every test passes
+- **AND** the application's starter test now boots the workbench rather than the page the
+  application had before
+
+### Requirement: A threshold the generator replaces remains a limit
+
+A limit the generator itself replaces SHALL remain a limit. Where a default the generated output
+invalidates is a threshold, the generator SHALL set one the generated output fits and a consumer's
+own growth can still exceed, rather than one placed beyond reach; a threshold nothing can cross
+reports nothing.
 
 #### Scenario: A generated distribution is built for release without a threshold it cannot meet
 
@@ -128,22 +154,6 @@ reports nothing.
   generated output itself weighs
 - **THEN** the build reports it
 
-#### Scenario: The generated notes agree with what was generated
-
-- **WHEN** a consumer reads the notes generated beside a weaver
-- **THEN** every region they name is one the generated contributions target and the generated
-  layout declares, with the kind the notes give it
-- **AND** where they tell the consumer to install a package, they ask for the version range the
-  generator records in the workspace or names as a remaining step
-
-#### Scenario: A style configuration the generator cannot amend is named
-
-- **WHEN** a distribution is generated into a workspace whose style pipeline configuration the
-  generator cannot amend safely, such as one written as code
-- **THEN** that configuration is left untouched
-- **AND** whichever route generated it names what to add, and that the workbench renders unstyled
-  until it is added
-
 ### Requirement: A generated distribution shows the way into its searches
 
 A generated distribution SHALL present, on its first run and without the consumer editing anything,
@@ -151,14 +161,8 @@ a visible entry point to the command search and a visible entry point to the sea
 each naming the shortcut that also opens it. The two SHALL be placed apart from one another, so that
 neither is read as a duplicate of the other.
 
-This holds for what the generator emits, not for what the workbench requires: both entry points
-remain the consumer's to move or delete, and a distribution that emits neither is still a valid one.
-
-The notes a generator writes beside the generated product SHALL name both shortcuts and SHALL say
-how to move an entry point to another bar, how to remove an entry point while keeping its search,
-how to remove a search entirely, and how to bind one of the two shortcuts to a command of the
-consumer's own. Where binding a shortcut has a way that resolves by registration order rather than
-by intent, the notes SHALL name it as the way not to do it.
+Both entry points remain the consumer's to move or delete, and a distribution that emits neither is
+still a valid one.
 
 #### Scenario: A generated distribution offers both searches visibly
 
@@ -171,6 +175,14 @@ by intent, the notes SHALL name it as the way not to do it.
 - **WHEN** a generated distribution renders its chrome
 - **THEN** the two entry points sit in different bars
 
+### Requirement: The generated notes say how to change the search entry points
+
+The notes a generator writes beside the generated product SHALL name both shortcuts and SHALL say
+how to move an entry point to another bar, how to remove an entry point while keeping its search,
+how to remove a search entirely, and how to bind one of the two shortcuts to a command of the
+consumer's own. Where binding a shortcut has a way that resolves by registration order rather than
+by intent, the notes SHALL name it as the way not to do it.
+
 #### Scenario: The generated notes say how to take them away again
 
 - **WHEN** a consumer reads the notes the generator wrote beside the generated product
@@ -182,31 +194,8 @@ by intent, the notes SHALL name it as the way not to do it.
 A weaver SHALL be generatable with the connection that lets an agent speaking the AG-UI protocol run
 the workbench's commands. What is generated SHALL work on the first run, before any agent exists: it
 SHALL come with a local stand-in producing the protocol's own events, so that serving the generated
-product and nothing else exercises the whole path from the offered list through a call to its outcome.
-
-Where the weaver would otherwise carry no command an agent could reach, generating the connection
-SHALL also generate one, because a connection that offers nothing demonstrates nothing. The command
-that is generated SHALL be the complete example rather than the smallest one: it SHALL declare at
-least one argument with a description written for something choosing a value, and SHALL declare
-what it answers with and answer accordingly, so that the generated path demonstrates arguments
-arriving and an answer returning, not only a call.
-
-The stand-in SHALL say that it is one, where the person using it cannot miss it, and SHALL be confined
-to the one place meant to be replaced, so that putting a real connection in its place leaves the rest
-of the generated output standing. Nothing SHALL be generated for the connection itself: no transport,
-no credential and no language model, because those are the product's own and cannot be guessed. The
-stand-in SHALL fill the generated command's argument from what the command declared, rather than
-sending none.
-
-The generated connection SHALL carry the seam where a product decides about a call before it runs, and
-SHALL declare the permission that reaching commands beyond the weaver's own requires, rather than
-leaving the consumer to add it.
-
-Where the generated output treats a command as consequential, it SHALL take that from what the
-command itself states about an agent's word, read off the command the call names, rather than from a
-list of command identities kept beside the commands. A list beside them is what the generated output
-must not teach: it drifts from the commands it describes, and it cannot speak for a command another
-plugin registered.
+product and nothing else exercises the whole path from the offered list through a call to its
+outcome.
 
 #### Scenario: A generated weaver demonstrates the path with no backend
 
@@ -214,12 +203,32 @@ plugin registered.
 - **THEN** a command can be run from the generated output and its outcome is shown
 - **AND** nothing is sent anywhere
 
+#### Scenario: What is offered is asked for again each run
+
+- **WHEN** what is reachable changes between two runs
+- **THEN** the second run offers the changed list rather than the earlier one
+
+### Requirement: Generating the agent connection generates a complete command
+
+Where the weaver would otherwise carry no command an agent could reach, generating the connection
+SHALL also generate one, because a connection that offers nothing demonstrates nothing. That command
+SHALL be the complete example rather than the smallest one: it SHALL declare at least one argument
+with a description written for something choosing a value, and SHALL declare what it answers with
+and answer accordingly.
+
 #### Scenario: The generated command shows arguments and an answer
 
 - **WHEN** a weaver is generated with an agent connection and the generated command is run from the
   generated output
 - **THEN** the call carries an argument value the stand-in took from the command's own declaration
 - **AND** the outcome shown is the command's declared answer, not an empty success
+
+### Requirement: The generated stand-in says what it is and is confined to its place
+
+The stand-in SHALL say that it is one, where the person using it cannot miss it, and SHALL be
+confined to the one place meant to be replaced, so that putting a real connection in its place
+leaves the rest of the generated output standing. The stand-in SHALL fill the generated command's
+argument from what the command declared, rather than sending none.
 
 #### Scenario: The part that is not an agent says so
 
@@ -231,10 +240,21 @@ plugin registered.
 - **WHEN** the stand-in is replaced by a connection to a real agent
 - **THEN** nothing else in the generated output has to change
 
+### Requirement: Nothing is generated for the agent connection itself
+
+Nothing SHALL be generated for the connection itself: no transport, no credential and no language
+model, because those are the product's own and cannot be guessed.
+
 #### Scenario: The connection itself is not guessed at
 
 - **WHEN** output is generated with an agent connection
 - **THEN** it carries no transport, no credential and no language model
+
+### Requirement: The generated connection carries the decision seam and its permission
+
+The generated connection SHALL carry the seam where a product decides about a call before it runs,
+and SHALL declare the permission that reaching commands beyond the weaver's own requires, rather
+than leaving the consumer to add it.
 
 #### Scenario: The permission comes with the choice
 
@@ -247,34 +267,25 @@ plugin registered.
 - **THEN** the user is asked first
 - **AND** declining stops the command from running
 
+### Requirement: The generated decision reads what the command states
+
+Where the generated output treats a command as consequential, it SHALL take that from what the
+command itself states about an agent's word, read off the command the call names, rather than from a
+list of command identities kept beside the commands. Such a list drifts from the commands it
+describes, and it cannot speak for a command another plugin registered.
+
 #### Scenario: The generated decision reads the command, not a list
 
 - **WHEN** a weaver is generated with an agent connection
 - **THEN** the generated decision asks the command the call names what an agent's word is enough for
 - **AND** the generated output holds no list of consequential command identities
 
-#### Scenario: What is offered is asked for again each run
-
-- **WHEN** what is reachable changes between two runs
-- **THEN** the second run offers the changed list rather than the earlier one
-
 ### Requirement: A stand-in session can be generated that its user can operate
 
-A session that stands in for an identity provider SHALL be generatable, and what is generated
-SHALL be operable on the first serve without further edits: the user SHALL be able to sign in,
-switch between the stand-in's accounts and sign out from the workbench's own chrome, and every
-contribution that declares an access requirement SHALL follow the state so reached. Generating the
-stand-in SHALL compose it into the product where the composition root still presents the shape the
-platform generated, and SHALL name what to add where it does not, under the same rule every
-generator follows for composing into what is already there.
-
-The stand-in SHALL say what it is, in the generated source, and SHALL be confined to what a product
-replaces when its own session arrives, so that mapping a real session into the same seam leaves the
-rest standing. A consumer SHALL be able to ask for the session's shape alone, without the controls,
-for a product that has a session of its own to map.
-
-The limit of that: the stand-in is presentation. Nothing generated protects anything, and the
-generated source SHALL say so.
+A session that stands in for an identity provider SHALL be generatable, and what is generated SHALL
+be operable on the first serve without further edits: the user SHALL be able to sign in, switch
+between the stand-in's accounts and sign out from the workbench's own chrome, and every contribution
+that declares an access requirement SHALL follow the state so reached.
 
 #### Scenario: A generated stand-in works from the rail on the first serve
 
@@ -284,12 +295,27 @@ generated source SHALL say so.
 - **AND** a contribution gated on being signed in appears after signing in and disappears after
   signing out
 
+### Requirement: A generated stand-in session is composed in where the shape is recognised
+
+Generating the stand-in SHALL compose it into the product where the composition root still presents
+the shape the platform generated, and SHALL name what to add where it does not, under the same rule
+every generator follows for composing into what is already there.
+
 #### Scenario: A composition root that cannot be recognised is named rather than guessed at
 
 - **WHEN** a stand-in session is generated into a distribution whose composition root no longer
   presents that shape
 - **THEN** that file is left untouched, the generator names what to add to it, and it does not report
   the stand-in as composed in
+
+### Requirement: The stand-in session is confined to what a product replaces
+
+The stand-in SHALL say what it is, in the generated source, and SHALL be confined to what a product
+replaces when its own session arrives, so that mapping a real session into the same seam leaves the
+rest standing. A consumer SHALL be able to ask for the session's shape alone, without the controls.
+
+The stand-in is presentation: nothing generated protects anything, and the generated source SHALL
+say so.
 
 #### Scenario: The shape alone can be asked for
 
@@ -320,12 +346,12 @@ because a guide is not read at the moment the output is produced.
 ### Requirement: Generated output is for the consumer's project, not the platform's
 
 Generated code SHALL reference the published packages rather than any location inside the platform's
-own repository, and SHALL take its naming, its placement and its import path from the workspace it is
-generated into.
+own repository, and SHALL take its naming, its placement and its import path from the workspace it
+is generated into.
 
 Where no naming prefix is supplied, generated components SHALL take the prefix the consumer's
 application already declares, and where there is none to read, a neutral prefix, never the
-platform's own. A product's components are then never mistaken for the elements the platform ships.
+platform's own, so they are never mistaken for the elements the platform ships.
 
 #### Scenario: Imports name the published packages
 
@@ -360,16 +386,6 @@ A generator SHALL refuse rather than overwrite, naming what is in the way and ho
 consumer SHALL be able to see what would be written without anything being written, including which
 files a real run would refuse.
 
-A generator MAY amend a file it does not own where the generated output cannot work without it, and
-that file SHALL be one the generator names for itself rather than one derived from a consumer-supplied
-target. An amendment SHALL add only what is absent, SHALL leave every value the consumer already chose
-in place, and SHALL be reported in the same breath as what was written.
-
-Where overwriting is permitted, it SHALL replace the entry in the target rather than following it
-somewhere else. A target supplied by the consumer SHALL be refused where it would lead outside the
-directory the generator was given; that refusal governs supplied targets, and does not extend to the
-workspace files a generator names for itself.
-
 #### Scenario: An existing file stops the run and is named
 
 - **WHEN** something the generator would write already exists
@@ -380,6 +396,13 @@ workspace files a generator names for itself.
 - **WHEN** a trial run is requested
 - **THEN** nothing is written
 - **AND** the files a real run would refuse are named
+
+### Requirement: A generator may amend a file it cannot work without, adding only what is absent
+
+A generator MAY amend a file it does not own where the generated output cannot work without it, and
+that file SHALL be one the generator names for itself rather than one derived from a
+consumer-supplied target. An amendment SHALL add only what is absent, SHALL leave every value the
+consumer already chose in place, and SHALL be reported in the same breath as what was written.
 
 #### Scenario: A trial run reports what would be amended as well
 
@@ -392,6 +415,13 @@ workspace files a generator names for itself.
 - **WHEN** a generator amends a file in which the consumer already set one of the values it would add
 - **THEN** the consumer's value stands
 - **AND** only what was absent is added
+
+### Requirement: An overwrite replaces the entry and a supplied target stays inside the directory
+
+Where overwriting is permitted, it SHALL replace the entry in the target rather than following it
+somewhere else. A target supplied by the consumer SHALL be refused where it would lead outside the
+directory the generator was given; that refusal governs supplied targets, and does not extend to the
+workspace files a generator names for itself.
 
 #### Scenario: Overwriting does not write through a link
 
@@ -429,18 +459,9 @@ takes none SHALL be refused.
 ### Requirement: A generator composes into what is already there
 
 Where a generator adds to an existing project, it SHALL keep what that project declared for itself
-and SHALL NOT rename it. Where it needs to know which project to add to, it SHALL determine that from
-the workspace, and where the answer is ambiguous it SHALL name the candidates rather than guessing.
-
-Generated output that another generator's output must reference SHALL be composed in rather than left
-for the consumer to connect, but only where the receiving file still presents the shape the platform
-generated and the place to compose into is therefore unambiguous. Where it does not, the generator
-SHALL leave that file untouched and SHALL name exactly what to add, because guessing at a consumer's
-code is worse than asking for two minutes of their attention. A generator SHALL NOT report a
-composition it did not perform as done.
-
-Composing a second plugin in SHALL leave every plugin composed in before it working. What the
-generator adds for one plugin SHALL NOT replace, shadow or disable what it added for another.
+and SHALL NOT rename it. Where it needs to know which project to add to, it SHALL determine that
+from the workspace, and where the answer is ambiguous it SHALL name the candidates rather than
+guessing.
 
 #### Scenario: Adding to an existing project keeps its own declarations
 
@@ -457,19 +478,27 @@ generator adds for one plugin SHALL NOT replace, shadow or disable what it added
 - **WHEN** composing would rename the project already there
 - **THEN** it is refused
 
+#### Scenario: A nested package is not taken for the workspace
+
+- **WHEN** output is generated into a directory inside a workspace, below a folder that carries a
+  package manifest of its own but no workspace configuration
+- **THEN** the workspace above it is found and wired, as it would be from the workspace root
+- **AND** a package the output needs is recorded in that workspace, not in the nested package
+
+### Requirement: Generated output another generator's output references is composed in
+
+Generated output that another generator's output must reference SHALL be composed in rather than
+left for the consumer to connect, but only where the receiving file still presents the shape the
+platform generated and the place to compose into is therefore unambiguous. Where it does not, the
+generator SHALL leave that file untouched and SHALL name exactly what to add. A generator SHALL NOT
+report a composition it did not perform as done.
+
 #### Scenario: A generated plugin reaches the workbench it was generated beside
 
 - **WHEN** a plugin is generated into a distribution whose composition root still presents the shape
   the platform generated
 - **THEN** the plugin is registered there, with the permissions its own manifest declares
 - **AND** serving the distribution shows the plugin's contributions in the chrome
-
-#### Scenario: A second generated plugin leaves the first one working
-
-- **WHEN** two plugins are generated one after the other into the same distribution, and it is
-  served without further edits
-- **THEN** both activate with the permissions their manifests declare
-- **AND** the contributions of both are in the chrome
 
 #### Scenario: A composition root that cannot be recognised is named rather than guessed at
 
@@ -479,43 +508,27 @@ generator adds for one plugin SHALL NOT replace, shadow or disable what it added
 - **AND** the generator names what to add to it
 - **AND** it does not report the plugin as composed in
 
-#### Scenario: A nested package is not taken for the workspace
+### Requirement: Composing a second plugin leaves the first one working
 
-- **WHEN** output is generated into a directory inside a workspace, below a folder that carries a
-  package manifest of its own but no workspace configuration
-- **THEN** the workspace above it is found and wired, as it would be from the workspace root
-- **AND** a package the output needs is recorded in that workspace, not in the nested package
+Composing a second plugin in SHALL leave every plugin composed in before it working. What the
+generator adds for one plugin SHALL NOT replace, shadow or disable what it added for another.
+
+#### Scenario: A second generated plugin leaves the first one working
+
+- **WHEN** two plugins are generated one after the other into the same distribution, and it is
+  served without further edits
+- **THEN** both activate with the permissions their manifests declare
+- **AND** the contributions of both are in the chrome
 
 ### Requirement: A consumer can have their own declarations checked
 
 The platform SHALL offer checks for the declarations a consumer writes by hand: that a plugin
-manifest is well formed, that a catalogue is usable, that translation bundles cover the same
-keys, and that a command registration says what an agent needs to be offered it and to call it
-well. A finding SHALL name the consequence rather than only the rule, because the workbench reads
-these defensively and an unusable value disappears without a word.
+manifest is well formed, that a catalogue is usable, that translation bundles cover the same keys,
+and that a command registration says what an agent needs to be offered it and call it well. A
+finding SHALL name the consequence rather than only the rule, since an unusable value disappears
+silently.
 
 A check SHALL be able to distinguish something it can judge from something it cannot, and say which.
-
-For command registrations, the check SHALL report each command it finds with one of three outcomes:
-offered to an agent; offered but described in a way that leaves the agent guessing, naming the
-argument or the answer that lacks a description; or not offered, naming what closes it. Where a
-command is offered, the report SHALL also say what the command states about an agent's word being
-enough to run it, and say that it states nothing where it states nothing. Because a command's reach
-is finally decided at runtime by grants and access, the check SHALL say that it judged the
-registration alone. A strict mode SHALL fail on a command that is offered without a
-description; it SHALL report an argument without a description and a returned value without a
-declared answer without failing on them; and it SHALL NOT fail on a command that is simply not
-offered, because closed is the default the platform intends. It SHALL NOT fail on, nor warn about, a
-command that states nothing about an agent's word, and SHALL NOT guess from a command's identity or
-its label what running it would cost: saying nothing is a declaration the platform accepts, and a
-guess a consumer cannot act on teaches them to overlook the report.
-
-The command check reads a consumer's sources with the TypeScript compiler of the consumer's own
-project. Where that project's TypeScript offers no programming interface to read sources with, as
-the native rewrite does not, the check SHALL read them through the compatibility release of the
-previous interface when the project has it installed. Where it has neither, the check SHALL say
-which of the two it found, and for a TypeScript without the interface name what to install, rather
-than failing inside the compiler. The limit: the check never brings a compiler of its own.
 
 #### Scenario: A finding says what it will cost
 
@@ -532,6 +545,14 @@ than failing inside the compiler. The limit: the check never brings a compiler o
 - **WHEN** a value can only be judged in the browser
 - **THEN** it is reported as a warning rather than passed or failed
 
+### Requirement: The command check reports each command's outcome and its own limit
+
+For command registrations, the check SHALL report each command it finds with one of three outcomes:
+offered to an agent; offered but described in a way that leaves the agent guessing, naming the
+argument or the answer that lacks a description; or not offered, naming what closes it. Because a
+command's reach is finally decided at runtime by grants and access, the check SHALL say that it
+judged the registration alone.
+
 #### Scenario: A command an agent is never offered is named
 
 - **WHEN** a plugin's sources register a command that is not opened to callers other than its own
@@ -543,6 +564,19 @@ than failing inside the compiler. The limit: the check never brings a compiler o
 - **WHEN** a registered command is opened to other callers but lacks a description, or declares an
   argument without a description, or returns a value without declaring an answer
 - **THEN** the check names the command and the missing piece and says what the agent sees instead
+
+#### Scenario: The check names the limit of what it read
+
+- **WHEN** the check reports on a directory
+- **THEN** its report says that grants and access decide the rest at runtime and were not judged
+
+### Requirement: The command check reports what a command states about an agent's word
+
+Where a command is offered, the report SHALL also say what the command states about an agent's word
+being enough to run it, and say that it states nothing where it states nothing. The check SHALL NOT
+fail on, nor warn about, a command that states nothing about an agent's word, and SHALL NOT guess
+from a command's identity or its label what running it would cost: saying nothing is a declaration
+the platform accepts.
 
 #### Scenario: What a command says about an agent's word is reported
 
@@ -557,6 +591,13 @@ than failing inside the compiler. The limit: the check never brings a compiler o
 - **THEN** the report says that the command states nothing
 - **AND** the check does not fail and does not warn on that account
 
+### Requirement: The command check's strict mode fails only on an offered command without a description
+
+A strict mode SHALL fail on a command that is offered without a description; it SHALL report an
+argument without a description and a returned value without a declared answer without failing on
+them; and it SHALL NOT fail on a command that is simply not offered, because closed is the default
+the platform intends.
+
 #### Scenario: Strict mode gates what closes a command, not what merely narrows it
 
 - **WHEN** the check runs in strict mode over a plugin with one callable command without a
@@ -564,10 +605,14 @@ than failing inside the compiler. The limit: the check never brings a compiler o
 - **THEN** it fails because of the first
 - **AND** it does not fail because of the second
 
-#### Scenario: The check names the limit of what it read
+### Requirement: The command check reads sources with the consumer's own compiler
 
-- **WHEN** the check reports on a directory
-- **THEN** its report says that grants and access decide the rest at runtime and were not judged
+The command check reads a consumer's sources with the TypeScript compiler of the consumer's own
+project and never brings one of its own. Where that TypeScript offers no programming interface to
+read sources with, the check SHALL read them through the compatibility release of the previous
+interface when the project has it installed. Where it has neither, the check SHALL say which it
+found and, for a TypeScript without the interface, name what to install, rather than fail inside the
+compiler.
 
 #### Scenario: A project on the native TypeScript is checked through the compatibility release
 
@@ -585,18 +630,11 @@ than failing inside the compiler. The limit: the check never brings a compiler o
 
 ### Requirement: One command takes an existing application to a running product
 
-A consumer with an existing Angular application or an Nx workspace SHALL be able to run one
-command that leaves them with a product that serves: the platform's packages installed, the
-distribution scaffolded and wired, and a first plugin composed in, so that the first serve shows a
-workbench with something in its rail. The command SHALL do this without asking a question; every
-choice it makes SHALL be overridable by an option with a stated default.
-
-The command SHALL only add. Run a second time it SHALL change nothing and say so, and a value the
-consumer already chose SHALL be kept. It SHALL name every file it wrote, every file it amended and
-every package it installed, and it SHALL end by naming the command that serves the product.
-
-The command SHALL NOT create the application. Outside an Angular application or an Nx workspace it
-SHALL refuse with a message that names what it expected to find.
+A consumer with an existing Angular application or an Nx workspace SHALL be able to run one command
+that leaves them with a product that serves: the platform's packages installed, the distribution
+scaffolded and wired, and a first plugin composed in, so that the first serve shows a workbench with
+something in its rail. The command SHALL do this without asking a question; every choice it makes
+SHALL be overridable by an option with a stated default.
 
 #### Scenario: An Angular CLI application becomes a product
 
@@ -633,6 +671,12 @@ SHALL refuse with a message that names what it expected to find.
 - **THEN** the distribution is produced without one, and the output says the rail will be empty
   until a plugin is composed in
 
+### Requirement: The command that takes an application to a product only adds, and names what it did
+
+The command SHALL only add. Run a second time it SHALL change nothing and say so, and a value the
+consumer already chose SHALL be kept. It SHALL name every file it wrote, every file it amended and
+every package it installed, and it SHALL end by naming the command that serves the product.
+
 #### Scenario: A trial run writes and installs nothing
 
 - **WHEN** a trial run is requested
@@ -645,6 +689,11 @@ SHALL refuse with a message that names what it expected to find.
 - **WHEN** the command runs again in a workspace it already took to a product
 - **THEN** no file changes, no package is reinstalled, and the output says that nothing was left
   to do
+
+### Requirement: The command that takes an application to a product does not create the application
+
+The command SHALL NOT create the application. Outside an Angular application or an Nx workspace it
+SHALL refuse with a message that names what it expected to find.
 
 #### Scenario: Outside a workspace it refuses
 

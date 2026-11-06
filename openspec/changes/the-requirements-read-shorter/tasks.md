@@ -5,9 +5,9 @@ read finds every statement of the old text in the new one.
 
 ## 1. Shorten the long requirements
 
-- [ ] 1.1 ui-primitives, commands, menus, accessibility
-- [ ] 1.2 workspaces, scaffolding, surfaces, plugin-permissions, plugin-sandbox, plugin-store, plugin-runtime
-- [ ] 1.3 shell-layout, i18n, routing, content-tabs, panes, product-identity, surface-retention, workbench-capture, persistence-ports, platform-composition, access-gating, containers, gesture-configuration, theming
+- [x] 1.1 ui-primitives, commands, menus, accessibility
+- [x] 1.2 workspaces, scaffolding, surfaces, plugin-permissions, plugin-sandbox, plugin-store, plugin-runtime
+- [x] 1.3 shell-layout, i18n, routing, content-tabs, panes, product-identity, surface-retention, workbench-capture, persistence-ports, platform-composition, access-gating, containers, gesture-configuration, theming
 
 ## 2. Check
 
