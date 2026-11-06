@@ -56,8 +56,8 @@ describe('the addresses a frame plugin answered', () => {
 
     addresses.keepOnly(['docs']);
     answer(JSON.stringify({ docs: ['docs'], gone: ['gone'] }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
 
+    await vi.waitFor(() => expect(addresses.read()).toBe(true));
     expect(addresses.of('gone')).toEqual([]);
     expect(set).toHaveBeenLastCalledWith(
       FRAME_PLUGIN_ADDRESSES_KEY,

@@ -8,6 +8,8 @@ import { FailedPluginContent } from '../failed-plugin-content';
 import { FramePluginRuntime, provideFramePlugins } from './frame-plugin-runtime';
 import { FRAME_PLUGIN_ADDRESSES_KEY } from './frame-plugin-addresses';
 import { SETTINGS_STORE } from '../../persistence/settings-store';
+import { WORKING_STATE_STORE } from '../../persistence/working-state-store';
+import { KeyValueStore } from '../../persistence/key-value-store';
 
 vi.mock('penpal', () => ({
   connect: vi.fn(),
@@ -20,12 +22,39 @@ function connecting(promise: Promise<unknown>) {
   return { promise, destroy: vi.fn() };
 }
 
-function session(answer: Promise<unknown>, settings: unknown[] = []) {
+function memoryStore(values = new Map<string, string>()): KeyValueStore {
+  return {
+    peek: (key) => values.get(key),
+    get: (key) => Promise.resolve(values.get(key)),
+    set: (key, value) => {
+      values.set(key, value);
+      return Promise.resolve();
+    },
+    delete: (key) => {
+      values.delete(key);
+      return Promise.resolve();
+    },
+  };
+}
+
+function rememberedPlugins(workingState: Map<string, string>): string[] {
+  return Object.keys(
+    JSON.parse(workingState.get(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
+  );
+}
+
+function session(
+  answer: Promise<unknown>,
+  workingState: Map<string, string>,
+  settings: KeyValueStore = memoryStore(),
+) {
   TestBed.resetTestingModule();
+  answer.catch(() => undefined);
   connectMock.mockReset().mockReturnValue(connecting(answer));
   TestBed.configureTestingModule({
     providers: [
-      ...settings,
+      { provide: SETTINGS_STORE, useValue: settings },
+      { provide: WORKING_STATE_STORE, useValue: memoryStore(workingState) },
       { provide: ContentTabsService, useValue: {} },
       { provide: MenuService, useValue: { openList: () => undefined } },
       { provide: CAPABILITY_GRANTS, useValue: { 'team-docs': ['contributions'] } },
@@ -41,41 +70,58 @@ function session(answer: Promise<unknown>, settings: unknown[] = []) {
   return TestBed.inject(FailedPluginContent);
 }
 
-async function settled(): Promise<void> {
-  TestBed.tick();
-  for (let turn = 0; turn < 4; turn += 1) {
-    await Promise.resolve();
-  }
+function eventually(assertion: () => void): Promise<void> {
+  return vi.waitFor(
+    () => {
+      TestBed.tick();
+      assertion();
+    },
+    { timeout: 5000, interval: 5 },
+  );
 }
 
-function methods() {
+async function connectedMethods() {
+  await eventually(() => expect(connectMock).toHaveBeenCalled());
   return connectMock.mock.calls.at(-1)?.[0].methods as Record<
     string,
     (...args: unknown[]) => unknown
   >;
 }
 
-async function answeredOnce(): Promise<void> {
-  session(Promise.resolve({}));
-  await settled();
-  methods()['registerSurface']({
+async function answeredOnce(workingState: Map<string, string>): Promise<void> {
+  session(Promise.resolve({}), workingState);
+  const methods = await connectedMethods();
+  methods['registerSurface']({
     id: 'docs.page',
     title: 'Docs',
     routable: { path: 'docs/:id' },
     iframe: '/docs/page.html',
   });
-  methods()['registerSurface']({
+  methods['registerSurface']({
     id: 'docs.outline',
     title: 'Outline',
     docks: ['primary'],
     iframe: '/docs/outline.html',
   });
-  await settled();
+  await eventually(() =>
+    expect(workingState.get(FRAME_PLUGIN_ADDRESSES_KEY)).toContain(
+      'view:docs.outline',
+    ),
+  );
+}
+
+async function failedAgain(workingState: Map<string, string>) {
+  const lost = session(Promise.reject(new Error('offline')), workingState);
+  await eventually(() => expect(lost.recoveryFor('docs/7')).toBeDefined());
+  return lost;
 }
 
 describe('a frame plugin that could not be loaded', () => {
+  let workingState: Map<string, string>;
+
   beforeEach(() => {
-    localStorage.clear();
+    vi.useRealTimers();
+    workingState = new Map();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
@@ -84,14 +130,12 @@ describe('a frame plugin that could not be loaded', () => {
     for (const frame of document.querySelectorAll('iframe')) {
       frame.remove();
     }
-    localStorage.clear();
   });
 
   it('is named at the addresses it answered before, and nowhere else', async () => {
-    await answeredOnce();
+    await answeredOnce(workingState);
 
-    const lost = session(Promise.reject(new Error('offline')));
-    await settled();
+    const lost = await failedAgain(workingState);
 
     expect(lost.recoveryFor('docs/7')?.name).toBe('Team docs');
     expect(lost.recoveryFor('view:docs.outline')?.name).toBe('Team docs');
@@ -99,87 +143,85 @@ describe('a frame plugin that could not be loaded', () => {
   });
 
   it('is started again when the user tries again, and is no longer named once it answers', async () => {
-    await answeredOnce();
-    const lost = session(Promise.reject(new Error('offline')));
-    await settled();
+    await answeredOnce(workingState);
+    const lost = await failedAgain(workingState);
     connectMock.mockReturnValue(connecting(Promise.resolve({})));
 
     lost.recoveryFor('docs/7')?.retry();
-    await settled();
 
-    expect(connectMock).toHaveBeenCalledTimes(2);
-    expect(lost.recoveryFor('docs/7')).toBeUndefined();
+    await eventually(() => expect(connectMock).toHaveBeenCalledTimes(2));
+    await eventually(() => expect(lost.recoveryFor('docs/7')).toBeUndefined());
   });
 
   it('is not named for an address it never answered', async () => {
-    const lost = session(Promise.reject(new Error('offline')));
-    await settled();
+    const lost = session(Promise.reject(new Error('offline')), workingState);
 
+    await eventually(() =>
+      expect(console.error).toHaveBeenCalledWith(
+        'Sandbox plugin "team-docs" failed to connect',
+        expect.any(Error),
+      ),
+    );
     expect(lost.recoveryFor('docs/7')).toBeUndefined();
   });
 
   it('stays named while trying again has not been answered yet', async () => {
-    await answeredOnce();
-    const lost = session(Promise.reject(new Error('offline')));
-    await settled();
+    await answeredOnce(workingState);
+    const lost = await failedAgain(workingState);
     connectMock.mockReturnValue(connecting(new Promise(() => undefined)));
 
     lost.recoveryFor('docs/7')?.retry();
-    await settled();
 
+    await eventually(() => expect(connectMock).toHaveBeenCalledTimes(2));
     expect(lost.recoveryFor('docs/7')?.name).toBe('Team docs');
   });
 
   it('drops what it remembers of a plugin that is no longer composed or installed', async () => {
-    localStorage.setItem(
+    workingState.set(
       FRAME_PLUGIN_ADDRESSES_KEY,
       JSON.stringify({ gone: ['old/place'], 'team-docs': ['docs/:id'] }),
     );
 
-    session(Promise.reject(new Error('offline')));
-    await settled();
+    session(Promise.reject(new Error('offline')), workingState);
 
-    expect(
-      Object.keys(
-        JSON.parse(localStorage.getItem(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
-      ),
-    ).toEqual(['team-docs']);
+    await eventually(() =>
+      expect(rememberedPlugins(workingState)).toEqual(['team-docs']),
+    );
   });
 
   it('keeps what it remembers of an installed plugin until the installed list has been read', async () => {
-    localStorage.setItem(
+    workingState.set(
       FRAME_PLUGIN_ADDRESSES_KEY,
       JSON.stringify({ gone: ['old/place'], installed: ['mine'] }),
     );
     let readInstalled: (raw: string) => void = () => undefined;
-    const store = {
-      get: (key: string) =>
+    const settings: KeyValueStore = {
+      get: (key) =>
         key === 'lw.shell.installed-plugins'
           ? new Promise<string>((resolve) => (readInstalled = resolve))
           : Promise.resolve(undefined),
       set: () => Promise.resolve(),
       delete: () => Promise.resolve(),
     };
-    const stored = () =>
-      Object.keys(
-        JSON.parse(localStorage.getItem(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
-      );
 
-    session(Promise.reject(new Error('offline')), [
-      { provide: SETTINGS_STORE, useValue: store },
-    ]);
-    await settled();
-    expect(stored()).toEqual(['gone', 'installed']);
+    session(Promise.reject(new Error('offline')), workingState, settings);
+    await eventually(() =>
+      expect(console.error).toHaveBeenCalledWith(
+        'Sandbox plugin "team-docs" failed to connect',
+        expect.any(Error),
+      ),
+    );
+    expect(rememberedPlugins(workingState)).toEqual(['gone', 'installed']);
+    connectMock.mockReturnValue(connecting(new Promise(() => undefined)));
 
     readInstalled(
       JSON.stringify([
         { id: 'installed', name: 'Mine', entryUrl: '/installed/plugin.html' },
       ]),
     );
-    await settled();
-    await settled();
 
-    expect(stored()).toEqual(['installed']);
+    await eventually(() =>
+      expect(rememberedPlugins(workingState)).toEqual(['installed']),
+    );
   });
 });
-
