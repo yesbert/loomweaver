@@ -29,6 +29,7 @@ import {
 } from '../pane/chrome/pane-affordances';
 import { PaneTabStrip } from '../pane/chrome/pane-tab-strip';
 import { PaneToolbar } from '../pane/chrome/pane-toolbar';
+import { MAIN_CONTENT_ID, PaneFocus } from '../pane/pane-focus';
 
 @Component({
   selector: 'lw-address-pane-header',
@@ -46,6 +47,8 @@ export class AddressPaneHeader {
   private readonly chrome = inject(PaneChromeService);
   private readonly actions = inject(PaneActions);
   private readonly paneTree = inject(PaneTreeService);
+  private readonly paneFocus = inject(PaneFocus);
+  protected readonly mainContentId = MAIN_CONTENT_ID;
   protected readonly features = inject(FeatureSwitches).content;
 
   private readonly urlPaneId = computed(() =>
@@ -161,16 +164,38 @@ export class AddressPaneHeader {
     this.actions.maximize(CONTENT_DOCK, this.urlPaneId());
   }
 
+  protected closeTab(tab: StripTab): void {
+    const pane = this.addressPane();
+    void this.tabs.close(tab.path).then((closed) => {
+      if (closed) {
+        this.paneFocus.settleOn(pane);
+      }
+    });
+  }
+
   protected minimize(): void {
     this.actions.minimize(CONTENT_DOCK, this.urlPaneId());
+    this.paneFocus.settleOn(this.addressPane());
   }
 
   protected closePrimary(): void {
-    this.actions.close(CONTENT_DOCK, this.urlPaneId());
+    const pane = this.addressPane();
+    void this.actions.close(CONTENT_DOCK, pane.paneId).then((closed) => {
+      if (closed) {
+        this.paneFocus.settleOn(pane);
+      }
+    });
   }
 
   protected split(orientation: 'row' | 'column'): void {
-    this.actions.split(CONTENT_DOCK, this.urlPaneId(), orientation);
+    const added = this.actions.split(
+      CONTENT_DOCK,
+      this.urlPaneId(),
+      orientation,
+    );
+    if (added !== null) {
+      this.paneFocus.settleOn({ dock: CONTENT_DOCK, paneId: added });
+    }
   }
 
   protected newTab(event: Event): void {

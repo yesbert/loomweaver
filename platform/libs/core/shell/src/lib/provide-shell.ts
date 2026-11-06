@@ -46,7 +46,8 @@ import { wordChordKeys } from './commands/keyboard/chord-wording';
 import { DialogService } from './dialog/dialog.service';
 import { ContentTabsService } from './regions/content/tabs/content-tabs.service';
 import { PaneTreeService } from './regions/pane/tree/pane-tree.service';
-import { PaneMoveService } from './regions/pane/drag/pane-move.service';
+import { TabMoves } from './regions/pane/drag/tab-moves';
+import { PaneFocus } from './regions/pane/pane-focus';
 import { WorkspaceService } from './workspace/workspace.service';
 import { ViewStateService } from './views/view-state.service';
 import { ViewInstanceService } from './views/view-instance.service';
@@ -175,7 +176,8 @@ function registerWorkbenchContributions(options: ShellOptions): void {
   });
   registerBuiltInMenus(registry, inject(SHELL_LAYOUT), {
     tabs: inject(ContentTabsService),
-    paneMove: inject(PaneMoveService),
+    tabMoves: inject(TabMoves),
+    paneFocus: inject(PaneFocus),
     viewMove: inject(ViewMoveService),
     viewVisibility: inject(ViewVisibilityService),
     railItems: inject(RailItemsService),

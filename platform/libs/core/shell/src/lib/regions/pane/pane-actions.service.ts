@@ -17,7 +17,7 @@ import {
 } from './tree/pane-handover';
 import { sparedByBulkClose } from './tree/pane-tabs';
 import { PRIMARY_LEAF, PaneLeaf, PaneNode, leafPath } from './tree/pane-node';
-import { findLeaf } from './tree/pane-queries';
+import { collectLeafIds, findLeaf } from './tree/pane-queries';
 import { PaneTreeService } from './tree/pane-tree.service';
 
 @Service()
@@ -32,34 +32,42 @@ export class PaneActions {
   private readonly features = inject(FeatureSwitches).content;
   private readonly leftOut = inject(LeftOutChildren);
 
-  split(dock: string, paneId: string, orientation: 'row' | 'column'): void {
+  split(
+    dock: string,
+    paneId: string,
+    orientation: 'row' | 'column',
+  ): string | null {
     const leaf = this.leaf(dock, paneId);
     if (leaf === null) {
-      return;
+      return null;
     }
     const path = leafPath(leaf) ?? this.addressCarriedBy(dock, paneId);
     if (path === undefined || !this.duplicable(path)) {
-      return;
+      return null;
     }
+    const before = new Set(collectLeafIds(this.paneTree.tree(dock)));
     this.paneTree.splitPane(dock, paneId, orientation, path);
+    return (
+      collectLeafIds(this.paneTree.tree(dock)).find((id) => !before.has(id)) ??
+      null
+    );
   }
 
-  close(dock: string, paneId: string): void {
+  close(dock: string, paneId: string): Promise<boolean> {
     const leaf = this.leaf(dock, paneId);
     if (leaf === null) {
-      return;
+      return Promise.resolve(false);
     }
     const primary = paneId === this.paneTree.primaryId(dock);
     if (primary && !this.paneTree.isSplit(dock)) {
-      return;
+      return Promise.resolve(false);
     }
     if (primary && dock === CONTENT_DOCK) {
-      this.tabs.closePrimaryPane();
-      return;
+      return this.tabs.closePrimaryPane();
     }
     const keeps = this.keepsOnClose(dock);
     const closed = closedWithHandover(this.paneTree.tree(dock), paneId, keeps);
-    this.closeGuard.guarded(this.lostBy(dock, closed), () => {
+    return this.closeGuard.guarded(this.lostBy(dock, closed), () => {
       if (primary) {
         this.paneTree.collapsePrimary(dock, keeps);
         return;

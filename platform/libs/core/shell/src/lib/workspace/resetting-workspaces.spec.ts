@@ -144,6 +144,24 @@ describe('resetting a workspace', () => {
     expect(removed).toHaveBeenCalledTimes(1);
     expect(kept).not.toHaveBeenCalled();
   });
+
+  it('runs the teardown of the tabs a reset of a workspace the user is not in discards, once, and keeps the hooks of the tabs it keeps', async () => {
+    localStorage.setItem('lw.shell.pane-trees:orders', REARRANGED);
+    const ws = compose();
+    const hooks = TestBed.inject(TabCloseHooks);
+    const discarded = vi.fn();
+    const kept = vi.fn();
+    hooks.set('orders/o-1', discarded);
+    hooks.set('orders/o-0', kept);
+
+    await ws.reset('orders');
+    await ws.reset('orders');
+
+    expect(discarded).toHaveBeenCalledTimes(1);
+    expect(hooks.get('orders/o-1')).toBeUndefined();
+    expect(kept).not.toHaveBeenCalled();
+    expect(hooks.get('orders/o-0')).toBe(kept);
+  });
 });
 
 describe('the marks of a workspace the user is not in', () => {

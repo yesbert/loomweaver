@@ -43,7 +43,7 @@ test.describe('A pane never shows a tab the URL pane hides', () => {
     await openEntry(page, 'E-02');
     await expect(urlPane).toHaveCount(2);
 
-    await page.locator(`${OTHER_PANE} [role="tab"][aria-label="E-01"]`).click();
+    await page.locator(`${OTHER_PANE} [role="tab"][aria-label^="E-01"]`).click();
 
     await expect(page).toHaveURL(/entry\/e-01/);
     await expect(urlPane).toHaveCount(1);
@@ -65,17 +65,17 @@ test.describe('A pane never shows a tab the URL pane hides', () => {
     await page.getByRole('button', { name: 'Bravo' }).click();
 
     const anywhere = page.locator(
-      'lw-pane-tab-strip [role="tab"][aria-label="E-02"]',
+      'lw-pane-tab-strip [role="tab"][aria-label^="E-02"]',
     );
     await expect(anywhere).toHaveClass(/italic/);
 
-    await page.locator(`${OTHER_PANE} [role="tab"][aria-label="E-01"]`).click();
+    await page.locator(`${OTHER_PANE} [role="tab"][aria-label^="E-01"]`).click();
     await expect(
-      page.locator(`${OTHER_PANE} [role="tab"][aria-label="E-02"]`),
+      page.locator(`${OTHER_PANE} [role="tab"][aria-label^="E-02"]`),
     ).toHaveClass(/italic/);
 
     await page
-      .locator(`${OTHER_PANE} [role="tab"][aria-label="E-02"]`)
+      .locator(`${OTHER_PANE} [role="tab"][aria-label^="E-02"]`)
       .dblclick();
     await expect(anywhere).not.toHaveClass(/italic/);
   });

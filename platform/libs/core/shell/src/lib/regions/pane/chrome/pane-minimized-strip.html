@@ -4,6 +4,7 @@
   [class.flex-col]="vertical()"
   [class.px-2]="!vertical()"
   [class.py-2]="vertical()"
+  [id]="id()"
   (click)="restore()"
   [attr.aria-label]="nameOf(label().literalTitle ? label().title : (label().title | transloco), restoreKey() | transloco: { count: tabCount() })"
   data-testid="pane-minimized-strip"

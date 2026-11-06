@@ -55,7 +55,7 @@ export class ViewCuration implements CurationSource {
     if (place === HIDDEN) {
       this.visibility.hide(row.id);
     } else {
-      this.visibility.reveal(row.id, place);
+      void this.visibility.reveal(row.id, place);
     }
   }
 

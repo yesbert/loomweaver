@@ -25,6 +25,7 @@ import {
   PaneViewOptions,
 } from './pane-view-options';
 import { StripTab } from './chrome/strip-tab';
+import { PaneFocus } from './pane-focus';
 
 interface PaneViewInternals {
   onSelectTab(tab: StripTab): void;
@@ -87,10 +88,13 @@ const containers = {
 const tabs = {
   runCloseHook: vi.fn(),
   activeTabRoot: vi.fn(() => 'home'),
-  close: vi.fn(),
+  close: vi.fn(() => Promise.resolve(true)),
   navigate: vi.fn(),
   navigateTo: vi.fn(),
-  closePrimaryPane: vi.fn(),
+  closePrimaryPane: vi.fn(() => Promise.resolve(true)),
+};
+const paneFocus = {
+  settleOn: vi.fn(),
 };
 const admission = {
   canOfferAsPaneTarget: vi.fn((path: string) => path.startsWith('view:')),
@@ -143,6 +147,7 @@ function configure(features: ShellFeatures, extras: BuildExtras = {}): void {
     { provide: ContentTabsService, useValue: tabs },
     { provide: PaneAdmission, useValue: admission },
     { provide: PaneTargetPicker, useValue: picker },
+    { provide: PaneFocus, useValue: paneFocus },
     { provide: SHELL_FEATURES, useValue: features },
   ];
   if (extras.containerChildren) {
@@ -353,6 +358,57 @@ describe('PaneView (content pane)', () => {
       paneId: 'p1',
     });
     expect(tree.removeTab).not.toHaveBeenCalled();
+  });
+
+  it('closing a tab gives the focus back to its pane once the tab is gone, and keeps it where the question was cancelled', async () => {
+    const c = build(CONTENT_PANE_OPTIONS);
+    c.onCloseTab(stripTab('search'));
+    await Promise.resolve();
+    expect(paneFocus.settleOn).toHaveBeenCalledWith({
+      dock: 'content',
+      paneId: 'p1',
+    });
+
+    paneFocus.settleOn.mockClear();
+    tabs.close.mockReturnValueOnce(Promise.resolve(false));
+    c.onCloseTab(stripTab('search'));
+    await Promise.resolve();
+    expect(paneFocus.settleOn).not.toHaveBeenCalled();
+  });
+
+  it('splitting, closing and minimising a pane each leave the focus in the pane that was made or remains', async () => {
+    const c = build(CONTENT_PANE_OPTIONS, undefined, 'view:a');
+    tree.tree.mockReturnValue(leafOf('p1', 'view:a'));
+    tree.splitPane.mockImplementationOnce(() => {
+      tree.tree.mockReturnValue({
+        kind: 'split',
+        id: 's1',
+        orientation: 'row',
+        ratio: 0.5,
+        first: leafOf('p1', 'view:a'),
+        second: leafOf('p9', 'view:a'),
+      } as never);
+    });
+    c.splitPane('row');
+    expect(paneFocus.settleOn).toHaveBeenLastCalledWith({
+      dock: 'content',
+      paneId: 'p9',
+    });
+    tree.tree.mockReturnValue(leafOf('p1', 'doc/a'));
+
+    c.minimize();
+    expect(paneFocus.settleOn).toHaveBeenLastCalledWith({
+      dock: 'content',
+      paneId: 'p1',
+    });
+
+    paneFocus.settleOn.mockClear();
+    c.closePane();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(paneFocus.settleOn).toHaveBeenCalledWith({
+      dock: 'content',
+      paneId: 'p1',
+    });
   });
 
   it('the strip of a pane lists the tabs that do not fit, and one chosen from the list is brought into view', () => {

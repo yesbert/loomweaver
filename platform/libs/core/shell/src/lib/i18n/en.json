@@ -29,6 +29,8 @@
     "unpinTab": "Unpin tab",
     "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, unsaved changes",
+    "pinnedTab": "{{title}}, pinned",
+    "previewTab": "{{title}}, preview",
     "loadFailed": "This view could not be loaded.",
     "split": {
       "open": "Split editor",
@@ -53,7 +55,14 @@
       "closeRight": "Close to the Right",
       "closeAll": "Close All",
       "pinned": "Pinned",
-      "openInNewWindow": "Open in New Window"
+      "openInNewWindow": "Open in New Window",
+      "keepOpen": "Keep Open",
+      "moveToPane": "Move to Pane…"
+    },
+    "tabMove": {
+      "pane": "Pane {{position}}: {{title}}",
+      "announce": "{{tab}} moved to pane {{position}}",
+      "announceNew": "{{tab}} moved to a new pane"
     }
   },
   "curation": {
@@ -170,7 +179,7 @@
     "save": "Save",
     "discard": "Discard",
     "saveFailed": "Saving failed — your changes are kept and the surface stays open",
-    "stillDirty": "The surface still reports unsaved changes after saving — closing was cancelled",
+    "stillDirty": "The surface still reports unsaved changes after saving, so it was left as it was",
     "vetoPendingTitle": "Waiting for the plugin",
     "vetoPendingMessage": "This tab's plugin has not finished its check yet. You can go ahead without waiting for it.",
     "goAheadAnyway": "Go ahead anyway",

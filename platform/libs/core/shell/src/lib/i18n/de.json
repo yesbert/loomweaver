@@ -29,6 +29,8 @@
     "unpinTab": "Tab lösen",
     "badgedTab": "{{title}}, {{badge}}",
     "unsavedTab": "{{title}}, ungespeicherte Änderungen",
+    "pinnedTab": "{{title}}, angeheftet",
+    "previewTab": "{{title}}, Vorschau",
     "loadFailed": "Diese Ansicht konnte nicht geladen werden.",
     "split": {
       "open": "Editor teilen",
@@ -53,7 +55,14 @@
       "closeRight": "Rechts schließen",
       "closeAll": "Alle schließen",
       "pinned": "Angeheftet",
-      "openInNewWindow": "In neuem Fenster öffnen"
+      "openInNewWindow": "In neuem Fenster öffnen",
+      "keepOpen": "Geöffnet lassen",
+      "moveToPane": "In Pane verschieben…"
+    },
+    "tabMove": {
+      "pane": "Pane {{position}}: {{title}}",
+      "announce": "{{tab}} in Pane {{position}} verschoben",
+      "announceNew": "{{tab}} in ein neues Pane verschoben"
     }
   },
   "curation": {
@@ -170,7 +179,7 @@
     "save": "Speichern",
     "discard": "Verwerfen",
     "saveFailed": "Speichern fehlgeschlagen — deine Änderungen bleiben erhalten und die Ansicht offen",
-    "stillDirty": "Die Ansicht meldet nach dem Speichern weiterhin ungespeicherte Änderungen — das Schließen wurde abgebrochen",
+    "stillDirty": "Die Ansicht meldet nach dem Speichern weiterhin ungespeicherte Änderungen, deshalb blieb sie, wie sie war",
     "vetoPendingTitle": "Warten auf das Plugin",
     "vetoPendingMessage": "Das Plugin dieses Tabs hat seine Prüfung noch nicht abgeschlossen. Du kannst fortfahren, ohne darauf zu warten.",
     "goAheadAnyway": "Trotzdem fortfahren",

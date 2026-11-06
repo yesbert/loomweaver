@@ -1,16 +1,17 @@
+@let named = !title ? ('content.pluginSurface' | transloco) : literalTitle ? title : (title | transloco);
 @if (isolated) {
   <iframe
     #frame
     class="h-full w-full border-0"
     [src]="src"
     sandbox="allow-scripts"
-    [title]="'content.pluginSurface' | transloco"
+    [title]="named"
   ></iframe>
 } @else {
   <iframe
     #frame
     class="h-full w-full border-0"
     [src]="src"
-    [title]="'content.pluginSurface' | transloco"
+    [title]="named"
   ></iframe>
 }

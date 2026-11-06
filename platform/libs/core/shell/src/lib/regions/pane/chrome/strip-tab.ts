@@ -32,6 +32,7 @@ export interface TabMenuPlace {
   readonly paneId: string;
   readonly primary: boolean;
   readonly sole: boolean;
+  readonly split: boolean;
 }
 
 export function tabMenuContext(
@@ -56,7 +57,9 @@ export function tabMenuContext(
     paneId: place.paneId,
     primary: place.primary,
     pinned: tab.pinned,
+    preview: tab.preview,
     closable: tab.closable,
     sole: place.sole,
+    split: place.split,
   };
 }

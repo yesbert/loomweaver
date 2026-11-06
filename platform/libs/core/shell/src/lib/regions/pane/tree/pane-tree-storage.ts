@@ -11,7 +11,7 @@ import {
 } from './stored-pane-tree';
 import { PRIMARY_PANE } from './pane-address';
 import { PaneNode } from './pane-node';
-import { tabPathsWhere } from './pane-queries';
+import { collectTabPaths, tabPathsWhere } from './pane-queries';
 import { isAtOrBelow } from '../../content/content-path';
 import { WORKSPACES_KEY } from '../../../workspace/catalog/saved-workspaces';
 import { WorkspaceCatalog } from '../../../workspace/catalog/workspace-catalog';
@@ -49,6 +49,12 @@ export function parseDocks(raw: string | undefined): Record<string, DockEntry> {
   } catch {
     return {};
   }
+}
+
+export function storedTabPaths(raw: string | undefined): string[] {
+  return Object.values(parseDocks(raw)).flatMap((entry) =>
+    collectTabPaths(entry.node),
+  );
 }
 
 function originsIn(raw: string | undefined): ReadonlyMap<string, string> {

@@ -1127,7 +1127,7 @@ class ContentTabsService {   // the tabs of the pane carrying the address; the s
   activeViewPath: Signal<string | null>; activeViewInstance: Signal<string | undefined>; quickOpenTargets: Signal<readonly QuickOpenTarget[]>;
   open(input: OpenTabInput): void; update(path: string, label: ContentTabLabel, pluginId?: string): void; keep(path: string): void; pin(path: string): void; unpin(path: string): void;
   navigate(path: string): Promise<boolean>; navigateTo(path: string): void; revealContentTab(navPath: string): void; activateViewTab(path: string): void; bringToFront(path: string): void; reorder(ids: string[]): void;
-  close(path: string, pane?: PaneRef): void; closeOthers(path: string, pane?: PaneRef): void; closeToRight(path: string, pane?: PaneRef): void; closeAll(pane?: PaneRef): void; closePrimaryPane(): void;
+  close(path: string, pane?: PaneRef): Promise<boolean>; closeOthers(path: string, pane?: PaneRef): void; closeToRight(path: string, pane?: PaneRef): void; closeAll(pane?: PaneRef): void; closePrimaryPane(): Promise<boolean>;
   runCloseHook(path: string): void; hasUnsavedWork(path: string): boolean; neighbourOf(path: string): string }   // closing asks about unsaved work first; pinned and unclosable tabs survive the bulk closes
 class WorkspaceService { definitions: readonly WorkspaceDefinition[]; workspaces: Signal<Workspace[]>; activeId: Signal<string>; hasChanges: Signal<boolean>; changedIds: Signal<Set<string>>;
   initials: Signal<ReadonlyMap<string, string>>;   // the one-or-two-letter glyphs the rail draws for user-saved workspaces, by id

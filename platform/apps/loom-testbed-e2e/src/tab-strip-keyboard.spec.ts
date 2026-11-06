@@ -47,6 +47,68 @@ test.describe('A tab strip is walked with the arrow keys', () => {
     await expect(first).toBeFocused();
   });
 
+  test('closing a tab with Delete leaves the focus on the selected tab of the strip', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Entry list' }).click();
+    await page.getByRole('button', { name: 'Alpha' }).dblclick();
+    await page.getByRole('button', { name: 'Bravo' }).dblclick();
+
+    const first = page.getByRole('tab', { name: 'E-01', exact: true });
+    const second = page.getByRole('tab', { name: 'E-02', exact: true });
+    await expect(second).toHaveAttribute('aria-selected', 'true');
+    await expect(second).toHaveAttribute('aria-keyshortcuts', /Delete/);
+
+    await second.focus();
+    await page.keyboard.press('Delete');
+
+    await expect(second).toHaveCount(0);
+    await expect(first).toHaveAttribute('aria-selected', 'true');
+    await expect(first).toBeFocused();
+  });
+
+  test('splitting, minimising, restoring and closing a pane from the keyboard keep the focus in the panes', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Entry list' }).click();
+    await page.getByRole('button', { name: 'Alpha' }).first().dblclick();
+
+    const other = page.locator('lw-pane-view:not([data-address-pane])');
+    await page
+      .locator(
+        'lw-address-pane-header lw-pane-toolbar button[aria-label="Split right"]',
+      )
+      .focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      other.locator('lw-pane-tab-strip [role="tab"][aria-selected="true"]'),
+    ).toBeFocused();
+
+    await other.getByTestId('pane-minimize').focus();
+    await page.keyboard.press('Enter');
+    const strip = page.getByTestId('pane-minimized-strip');
+    await expect(strip).toBeFocused();
+
+    await page.keyboard.press('Enter');
+    await expect(strip).toHaveCount(0);
+    await expect(
+      other.locator('lw-pane-tab-strip [role="tab"][aria-selected="true"]'),
+    ).toBeFocused();
+
+    await other
+      .locator('lw-pane-toolbar button[aria-label="Close pane"]')
+      .focus();
+    await page.keyboard.press('Enter');
+    await expect(other).toHaveCount(0);
+    await expect(
+      page.locator(
+        'lw-address-pane-header lw-pane-tab-strip [role="tab"][aria-selected="true"]',
+      ),
+    ).toBeFocused();
+  });
+
   test("a container's inner strip is walked on its own", async ({ page }) => {
     await page.goto('/');
     await rail(page).getByRole('button', { name: 'Browse container' }).click();

@@ -291,19 +291,19 @@ Each of these is a review. What it finds is added to the group it belongs to and
 
 What review 12.2 and the reads of the last branches found. Paths are under `platform/libs/core/shell/src/lib/`.
 
-- [ ] 17.1 Closing a tab with the keyboard leaves the focus on the strip's selected tab, or on the pane body where the strip is gone, also after the unsaved-work question
-- [ ] 17.2 Minimising, restoring, closing and splitting a pane leave the focus on the selected tab of the pane that remains, is restored or was made, or on the minimised strip's button
-- [ ] 17.3 A content tab can be moved into another existing pane from its menu, and the move is announced and the focus follows it
-- [ ] 17.4 Splitting a tab out from its menu is announced and the focus follows the tab
-- [ ] 17.5 A preview tab can be kept open without a pointer, and the key is announced on the tab
-- [ ] 17.6 A tab drawn as an icon closes with Delete like any other
-- [ ] 17.7 A pinned tab and a preview tab say so in their name
-- [ ] 17.8 The floating toolbar's control that opens a menu says that it does, and whether the menu is open
-- [ ] 17.9 Each isolated surface's frame is titled by what it shows
-- [ ] 17.10 Revealing a view returns only once its move has happened, and says nothing where the move was cancelled (`regions/panel/view-visibility.service.ts`)
-- [ ] 17.11 The message after a refused close speaks of the gesture under way, a move as well as a close (`retention.stillDirty`)
-- [ ] 17.12 Resetting a workspace that is not in use runs the close hooks of the tabs it discards and leaves none behind (`workspace/workspace.service.ts`)
-- [ ] 17.13 The description of identity-scoped stores says what a first sign-in carries over: every value read while nobody was known and missing for the person (`persistence/identity-scope/provide-identity-scoped-stores.ts`)
+- [x] 17.1 Closing a tab with the keyboard leaves the focus on the strip's selected tab, or on the pane body where the strip is gone, also after the unsaved-work question
+- [x] 17.2 Minimising, restoring, closing and splitting a pane leave the focus on the selected tab of the pane that remains, is restored or was made, or on the minimised strip's button
+- [x] 17.3 A content tab can be moved into another existing pane from its menu, and the move is announced and the focus follows it
+- [x] 17.4 Splitting a tab out from its menu is announced and the focus follows the tab
+- [x] 17.5 A preview tab can be kept open without a pointer, and the key is announced on the tab
+- [x] 17.6 A tab drawn as an icon closes with Delete like any other
+- [x] 17.7 A pinned tab and a preview tab say so in their name
+- [x] 17.8 The floating toolbar's control that opens a menu says that it does, and whether the menu is open
+- [x] 17.9 Each isolated surface's frame is titled by what it shows
+- [x] 17.10 Revealing a view returns only once its move has happened, and says nothing where the move was cancelled (`regions/panel/view-visibility.service.ts`)
+- [x] 17.11 The message after a refused close speaks of the gesture under way, a move as well as a close (`retention.stillDirty`)
+- [x] 17.12 Resetting a workspace that is not in use runs the close hooks of the tabs it discards and leaves none behind (`workspace/workspace.service.ts`)
+- [x] 17.13 The description of identity-scoped stores says what a first sign-in carries over: every value read while nobody was known and missing for the person (`persistence/identity-scope/provide-identity-scoped-stores.ts`)
 
 ## 13. Hand-over
 

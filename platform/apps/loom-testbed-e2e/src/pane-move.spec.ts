@@ -1,5 +1,18 @@
-import { expect, test } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 import { dragTo, openEntry } from './support/helpers';
+
+async function chooseByKeyboard(page: Page, name: string | RegExp) {
+  const item = page.getByRole('menuitem', { name });
+  await expect(item).toBeVisible();
+  for (let step = 0; step < 20; step += 1) {
+    if (await item.evaluate((element) => element === document.activeElement)) {
+      break;
+    }
+    await page.keyboard.press('ArrowDown');
+  }
+  await expect(item).toBeFocused();
+  await page.keyboard.press('Enter');
+}
 
 test.describe('Tab move semantics', () => {
   test('tab menu "Split right" MOVES a router-bound doc tab into a new group that takes the URL', async ({
@@ -140,5 +153,34 @@ test.describe('Tab move semantics', () => {
       page.locator('lw-content-grid lw-pane-split-handle'),
     ).toHaveCount(0);
     await expect(page).toHaveURL(/\/search$/);
+  });
+
+  test('a tab moves into another pane from its menu without a pointer, is announced and keeps the focus', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Entry list' }).click();
+    await openEntry(page, 'E-01');
+    await openEntry(page, 'E-02');
+
+    const moved = page.getByRole('tab', { name: 'E-01', exact: true });
+    const announced = page.locator('.cdk-live-announcer-element');
+    const splits = page.locator('lw-content-grid lw-pane-split-handle');
+    await moved.focus();
+    await page.keyboard.press('ContextMenu');
+    await chooseByKeyboard(page, 'Split right');
+
+    await expect(splits).toHaveCount(1);
+    await expect(moved).toBeFocused();
+    await expect(announced).toContainText('E-01 moved to a new pane');
+
+    await page.keyboard.press('ContextMenu');
+    await chooseByKeyboard(page, 'Move to Pane…');
+    await chooseByKeyboard(page, /^Pane 1: E-02/);
+
+    await expect(splits).toHaveCount(0);
+    await expect(page.getByRole('tab', { name: 'E-02', exact: true })).toHaveCount(1);
+    await expect(moved).toBeFocused();
+    await expect(announced).toContainText('E-01 moved to pane 1');
   });
 });

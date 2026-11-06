@@ -6,6 +6,8 @@ import {
   BEFORE_CLOSE_TIMEOUT_MS,
   SurfaceCloseGuard,
 } from './surface-close-guard';
+import en from '../../../i18n/en.json';
+import de from '../../../i18n/de.json';
 
 class Probe implements DirtySurface {
   dirty = true;
@@ -152,6 +154,12 @@ describe('SurfaceCloseGuard', () => {
     expect(TestBed.inject(NotificationService).notifications()).toMatchObject([
       { message: 'retention.stillDirty', kind: 'warning' },
     ]);
+  });
+
+  it('the message after a save that left the work unsaved fits a move as well as a close', () => {
+    for (const bundle of [en, de]) {
+      expect(bundle.retention.stillDirty).not.toMatch(/clos|schlie/i);
+    }
   });
 
   it('offers no Save button when a dirty instance cannot save', () => {

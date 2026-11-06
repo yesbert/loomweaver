@@ -112,6 +112,10 @@ export class IframeSurface implements DirtySurface {
     this.pluginId,
   );
 
+  protected readonly title = this.data.title;
+
+  protected readonly literalTitle = this.data.literalTitle === true;
+
   protected readonly isolated =
     this.isolation.levelOf(this.pluginId) === 'isolated';
 

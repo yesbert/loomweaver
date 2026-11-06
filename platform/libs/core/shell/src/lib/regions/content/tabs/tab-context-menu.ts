@@ -9,11 +9,12 @@ import { disposeTogether } from '../../../contributions/dispose-together';
 import { FeatureSwitches } from '../../../features/feature-switches.service';
 import { whileOn } from '../../../features/while-on';
 import { ContentTabsService } from './content-tabs.service';
-import { PaneMoveService } from '../../pane/drag/pane-move.service';
+import { TabMoves } from '../../pane/drag/tab-moves';
+import { PaneFocus } from '../../pane/pane-focus';
 import { PaneTreeService } from '../../pane/tree/pane-tree.service';
 import { PopoutService } from '../../../popout/popout.service';
 import { menuContextString } from '../../../menu/menu-context';
-import { PaneRef } from '../../pane/tree/pane-address';
+import { CONTENT_DOCK, PaneRef } from '../../pane/tree/pane-address';
 import { MenuPlacement, registerMenuCommand } from '../../../menu/context-menu-entry';
 
 const TAB_CLOSE_COMMAND_ID = 'shell.tab.close';
@@ -24,12 +25,15 @@ const TAB_OPEN_IN_WINDOW_COMMAND_ID = 'shell.tab.openInWindow';
 const TAB_SPLIT_DOWN_COMMAND_ID = 'shell.tab.splitDown';
 const TAB_SPLIT_RIGHT_COMMAND_ID = 'shell.tab.splitRight';
 const TAB_TOGGLE_PIN_COMMAND_ID = 'shell.tab.togglePin';
+const TAB_KEEP_OPEN_COMMAND_ID = 'shell.tab.keepOpen';
+const TAB_MOVE_TO_PANE_COMMAND_ID = 'shell.tab.moveToPane';
 
 export const TAB_CONTEXT_MENU = 'content/tab/context';
 
 export interface TabMenuDeps {
   readonly tabs: ContentTabsService;
-  readonly paneMove: PaneMoveService;
+  readonly tabMoves: TabMoves;
+  readonly paneFocus: PaneFocus;
   readonly paneTree: PaneTreeService;
   readonly popout: PopoutService;
   readonly features: FeatureSwitches;
@@ -50,7 +54,7 @@ export function registerTabContextMenu(
   registry: ContributionRegistry,
   deps: TabMenuDeps,
 ): void {
-  const { tabs, paneMove, paneTree, popout, features } = deps;
+  const { tabs, tabMoves, paneTree, popout, features } = deps;
   const content = features.content;
   const groups: readonly TabMenuGroup[] = [
     {
@@ -60,8 +64,7 @@ export function registerTabContextMenu(
           {
             id: TAB_CLOSE_COMMAND_ID,
             title: 'content.tabMenu.close',
-            run: (c) =>
-              tabs.close(menuContextString(c, 'tabId'), paneOf(c, paneTree)),
+            run: (c) => closeTab(c, deps),
           },
           { group: '1_close', order: 0, when: { closable: true } },
         ),
@@ -118,6 +121,36 @@ export function registerTabContextMenu(
       ],
     },
     {
+      on: content.preview,
+      entries: [
+        tabEntry(
+          {
+            id: TAB_KEEP_OPEN_COMMAND_ID,
+            title: 'content.tabMenu.keepOpen',
+            run: (c) => keepOpen(c, deps),
+          },
+          { group: '2_pin', order: -1, when: { preview: true } },
+        ),
+      ],
+    },
+    {
+      on: content.moveTabs,
+      entries: [
+        tabEntry(
+          {
+            id: TAB_MOVE_TO_PANE_COMMAND_ID,
+            title: 'content.tabMenu.moveToPane',
+            run: (c) =>
+              tabMoves.pickTarget(
+                menuContextString(c, 'tabId'),
+                paneOf(c, paneTree) ?? addressPane(paneTree),
+              ),
+          },
+          { group: '0_split', order: 2, when: { split: true } },
+        ),
+      ],
+    },
+    {
       on: features.windows.popout,
       entries: [
         tabEntry(
@@ -140,7 +173,7 @@ export function registerTabContextMenu(
             title: 'content.split.splitRight',
             icon: 'splitPanes',
             run: (c) =>
-              paneMove.splitTabOut(
+              tabMoves.splitOut(
                 menuContextString(c, 'tabId'),
                 'row',
                 paneOf(c, paneTree),
@@ -159,7 +192,7 @@ export function registerTabContextMenu(
             title: 'content.split.splitDown',
             icon: 'splitPanesDown',
             run: (c) =>
-              paneMove.splitTabOut(
+              tabMoves.splitOut(
                 menuContextString(c, 'tabId'),
                 'column',
                 paneOf(c, paneTree),
@@ -207,6 +240,32 @@ function togglePin(context: MenuContext | undefined, deps: TabMenuDeps): void {
   } else {
     deps.paneTree.pinTab(pane.dock, pane.paneId, tabId);
   }
+}
+
+function closeTab(context: MenuContext | undefined, deps: TabMenuDeps): void {
+  const pane = paneOf(context, deps.paneTree);
+  const settled = pane ?? addressPane(deps.paneTree);
+  void deps.tabs
+    .close(menuContextString(context, 'tabId'), pane)
+    .then((closed) => {
+      if (closed) {
+        deps.paneFocus.settleOn(settled);
+      }
+    });
+}
+
+function keepOpen(context: MenuContext | undefined, deps: TabMenuDeps): void {
+  const tabId = menuContextString(context, 'tabId');
+  const pane = paneOf(context, deps.paneTree);
+  if (pane === undefined) {
+    deps.tabs.keep(tabId);
+    return;
+  }
+  deps.paneTree.keepTab(pane.dock, pane.paneId, tabId);
+}
+
+function addressPane(paneTree: PaneTreeService): PaneRef {
+  return { dock: CONTENT_DOCK, paneId: paneTree.primaryId(CONTENT_DOCK) };
 }
 
 function paneOf(

@@ -64,6 +64,10 @@ function stateOf(
       ...('iframe' in route && { iframe: route.iframe }),
       ...('container' in route && { container: route.container }),
       ...(route.pluginId && { pluginId: route.pluginId }),
+      ...(route.title && {
+        title: route.title,
+        literalTitle: route.titleIsLiteral === true,
+      }),
       ...(route.rest === true && { rest: true }),
       ...(sub.length > 0 && { sub: sub.join('/') }),
       ...(address.carriesAddress && { urlDriven: true }),

@@ -4,6 +4,10 @@ import { TabCloseHooks } from '../regions/content/tabs/tab-close-hooks';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
 import {
+  PANE_TREES_KEY,
+  storedTabPaths,
+} from '../regions/pane/tree/pane-tree-storage';
+import {
   ActiveWorkspaceService,
   workspaceScopedKey,
 } from './active-workspace.service';
@@ -118,7 +122,7 @@ export class WorkspaceService {
     if (!allowed) {
       return false;
     }
-    this.resetNow(id);
+    await this.resetNow(id);
     return true;
   }
 
@@ -127,10 +131,10 @@ export class WorkspaceService {
       return false;
     }
     for (const workspace of this.catalog.everyOrigin()) {
-      this.resetNow(workspace.id);
+      await this.resetNow(workspace.id);
     }
     if (this.catalog.offersBuiltIn) {
-      this.resetNow(BUILT_IN_WORKSPACE_ID);
+      await this.resetNow(BUILT_IN_WORKSPACE_ID);
     }
     return true;
   }
@@ -180,16 +184,11 @@ export class WorkspaceService {
     this.discard.forgetOnceLetGo(id);
   }
 
-  private resetNow(id: string): void {
-    if (id !== this.active.id()) {
-      this.stash.evictWorkspace(id);
-      writeWorkspaceState(
-        this.workingStateStore,
-        id,
-        this.switcher.baselineOf(id),
-        WORKSPACE_STATE_KEYS,
-      );
-      this.storedRevision.advance();
+  private async resetNow(id: string): Promise<void> {
+    const stored =
+      id === this.active.id() ? undefined : await this.switcher.stateOf(id);
+    if (stored !== undefined && id !== this.active.id()) {
+      this.resetParked(id, stored);
       return;
     }
     this.stash.endHolds(id);
@@ -198,5 +197,24 @@ export class WorkspaceService {
     );
     this.switcher.warnDeclarationGaps(id);
     this.switcher.chooseCurrentAddress();
+  }
+
+  private resetParked(
+    id: string,
+    stored: Readonly<Record<string, string>>,
+  ): void {
+    const baseline = this.switcher.baselineOf(id);
+    this.stash.evictWorkspace(id);
+    writeWorkspaceState(
+      this.workingStateStore,
+      id,
+      baseline,
+      WORKSPACE_STATE_KEYS,
+    );
+    this.storedRevision.advance();
+    this.closeHooks.discarded(
+      storedTabPaths(stored[PANE_TREES_KEY] ?? baseline[PANE_TREES_KEY]),
+      storedTabPaths(baseline[PANE_TREES_KEY]),
+    );
   }
 }

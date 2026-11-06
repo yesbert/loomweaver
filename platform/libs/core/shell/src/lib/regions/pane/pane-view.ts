@@ -46,8 +46,7 @@ import { TAB_CONTEXT_MENU } from '../content/tabs/tab-context-menu';
 import { FeatureSwitches } from '../../features/feature-switches.service';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { CONTENT_PANE_OPTIONS, PaneViewOptions } from './pane-view-options';
-
-const MAIN_CONTENT_ID = 'lw-main-content';
+import { MAIN_CONTENT_ID, PaneFocus } from './pane-focus';
 
 @Component({
   selector: 'lw-pane-view',
@@ -82,6 +81,7 @@ export class PaneView {
   private readonly chrome = inject(PaneChromeService);
   private readonly containerCtx = inject(CONTAINER_CONTEXT);
   private readonly addressPaneBody = inject(AddressPaneBody);
+  private readonly paneFocus = inject(PaneFocus);
 
   protected readonly canAddTab = computed(() =>
     this.options().body === 'panel' ? true : this.features.newTab(),
@@ -267,7 +267,16 @@ export class PaneView {
   }
 
   protected onCloseTab(tab: StripTab): void {
-    this.tabs.close(tab.path, this.pane());
+    const pane = this.pane();
+    void this.tabs.close(tab.path, pane).then((closed) => {
+      if (closed) {
+        this.paneFocus.settleOn(pane);
+      }
+    });
+  }
+
+  protected onKeepTab(tab: StripTab): void {
+    this.paneTree.keepTab(this.dock(), this.leaf().id, tab.path);
   }
 
   protected onUnpinTab(tab: StripTab): void {
@@ -287,11 +296,19 @@ export class PaneView {
   }
 
   protected splitPane(orientation: 'row' | 'column'): void {
-    this.actions.split(this.dock(), this.leaf().id, orientation);
+    const added = this.actions.split(this.dock(), this.leaf().id, orientation);
+    if (added !== null) {
+      this.paneFocus.settleOn({ dock: this.dock(), paneId: added });
+    }
   }
 
   protected closePane(): void {
-    this.actions.close(this.dock(), this.leaf().id);
+    const pane = this.pane();
+    void this.actions.close(pane.dock, pane.paneId).then((closed) => {
+      if (closed) {
+        this.paneFocus.settleOn(pane);
+      }
+    });
   }
 
   protected toggleMaximize(): void {
@@ -304,6 +321,7 @@ export class PaneView {
 
   protected minimize(): void {
     this.actions.minimize(this.dock(), this.leaf().id);
+    this.paneFocus.settleOn(this.pane());
   }
 
   protected focusPane(): void {

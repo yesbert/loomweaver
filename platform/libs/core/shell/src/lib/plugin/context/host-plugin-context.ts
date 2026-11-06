@@ -326,7 +326,7 @@ export class HostPluginContext implements PluginContext {
 
   closeContentTab(path: string): void {
     this.require('navigation');
-    this.tabs.close(path);
+    void this.tabs.close(path);
   }
 
   revealSurface(id: string): void {

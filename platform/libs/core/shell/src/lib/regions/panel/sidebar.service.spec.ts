@@ -208,13 +208,14 @@ describe('SidebarService and the rules of the surface', () => {
     expect(sidebars.hiddenViews()).toEqual(['outline']);
   });
 
-  it('shows a view in another sidebar and expands that one, also while collapsing is switched off', () => {
+  it('shows a view in another sidebar and expands that one, also while collapsing is switched off', async () => {
     const { sidebars, panels } = setUp();
     TestBed.inject(PanelGroupService).seed('primary');
     sidebars.collapse('secondary');
     TestBed.inject(FeatureSwitches).update({ sidebar: { collapse: false } });
 
     sidebars.showView('outline', 'secondary');
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(TestBed.inject(PaneTreeService).sourceOf('view:outline')?.dock).toBe(
       'secondary',

@@ -27,6 +27,7 @@
       @let badge = tab.badge;
       @let badgeText = !badge?.text ? '' : badge.textIsLiteral ? badge.text : (badge.text | transloco);
       @let named = badgeText ? ('content.badgedTab' | transloco: { title, badge: badgeText }) : title;
+      @let stated = tab.pinned ? ('content.pinnedTab' | transloco: { title: named }) : tab.preview ? ('content.previewTab' | transloco: { title: named }) : named;
       @if (icons()) {
         <button
           type="button"
@@ -41,12 +42,14 @@
           [attr.aria-selected]="isActive(tab)"
           [attr.id]="tabId(tab)"
           [attr.aria-controls]="controls(tab)"
-          [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: named }) : named"
+          [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: stated }) : stated"
           [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
           [attr.data-reorder-band]="bandOf(tab)"
           [attr.data-tab-path]="tab.path"
+          [attr.aria-keyshortcuts]="keyShortcuts(tab)"
           (click)="onSelectTab(tab)"
           (dblclick)="escalate.emit(tab)"
+          (keydown)="onTabKeydown($event, tab)"
           class="lw-icon-btn relative h-10 w-10 rounded-md md:h-7 md:w-7"
           [class.bg-surface-overlay]="isActive(tab)"
           [class.text-content]="isActive(tab)"
@@ -82,11 +85,11 @@
             [attr.aria-selected]="isActive(tab)"
             [attr.id]="tabId(tab)"
             [attr.aria-controls]="controls(tab)"
-            [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: named }) : named"
+            [attr.aria-label]="unsaved(tab) ? ('content.unsavedTab' | transloco: { title: stated }) : stated"
             [attr.data-reorder-id]="canReorder(tab) ? tab.path : null"
             [attr.data-reorder-band]="bandOf(tab)"
             [attr.data-tab-path]="tab.path"
-            [attr.aria-keyshortcuts]="tab.closable && !tab.pinned ? 'Delete' : null"
+            [attr.aria-keyshortcuts]="keyShortcuts(tab)"
             (click)="onSelectTab(tab)"
             (dblclick)="escalate.emit(tab)"
             (keydown)="onTabKeydown($event, tab)"
