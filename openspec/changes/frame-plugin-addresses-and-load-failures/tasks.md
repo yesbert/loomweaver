@@ -24,6 +24,15 @@
 - [x] 3.1 The skipped end-to-end test becomes a passing one: no message reaches the frame, only loads of the renderer's elements are seen, and the view's markup is the same after the picture
 - [x] 3.2 workbench-capture delta
 
-## 4. Verification
+## 4. Review follow-ups
 
-- [x] 4.1 `openspec validate frame-plugin-addresses-and-load-failures --strict`, shell lint and tests, packaging, the frame-kit bundle, the docs and contract guards, the production build
+- [x] 4.1 Trying again keeps the plugin named until it answers (unit test)
+- [x] 4.2 The application's own code wins whichever comes first: a frame plugin's address under one the distribution or an in-page plugin registers later is withdrawn with the same warning; between two frame plugins the first keeps it (unit tests); plugin-runtime delta and design
+- [x] 4.3 The end-to-end test waits for the blocked entry request and advances the clock until the placeholder shows (passed five times in a row)
+- [x] 4.4 The remembered addresses are capped at a hundred per plugin and pruned to the runnable plugins at startup (unit tests)
+- [x] 4.5 workbench-capture: the scenario for every picture is kept, the isolated one added beside it
+- [x] 4.6 The guides say a top-level parameter address leaves a frame plugin no deeper address
+
+## 5. Verification
+
+- [x] 5.1 `openspec validate frame-plugin-addresses-and-load-failures --strict`, shell lint and tests, packaging, the frame-kit bundle, the docs and contract guards, the production build

@@ -21,6 +21,11 @@ while it is pictured, and learns nothing more from the workbench.
 
 #### Scenario: The plugin is not told a picture is being made
 
+- **WHEN** a picture is made
+- **THEN** the plugin is sent no message about it, whether it runs in the page or in a frame
+
+#### Scenario: An isolated surface may see its document change, and nothing more
+
 - **WHEN** a picture is made of an isolated surface
 - **THEN** no message reaches the plugin's frame, and its view is pictured as it is shown
 - **AND** the plugin's own script may observe nodes added to and removed from its document while it

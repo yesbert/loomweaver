@@ -122,8 +122,11 @@ Reaches you if a frame plugin registers content below an address the product or 
 answers.
 
 A frame plugin that registers `orders/:id` while another owner holds `orders` is refused, and the
-console names both addresses and both owners. The first owner keeps the address. The home address
-counts as no one's. The distribution and the plugins composed into it are not limited.
+console names both addresses and both owners. Between frame plugins the first keeps the address.
+The distribution and the plugins composed into it win whichever registers first, so a frame
+plugin's address is withdrawn when they register one above it. The home address counts as no
+one's. An owner of a top-level parameter address such as `:page` leaves a frame plugin no address of
+two or more segments.
 
 What to do: give the frame plugin's content an address of its own, or register it from the
 application's own code.

@@ -6,6 +6,7 @@ import { ContentTabsService } from '../../regions/content/tabs/content-tabs.serv
 import { MenuService } from '../../menu/menu.service';
 import { FailedPluginContent } from '../failed-plugin-content';
 import { FramePluginRuntime, provideFramePlugins } from './frame-plugin-runtime';
+import { FRAME_PLUGIN_ADDRESSES_KEY } from './frame-plugin-addresses';
 
 vi.mock('penpal', () => ({
   connect: vi.fn(),
@@ -114,4 +115,33 @@ describe('a frame plugin that could not be loaded', () => {
 
     expect(lost.recoveryFor('docs/7')).toBeUndefined();
   });
+
+  it('stays named while trying again has not been answered yet', async () => {
+    await answeredOnce();
+    const lost = session(Promise.reject(new Error('offline')));
+    await settled();
+    connectMock.mockReturnValue(connecting(new Promise(() => undefined)));
+
+    lost.recoveryFor('docs/7')?.retry();
+    await settled();
+
+    expect(lost.recoveryFor('docs/7')?.name).toBe('Team docs');
+  });
+
+  it('drops what it remembers of a plugin that is no longer composed or installed', async () => {
+    localStorage.setItem(
+      FRAME_PLUGIN_ADDRESSES_KEY,
+      JSON.stringify({ gone: ['old/place'], 'team-docs': ['docs/:id'] }),
+    );
+
+    session(Promise.reject(new Error('offline')));
+    await settled();
+
+    expect(
+      Object.keys(
+        JSON.parse(localStorage.getItem(FRAME_PLUGIN_ADDRESSES_KEY) ?? '{}'),
+      ),
+    ).toEqual(['team-docs']);
+  });
 });
+

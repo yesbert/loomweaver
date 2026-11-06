@@ -88,7 +88,7 @@ export function surfaceHolderMessage(
   return null;
 }
 
-function liesUnder(path: string, held: string): boolean {
+export function liesUnder(path: string, held: string): boolean {
   const outer = segmentsOf(held);
   const inner = segmentsOf(path);
   return (
@@ -103,15 +103,16 @@ function liesUnder(path: string, held: string): boolean {
   );
 }
 
-function nestingRefused(
+export function nestingRefused(
   path: string,
   held: string,
   holderId: string | undefined,
   pluginId: string,
+  outcome: 'refused' | 'withdrawn' = 'refused',
 ): string {
   return (
     `Address "${addressForm(path)}" lies under "${addressForm(held)}", which ` +
-    `${ownerName(holderId)} holds; the registration from ${ownerName(pluginId)} is refused, ` +
+    `${ownerName(holderId)} holds; the registration from ${ownerName(pluginId)} is ${outcome}, ` +
     `because a plugin that does not run as the application's own code cannot take an address ` +
     `under another owner's.`
   );

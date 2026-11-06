@@ -7,6 +7,8 @@ import { parseRecord } from '../../persistence/stored-values/persisted-record';
 
 export const FRAME_PLUGIN_ADDRESSES_KEY = 'lw.shell.frame-plugin-addresses';
 
+const KEPT_PER_PLUGIN = 100;
+
 type Answered = Readonly<Record<string, readonly string[]>>;
 
 function isAddressList(value: unknown): value is readonly string[] {
@@ -38,8 +40,22 @@ export class FramePluginAddresses {
     }
     this.stored.update((answered) => ({
       ...answered,
-      [pluginId]: [...(answered[pluginId] ?? []), address],
+      [pluginId]: [...(answered[pluginId] ?? []), address].slice(
+        -KEPT_PER_PLUGIN,
+      ),
     }));
+  }
+
+  keepOnly(pluginIds: readonly string[]): void {
+    const kept = new Set(pluginIds);
+    if (Object.keys(this.stored.value()).every((id) => kept.has(id))) {
+      return;
+    }
+    this.stored.update((answered) =>
+      Object.fromEntries(
+        Object.entries(answered).filter(([id]) => kept.has(id)),
+      ),
+    );
   }
 
   forget(pluginId: string): void {

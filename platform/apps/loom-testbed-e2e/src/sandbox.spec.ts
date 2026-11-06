@@ -165,12 +165,20 @@ test.describe('A frame plugin that could not be loaded', () => {
     ).toBeVisible();
 
     const entry = '**/sandbox-rpc/plugin.html';
-    await page.route(entry, (route) => route.abort('blockedbyclient'));
+    let blocked = false;
+    await page.route(entry, (route) => {
+      blocked = true;
+      return route.abort('blockedbyclient');
+    });
     await page.clock.install();
     await page.reload();
-    await page.clock.fastForward(31_000);
+    await expect.poll(() => blocked).toBe(true);
 
     const placeholder = page.getByTestId('plugin-unloaded');
+    await expect(async () => {
+      await page.clock.fastForward(10_000);
+      await expect(placeholder).toBeVisible({ timeout: 500 });
+    }).toPass();
     await expect(placeholder).toContainText('The plugin could not be loaded');
     await expect(placeholder).toContainText('Sandbox (RPC)');
     await expect(page.getByText(/does not exist/)).toHaveCount(0);

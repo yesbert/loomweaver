@@ -42,6 +42,7 @@ import { frameRpcMethods } from './rpc/frame-rpc-methods';
 import { FrameRemote } from './rpc/frame-rpc-contract';
 import { FrameSession } from './frame-session';
 import { FramePluginAddresses } from './frame-plugin-addresses';
+import { FrameAddressPrecedence } from './frame-address-precedence';
 import { FailedPluginContent } from '../failed-plugin-content';
 
 const ISOLATED_NOTIFICATION_LIMITS: RaiserLimits = {
@@ -109,6 +110,10 @@ export class FramePluginRuntime {
 
   private readonly failedContent = inject(FailedPluginContent);
 
+  private readonly precedence = inject(FrameAddressPrecedence);
+
+  private pruned = false;
+
   private readonly instances = new Map<string, FrameInstance>();
 
   private readonly reportedRefusals = new Set<string>();
@@ -164,6 +169,7 @@ export class FramePluginRuntime {
     instance.connection.destroy();
     instance.frame.remove();
     instance.session.end();
+    this.precedence.release(id);
     instance.ctx.disposeAll();
     this.grants.unregister(id);
   }
@@ -190,6 +196,7 @@ export class FramePluginRuntime {
     this.reportRefused(refused);
     const disabled = this.enablement.disabled();
     const answered = this.enablement.answered();
+    this.pruneAddresses(runnable, answered);
     for (const plugin of runnable) {
       this.enablement.register(plugin.id, plugin.name ?? plugin.id);
       this.isolation.register(plugin.id, levelOf(plugin));
@@ -229,6 +236,17 @@ export class FramePluginRuntime {
       this.addresses.forget(id);
       this.listed.delete(id);
     }
+  }
+
+  private pruneAddresses(
+    runnable: readonly RunnableFramePlugin[],
+    answered: boolean,
+  ): void {
+    if (this.pruned || !answered) {
+      return;
+    }
+    this.pruned = true;
+    this.addresses.keepOnly(runnable.map((plugin) => plugin.id));
   }
 
   private reportRefused(refused: readonly RefusedFramePlugin[]): void {
@@ -304,7 +322,6 @@ export class FramePluginRuntime {
 
   private retry(id: string): void {
     this.failed.delete(id);
-    this.failedContent.forget(id);
     this.reconcile(this.install.installed(), this.deployment.deployed());
   }
 
@@ -329,7 +346,10 @@ export class FramePluginRuntime {
         store: this.store,
         sync: this.sync,
         reportRefusal: (error) => this.refusals.report(error),
-        answered: (surface) => this.addresses.answered(plugin.id, surface),
+        answered: (surface, registration) => {
+          this.addresses.answered(plugin.id, surface);
+          this.precedence.hold(plugin.id, surface, registration);
+        },
       }),
     });
   }

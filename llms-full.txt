@@ -665,7 +665,9 @@ type PaddingDefault = 'none' | 'inset';   // the app-wide inset for surfaces; ab
 // address another owner holds, its route at an address UNDER one another owner holds (`orders/:id` below the
 // product's `orders`; the home address '' counts as no one's), its menu entry or its settings section under an id
 // another owner holds is REFUSED and reported in the console, naming the plugin that asked and the owner that holds it
-// (and both addresses for one under another). First come keeps it.
+// (and both addresses for one under another). Between frame plugins first come keeps it; the application's own code
+// wins whichever comes first (a frame address under one it registers later is WITHDRAWN with the same warning). An owner
+// of a top-level parameter address such as `:page` leaves a frame plugin no address of two or more segments.
 // CONTENT ROUTES need the `route:` PREFIX + the SURFACE ID: 'route:<surfaceId>' drops a routable
 // surface's route — gone from the tab strip, the pane target picker and the deep-link auto-open; its URL
 // renders the host's neutral "not available" placeholder instead of falling back to home (the placeholder

@@ -9,8 +9,12 @@ import { StateSyncService } from '../../../persistence/cross-tab/state-sync.serv
 import { PluginInstallService } from '../../../plugin-store/lifecycle/plugin-install.service';
 import { FrameSession } from '../frame-session';
 import { frameRpcMethods } from './frame-rpc-methods';
+import { FrameAddressPrecedence } from '../frame-address-precedence';
+import { PluginIsolationLevelService } from '../../../plugin-isolation/plugin-isolation-level.service';
 
 function framed(pluginId: string) {
+  TestBed.inject(PluginIsolationLevelService).register(pluginId, 'isolated');
+  const precedence = TestBed.inject(FrameAddressPrecedence);
   return frameRpcMethods({
     pluginId,
     ctx: TestBed.inject(HostContextFactory).create(
@@ -24,7 +28,8 @@ function framed(pluginId: string) {
     store: {} as KeyValueStore,
     sync: {} as StateSyncService,
     reportRefusal: () => undefined,
-    answered: () => undefined,
+    answered: (surface, registration) =>
+      precedence.hold(pluginId, surface, registration),
   });
 }
 
@@ -135,6 +140,50 @@ describe('a frame plugin aiming below an address another owner holds', () => {
     expect(owners(registry.contentRoutes())).toEqual([
       'framed docs',
       'test-plugin docs/special',
+    ]);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("yields to the application's own plugin that registers above it later, with the same warning", () => {
+    const { product, registry, warn } = composition();
+    framed('framed').registerSurface(routed('framed.order', 'orders/:id'));
+
+    product.registerSurface({
+      id: 'product.orders',
+      title: 'Orders',
+      routable: { path: 'orders' },
+      component: DummyComponent,
+    });
+    TestBed.tick();
+
+    expect(owners(registry.contentRoutes())).toEqual(['test-plugin orders']);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /"orders\/:id".*"orders".*plugin "test-plugin".*plugin "framed"/,
+      ),
+    );
+  });
+
+  it('yields to the distribution that registers above it later', () => {
+    const { registry } = composition();
+    framed('framed').registerSurface(routed('framed.order', 'orders/:id'));
+
+    registry.addContentRoute({ path: 'orders', component: DummyComponent });
+    TestBed.tick();
+
+    expect(owners(registry.contentRoutes())).toEqual(['undefined orders']);
+  });
+
+  it('keeps its address when another frame plugin registers above it later', () => {
+    const { registry, warn } = composition();
+    framed('first').registerSurface(routed('first.order', 'orders/:id'));
+
+    framed('second').registerSurface(routed('second.orders', 'orders'));
+    TestBed.tick();
+
+    expect(owners(registry.contentRoutes())).toEqual([
+      'first orders/:id',
+      'second orders',
     ]);
     expect(warn).not.toHaveBeenCalled();
   });

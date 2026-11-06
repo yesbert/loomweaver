@@ -15,6 +15,11 @@ exactly like an address nobody answers.
 - **One admission check.** The address below another owner's is refused by the same check that
   refuses a replaced id or address, with the same warning shape and the same exemption for the
   application's own plugins and the distribution. A second mechanism was rejected.
+- **The application's own code wins whichever comes first.** A frame plugin that registered below an
+  address before the distribution or an in-page plugin registered that address is withdrawn when
+  they do, with the same warning saying it was withdrawn. Otherwise the outcome would depend on load
+  order, and a frame plugin connecting early could keep what the product answers. Between two frame
+  plugins the first keeps the address, since neither outranks the other.
 - **Under means a longer address that the held one would match.** Segments are compared one by one,
   a parameter on either side matching any segment. The home address is not counted, because every
   address lies under it. Registering a shorter address above another owner's is not covered: the
@@ -26,7 +31,11 @@ exactly like an address nobody answers.
 - **The workbench remembers what each frame plugin answered.** To say which plugin a view belongs to
   when that plugin never connected, the workbench keeps, per frame plugin, the addresses and view
   ids it registered while connected, in working state. It is reset when the plugin connects and
-  dropped when the plugin is removed. A plugin that never answered before is not named; its address
+  dropped when the plugin is removed. At most a hundred are kept per plugin, the oldest dropped first,
+  and at the first activation after the user's plugin choices are read, the entries of plugins that
+  are neither composed, deployed nor installed are dropped. If the installed list arrives later than
+  those choices, a plugin's entry may be dropped once; its failure then reads as not existing until it
+  answers again. A plugin that never answered before is not named; its address
   still reads as not existing. Naming any failed plugin at any unknown address was rejected because
   it would blame a plugin for a link it never answered.
 - **Trying again starts that one plugin again.** It clears the failure and lets activation start the

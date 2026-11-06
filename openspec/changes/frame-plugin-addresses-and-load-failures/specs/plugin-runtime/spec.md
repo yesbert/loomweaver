@@ -3,9 +3,10 @@
 ### Requirement: Replacing a contribution is not open to a plugin outside the application's own code
 
 A plugin that does not run as the application's own code SHALL NOT replace a contribution another
-owner registered, nor take an address that lies under one another owner holds. Such a registration
-SHALL be refused and reported, naming both owners and, for an address, both addresses; the first
-owner keeps it. The home address counts as no one's. It may replace its own.
+owner registered, nor hold an address under one another owner holds. Such a registration SHALL be
+refused, or withdrawn once the application's own code registers above it, and reported naming both
+owners and, for an address, both addresses. Between two such plugins the first keeps it. The home
+address counts as no one's. It may replace its own.
 
 #### Scenario: An installed plugin aims at the product's address
 
@@ -20,6 +21,15 @@ owner keeps it. The home address counts as no one's. It may replace its own.
   holds `orders`
 - **THEN** the registration is refused, and the developer is told both addresses and both owners
 - **AND** the same plugin may still register below an address of its own
+
+#### Scenario: The application's own code wins whichever comes first
+
+- **WHEN** a frame plugin holds `orders/:id` and the distribution or a plugin composed as the
+  application's own code then registers `orders`
+- **THEN** the frame plugin's address is withdrawn, and the developer is told both addresses and
+  both owners
+- **AND** had another frame plugin registered `orders` instead, the first frame plugin would keep
+  `orders/:id`
 
 #### Scenario: An installed plugin replaces what it registered itself
 
