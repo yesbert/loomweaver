@@ -218,7 +218,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     expect(ws.activeId()).toBe('dev.start');
   });
 
-  it('gives a stored workspace that nothing lists any more up for the declared initial, keeping the address', async () => {
+  it('gives a stored workspace that nothing lists any more up for the declared initial for the session, keeping the address and the stored choice', async () => {
     compose('gone');
     await TestBed.inject(Router).navigateByUrl('/search');
     const ws = TestBed.inject(WorkspaceService);
@@ -226,7 +226,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     await settle();
 
     expect(ws.activeId()).toBe('dev.start');
-    expect(localStorage.getItem('lw.shell.active-workspace')).toBe('dev.start');
+    expect(localStorage.getItem('lw.shell.active-workspace')).toBe('gone');
     expect(arrangedTabs()).toContain('doc');
     expect(arrangedTabs()).toContain('search');
     expect(TestBed.inject(Router).url).toBe('/search');
@@ -242,7 +242,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     expect(TestBed.inject(Router).url).toBe('/doc');
   });
 
-  it('gives a stored workspace that nothing lists any more up for the built-in one where nothing is declared', async () => {
+  it('gives a stored workspace that nothing lists any more up for the built-in one where nothing is declared, for the session', async () => {
     compose('gone', { declared: false });
     await TestBed.inject(Router).navigateByUrl('/search');
     const ws = TestBed.inject(WorkspaceService);
@@ -250,9 +250,7 @@ describe('WorkspaceService adopting the declared initial workspace', () => {
     await settle();
 
     expect(ws.activeId()).toBe(BUILT_IN_WORKSPACE_ID);
-    expect(localStorage.getItem('lw.shell.active-workspace')).toBe(
-      BUILT_IN_WORKSPACE_ID,
-    );
+    expect(localStorage.getItem('lw.shell.active-workspace')).toBe('gone');
     expect(TestBed.inject(Router).url).toBe('/search');
   });
 

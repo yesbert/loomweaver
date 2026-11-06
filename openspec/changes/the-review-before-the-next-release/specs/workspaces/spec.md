@@ -9,19 +9,24 @@ was looking at into the arrangement it restores: that arrangement holds what the
 the content it then shows is the one it names.
 
 The choice of workspace SHALL survive a restart. A remembered choice that names a workspace which is
-neither declared nor saved any more SHALL give way to the default workspace once the saved
-workspaces have been read, and the default workspace SHALL be the remembered choice from then on.
-The opening SHALL NOT wait for that, and a person's choice that arrives after sign-in SHALL be
-judged the same way, by that person's saved workspaces alone.
+neither declared nor saved any more SHALL give way to the default workspace for the session once
+the saved workspaces have been read. Giving way SHALL NOT rewrite the remembered choice and SHALL NOT
+remove anything stored for the workspace that gave way, so a remembered choice of a workspace that
+is really gone gives way again at each opening until the user chooses a workspace. The opening SHALL
+NOT wait for the saved workspaces, and a person's choice that arrives after sign-in SHALL be judged
+the same way, by that person's saved workspaces.
 
-Where giving way would destroy unsaved work, the unsaved-work question SHALL be asked first, for
-that work and no other, and declining SHALL leave the user in the workspace until the application
-is opened again. What the workspace parked and what was stored for it SHALL NOT stay behind.
+Before giving way, the unsaved-work question SHALL be asked for every surface the workspace shows
+and every surface parked under it, except the surface at the address the opening keeps. Declining
+SHALL leave the user in that workspace for the session. Once the answer allows it, the surfaces
+parked under that workspace SHALL be let go, except the one at the kept address.
 
-The limit: saved workspaces that could not be read, or are stored in a form that cannot be
-understood, are no answer. The remembered choice SHALL then stand and SHALL NOT be rewritten. This
-does not hold back a distribution's declared start: at the address that names no content it is
-entered as at every opening there.
+The limit: saved workspaces whose first read was rejected, or which are stored in a form that is not
+wholly a list of workspaces, are no answer, and the remembered workspace SHALL then stay active. The
+valid entries of such a list SHALL stay listed. A store that reports a failed read as nothing stored
+is taken at its word, and so is a read at sign-in that fails: either is an empty list, and an
+answer. None of this holds back a distribution's declared start: at the address that names no
+content it is entered as at every opening there.
 
 #### Scenario: Switching and returning finds the arrangement unchanged
 
@@ -42,14 +47,15 @@ entered as at every opening there.
 
 - **WHEN** the application is opened at an address naming content, the saved workspaces have been
   read, and the remembered workspace is neither declared nor saved any more
-- **THEN** the default workspace is active and is the remembered choice
+- **THEN** the default workspace is active
 - **AND** the content the address names is shown
-- **AND** nothing stored for the workspace that gave way is left
+- **AND** the remembered choice, and what is stored for the workspace that gave way, are unchanged
+- **AND** the next opening gives way again
 
 #### Scenario: Saved workspaces that could not be read move nobody
 
-- **WHEN** the application is opened at an address naming content, and the saved workspaces cannot
-  be read or are not stored as a list of workspaces
+- **WHEN** the application is opened at an address naming content, and the first read of the saved
+  workspaces is rejected or they are not stored as a list of workspaces
 - **THEN** the remembered workspace stays active and the remembered choice is unchanged
 
 #### Scenario: Saved workspaces that never answer do not hold the opening
@@ -61,16 +67,17 @@ entered as at every opening there.
 #### Scenario: Giving way asks before it destroys unsaved work
 
 - **WHEN** the saved workspaces are read while the user already has unsaved work in a workspace
-  that is neither declared nor saved, in a tab other than the one the address names
-- **THEN** the unsaved-work question is asked for that work
-- **AND** declining leaves the user in that workspace and the remembered choice unchanged
+  that is neither declared nor saved, shown or parked in a tab other than the one the address names
+- **THEN** the unsaved-work question is asked for every surface that workspace shows or parked,
+  except the one at the address
+- **AND** declining leaves the user in that workspace for the session
 
 #### Scenario: A choice that arrives after sign-in is judged by that person's workspaces
 
 - **WHEN** a person signs in after the application was opened, and the workspace they last chose is
   neither declared nor among their saved workspaces
-- **THEN** the default workspace is active
-- **AND** a workspace opened before the sign-in is not given up on the strength of their list
+- **THEN** the default workspace is active for the session
+- **AND** the choice remembered for that person is unchanged
 
 #### Scenario: A switch does not bring the content the user left
 
@@ -178,11 +185,11 @@ asked by the service wherever the action would destroy work.
 ### Requirement: Removing a workspace asks about the work parked under it
 
 Removing a saved workspace destroys the retained work parked under it, and removing the one the user
-is in also destroys the work in the tabs it shows that the default workspace does not hold in the
-same pane. Wherever a removal is asked for, the workbench SHALL ask the unsaved-work question before
-removing the workspace: for the surfaces parked under it and, where it is the workspace the user is
-in, for those tabs as well, once for both and for no other work. It SHALL leave the workspace in
-place if the answer does not allow it, and SHALL leave nothing parked under it once it is removed.
+is in can also destroy the work its surfaces show. Wherever a removal is asked for, the workbench
+SHALL ask the unsaved-work question before removing the workspace: for the surfaces parked under it
+and, where it is the workspace the user is in, for every surface it shows as well, once for both. It
+SHALL leave the workspace in place if the answer does not allow it, and SHALL leave nothing parked
+under it once it is removed.
 
 #### Scenario: Removal with unsaved parked work asks first
 
@@ -192,20 +199,14 @@ place if the answer does not allow it, and SHALL leave nothing parked under it o
 
 #### Scenario: Removal with nothing parked asks nothing
 
-- **WHEN** a saved workspace holds no parked work, shows no unsaved work in a tab the default
-  workspace does not hold, and its removal is asked for
+- **WHEN** a saved workspace holds no parked work, shows no unsaved work, and its removal is asked
+  for
 - **THEN** it is removed without the unsaved-work question
 
 #### Scenario: Removing the workspace in use asks about what it shows
 
-- **WHEN** the saved workspace the user is in shows unsaved work in a tab the default workspace does
-  not hold, and its removal is asked for
+- **WHEN** the saved workspace the user is in shows unsaved work, and its removal is asked for, even
+  in a tab the default workspace also holds
 - **THEN** the unsaved-work question is asked once, for that work and for the surfaces parked under
   the workspace
 - **AND** the workspace is removed only if the answer allows it
-
-#### Scenario: A tab the default workspace also holds is not asked about
-
-- **WHEN** the saved workspace the user is in shows unsaved work only in a tab the default workspace
-  holds in the same pane, and its removal is asked for
-- **THEN** it is removed without the unsaved-work question, and that work is still there

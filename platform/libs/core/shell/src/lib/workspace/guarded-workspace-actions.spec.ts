@@ -6,6 +6,7 @@ import {
   EnvironmentInjector,
   inject,
   Injector,
+  input,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -31,6 +32,18 @@ const LAYOUT = {
     { id: 'right-panel', type: 'panel', dock: 'right' },
   ],
 } as const;
+
+const HELD_BEHIND_ANOTHER_TAB = JSON.stringify({
+  content: {
+    tree: {
+      kind: 'leaf',
+      id: 'main',
+      tabs: [{ path: 'notes' }, { path: 'orders/o-1' }],
+      active: 'notes',
+    },
+    primary: 'main',
+  },
+});
 
 const REARRANGED = JSON.stringify({
   content: {
@@ -58,13 +71,14 @@ class Draft {
       <ng-container
         [lwRetainedComponent]="surface"
         [componentInjector]="injector"
-        retentionKey="content:main|notes"
+        [retentionKey]="'content:main|' + path()"
         [retain]="true"
       />
     }
   `,
 })
 class PaneOfTheWorkspaceInUse {
+  readonly path = input('notes');
   protected readonly workspaces = inject(WorkspaceService);
   protected readonly home = this.workspaces.activeId();
   protected readonly surface = Draft;
@@ -83,6 +97,10 @@ function draft(key: string, placement: 'shown' | 'parked'): ComponentRef<Draft> 
     slot.detach(true);
   }
   return ref;
+}
+
+function restoreTheRealInstances(): void {
+  vi.mocked(TestBed.inject(UnsavedWork).instancesEverywhere).mockRestore();
 }
 
 function compose(answer = true) {
@@ -201,8 +219,9 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     expect(stored('orders')).not.toContain('orders/o-1');
   });
 
-  it('removing the workspace the user is in asks once for the work in the tabs it loses and the work parked under it', async () => {
+  it('removing the workspace the user is in asks once for the work its surfaces show and the work parked under it', async () => {
     const { ws, guard } = compose(false);
+    restoreTheRealInstances();
     await ws.switchTo('orders');
     draft('content:main|orders/o-9', 'parked');
     await ws.switchTo('overview');
@@ -225,21 +244,29 @@ describe('WorkspaceService asks about unsaved work where the command did', () =>
     expect(ws.workspaces().some((w) => w.id === saved.id)).toBe(true);
   });
 
-  it('removing the workspace the user is in does not ask about work in a tab the starting workspace holds in the same pane', async () => {
+  it('removing the workspace the user is in asks about a tab the starting workspace holds but does not show', async () => {
     const { ws, guard } = compose(false);
-    await rearrangeTheActiveWorkspace();
+    restoreTheRealInstances();
     await ws.saveCurrent('scratch');
     const saved = ws.workspaces().find((w) => w.name === 'scratch');
     if (!saved) {
       throw new Error('no saved workspace');
     }
-    const staying = draft('content:main|orders/o-1', 'shown');
+    localStorage.setItem('lw.shell.pane-trees:overview', HELD_BEHIND_ANOTHER_TAB);
+    TestBed.inject(PaneTreeService).insertTab(CONTENT_DOCK, 'main', 'orders/o-1');
+    const pane = TestBed.createComponent(PaneOfTheWorkspaceInUse);
+    pane.componentRef.setInput('path', 'orders/o-1');
+    pane.autoDetectChanges();
+    await pane.whenStable();
+    const shown = TestBed.inject(RetainedViewStash).instances();
+    expect(shown).toHaveLength(1);
 
-    await ws.remove(saved.id);
-    await nextTask();
+    const ran = await ws.remove(saved.id);
 
-    expect(guard.confirmDiscard).toHaveBeenLastCalledWith([]);
-    expect(staying.hostView.destroyed).toBe(false);
+    expect(ran).toBe(false);
+    expect(guard.confirmDiscard).toHaveBeenLastCalledWith(shown);
+    expect(ws.workspaces().some((w) => w.id === saved.id)).toBe(true);
+    expect(ws.activeId()).toBe(saved.id);
   });
 
   it('removing the workspace the user is in leaves nothing of it parked once its work is discarded', async () => {

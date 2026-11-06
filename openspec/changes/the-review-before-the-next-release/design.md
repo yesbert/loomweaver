@@ -33,9 +33,21 @@ belongs to the pane's body.
 **The unsaved-work question follows the work, not the active workspace.** The capability said a
 reset of a workspace the user is not in asks nothing, because no live work is in it. Work parked
 under it is live, and the reset destroys it, so the reset asks for exactly that work. Removing the
-workspace in use, and giving way from one that nothing lists any more, ask once: for what the
-workspace parked and for the tabs the default workspace does not hold in the same pane. A tab both
-hold stays open with its work and is not asked about.
+workspace in use, and giving way from one that nothing lists any more, ask once: for everything the
+workspace shows and everything it parked, except, when giving way, the surface at the address the
+opening keeps. Narrowing the question to what the switch destroys was tried and withdrawn: a pane
+mounts only its visible tab, so a tab the default workspace holds but does not show is parked by the
+switch and let go with the rest, and the narrowed question never named it. Asking too much is
+accepted; a hole is not.
+
+**Giving way writes nothing.** A remembered workspace that nothing lists any more gives way to the
+default one for the session only: the remembered choice is not rewritten and nothing stored for that
+workspace is removed. A deletion that cannot be undone would rest on the saved list having really
+answered, and the platform cannot tell that: a store may report a failed read as nothing stored,
+and is then taken at its word. The cost is that a remembered choice of a workspace that is really
+gone gives way again at each opening, asking again where there is unsaved work, until the user
+chooses a workspace. Only a rejected first read and a list that is not wholly a list of workspaces
+count as unread, and they move nobody.
 
 **The bundle-size guard counts what the browser fetches.** It follows the static imports of the
 entry script, so the recorded ceilings rise once to the real number. That is a correction of the

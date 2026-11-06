@@ -100,10 +100,10 @@ the test sits beside the source it names. Paths in groups 1 to 6 are under
 - [x] 4.20 The changed mark and the unusable mark of a workspace reach a screen reader: they are part of the entry's name or description, not only a dot and an icon with a hover tooltip (`workspace/workspace-dialog.html`)
 - [x] 4.21 The settings dialog's navigation has a name (`settings-dialog/settings-dialog.html`)
 - [x] 4.23 A declared workspace that becomes the start keeps the arrangement the user already built in it: the baseline is applied only where nothing is stored for it (`workspace/opening/workbench-opening.ts`, `workspace/active-workspace.service.ts`)
-- [x] 4.24 A stored workspace that turns out to be unlisted is left without losing work: the opening does not wait for the saved list; once the list answers without it the workbench gives way to the start, asking first about exactly the unsaved work that destroys; declining leaves the user there for the session; what it parked and its stored working state do not stay behind (`workspace/opening/workbench-opening.ts`)
-- [x] 4.25 The same check holds when the person's stored choice arrives after sign-in, and a check begun before the sign-in does not act on the person's list (`workspace/opening/workbench-opening.ts`)
+- [x] 4.24 A stored workspace that turns out to be unlisted is left without losing work: the opening does not wait for the saved list; once the list answers without it the workbench gives way to the start for the session, asking first about everything the workspace shows or parked except the tab at the address it keeps; declining leaves the user there for the session; giving way rewrites no stored choice and removes nothing stored, so it gives way again at the next opening (`workspace/opening/workbench-opening.ts`)
+- [x] 4.25 The same check runs again when the person's stored choice arrives after sign-in, and leaves the person's stored choice as it is (`workspace/opening/workbench-opening.ts`)
 - [x] 4.26 A saved list that is malformed counts as one that could not be read: it moves nobody and rewrites nothing; a validly empty list counts as answered (`workspace/catalog/saved-workspaces.ts`)
-- [x] 4.27 The question on removing the workspace in use names the work the removal destroys and no other (`workspace/workspace-discard.ts`)
+- [x] 4.27 Withdrawn: the question covers everything the workspace shows or parked; narrowing it to what the switch destroys left a hole (a tab the start holds but does not show)
 - [x] 4.28 The delta says what the code does: the unreadable-list scenario is narrowed to an address that names content, and every sentence is checked against the code after 4.23 to 4.27
 
 ## 5. Commands, menus, dialogs and the UI kit

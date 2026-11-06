@@ -128,10 +128,17 @@ export class RetainedViewStash implements OnDestroy {
     }
   }
 
-  evictWorkspace(workspaceId: string): void {
+  evictWorkspace(
+    workspaceId: string,
+    spared: ReadonlySet<unknown> = new Set(),
+  ): void {
     const snapshot = [...this.entries.values()];
     for (const entry of snapshot) {
-      if (!entry.inUse && entry.workspace === workspaceId) {
+      if (
+        !entry.inUse &&
+        entry.workspace === workspaceId &&
+        !spared.has(entry.instance)
+      ) {
         this.destroyEntry(entry);
       }
     }

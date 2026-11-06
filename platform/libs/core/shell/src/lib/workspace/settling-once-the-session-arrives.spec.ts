@@ -271,7 +271,7 @@ describe('settling once the session arrives', () => {
     expect(opened.contentTabs()).toContain('notes');
   });
 
-  it('gives way to the start where the workspace the person last chose is not listed any more', async () => {
+  it('gives way to the start for the session where the workspace the person last chose is not listed any more', async () => {
     localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'gone');
     const opened = await openedBeforeTheSessionAt('/notes', {
       scopedToThePerson: true,
@@ -283,10 +283,10 @@ describe('settling once the session arrives', () => {
     expect(opened.contentTabs()).toContain('notes');
     expect(
       localStorage.getItem('lw.id.ada:lw.shell.active-workspace'),
-    ).toBe('dashboard');
+    ).toBe('gone');
   });
 
-  it('does not judge the workspace opened before the session by the list of the person who arrived', async () => {
+  it('lands in the workspace the person last chose, and leaves their choice alone, while a check begun before the session is still running', async () => {
     localStorage.setItem('lw.shell.active-workspace', 'gone');
     localStorage.setItem('lw.id.ada:lw.shell.active-workspace', 'journal');
     const opened = await openedBeforeTheSessionAt('/notes', {
@@ -305,6 +305,5 @@ describe('settling once the session arrives', () => {
     expect(
       localStorage.getItem('lw.id.ada:lw.shell.active-workspace'),
     ).toBe('journal');
-    expect(opened.contentTabs()).not.toContain('dashboard');
   });
 });

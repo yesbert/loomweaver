@@ -21,7 +21,7 @@ workspaces.rename(id, 'Reviews');
 const reset = await workspaces.reset();          // active workspace; asks about unsaved work
 await workspaces.reset('review');               // a workspace you are not in; asks about unsaved work parked under it
 const all = await workspaces.resetAll();        // asks once for all of them
-const removed = await workspaces.remove(id);    // asks for the work parked under it and, if it was active, the work in the tabs the default workspace does not hold; the user then lands there
+const removed = await workspaces.remove(id);    // asks for the work parked under it and, if it was active, the work it shows; the user then lands in the default workspace
 ```
 
 ## Read it
@@ -39,7 +39,7 @@ workspaces.destinationFor(path);  // the workspace a path would settle in, by th
 
 ## What asks about unsaved work
 
-Resetting the active workspace, `resetAll()` and `remove()` ask the question the built-in commands ask, inside the service, and answer whether they ran. Resetting a workspace you are not in asks about the unsaved work parked under it, and asks nothing where there is none. Removing the workspace the user is in asks once, for the work parked under it and the work in the tabs the default workspace does not hold in the same pane. A tab both hold stays open with its work. `switchTo` never asks and never loses work: it parks the work, as the capability requires. The "really reset?" confirmation the dialog shows is your control's decision, not the service's.
+Resetting the active workspace, `resetAll()` and `remove()` ask the question the built-in commands ask, inside the service, and answer whether they ran. Resetting a workspace you are not in asks about the unsaved work parked under it, and asks nothing where there is none. Removing the workspace the user is in asks once, for the work parked under it and the work every one of its surfaces shows. `switchTo` never asks and never loses work: it parks the work, as the capability requires. The "really reset?" confirmation the dialog shows is your control's decision, not the service's.
 
 ## Switched off
 
@@ -49,6 +49,17 @@ Resetting the active workspace, `resetAll()` and `remove()` ask the question the
 
 **Answers.** Every asking action answers whether it ran, so a chain of them can stop when the user
 declined. Which actions ask is listed under _What asks about unsaved work_.
+
+**A remembered workspace that is gone.** The workspace the user was last in may be neither declared
+nor saved any more. The workbench then gives way to the default workspace for the session, once the
+saved workspaces have answered, and the opening does not wait for them. Before it does, it asks about the
+unsaved work in everything that workspace shows or parked, except the tab at the address it keeps,
+and a refusal leaves the user there for the session. Giving way writes nothing: the remembered choice
+stays, and so does what is stored for that workspace. A remembered choice of a workspace that is
+really gone therefore gives way again at each opening until the user chooses a workspace. Saved
+workspaces whose first read was rejected, or that are not wholly a list of workspaces, move nobody.
+A store that reports a failed read as nothing stored is taken at its word, and so is a read at
+sign-in that fails: either is an empty list, and an answer.
 
 ## Where the story is told
 

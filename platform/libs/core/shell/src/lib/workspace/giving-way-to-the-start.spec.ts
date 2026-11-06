@@ -134,7 +134,7 @@ function draft(key: string, placement: 'shown' | 'parked'): ComponentRef<Draft> 
 }
 
 describe('a stored workspace that turns out to be unlisted', () => {
-  it('asks about the unsaved work giving way would destroy, and leaves the user there when they keep it', async () => {
+  it('asks about the unsaved work the workspace holds, and leaves the user there when they keep it', async () => {
     const opened = await openedInAWorkspaceNothingLists(false);
     expect(opened.workspaces.activeId()).toBe('gone');
     const parked = draft('content:main|notes', 'parked');
@@ -162,7 +162,7 @@ describe('a stored workspace that turns out to be unlisted', () => {
     expect(shown.hostView.destroyed).toBe(false);
   });
 
-  it('leaves neither parked work nor stored working state of it behind once it has given way', async () => {
+  it('lets go of what it parked once it has given way, and leaves its stored choice and working state alone', async () => {
     const opened = await openedInAWorkspaceNothingLists(true, {
       'lw.shell.pane-trees:gone': JSON.stringify({
         content: {
@@ -182,16 +182,16 @@ describe('a stored workspace that turns out to be unlisted', () => {
     await settled();
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
-    expect(opened.stores.get(ACTIVE)).toBe('dashboard');
-    expect(opened.stores.has('lw.shell.pane-trees:gone')).toBe(false);
-    expect(opened.stores.has('lw.shell.hidden-views:gone')).toBe(false);
+    expect(opened.stores.get(ACTIVE)).toBe('gone');
+    expect(opened.stores.has('lw.shell.pane-trees:gone')).toBe(true);
+    expect(opened.stores.has('lw.shell.hidden-views:gone')).toBe(true);
     expect(parked.hostView.destroyed).toBe(true);
     expect(TestBed.inject(RetainedViewStash).parkedInstancesOf('gone')).toEqual(
       [],
     );
   });
 
-  it('leaves no stored working state of it behind where the opening had already landed in the declared start', async () => {
+  it('leaves its stored working state alone where the opening had already landed in the declared start', async () => {
     const opened = await openedInAWorkspaceNothingLists(
       true,
       { 'lw.shell.hidden-views:gone': '["outline"]' },
@@ -202,6 +202,34 @@ describe('a stored workspace that turns out to be unlisted', () => {
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
     expect(TestBed.inject(Location).path()).toBe('/dashboard');
-    expect(opened.stores.has('lw.shell.hidden-views:gone')).toBe(false);
+    expect(opened.stores.has('lw.shell.hidden-views:gone')).toBe(true);
+  });
+
+  it('asks about a tab the start holds but does not show', async () => {
+    const behindAnotherTab = (active: string) =>
+      JSON.stringify({
+        content: {
+          tree: {
+            kind: 'leaf',
+            id: 'main',
+            tabs: [{ path: 'reports' }, { path: 'notes' }],
+            active,
+          },
+          primary: 'main',
+        },
+      });
+    const opened = await openedInAWorkspaceNothingLists(false, {
+      'lw.shell.pane-trees:gone': behindAnotherTab('notes'),
+      'lw.shell.pane-trees:dashboard': behindAnotherTab('reports'),
+    });
+    const shown = draft('content:main|notes', 'shown');
+
+    await settled();
+
+    expect(opened.guard.confirmDiscard).toHaveBeenLastCalledWith([
+      shown.instance,
+    ]);
+    expect(opened.workspaces.activeId()).toBe('gone');
+    expect(shown.hostView.destroyed).toBe(false);
   });
 });

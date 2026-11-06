@@ -4,11 +4,11 @@ import { SHELL_LAYOUT } from '../layout/layout';
 import { regionIdsOfType } from '../layout/layout-queries';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { activeContentPath } from '../regions/pane/tree/active-content-path';
+import { CONTENT_DOCK, PRIMARY_PANE } from '../regions/pane/tree/pane-address';
 import {
   PANE_TREES_KEY,
   parseDocks,
 } from '../regions/pane/tree/pane-tree-storage';
-import { DockEntry } from '../regions/pane/tree/stored-pane-tree';
 import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
 import { HiddenViewsService } from '../regions/panel/hidden-views.service';
 import { PanelGroupService } from '../regions/panel/panel-group.service';
@@ -90,9 +90,13 @@ export class WorkspaceSwitcher {
   }
 
   currentState(): Promise<Record<string, string>> {
+    return this.stateOf(this.active.id());
+  }
+
+  stateOf(id: string): Promise<Record<string, string>> {
     return readWorkspaceState(
       this.workingStateStore,
-      (key) => this.active.scopedKey(key),
+      (key) => workspaceScopedKey(key, id),
       WORKSPACE_STATE_KEYS,
     );
   }
@@ -101,15 +105,24 @@ export class WorkspaceSwitcher {
     this.hydrate(stored, this.baselineOf(this.active.id()));
   }
 
-  async arrangementOf(id: string): Promise<Record<string, DockEntry>> {
-    const stored = await readWorkspaceState(
-      this.workingStateStore,
-      (key) => workspaceScopedKey(key, id),
-      [PANE_TREES_KEY],
-    );
-    return parseDocks(
+  primaryContentPane(
+    id: string,
+    stored: Readonly<Record<string, string>>,
+  ): string {
+    const docks = parseDocks(
       stored[PANE_TREES_KEY] ?? this.baselineOf(id)[PANE_TREES_KEY],
     );
+    return docks[CONTENT_DOCK]?.primary ?? PRIMARY_PANE;
+  }
+
+  enterForTheSession(
+    id: string,
+    stored: Readonly<Record<string, string>>,
+  ): void {
+    this.active.setForTheSession(id);
+    this.restore(stored);
+    this.settlement.arrivedInWorkspace();
+    this.warnDeclarationGaps(id);
   }
 
   chooseCurrentAddress(): void {

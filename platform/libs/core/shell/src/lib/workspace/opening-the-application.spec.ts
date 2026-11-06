@@ -363,7 +363,7 @@ describe('opening the application where the distribution says', () => {
     expect(opened.location.path()).toBe('/reports');
   });
 
-  it('gives a stored workspace nothing lists up once a saved list that reads back asynchronously has answered', async () => {
+  it('gives a stored workspace nothing lists up for the session once a saved list that reads back asynchronously has answered', async () => {
     const stores = new Map<string, string>([
       ['lw.shell.active-workspace', 'gone'],
     ]);
@@ -372,7 +372,7 @@ describe('opening the application where the distribution says', () => {
     await lateAnswersArrived();
 
     expect(opened.workspaces.activeId()).toBe('dashboard');
-    expect(stores.get('lw.shell.active-workspace')).toBe('dashboard');
+    expect(stores.get('lw.shell.active-workspace')).toBe('gone');
     expect(opened.location.path()).toBe('/reports');
     expect(opened.tabs.tabs().map((tab) => tab.path)).toContain('reports');
   });

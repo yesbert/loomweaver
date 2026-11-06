@@ -2,7 +2,10 @@ import { computed, inject, Service } from '@angular/core';
 import { WORKING_STATE_STORE } from '../persistence/working-state-store';
 import { TabNavigationService } from '../regions/content/tabs/tab-navigation.service';
 import { RetainedViewStash } from '../regions/pane/retention/retained-view-stash';
-import { ActiveWorkspaceService } from './active-workspace.service';
+import {
+  ActiveWorkspaceService,
+  workspaceScopedKey,
+} from './active-workspace.service';
 import { WORKSPACE_STATE_KEYS } from './working-state/state-channels';
 import { StoredStateRevision } from './working-state/stored-state-revision';
 import { unsavedWorkspaces } from './working-state/unsaved-workspaces';
@@ -148,7 +151,10 @@ export class WorkspaceService {
     this.catalog.commit(
       this.workspaces().filter((workspace) => workspace.id !== id),
     );
-    this.discard.forget(id);
+    this.stash.evictWorkspace(id);
+    for (const key of WORKSPACE_STATE_KEYS) {
+      void this.workingStateStore.delete(workspaceScopedKey(key, id));
+    }
     if (id === this.active.id()) {
       void this.leaveRemoved(id);
     }

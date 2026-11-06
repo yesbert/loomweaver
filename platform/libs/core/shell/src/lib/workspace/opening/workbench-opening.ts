@@ -71,31 +71,31 @@ export class WorkbenchOpening {
 
   private async leaveWhereUnlisted(opened: string): Promise<void> {
     const adoptions = this.adoptions;
-    const stillUnlisted = async () =>
+    const stillThere = () =>
       adoptions === this.adoptions &&
-      !this.catalog.exists(opened) &&
-      (await this.active.isWhatTheStoreRemembers());
-    if (this.catalog.exists(opened) || !(await this.catalog.savedRead())) {
+      this.active.id() === opened &&
+      !this.catalog.exists(opened);
+    if (!stillThere() || !(await this.catalog.savedRead())) {
       return;
     }
     await this.paneTree.arrangementSettled;
-    if (!(await stillUnlisted())) {
+    if (!stillThere()) {
       return;
     }
+    const start = this.catalog.startingId;
     const address = this.tabState.activePath();
-    const allowed = await this.discard.confirmDiscardOf(opened, address);
-    if (!allowed || !(await stillUnlisted())) {
+    const arriving = await this.switcher.stateOf(start);
+    const kept = this.discard.shownAt(
+      this.switcher.primaryContentPane(start, arriving),
+      address,
+    );
+    const allowed = await this.discard.confirmDiscardOf(opened, kept);
+    if (!allowed || !stillThere()) {
       return;
     }
-    if (this.active.id() !== opened) {
-      this.discard.forget(opened);
-      return;
-    }
-    const entering = this.switcher.enter(this.catalog.startingId);
-    this.discard.forget(opened);
-    await entering;
+    this.switcher.enterForTheSession(start, arriving);
     this.tabNavigation.keepAddress(address);
-    this.discard.forgetOnceLetGo(opened);
+    this.discard.forgetOnceLetGo(opened, kept);
   }
 
   private async startWhereTheDistributionSays(entered: boolean): Promise<void> {
