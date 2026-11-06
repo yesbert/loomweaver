@@ -67,13 +67,13 @@ owns it. A frame's navigation target with a dot segment or a backslash is refuse
 [Putting a value into an address](weaver/content-area.md#putting-a-value-into-an-address) has both
 forms field by field.
 
-### Formatted text from a plugin carries no inline style and no form
+### Formatted text from a plugin carries no style and no form
 
 Reaches you if a plugin renders Markdown with `lw-markdown` and puts HTML into it.
 
-A `style` attribute is removed, and so are form controls and the attributes that send a form. The
-text inside a removed control stays as plain text. A task-list item keeps its text and loses its
-checkbox.
+A `<style>` element and every `style` and `class` attribute are removed, and so are form controls
+and the attributes that send a form. The text inside a removed control stays as plain text. A
+task-list item keeps its text and loses its checkbox.
 
 What to do: move styled or interactive markup out of the Markdown and into your own template.
 

