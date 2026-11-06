@@ -1,4 +1,4 @@
-import { ApplicationRef, Component } from '@angular/core';
+import { ApplicationRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -8,7 +8,8 @@ import {
   provideTransloco,
 } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
-import { ContentRoute } from '@loomweaver/plugin-sdk';
+import { ANONYMOUS, AuthSnapshot, ContentRoute } from '@loomweaver/plugin-sdk';
+import { provideAuthSource } from '../../auth/auth-context';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { provideLayout } from '../../layout/layout';
 import { provideIdentityScopedStores } from './provide-identity-scoped-stores';
@@ -43,6 +44,11 @@ class EmptyBundles implements TranslocoLoader {
 const ROUTES: readonly ContentRoute[] = [
   { path: 'dashboard', component: TestContent },
   { path: 'knowledge-base', component: TestContent },
+  {
+    path: 'restricted',
+    component: TestContent,
+    access: { authenticated: true },
+  },
   {
     path: 'arranged/:id',
     container: {
@@ -101,6 +107,8 @@ const SPLIT_ARRANGEMENT = JSON.stringify({
 
 let identity: string | null = null;
 
+const session = signal<AuthSnapshot>(ANONYMOUS);
+
 async function appStableAfterPromiseChains(): Promise<void> {
   await TestBed.inject(ApplicationRef).whenStable();
   for (let turn = 0; turn < 5; turn += 1) {
@@ -114,6 +122,13 @@ const KNOWLEDGE_BASE_WORKSPACE = {
   title: 'Knowledge base',
   claims: ['knowledge-base'],
   content: { tabs: [{ path: 'knowledge-base', closable: false }] },
+};
+
+const RESTRICTED_WORKSPACE = {
+  id: 'restricted',
+  title: 'Restricted',
+  claims: ['restricted'],
+  content: { tabs: [{ path: 'restricted', closable: false }] },
 };
 
 async function open(
@@ -132,6 +147,7 @@ async function open(
       }),
       provideLayout(LAYOUT as never),
       provideIdentityScopedStores({ identity: () => identity }),
+      provideAuthSource(() => session),
       { provide: CONTAINER_PANE_HOST, useValue: ContainerPaneHost },
       { provide: WORKSPACE_SETTLEMENT, useExisting: WorkspaceService },
       provideWorkspaces({
@@ -156,6 +172,8 @@ async function signIn(id: string): Promise<void> {
   identity = id;
   await TestBed.inject(WORKING_STATE_STORE).get('lw.shell.active-workspace');
   await appStableAfterPromiseChains();
+  await new Promise((settled) => setTimeout(settled, 0));
+  await appStableAfterPromiseChains();
 }
 
 function containerPanes(panes: PaneTreeService): readonly string[] {
@@ -172,6 +190,7 @@ describe('a session that arrives after the workbench has already read', () => {
   beforeEach(() => {
     localStorage.clear();
     identity = null;
+    session.set(ANONYMOUS);
   });
 
   it('keeps the arrangement stored for the person who signs in', async () => {
@@ -229,6 +248,31 @@ describe('a session that arrives after the workbench has already read', () => {
     expect(localStorage.getItem('lw.id.ada:lw.shell.pane-trees:dashboard')).toBe(
       DASHBOARD_ONLY,
     );
+  });
+
+  it('takes a visit held back until the session out of the workspace it was shown in, for a person new to the product', async () => {
+    const { panes, workspaces } = await open('/dashboard', [
+      RESTRICTED_WORKSPACE,
+    ]);
+    await TestBed.inject(Router).navigateByUrl('/restricted');
+    await appStableAfterPromiseChains();
+    expect(workspaces.activeId()).toBe('dashboard');
+
+    identity = 'ada';
+    session.set({ authenticated: true, roles: [], claims: {} });
+    await appStableAfterPromiseChains();
+
+    expect(workspaces.activeId()).toBe('restricted');
+    expect(collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path)).toEqual([
+      'restricted',
+    ]);
+
+    await workspaces.switchTo('dashboard');
+    await appStableAfterPromiseChains();
+
+    expect(collectTabs(panes.tree(CONTENT_DOCK)).map((tab) => tab.path)).toEqual([
+      'dashboard',
+    ]);
   });
 
   it('keeps what was built for a person the product has never seen', async () => {
