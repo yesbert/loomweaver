@@ -11,6 +11,10 @@ export class IdentityScopedStore implements KeyValueStore {
   private readonly built = new Map<string, string | undefined>();
   private readonly arrived = new Map<string, string | undefined>();
   private readonly inherited = new Map<string, string>();
+  private readonly heldWhileNobodyWasKnown = new Map<
+    string,
+    string | undefined
+  >();
   private namespaceRead = false;
 
   constructor(
@@ -28,6 +32,7 @@ export class IdentityScopedStore implements KeyValueStore {
   async get(key: string): Promise<string | undefined> {
     const asked = this.scoped(key);
     const answer = this.withHeld(asked, await this.inner.get(asked));
+    this.remember(key, asked, answer);
     const adopted = this.scoped(key);
     if (adopted !== asked) {
       return this.withHeld(adopted, await this.inner.get(adopted)) ?? answer;
@@ -35,7 +40,7 @@ export class IdentityScopedStore implements KeyValueStore {
     if (answer !== undefined || !this.inherits(key, asked)) {
       return answer;
     }
-    return this.inherit(key, asked, await this.inner.get(key));
+    return this.inherit(key, asked);
   }
 
   set(key: string, value: string): Promise<void> {
@@ -62,6 +67,7 @@ export class IdentityScopedStore implements KeyValueStore {
     } finally {
       this.built.clear();
       this.inherited.clear();
+      this.heldWhileNobodyWasKnown.clear();
     }
   }
 
@@ -77,6 +83,7 @@ export class IdentityScopedStore implements KeyValueStore {
 
   private write(key: string, value: string | undefined): Promise<void> {
     const scoped = this.scoped(key);
+    this.remember(key, scoped, value);
     if (this.held(key)) {
       this.inherited.delete(scoped);
       (this.namespaceRead ? this.arrived : this.built).set(scoped, value);
@@ -93,10 +100,11 @@ export class IdentityScopedStore implements KeyValueStore {
   ): string | undefined {
     const scoped = this.scoped(key);
     const answer = this.withHeld(scoped, peek(scoped));
+    this.remember(key, scoped, answer);
     if (answer !== undefined || !this.inherits(key, scoped)) {
       return answer;
     }
-    return this.inherit(key, scoped, peek(key));
+    return this.inherit(key, scoped);
   }
 
   private withHeld(
@@ -113,14 +121,18 @@ export class IdentityScopedStore implements KeyValueStore {
     return this.held(key) && !this.namespaceRead && !this.built.has(scoped);
   }
 
-  private inherit(
+  private remember(
     key: string,
     scoped: string,
-    anonymous: string | undefined,
-  ): string | undefined {
-    if (!this.inherits(key, scoped)) {
-      return this.withHeld(scoped, undefined);
+    value: string | undefined,
+  ): void {
+    if (scoped === key && !this.deviceKeys.has(key)) {
+      this.heldWhileNobodyWasKnown.set(key, value);
     }
+  }
+
+  private inherit(key: string, scoped: string): string | undefined {
+    const anonymous = this.heldWhileNobodyWasKnown.get(key);
     if (anonymous !== undefined) {
       this.inherited.set(scoped, anonymous);
     }
