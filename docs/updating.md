@@ -41,6 +41,175 @@ The second applies only where the product serves a plugin catalogue. Build the p
 tests after that. A test that finds a workbench control by its accessible name is the most likely
 to need a change.
 
+## 0.21.0
+
+### A parameter arrives decoded, and a path keeps the address's encoded form
+
+Reaches you if a plugin reads route parameters or builds an address from a value.
+
+Every `:param` value arrives decoded: `ctx.activeContent().params`, `paramMap` on a routed
+component, the `params` a sandboxed surface is pushed and the `params` a tab address resolver
+receives. Every path stays in the encoded form the address bar shows. Calling `decodeURIComponent`
+on a parameter again is wrong, and it throws on a value like `50%`.
+
+What to do:
+
+- Remove any `decodeURIComponent` you call on a parameter.
+- Write a value into an address with `encodeURIComponent`, also a value you read from a parameter.
+  A `TabAddressResolver` returns an encoded address in the same way.
+
+```ts
+ctx.openContentTab({ path: `doc/${encodeURIComponent(doc.id)}`, title: doc.name, titleIsLiteral: true });
+```
+
+An address that no route declares belongs to no plugin, so the plugin of the home route no longer
+owns it. A frame's navigation target with a dot segment or a backslash is refused.
+[Putting a value into an address](weaver/content-area.md#putting-a-value-into-an-address) has both
+forms field by field.
+
+### A tab's `onClose` runs when the last pane holding it lets it go
+
+Reaches you if a plugin frees state in `onClose`.
+
+It runs once, whichever way the tab left its last pane: its close control, `closeContentTab`, a
+pane closing, a split undone, a container going or a reset of the active workspace. It does not run
+while a split or a container still shows the tab, or when another workspace is shown.
+
+What to do: free per-tab state there, and do not expect it while another pane still shows the tab.
+
+### A close veto is also asked when a tab changes panes
+
+Reaches you if a surface implements `surfaceBeforeClose` or holds unsaved work.
+
+Moving a tab to another pane builds it anew there, so the workbench asks first. The unsaved-work
+question and the surface's veto are asked on a move and on a hand-over to a neighbouring pane. A
+refusal leaves the tab where it was.
+
+What to do: write the veto for "this instance ends", not for "the tab goes away". A test that drags
+a tab holding unsaved work now meets the question.
+[Unsaved changes](weaver/unsaved-changes.md#surfacebeforeclose--veto-a-close-with-your-own-flow)
+describes the hook.
+
+### A frame plugin replaces only its own contributions
+
+Reaches you if a product relied on a frame plugin overriding something another owner registered.
+
+A frame plugin, composed, deployed or installed, that registers a route, a view, a menu entry or a
+settings section under an id or address another owner holds is refused. The console names both.
+The distribution and the plugins composed into it as its own code replace as before.
+
+A content route is now replaced by its address, so `/orders`, `orders/` and `orders` are one
+route. A catalogue entry cannot take the id of a plugin composed as the application's own code. A
+menu heading's picture from a frame must be an http(s) address.
+
+What to do: register the replacement from the distribution or from a plugin that runs in the page.
+Rename a catalogue entry that collides with a composed plugin.
+[Contribution ids and collisions](plugins.md#contribution-ids-and-collisions) has the rule.
+
+### `ContributionRegistry.actionsOf` and `ownerOfSurface` are removed
+
+Reaches you if the product reads the registry itself.
+
+Both are replaced by `surfacesOf(id)`, which lists every registered surface under that id, each
+with its `pluginId` and its actions. The calls `retitleSurface`, `updateSurfaceAction` and
+`updateSurfaceBadge` reach only that owner's surface where a plugin id is passed, and every owner's
+where none is.
+
+```ts
+const actions = registry.surfacesOf('orders').flatMap((surface) => surface.actions ?? []);
+```
+
+### A toolbar cell or a component in a bar with an unmet `access` is hidden
+
+Reaches you if such a contribution declares `access` with the `disable` mode.
+
+A toolbar cell and a component in a bar are hidden while the session does not meet their
+requirement, whatever their mode, as their descriptions say. A host-drawn button keeps its mode.
+What to do: nothing, unless a test expected the inert control.
+[Access gating](reference/access-gating.md#where-it-applies) lists every kind.
+
+### The frame kit's declarations extend the tag-name map
+
+Reaches you if a sandboxed surface written in TypeScript declared the `lw-*` tags itself.
+
+The kit's declarations merge `LwElementTagNameMap` into the DOM's own map, so `createElement` and
+`querySelector` answer with each element's shape. A declaration of your own for the same tags now
+conflicts. What to do: drop your own entries.
+[Writing the surface in TypeScript](weaver/sandboxed-surfaces.md#writing-the-surface-in-typescript)
+lists what the kit describes.
+
+### A translation namespace named like a workbench group is dropped
+
+Reaches you if a plugin contributes a namespace such as `workspace`, `retention` or `content`.
+
+Such a namespace is dropped with a warning, because it would reword the workbench's own strings.
+What to do: name the namespace after your plugin's id.
+
+### `retention.closeAnyway` is now `retention.goAheadAnyway`
+
+Reaches you if the product rewords the workbench or serves a language the workbench does not ship.
+
+The escape in the slow-plugin dialog now reads "Go ahead anyway", because it also lets a move go
+ahead. An override of `retention.closeAnyway` is no longer shown. The release also adds
+`retention.moveDropped`, `content.loadFailed`, `route.pluginFailedMessage` and
+`workspace.changedMark`, and `retention.vetoPendingMessage` has new wording.
+
+What to do: move your override to `retention.goAheadAnyway`. Translate the new keys in a language
+file of your own, where they are shown in English until you do.
+[Rewording the shell](distribution/icons-and-i18n.md#rewording-the-shell) describes the overlay.
+
+### `activateUpdate` may resolve without reloading
+
+Reaches you if the product or a plugin calls `activateUpdate`.
+
+It asks about unsaved work in this window before it applies anything. Where the user declines, the
+update is abandoned and the promise resolves with no reload. What to do: do not put code after the
+`await` that assumes the window is on its way out.
+
+### A key something handled runs no command
+
+Reaches you if the product binds commands to keys that also reach a field or a plugin's own handler.
+
+A key event that was already handled (`preventDefault`) or is part of a composition runs no
+command. In a text field, a key that types a character runs no chord, also with Alt or AltGr. So a
+chord on Ctrl+Alt+Shift with a digit or a punctuation key does not run inside a text field. Escape
+inside the compact drawer closes it unless the view prevented the key.
+
+What to do: bind such a command to a key that does not type, and call `preventDefault` in a view
+that handles Escape itself.
+
+### Three palette values moved, and `caution` is not a text colour
+
+Reaches you if a test compares colours or a stylesheet uses `caution` for text.
+
+Light `negative` moves from `#d14343` to `#cc3333`, dark `negative` from `#e06464` to `#e47272`, and
+light `caution` from `#b8841f` to `#b27f1e`. In the light theme `caution` stays below 4.5:1 as text.
+What to do: use `caution` as a fill or an icon and write the words beside it in `content`.
+[Design tokens](reference/design-tokens.md#states) has the table.
+
+### An agent connection forgets open calls when a run starts
+
+Reaches you if the product uses `@loomweaver/ag-ui`.
+
+A call left open by a run that broke off is neither run nor answered in the next run. A hook that
+throws or rejects now refuses the call. A tool whose command has no description is no longer
+described by its title.
+
+What to do: put the `flush` loop in a `finally` around the run, and give each command an agent may
+call a description. [Agent tools](reference/agent-tools.md#the-whole-integration) shows the loop.
+
+### `init` in an Nx workspace refuses changed files
+
+Reaches you if a script runs `loomweaver init` in an Nx workspace.
+
+It refuses to replace a bootstrap file that is not what the `@nx/angular` 24 application generator
+writes with default options. It names that file and stops before installing anything. It first
+brings an installed `@loomweaver/devkit` to its own version. The application's `tsconfig*.json`
+and `eslint.config.mjs` are never replaced.
+
+What to do: run `init --dry-run` to see what it would create, replace or change. Wire a developed
+application by hand, as [Manual setup](manual-setup.md) describes.
+
 ## 0.20.0
 
 ### An agent backend calls the tools by the names they were offered under
