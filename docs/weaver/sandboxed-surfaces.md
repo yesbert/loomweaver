@@ -131,13 +131,16 @@ capability broker as a trusted plugin. An ungranted capability rejects, so `.cat
 
 **A sandboxed plugin replaces only its own contributions.** Registering a surface, a menu entry or a
 settings section again under an id you registered before replaces your earlier one. An id or a route
-address another owner holds is refused, and the console names both plugins. Prefix your ids with your
+address another owner holds is refused, and so is an address under one another owner holds. The
+console names both plugins. Prefix your ids with your
 plugin id and the question never comes up.
 
 **The entry document has 30 seconds to connect.** A frame that has not connected by then is removed,
 and the console reports the failure. The workbench tries it again when its catalogue entry changes or
 when the user switches the plugin off and on. A plugin the user cannot switch off is tried again
-whenever the installed, deployed or switched-off plugins next change.
+whenever the installed, deployed or switched-off plugins next change. A view your plugin answered
+before then says that the plugin could not be loaded, names it and offers **Try again**, which loads
+its frame anew. An address it never answered still reads as not existing.
 
 **A sandboxed plugin's toasts are bounded.** A toast always leaves by itself, after 15 seconds at the
 latest: `timeoutMs: 0`, a longer lifetime and an `error` without one are all shortened to that. The
@@ -311,8 +314,9 @@ Mark any element and its content stays off every picture; the area says so inste
 ```
 
 It is read at the moment a picture is made, so setting or clearing it takes effect at once, and your
-surface is **never told** that it is being pictured. There is no moment at which it could behave
-differently because it is being observed, which is the whole point of a fault report.
+surface is **sent no message** about a picture. The picture is drawn inside your document, so a
+script of yours that watches its own document sees nodes come and go while it is pictured. That is
+all it can learn; the workbench tells it nothing more.
 
 **You cannot refuse to be pictured, and marking your root does nothing.** The user is already looking
 at those pixels and can photograph the screen by other means. A refusal would withhold nothing from

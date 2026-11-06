@@ -1,4 +1,4 @@
-import { CommandOutcome } from '@loomweaver/plugin-sdk';
+import { CommandOutcome, Surface } from '@loomweaver/plugin-sdk';
 import { tabBadgeOf } from '../../../contributions/tab-badge';
 import { asCommandArguments } from '../../../foundation/command-arguments';
 import { KeyValueStore } from '../../../persistence/key-value-store';
@@ -43,6 +43,7 @@ export interface FrameRpcDeps {
   readonly store: KeyValueStore;
   readonly sync: StateSyncService;
   readonly reportRefusal: (error: unknown) => void;
+  readonly answered: (surface: Surface) => void;
 }
 
 export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
@@ -50,7 +51,10 @@ export function frameRpcMethods(deps: FrameRpcDeps): FrameRpc {
   return reportingRefusals(
     {
       registerSurface: (surface) => {
-        ctx.registerSurface(sanitizeRpcSurface(pluginId, surface, origins));
+        const admitted = sanitizeRpcSurface(pluginId, surface, origins);
+        if (ctx.registerSurface(admitted) !== NOTHING_REGISTERED) {
+          deps.answered(admitted);
+        }
       },
       registerMenuItem: (item) => {
         ctx.registerMenuItem(sanitizeRpcMenuItem(item));

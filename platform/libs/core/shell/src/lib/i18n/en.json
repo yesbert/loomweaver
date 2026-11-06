@@ -189,7 +189,10 @@
   "route": {
     "unavailableTitle": "View not available",
     "unavailableMessage": "This view does not exist in this application. The link may come from a different environment.",
-    "pluginFailedMessage": "The plugin that provides this view could not be loaded. Reload the application to try again."
+    "pluginFailedMessage": "The plugin that provides this view could not be loaded. Reload the application to try again.",
+    "pluginUnloadedTitle": "The plugin could not be loaded",
+    "pluginUnloadedMessage": "{{name}} provides this view and did not answer. It may be offline or blocked.",
+    "tryAgain": "Try again"
   },
   "settings": {
     "capability": {

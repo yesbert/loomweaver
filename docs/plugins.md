@@ -296,8 +296,11 @@ so are two patterns that differ only in the name of a parameter.
 
 Replacing is limited by where a plugin runs. A frame plugin replaces only what it registered itself,
 whether you composed it, the operator deployed it or the user installed it. Its route at an address
-another owner answers is refused. So is its view, menu entry or settings section under an id another
-owner holds. The console names the plugin that asked and the owner that holds the id or the address.
+another owner answers is refused, and so is its route at an address under one another owner answers:
+`orders/:id` below the product's `orders`. The home address counts as no one's. So is its view,
+menu entry or settings section under an id another owner holds. The console names the plugin that
+asked and the owner that holds the id or the address, and for an address under another, both
+addresses.
 
 Plugin **ids** themselves are guarded: an installed or deployed plugin cannot claim the id of a
 composed one, whether that one runs in the page or in a frame.

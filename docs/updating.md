@@ -116,6 +116,29 @@ What to do: register the replacement from the distribution or from a plugin that
 Rename a catalogue entry that collides with a composed plugin.
 [Contribution ids and collisions](plugins.md#contribution-ids-and-collisions) has the rule.
 
+### A frame plugin cannot take an address under another owner's
+
+Reaches you if a frame plugin registers content below an address the product or another plugin
+answers.
+
+A frame plugin that registers `orders/:id` while another owner holds `orders` is refused, and the
+console names both addresses and both owners. The first owner keeps the address. The home address
+counts as no one's. The distribution and the plugins composed into it are not limited.
+
+What to do: give the frame plugin's content an address of its own, or register it from the
+application's own code.
+
+### A frame plugin that could not be loaded is named where its view was
+
+Reaches you if a product tells its users what a missing view means.
+
+When a frame plugin does not connect, a view at an address it answered before says that the plugin
+could not be loaded, names it and offers **Try again**. "This view does not exist" stays for an
+address no plugin answered. The workbench keeps the addresses in the working-state key
+`lw.shell.frame-plugin-addresses`.
+
+What to do: nothing, unless your working-state store lists the keys it accepts. Then add this one.
+
 ### `ContributionRegistry.actionsOf` and `ownerOfSurface` are removed
 
 Reaches you if the product reads the registry itself.

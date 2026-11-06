@@ -165,7 +165,8 @@ answers is read exactly as defensively as the JSON document. From either source,
 dropped is named in the console once.
 
 A plugin from the catalogue runs in a frame, so it replaces only what it registered itself. A route
-address, a view, a menu entry or a settings section another owner holds stays with that owner
+address, an address under it, a view, a menu entry or a settings section another owner holds stays
+with that owner
 ([Contribution ids and collisions](../plugins.md#contribution-ids-and-collisions)).
 
 A deployed plugin runs with exactly what its entry names. A disabling or a capability revocation the
@@ -174,7 +175,8 @@ user stored while the same id was their own is not honoured for it.
 A frame that does not connect within 30 seconds is removed and reported in the console. A plugin the
 user can switch off is tried again when its entry changes or when the user switches it off and on.
 A deployed plugin has no switch, so it is tried again whenever the installed, deployed or
-switched-off plugins next change.
+switched-off plugins next change. A view at an address the plugin answered before says that it could
+not be loaded and offers to try again.
 
 With a settings store that answers only asynchronously, installed plugins start once it has answered,
 because only then is it known which of them the user turned off. Deployed plugins do not wait.

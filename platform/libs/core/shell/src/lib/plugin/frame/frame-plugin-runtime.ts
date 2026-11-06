@@ -41,6 +41,8 @@ import {
 import { frameRpcMethods } from './rpc/frame-rpc-methods';
 import { FrameRemote } from './rpc/frame-rpc-contract';
 import { FrameSession } from './frame-session';
+import { FramePluginAddresses } from './frame-plugin-addresses';
+import { FailedPluginContent } from '../failed-plugin-content';
 
 const ISOLATED_NOTIFICATION_LIMITS: RaiserLimits = {
   atOnce: 3,
@@ -102,6 +104,10 @@ export class FramePluginRuntime {
   ).map((plugin) => plugin.manifest.id);
 
   private readonly settlement = inject(ActivationSettled);
+
+  private readonly addresses = inject(FramePluginAddresses);
+
+  private readonly failedContent = inject(FailedPluginContent);
 
   private readonly instances = new Map<string, FrameInstance>();
 
@@ -193,6 +199,7 @@ export class FramePluginRuntime {
       const running = this.instances.get(plugin.id);
       if (!enabled || !hasSwitch) {
         this.failed.delete(plugin.id);
+        this.failedContent.forget(plugin.id);
       }
       if (enabled && !running) {
         if (this.failed.get(plugin.id) !== signatureOf(plugin)) {
@@ -218,6 +225,8 @@ export class FramePluginRuntime {
       this.enablement.unregister(id);
       this.isolation.unregister(id);
       this.failed.delete(id);
+      this.failedContent.forget(id);
+      this.addresses.forget(id);
       this.listed.delete(id);
     }
   }
@@ -261,15 +270,42 @@ export class FramePluginRuntime {
     };
     this.instances.set(plugin.id, instance);
 
-    connection.promise.catch((error: unknown) => {
-      if (this.instances.get(plugin.id) !== instance) {
-        return;
-      }
+    connection.promise.then(
+      () => this.answering(plugin.id, instance),
+      (error: unknown) => this.unanswered(plugin, instance, error),
+    );
+  }
 
-      console.error(`Sandbox plugin "${plugin.id}" failed to connect`, error);
-      this.failed.set(plugin.id, instance.signature);
-      this.deactivate(plugin.id);
-    });
+  private answering(id: string, instance: FrameInstance): void {
+    if (this.instances.get(id) !== instance) {
+      return;
+    }
+    this.failedContent.forget(id);
+    this.addresses.forget(id);
+  }
+
+  private unanswered(
+    plugin: RunnableFramePlugin,
+    instance: FrameInstance,
+    error: unknown,
+  ): void {
+    if (this.instances.get(plugin.id) !== instance) {
+      return;
+    }
+    console.error(`Sandbox plugin "${plugin.id}" failed to connect`, error);
+    this.failed.set(plugin.id, instance.signature);
+    this.failedContent.rememberAddresses(
+      plugin.id,
+      this.addresses.of(plugin.id),
+      { name: plugin.name ?? plugin.id, retry: () => this.retry(plugin.id) },
+    );
+    this.deactivate(plugin.id);
+  }
+
+  private retry(id: string): void {
+    this.failed.delete(id);
+    this.failedContent.forget(id);
+    this.reconcile(this.install.installed(), this.deployment.deployed());
   }
 
   private connect(
@@ -293,6 +329,7 @@ export class FramePluginRuntime {
         store: this.store,
         sync: this.sync,
         reportRefusal: (error) => this.refusals.report(error),
+        answered: (surface) => this.addresses.answered(plugin.id, surface),
       }),
     });
   }

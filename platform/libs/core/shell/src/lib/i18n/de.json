@@ -189,7 +189,10 @@
   "route": {
     "unavailableTitle": "Ansicht nicht verfügbar",
     "unavailableMessage": "Diese Ansicht gibt es in dieser Anwendung nicht. Möglicherweise stammt der Link aus einer anderen Umgebung.",
-    "pluginFailedMessage": "Das Plugin, das diese Ansicht bereitstellt, konnte nicht geladen werden. Lade die Anwendung neu, um es erneut zu versuchen."
+    "pluginFailedMessage": "Das Plugin, das diese Ansicht bereitstellt, konnte nicht geladen werden. Lade die Anwendung neu, um es erneut zu versuchen.",
+    "pluginUnloadedTitle": "Das Plugin konnte nicht geladen werden",
+    "pluginUnloadedMessage": "{{name}} stellt diese Ansicht bereit und hat nicht geantwortet. Es ist möglicherweise offline oder blockiert.",
+    "tryAgain": "Erneut versuchen"
   },
   "settings": {
     "capability": {
