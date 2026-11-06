@@ -18,6 +18,7 @@ import {
 import {
   TabsLeftListener,
   collectLeafIds,
+  collectTabPaths,
   findLeaf,
   landingLeaf,
   leavesOf,
@@ -32,7 +33,7 @@ import {
   unsplitWithHandover,
 } from './pane-handover';
 import { clampRatio, withRatio } from './pane-ratio';
-import { DockEntry, healedPrimary } from './stored-pane-tree';
+import { DockEntry, healedPrimary, withoutDock } from './stored-pane-tree';
 import { PaneTreeStorage, isDefault } from './pane-tree-storage';
 import { dethroneLeaf, pruneEmptyLeaves, splitLeaf } from './pane-structure';
 import {
@@ -311,15 +312,13 @@ export class PaneTreeService {
   }
 
   dropDock(dock: string): void {
-    if (!this.hasDock(dock)) {
+    const dropped = this.docks()[dock]?.node;
+    if (!dropped) {
       return;
     }
-    this.docks.update((docks) => {
-      const next = { ...docks };
-      delete next[dock];
-      return next;
-    });
+    this.docks.update((docks) => withoutDock(docks, dock));
     this.persist();
+    this.reportLeft(collectTabPaths(dropped));
   }
 
   hydrate(raw: string | undefined): void {
@@ -370,8 +369,12 @@ export class PaneTreeService {
       }
       return updated;
     });
-    for (const listener of left.length > 0 ? this.tabsLeftListeners : []) {
-      listener(left);
+    this.reportLeft(left);
+  }
+
+  private reportLeft(paths: readonly string[]): void {
+    for (const listener of paths.length > 0 ? this.tabsLeftListeners : []) {
+      listener(paths);
     }
   }
 

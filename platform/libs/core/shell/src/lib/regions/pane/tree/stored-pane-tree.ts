@@ -138,3 +138,12 @@ export function withoutBorrowedLabels(
   });
   return { node: next ?? node, stripped };
 }
+
+export function withoutDock(
+  docks: Readonly<Record<string, DockEntry>>,
+  dock: string,
+): Record<string, DockEntry> {
+  const next = { ...docks };
+  delete next[dock];
+  return next;
+}

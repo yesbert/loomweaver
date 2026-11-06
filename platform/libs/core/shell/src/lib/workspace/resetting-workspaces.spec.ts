@@ -6,6 +6,10 @@ import { provideWorkspaces } from './declaration/provide-workspaces';
 import { UNUSABLE_WORKSPACES } from './usability/unusable-workspaces';
 import { UnusableWorkspacesService } from './usability/unusable-workspaces.service';
 
+import { TabCloseHooks } from '../regions/content/tabs/tab-close-hooks';
+import { CONTENT_DOCK } from '../regions/pane/tree/pane-address';
+import { PaneTreeService } from '../regions/pane/tree/pane-tree.service';
+
 const LAYOUT = {
   regions: [
     { id: 'main', type: 'content', dock: 'center' },
@@ -113,6 +117,32 @@ describe('resetting a workspace', () => {
 
     expect(storedOrders()).toContain('orders/o-0');
     expect(storedOrders()).not.toContain('orders/o-1');
+  });
+
+  it('closes the tabs a reset of the active workspace removes, so their teardown runs once, and a switch only parks them', async () => {
+    const ws = compose();
+    await ws.switchTo('orders');
+    const paneTree = TestBed.inject(PaneTreeService);
+    const hooks = TestBed.inject(TabCloseHooks);
+    const removed = vi.fn();
+    const kept = vi.fn();
+    paneTree.insertTab(
+      CONTENT_DOCK,
+      paneTree.primaryId(CONTENT_DOCK),
+      'orders/o-1',
+    );
+    hooks.set('orders/o-1', removed);
+    hooks.set('orders/o-0', kept);
+
+    await ws.switchTo('overview');
+    await ws.switchTo('orders');
+    expect(removed).not.toHaveBeenCalled();
+
+    await ws.reset();
+
+    expect(paneTree.hasTab('orders/o-1')).toBe(false);
+    expect(removed).toHaveBeenCalledTimes(1);
+    expect(kept).not.toHaveBeenCalled();
   });
 });
 
