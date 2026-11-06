@@ -5,9 +5,11 @@ import { ThemeToggle } from '../../theme/theme-toggle';
 import { LwVersion } from '../../version/lw-version';
 import { UpdateBadge } from '../../update/update-badge';
 
+export const BRAND_ENTRY = 'shell.brand';
+
 export const DEFAULT_BAR_ITEMS: readonly BarItem[] = [
   {
-    id: 'shell.brand',
+    id: BRAND_ENTRY,
     bar: 'top-bar',
     slot: 'start',
     order: 0,

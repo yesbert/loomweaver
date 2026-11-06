@@ -4,6 +4,14 @@ export function entryWidth(node: HTMLElement): number {
   return Math.max(node.getBoundingClientRect().width, node.scrollWidth);
 }
 
+export function naturalWidth(node: HTMLElement): number {
+  const shrink = node.style.flexShrink;
+  node.style.flexShrink = '0';
+  const width = entryWidth(node);
+  node.style.flexShrink = shrink;
+  return width;
+}
+
 export type OutsideReason = 'pointer' | 'window';
 
 export function closeOnOutsidePointer(
@@ -35,6 +43,7 @@ export interface FoldMeasure {
   readonly control: number;
   readonly gap: number;
   readonly widthOf: (id: string) => number | undefined;
+  readonly stays?: (id: string) => boolean;
 }
 
 export interface Foldable {
@@ -50,8 +59,9 @@ export function foldedIds(
     return [];
   }
   const folded: string[] = [];
-  while (kept.length > 0) {
-    const next = kept.shift() as Foldable;
+  const folding = rank.filter((item) => !measure.stays?.(item.id));
+  for (const next of folding) {
+    kept.splice(kept.indexOf(next), 1);
     folded.push(next.id);
     const row = rowWidth(kept, measure) + measure.gap + measure.control;
     if (row <= measure.available) {

@@ -8,6 +8,7 @@ import { BarItem } from '../../foundation/bar-item';
 import { LayoutRegion } from '../../layout/layout';
 import { ContributionRegistry } from '../../contributions/contribution-registry';
 import { defineLwTooltip } from '../../elements/tooltip/lw-tooltip.element';
+import { BRAND_ENTRY } from './default-bar-items';
 
 const topBar: LayoutRegion = { id: 'top-bar', type: 'bar', dock: 'top' };
 
@@ -69,6 +70,7 @@ function widthOf(
 function stubLayout(
   barWidth: number,
   entryWidths: Record<string, number>,
+  naturalWidths: Record<string, number> = {},
 ): () => void {
   const originalRect = HTMLElement.prototype.getBoundingClientRect;
   const originalClient = Object.getOwnPropertyDescriptor(
@@ -77,7 +79,12 @@ function stubLayout(
   );
   HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
     const id = this.dataset['barEntry'];
-    const width = widthOf(id, entryWidths, this.hasAttribute('data-bar-fold'));
+    const unshrunk = this.style.flexShrink === '0';
+    const width = widthOf(
+      id,
+      unshrunk ? { ...entryWidths, ...naturalWidths } : entryWidths,
+      this.hasAttribute('data-bar-fold'),
+    );
     return { width, right: width } as DOMRect;
   };
   Object.defineProperty(Element.prototype, 'clientWidth', {
@@ -122,6 +129,14 @@ function entry(id: string, order: number): BarItem {
   return { id, bar: 'top-bar', slot: 'end', order, component: TestEntry };
 }
 
+const brand: BarItem = {
+  id: BRAND_ENTRY,
+  bar: 'top-bar',
+  slot: 'start',
+  order: 0,
+  component: TestEntry,
+};
+
 describe('ShellBar folding', () => {
   let restore: () => void = () => undefined;
 
@@ -144,6 +159,39 @@ describe('ShellBar folding', () => {
       '[data-bar-fold]',
     );
     expect(control?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('measures an entry that shortens itself at its natural width, so a button folds before the name is cut', async () => {
+    restore = stubLayout(
+      310,
+      { [BRAND_ENTRY]: 100, a: 60, b: 60 },
+      { [BRAND_ENTRY]: 200 },
+    );
+    const fixture = await mount(brand, entry('a', 1), entry('b', 2));
+
+    expect(entriesInBar(fixture)).toEqual([BRAND_ENTRY, 'a']);
+    expect(fixture.nativeElement.querySelector('[data-bar-fold]')).not.toBeNull();
+  });
+
+  it('shortens the product name once nothing else can fold, and never folds it away', async () => {
+    restore = stubLayout(
+      150,
+      { [BRAND_ENTRY]: 130, a: 60, b: 60 },
+      { [BRAND_ENTRY]: 200 },
+    );
+    const fixture = await mount(brand, entry('a', 1), entry('b', 2));
+
+    expect(entriesInBar(fixture)).toEqual([BRAND_ENTRY]);
+  });
+
+  it('leaves no entry measured as unshrunk once it has been measured', async () => {
+    restore = stubLayout(310, { [BRAND_ENTRY]: 100 }, { [BRAND_ENTRY]: 200 });
+    const fixture = await mount(brand);
+
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-bar-entry]',
+    );
+    expect(host?.style.flexShrink).toBe('');
   });
 
   it('presents the folded entries in a tray, as themselves, and closes on Escape', async () => {
